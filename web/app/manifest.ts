@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Bible Brain",
-    short_name: "Bible Brain",
+    name: "Scarlet Thread",
+    short_name: "Scarlet Thread",
     description: "Read the Bible front to back, and build the connections yourself.",
     start_url: "/",
     display: "standalone",

@@ -220,3 +220,136 @@ export async function getReview(): Promise<ReviewData> {
     mirrorBreaks,
   };
 }
+
+// ---------------------------------------------------------------------------
+// Thread radar — "you've noticed X in three passages, is this becoming a
+// thread?" per the guide's own rule (make a thread on the THIRD sighting,
+// not the first). Deliberately NOT an AI feature: no model, no summarizing,
+// no interpretation. Just word frequency across entries that don't already
+// share a thread covering that word -- the same kind of noticing the guide
+// asks a human to do, done at the scale of "read your own writing back."
+//
+// Honest limitation: today's seed data assigns threads at STAGE granularity
+// (every entry in a stage inherits all of that stage's declared threads),
+// not per-entry, so almost every entry already carries 2-4 broad thread
+// tags and there's little truly untagged text to find a pattern in. This
+// will get more useful once live capture (real per-entry thread selection)
+// replaces the seed bridge -- the mechanism is what matters being correct
+// now, not today's output being exciting.
+// ---------------------------------------------------------------------------
+
+// Verified against the real 70-entry seed: the first pass here surfaced
+// "genesis" and "between" as top "patterns", which is noise, not signal.
+// Fixed by extending this list and excluding the 66 book names below --
+// self-reference to what book you're reading is not an emerging thread.
+const STOPWORDS = new Set([
+  "the", "and", "that", "this", "with", "from", "have", "were", "they",
+  "them", "their", "what", "when", "where", "which", "while", "would",
+  "could", "should", "there", "here", "then", "than", "into", "over",
+  "under", "about", "before", "after", "again", "still", "also", "even",
+  "just", "only", "never", "always", "your", "unto", "shall", "will",
+  "upon", "hath", "thee", "thou", "thy", "his", "her", "him", "she",
+  "who", "was", "are", "for", "not", "but", "you", "all", "one", "two",
+  "out", "now", "own", "did", "yet", "every", "between", "chapter",
+  "chapters", "verse", "verses", "reads", "reading", "first", "second",
+  "third", "fourth", "fifth", "each", "some", "much", "many", "more",
+  "most", "less", "least", "such", "same", "other", "another", "these",
+  "those", "being", "been", "back", "away", "toward",
+  "through", "against", "because", "since", "until", "though", "given",
+  "everything", "great", "toward",
+]);
+
+const BOOK_NAMES = new Set([
+  "genesis", "exodus", "leviticus", "numbers", "deuteronomy", "joshua",
+  "judges", "ruth", "samuel", "kings", "chronicles", "ezra", "nehemiah",
+  "esther", "job", "psalms", "psalm", "proverbs", "ecclesiastes", "song",
+  "songs", "solomon", "isaiah", "jeremiah", "lamentations", "ezekiel",
+  "daniel", "hosea", "joel", "amos", "obadiah", "jonah", "micah", "nahum",
+  "habakkuk", "zephaniah", "haggai", "zechariah", "malachi", "matthew",
+  "mark", "luke", "john", "acts", "romans", "corinthians", "galatians",
+  "ephesians", "philippians", "colossians", "thessalonians", "timothy",
+  "titus", "philemon", "hebrews", "james", "peter", "jude", "revelation",
+]);
+
+/** Crude plural-merge: "nations" and "nation" should count as one hit, not
+ * two. Not real stemming (would need a real library for that) -- just
+ * enough to stop the obvious cases from splitting a genuine pattern. */
+function normaliseWord(word: string): string {
+  if (word.length > 5 && word.endsWith("ies")) return `${word.slice(0, -3)}y`;
+  if (word.length > 4 && word.endsWith("es")) return word.slice(0, -2);
+  if (word.length > 4 && word.endsWith("s") && !word.endsWith("ss")) return word.slice(0, -1);
+  return word;
+}
+
+export interface RadarHit {
+  word: string;
+  /** Distinct entries the word appears in. */
+  count: number;
+  /** Chapters those entries are anchored to, for display. */
+  chapters: string[];
+}
+
+export async function getThreadRadar(): Promise<RadarHit[]> {
+  const { entries, threads } = await loadSeed();
+
+  const threadTitleWords = new Set(
+    threads.flatMap((t) => t.title.toLowerCase().split(/[^a-z]+/).filter(Boolean)),
+  );
+
+  // word -> distinct entries (by index) that mention it AND don't already
+  // carry a thread whose own title is that same word.
+  const hits = new Map<string, { entryIndexes: Set<number>; chapters: Set<string> }>();
+
+  entries.forEach((entry, index) => {
+    if (entry.kind !== "observation" && entry.kind !== "question") return;
+    const entryThreadTitleWords = new Set(
+      entry.threads
+        .map((slug) => threads.find((t) => t.slug === slug)?.title.toLowerCase())
+        .filter((title): title is string => Boolean(title)),
+    );
+
+    const words = new Set(
+      entry.body
+        .toLowerCase()
+        .split(/[^a-z]+/)
+        .filter((w) => w.length >= 5 && !STOPWORDS.has(w) && !BOOK_NAMES.has(w) && !threadTitleWords.has(w))
+        .map(normaliseWord),
+    );
+
+    for (const word of words) {
+      // Already named by one of THIS entry's own threads -- not emerging, named.
+      if (entryThreadTitleWords.has(word)) continue;
+      if (!hits.has(word)) hits.set(word, { entryIndexes: new Set(), chapters: new Set() });
+      const hit = hits.get(word)!;
+      hit.entryIndexes.add(index);
+      hit.chapters.add(entry.chapter);
+    }
+  });
+
+  return Array.from(hits.entries())
+    .filter(([, hit]) => hit.entryIndexes.size >= 2)
+    .map(([word, hit]) => ({ word, count: hit.entryIndexes.size, chapters: Array.from(hit.chapters) }))
+    .sort((a, b) => b.count - a.count || a.word.localeCompare(b.word))
+    .slice(0, 8);
+}
+
+// ---------------------------------------------------------------------------
+// Teaching — the guide's Sunday-review step 3: "find one thing worth
+// teaching." Read-only for now. There is no capture UI for this yet because
+// there is nowhere live to write it TO -- Neon isn't connected, so a capture
+// form here would be an unverifiable write path (see PROGRESS.md). This
+// exists so the surface is ready and correct the moment that changes.
+// ---------------------------------------------------------------------------
+
+export interface TeachingEntry {
+  body: string;
+  chapter: string;
+  threads: string[];
+}
+
+export async function getTeaching(): Promise<TeachingEntry[]> {
+  const { entries } = await loadSeed();
+  return entries
+    .filter((e) => e.kind === "teaching")
+    .map((e) => ({ body: e.body, chapter: e.chapter, threads: e.threads }));
+}

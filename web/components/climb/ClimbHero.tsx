@@ -12,7 +12,7 @@ export function ClimbHero({ stagesWithWork, totalStages, threadCount, openQuesti
   return (
     <div className={styles.wrap}>
       <div className={styles.eyebrowRow}>
-        <p className={styles.eyebrow}>Bible Brain</p>
+        <p className={styles.eyebrow}>Scarlet Thread</p>
         <Link href="/settings" className={styles.settingsLink} aria-label="Offline settings">
           ⚙
         </Link>

@@ -46,12 +46,12 @@ const archivoNarrow = Archivo_Narrow({
 });
 
 export const metadata: Metadata = {
-  title: "Bible Brain",
+  title: "Scarlet Thread",
   description: "Read the Bible front to back, and build the connections yourself.",
-  applicationName: "Bible Brain",
+  applicationName: "Scarlet Thread",
   appleWebApp: {
     capable: true,
-    title: "Bible Brain",
+    title: "Scarlet Thread",
     statusBarStyle: "black-translucent",
   },
   formatDetection: { telephone: false },

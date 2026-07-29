@@ -1,7 +1,9 @@
-# Bible Brain
+# Scarlet Thread
 
-Bible Brain is a private, offline-first Bible reading and study journal built
-with Next.js 16, Auth.js, IndexedDB, Neon Postgres, and Drizzle.
+Scarlet Thread is a private, offline-first Bible reading and study journal
+built with Next.js 16, Auth.js, IndexedDB, Neon Postgres, and Drizzle. (Working
+name during early development: "Bible Brain" — you may still see that string
+in older commits, docs, or the `bible-brain` repo/package identifiers.)
 
 The product behavior comes from `Daily Study Guide.md` in the repository root:
 

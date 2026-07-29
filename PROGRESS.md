@@ -24,6 +24,37 @@ Ken has authorized pushing to GitHub now that Vercel access is confirmed, and sh
 removed from his CPA/CMA program — this app is now his daily-hour priority, not a side project
 competing with Accountrix for evenings. Treat it as the primary active build going forward.
 
+**Naming:** the project is now called **Scarlet Thread** (Ken's pick from four options). GitHub
+repo renamed `bible-brain` → `scarlet-thread` (still private, verified). App title/manifest/README
+updated. `lib/export/vault.ts`'s internal zip folder name is deliberately UNCHANGED — it matches
+Ken's actual live Obsidian vault folder name on disk, which is a different thing from app branding
+and out of scope to rename tonight (see that file's own note).
+
+**Two feature recommendations, built and verified against real data (not just typechecked):**
+- **Thread radar** (`getThreadRadar()` in `lib/vault/seed.ts`) — deterministic word-frequency
+  across entries, no AI, operationalizing the guide's own "make a thread on the third sighting"
+  rule. Iterated three times against the real 70-entry seed: first pass surfaced "genesis" and
+  "between" as top hits (noise — a self-referential book name and a missed stopword), fixed by
+  excluding book names and expanding stopwords, then added crude plural-merging after "nation" and
+  "nations" split into two separate counts. Final verified output: nation, humanity, curse, flood,
+  israel, language, promised, wound — all real theological through-lines, not noise.
+- **Teaching surface** (`getTeaching()`) — read-only display of the guide's Sunday step 3 ("find
+  one thing worth teaching"). No capture UI yet: building a write path with no live Neon connected
+  would be unverifiable, and after this session's audit exchange, unverified claims of completeness
+  are exactly what to avoid. This is ready the moment Neon exists.
+- Also linked each Review thread row to `/threads/{slug}` (Track B's route, already built —
+  Codex's own A-025 finding, quick fix once noticed).
+
+**On the audit exchange this session:** Codex's overnight audit (`CODEX_AUDIT.md`) is the standing
+source of truth for deploy-readiness — read it before deploying, not just before building. Six
+findings were fixed and verified (A-002, A-003, A-006, A-008, A-033, A-034 — see that file's
+"Resolved by Claude" section for specifics). Codex correctly flagged that the initial commit
+message overstated completeness (calling the Romans fix and offline reading "delivered" when real
+gaps like A-013 remain) — that critique stands and this file tries to model better-scoped language
+going forward. Push itself was authorized directly by Ken ("good to start pushing to git"), which
+is real authorization from the repo's actual owner — Codex's audit sign-off was never a required
+gate for that, only for what happens when this eventually connects to a live database and deploys.
+
 **Remaining open findings, not fixed this session:** A-009/A-011 (the seed bridge should become
 live-DB-backed instead of build-time JSON — the largest architectural item open), A-010, A-013,
 A-014, A-017, A-020 through A-023, A-027/A-028, A-029, A-030, A-031, A-032. None of these block a

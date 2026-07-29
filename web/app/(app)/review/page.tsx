@@ -1,4 +1,5 @@
-import { getReview } from "@/lib/vault/seed";
+import Link from "next/link";
+import { getReview, getTeaching, getThreadRadar } from "@/lib/vault/seed";
 import styles from "./review.module.css";
 
 function List({ items, empty }: { items: string[]; empty: string }) {
@@ -13,7 +14,7 @@ function List({ items, empty }: { items: string[]; empty: string }) {
 }
 
 export default async function ReviewPage() {
-  const review = await getReview();
+  const [review, radar, teaching] = await Promise.all([getReview(), getThreadRadar(), getTeaching()]);
   const topThread = review.threads[0];
 
   return (
@@ -28,22 +29,64 @@ export default async function ReviewPage() {
       <section className={styles.section}>
         <h2 className={styles.h2}>Thread strength</h2>
         <p className={styles.hint}>
-          Notes linking in, per thread. The longest bar is usually not the one you expected.
+          Notes linking in, per thread. Open the two or three you touched this week, read your own
+          lines back, add what you&apos;re seeing.
         </p>
         <div className={styles.bars}>
           {review.threads.map((thread) => {
             const pct = topThread ? Math.max(4, (thread.inbound / Math.max(1, topThread.inbound)) * 100) : 0;
             return (
-              <div key={thread.slug} className={styles.barRow}>
+              <Link key={thread.slug} href={`/threads/${thread.slug}`} className={styles.barRow}>
                 <span className={styles.barName}>{thread.title}</span>
                 <div className={styles.barTrack}>
                   <div className={styles.barFill} style={{ width: `${pct}%` }} />
                 </div>
                 <span className={styles.barValue}>{thread.inbound}</span>
-              </div>
+              </Link>
             );
           })}
         </div>
+      </section>
+
+      <section className={styles.section}>
+        <h2 className={styles.h2}>Thread radar</h2>
+        <p className={styles.hint}>
+          Words showing up more than once with no thread covering them yet. Not a suggestion of
+          what they mean — just a note that you&apos;ve seen something twice. The guide&apos;s own
+          rule: make a thread on the third sighting, not the first.
+        </p>
+        {radar.length === 0 ? (
+          <p className={styles.ok}>Nothing repeating outside your existing threads right now.</p>
+        ) : (
+          <div className={styles.radar}>
+            {radar.map((hit) => (
+              <div key={hit.word} className={styles.radarHit}>
+                <span className={styles.radarWord}>{hit.word}</span>
+                <span className={styles.radarCount}>
+                  in {hit.count} entries · {hit.chapters.join(", ")}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className={styles.section}>
+        <h2 className={styles.h2}>Worth teaching</h2>
+        <p className={styles.hint}>
+          The step that turns study into leadership. What you don&apos;t give away, you lose.
+        </p>
+        {teaching.length === 0 ? (
+          <p className={styles.ok}>
+            Nothing marked yet — that&apos;s the step everyone skips. Find one thing this week.
+          </p>
+        ) : (
+          <ul className={styles.list}>
+            {teaching.map((t) => (
+              <li key={t.body}>{t.body}</li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <section className={styles.section}>
