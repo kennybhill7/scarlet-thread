@@ -1,0 +1,44 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-family: var(--font-label);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 10.5px;
+  color: var(--page-muted, var(--shell-muted));
+}
+
+.textarea {
+  font-family: var(--font-read, var(--font-ui));
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--page-ink, var(--shell-text));
+  background: var(--page-card-alt, var(--shell-surface));
+  border: 1px solid var(--page-border, var(--shell-border));
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  resize: vertical;
+  min-height: 3.4em;
+  field-sizing: content;
+}
+
+.textarea::placeholder {
+  color: var(--page-muted-2, var(--shell-muted));
+}
+
+.textarea:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.hint {
+  font-size: 11.5px;
+  color: var(--page-muted, var(--shell-muted));
+  line-height: 1.4;
+}

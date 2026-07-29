@@ -1,0 +1,100 @@
+.form {
+  display: grid;
+  gap: 0.65rem;
+  width: min(100%, var(--measure));
+  padding: clamp(1.25rem, 4vw, 2rem);
+  border: 1px solid var(--page-border);
+  border-radius: var(--r-xl);
+  background: var(--page-card);
+  color: var(--page-ink);
+}
+
+.form header {
+  margin-bottom: 0.5rem;
+}
+
+.form h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+}
+
+.form header p:last-child {
+  margin-top: 0.4rem;
+  color: var(--page-ink-3);
+  font-size: 0.85rem;
+}
+
+.eyebrow {
+  color: var(--brass);
+  font-family: var(--font-narrow);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.form > label:not(.confirm) {
+  margin-top: 0.6rem;
+  font-family: var(--font-label);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.form input:not([type="checkbox"]),
+.form textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--page-border-soft);
+  border-radius: var(--r-md);
+  background: var(--page-card-alt);
+  color: var(--page-ink);
+  font: inherit;
+}
+
+.form textarea {
+  font-family: var(--font-read);
+  resize: vertical;
+}
+
+.confirm {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 2.75rem;
+  margin-top: 0.6rem;
+  color: var(--page-ink-2);
+  cursor: pointer;
+}
+
+.confirm input {
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: var(--green);
+}
+
+.form footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.8rem;
+}
+
+.form footer p {
+  color: var(--page-ink-3);
+  font-size: 0.78rem;
+}
+
+.form footer button {
+  flex: none;
+  min-height: 2.9rem;
+  padding: 0.65rem 1rem;
+  border-radius: var(--r-pill);
+  background: var(--green);
+  color: var(--page-card);
+  font-weight: 750;
+}
+
+.form footer button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

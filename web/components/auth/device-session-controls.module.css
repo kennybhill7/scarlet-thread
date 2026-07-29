@@ -1,0 +1,58 @@
+.section {
+  display: grid;
+  gap: 0.7rem;
+  padding: 1.25rem;
+  border: 1px solid var(--page-border);
+  border-radius: var(--r-xl);
+  background: var(--page-card);
+  color: var(--page-ink);
+}
+
+.section h2,
+.section p {
+  margin: 0;
+}
+
+.eyebrow {
+  color: var(--brass);
+  font-family: var(--font-narrow);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.copy,
+.status {
+  color: var(--page-ink-3);
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.actions button {
+  min-height: 2.75rem;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--page-border);
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: inherit;
+  font-weight: 700;
+}
+
+.actions button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.actions .danger {
+  border-color: color-mix(in srgb, var(--danger, #9b2c2c) 55%, transparent);
+  color: var(--danger, #9b2c2c);
+}
+
+.status:empty {
+  display: none;
+}

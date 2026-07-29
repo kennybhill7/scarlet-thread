@@ -1,0 +1,61 @@
+.session {
+  min-width: 0;
+}
+
+.transition {
+  width: min(calc(100% - 2rem), var(--measure));
+  margin: 1.5rem auto;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  border: 1px solid var(--page-border);
+  border-radius: var(--r-xl);
+  background: var(--page-card);
+  color: var(--page-ink);
+  box-shadow: var(--page-shadow);
+}
+
+.transition h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.transition > p:not(.eyebrow) {
+  margin-top: 0.6rem;
+  color: var(--page-ink-3);
+  line-height: 1.55;
+}
+
+.eyebrow {
+  margin-bottom: 0.3rem;
+  color: var(--brass);
+  font-family: var(--font-narrow);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.transition button {
+  min-height: 3rem;
+  margin-top: 1.2rem;
+  padding: 0.65rem 1rem;
+  border-radius: var(--r-pill);
+  background: var(--green);
+  color: var(--page-card);
+  font-weight: 750;
+}
+
+.transition button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.transition > .error {
+  color: var(--danger, #9b2c2c);
+  font-weight: 650;
+}
+
+.writing {
+  display: grid;
+  gap: 1.5rem;
+  padding: 0 1rem 2rem;
+}

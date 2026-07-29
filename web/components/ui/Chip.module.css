@@ -1,0 +1,33 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-label);
+  font-weight: 500;
+  font-size: 12.5px;
+  padding: 6px 13px;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  min-height: 32px;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.gold {
+  color: var(--gold);
+  background: var(--gold-dim-bg);
+  border-color: var(--gold-dim-border);
+}
+
+.green {
+  color: var(--green);
+  background: var(--green-soft-bg);
+  border-color: var(--green-soft-border);
+}
+
+.chip.active {
+  border-color: currentColor;
+}
+
+.chip:hover {
+  filter: brightness(1.1);
+}

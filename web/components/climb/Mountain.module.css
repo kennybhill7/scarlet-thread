@@ -1,0 +1,77 @@
+.wrap {
+  padding: 4px var(--pad-page) 0;
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+.ridge {
+  fill: none;
+  stroke: var(--shell-border-hi);
+  stroke-width: 2;
+}
+
+.ridgeFill {
+  fill: var(--gold);
+  fill-opacity: 0.05;
+}
+
+.tie {
+  stroke: var(--shell-border-hi);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+
+.node {
+  cursor: pointer;
+  outline: none;
+}
+
+.node circle {
+  stroke-width: 2;
+  transition: r 0.12s ease;
+}
+
+.node:hover circle,
+.node:focus-visible circle {
+  stroke: var(--gold);
+}
+
+.nodeFilled {
+  fill: var(--gold);
+  stroke: var(--gold-deep);
+}
+
+.nodeHollow {
+  fill: var(--shell-bg);
+  stroke: var(--shell-border-hi);
+}
+
+.label {
+  font-family: var(--font-narrow);
+  font-weight: 600;
+  font-size: 11px;
+  fill: var(--shell-text-2);
+}
+
+.tip {
+  margin-top: 6px;
+  padding: 14px 16px;
+  background: var(--shell-surface);
+  border: 1px solid var(--shell-border);
+  border-radius: var(--r-lg);
+}
+
+.tipTitle {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--shell-text);
+  margin-bottom: 4px;
+}
+
+.tipBody {
+  font-size: 12.5px;
+  color: var(--shell-muted-2);
+}

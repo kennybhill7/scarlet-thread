@@ -1,0 +1,74 @@
+.page {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background:
+    radial-gradient(circle at top, rgba(185, 151, 86, 0.16), transparent 38%),
+    #111916;
+  color: #f5f0e6;
+}
+
+.card {
+  width: min(calc(100vw - 3rem), 30rem);
+  max-width: 100%;
+  padding: clamp(2rem, 6vw, 3.5rem);
+  border: 1px solid rgba(245, 240, 230, 0.16);
+  border-radius: 1.5rem;
+  background: rgba(24, 35, 31, 0.94);
+  box-shadow: 0 2rem 5rem rgba(0, 0, 0, 0.28);
+}
+
+.eyebrow {
+  margin: 0 0 1rem;
+  color: #c9a96b;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.card h1 {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-size: clamp(2rem, 9vw, 3.25rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+.copy {
+  margin: 1.25rem 0 2rem;
+  color: rgba(245, 240, 230, 0.7);
+  line-height: 1.65;
+}
+
+.error {
+  margin: -0.5rem 0 1.5rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.75rem;
+  background: rgba(160, 62, 62, 0.22);
+  color: #ffd7d2;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.button {
+  width: 100%;
+  min-height: 3.25rem;
+  border: 0;
+  border-radius: 999px;
+  background: #c9a96b;
+  color: #14201c;
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: #d8bc83;
+}
+
+.button:focus-visible {
+  outline: 3px solid #f5f0e6;
+  outline-offset: 3px;
+}

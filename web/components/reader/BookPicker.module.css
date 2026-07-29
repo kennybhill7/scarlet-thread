@@ -1,0 +1,96 @@
+.wrap {
+  padding: calc(20px + var(--safe-top)) var(--pad-page) 24px;
+}
+
+.hint {
+  padding: 40px var(--pad-page);
+  color: var(--shell-muted);
+  text-align: center;
+}
+
+.resume {
+  display: block;
+  padding: 16px 18px;
+  margin-bottom: 22px;
+  background: linear-gradient(100deg, var(--gold), var(--gold-deep));
+  color: var(--gold-ink);
+  border-radius: var(--r-lg);
+  font-family: var(--font-label);
+  font-weight: 700;
+  font-size: 14.5px;
+  text-align: center;
+}
+
+.testament {
+  font-family: var(--font-narrow);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--shell-muted);
+  margin: 22px 0 10px;
+}
+
+.bookGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+  gap: 8px;
+}
+
+.bookCell {
+  padding: 12px 4px;
+  background: var(--shell-surface);
+  border: 1px solid var(--shell-border);
+  border-radius: var(--r-sm);
+  color: var(--shell-text-2);
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 12.5px;
+  text-align: center;
+}
+
+.bookCell:hover {
+  border-color: var(--gold-dim-border);
+  color: var(--gold);
+}
+
+.back {
+  color: var(--gold);
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.bookTitle {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 24px;
+  color: var(--shell-text);
+  margin-bottom: 16px;
+}
+
+.chapterGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+  gap: 8px;
+}
+
+.chapterCell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--shell-surface);
+  border: 1px solid var(--shell-border);
+  border-radius: var(--r-sm);
+  color: var(--shell-text-2);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.chapterCell:hover {
+  border-color: var(--gold-dim-border);
+  color: var(--gold);
+}

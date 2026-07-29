@@ -1,0 +1,49 @@
+.fieldset {
+  border: 0;
+}
+
+.fieldset legend {
+  margin-bottom: 0.25rem;
+  color: var(--page-ink);
+  font-family: var(--font-label);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.help,
+.empty {
+  color: var(--page-ink-3);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.chip {
+  min-height: 2.35rem;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--page-border-soft);
+  border-radius: var(--r-pill);
+  background: var(--page-card);
+  color: var(--page-ink-2);
+  font-size: 0.84rem;
+}
+
+.chip[data-active] {
+  border-color: var(--green);
+  background: var(--green-soft-bg);
+  color: var(--green);
+  font-weight: 700;
+}
+
+.chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}

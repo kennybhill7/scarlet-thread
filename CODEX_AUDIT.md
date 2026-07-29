@@ -1,0 +1,516 @@
+# Codex integration audit
+
+Independent review of Track A work. Track A owns the files named below; these
+are change requests, not cross-track edits.
+
+**Last audited:** 2026-07-29 02:32. **Open:** 28 findings (5 critical, 12 high,
+10 medium, 1 low). The latest production build is clean, but still prerenders
+`/`, `/review`, and `/settings`; A-011 therefore remains an evidence-backed
+privacy/readiness gate.
+
+## Recommended recovery order for Claude
+
+1. **Protect the source before any Git action:** stop at A-026 until Ken decides
+   whether the raw vault and ZIP may leave this device. Do not commit or push
+   the current index.
+2. **Repair migration fidelity:** fix A-010 and A-017 in the importer, then run
+   Track B's fail-closed `db:seed` preflight. The acceptable result is the
+   source-derived orphan set only and zero active threadless entries.
+3. **Move private screens to authenticated data:** replace the build-time seed
+   bridge (A-009/A-011), authorize at the protected layout/data boundary, mount
+   `SyncRegistration`, and expose the Settings/export/privacy and thread-detail
+   components (A-016/A-019/A-025/A-029/A-031). Rebuild must report Climb and
+   Review as dynamic, not static.
+4. **Make the offline promise true in a browser:** fix the generic reader-shell
+   navigation gap and cache lifecycle/error handling (A-002/A-013/A-014 and
+   A-020 through A-023). Prove it by opening one chapter online, switching
+   offline, and navigating to an unvisited chapter in the already-downloaded
+   book.
+5. **Fix Scripture correctness before feature expansion:** render Spanish by
+   `toKey`, load cross-chapter targets, preserve declared omission rows, and
+   make both builders atomic/fail-closed, and bind the read gate to a
+   successfully rendered chapter (A-004/A-006/A-027/A-028/A-032). Test exact
+   Romans 14/16 text pairings, not only row counts.
+6. **Then close the visible feature gaps:** verse selection (A-018), accurate
+   question counts (A-008), language semantics and valid CTA markup
+   (A-033/A-034), wide gear, search, and pronunciation. Keep the mountain
+   geometry isolated until Ken resolves orientation.
+7. **Finish deployment hardening last:** add and browser-test the security
+   policy in A-030, then perform real Neon/OAuth tenant checks, a production
+   offline soak, and phone/iPad installation tests.
+
+For each fix, Claude should replace the corresponding finding with a
+reproducible verification result. A clean build alone is not evidence that an
+offline, privacy, importer, or alignment defect is closed.
+
+## Open findings
+
+### A-009 - Real journal seed must not enter source control
+
+- Severity: critical privacy gate
+- Evidence: Track A generated the actual entries, people, stages, and threads
+  under `web/data/seed`. These files contain the journal text used by the
+  temporary server-only bridge.
+- Impact: committing the bridge to a GitHub/Vercel source repository exposes
+  the private journal to everyone with repository access; making the repository
+  public would publish it.
+- Action taken: `web/data/seed/` is now excluded in the root `.gitignore`.
+- Required deployment fix: seed Neon through a local authenticated script, then
+  make Climb/Review query the user-scoped database. Do not require raw journal
+  JSON at application build time.
+
+### A-010 - Person-link import regresses all five profiles to orphans
+
+- Severity: high for migration fidelity
+- Evidence: the generated `people.json` has zero chapters for Abraham, Adam,
+  David, Jesus, and Noah. `import_people()` initializes `chapters` to an empty
+  list and only reads outbound links from each person’s own `Threads` section;
+  it never resolves inbound vault links.
+- Impact: the source plan identified three person orphans, but the imported
+  model reports all five as orphans and discards valid Adam/Jesus
+  relationships.
+- Current gate: Track B's latest seed preflight rejects Adam and Jesus as the
+  two unexpected imported orphans before making a database connection.
+- Suggested fix: build a vault-wide backlink index during import, resolve
+  passage-to-person and thread-to-person links in both directions, and compare
+  the imported orphan set to the source-derived expected set before writing
+  seed JSON.
+
+### A-011 - Private Climb and Review data is prerendered without near-data auth
+
+- Severity: high privacy/readiness gate
+- Evidence: `ClimbPage` and `ReviewPage` call the seed bridge directly and do
+  not call `auth()`. `next build` reports both `/` and `/review` as static
+  prerendered routes.
+- Impact: private-derived thread names and counts are compiled into deployment
+  output, while authorization exists only in Proxy. Auth.js explicitly warns
+  not to rely on Proxy as the only authorization layer.
+- Suggested fix: replace the build-time seed bridge with user-scoped database
+  queries and call `auth()` at the protected layout/data boundary. Return or
+  redirect unauthenticated requests before reading journal data. The pages
+  should become request-time dynamic.
+
+### A-008 - Mountain labels answered questions as open
+
+- Severity: medium
+- Evidence: `web/lib/vault/seed.ts` increments `qByStage` for every question
+  without checking `answeredAt`, while `Mountain.tsx` labels the result “open
+  questions.”
+- Impact: the home screen can overstate unresolved questions.
+- Suggested fix: count only questions where `!entry.answeredAt`, matching
+  `getReview()`.
+
+### A-006 - Parallel reader ignores mapped target references
+
+- Severity: critical for scripture comparison correctness
+- Evidence: `ChapterReader` receives `AlignedRow.toKey`, but renders Spanish
+  text with `spanish.verses[i]`. It never resolves `toKey`, and it only loads
+  the same Spanish chapter as the English chapter.
+- Impact: the Romans 14 and 16 cross-chapter map is not actually applied.
+  English Romans 16:25-27 cannot display Spanish Romans 14:24-26, and the
+  extra Spanish Romans 14 rows are absent because the primary English list has
+  only 23 rows.
+- Suggested fix: make the aligned model carry both source and target references,
+  load every target chapter referenced by the alignment, and render text by the
+  mapped target key rather than the loop index. Test exact text pairings in both
+  directions, not just verse counts.
+
+### A-002 - Cache write failure blocks a successful network read
+
+- Severity: medium
+- Evidence: `web/lib/bible/loader.ts` awaits `cache.put()` before returning the
+  successful fetch response.
+- Impact: private mode, quota exhaustion, or a transient Cache API failure makes
+  readable online scripture fail as though it were unavailable.
+- Suggested fix: treat caching as best-effort. Return the cloned network
+  response even when `cache.put()` rejects, and separately surface storage
+  health in Settings.
+
+### A-003 - Dynamic viewport unit is overridden
+
+- Severity: low
+- Evidence: `web/app/(app)/shell.module.css` declares `min-height: 100dvh`
+  followed by `min-height: 100vh`.
+- Impact: modern browsers use the later `100vh`, losing the intended dynamic
+  mobile viewport behavior.
+- Suggested fix: declare `100vh` first as the fallback, then `100dvh`.
+
+### A-004 - Spanish build does not fail closed
+
+- Severity: medium
+- Evidence: `tools/build_spanish.py` removes the prior output before parsing,
+  prints missing-book and chapter-count problems, but does not exit nonzero.
+- Impact: a partial download or parser regression can replace a valid corpus
+  with incomplete data while still looking like a successful build.
+- Suggested fix: build in a temporary directory, enforce 66 books and 1,189
+  chapters plus the declared two-chapter versification exception, then replace
+  `web/public/bible/SBL` atomically only after all gates pass.
+
+### A-013 - Cached Bible book does not make unvisited chapter routes available offline
+
+- Severity: critical offline-readiness gate
+- Evidence: `web/app/(app)/read/[book]/[chapter]/page.tsx` is a dynamic server
+  route. `web/public/sw.js` only returns an exact cached navigation response
+  after a network failure; otherwise its catch path returns `Response.error()`.
+  The Bible loader's per-book cache cannot produce the server-rendered page/RSC
+  response for a chapter URL that has never been visited.
+- Impact: a reader can open one chapter online, cache the book data, go offline,
+  and still be unable to navigate to another previously unvisited chapter in
+  that same cached book. That contradicts the core offline reading promise.
+- Suggested fix: make chapter navigation run inside a cached generic/client
+  reader shell that resolves the URL and loads book data locally, or provide a
+  navigation fallback that serves such a shell. Add a browser test that opens
+  one chapter online, switches offline, navigates to a never-visited chapter in
+  the same book, and asserts verse text renders.
+
+### A-014 - Authenticated page/RSC caches persist after sign-out
+
+- Severity: high privacy gate
+- Evidence: `web/public/sw.js` caches successful same-origin GET responses
+  except `/api/*` and `/bible/*`. That includes authenticated Climb, Review,
+  reader-shell HTML, and RSC responses. The sign-out path does not clear the
+  service-worker shell cache or IndexedDB.
+- Impact: on a shared device, journal-derived UI can remain readable from
+  browser storage after sign-out.
+- Suggested fix: define the device trust model explicitly. If sign-out is
+  expected to protect a shared device, add a "sign out and clear local data"
+  flow that deletes the app caches and IndexedDB, and prevent private
+  personalized HTML/RSC from entering the general shell cache.
+
+### A-016 - Settings has no sign-out or clear-device control
+
+- Severity: high privacy and account-lifecycle gate
+- Evidence: no rendered route imports `signOut`; Settings only renders offline
+  downloads. Track B now provides
+  `components/auth/DeviceSessionControls.tsx`, which syncs before destructive
+  clearing, deletes the app's IndexedDB and caches, and signs out.
+- Impact: the current UI cannot end a session, and a shared device has no safe
+  in-app way to remove locally retained journal data.
+- Suggested fix: render `DeviceSessionControls` on Settings. Verify both normal
+  sign-out and clear-device behavior against a real authenticated session.
+
+### A-017 - Vault import violates the guide's one link rule
+
+- Severity: high migration-fidelity gate
+- Evidence: the generated seed has 70 entries, including 10 entries with no
+  thread. More importantly, chapters `66.6` and `66.13` have entries but zero
+  thread links across the entire passage. The source product rule says every
+  passage note links at least one thread.
+- Impact: importing this seed would begin with known orphans and make the app's
+  strongest invariant false on day one.
+- Suggested fix: repair passage/thread backlink extraction and add a fail-closed
+  import assertion that every non-deleted passage with writing has at least one
+  valid thread. Track B now rejects new active entries without a thread; legacy
+  import gaps must be repaired before database seeding.
+- Current gate: the latest seed preflight rejects entries 47 through 56
+  individually and exits with 12 total issues when combined with A-010.
+
+### A-018 - Reader reports verse selection but exposes no selection control
+
+- Severity: high Phase 2 feature gap
+- Evidence: `ChapterReader.tsx` renders verses as plain paragraphs with no
+  click, keyboard, selection, or selected-reference state. `NoteComposer`
+  supports a canonical `verse` prop, but the reader only passes a chapter to
+  `StudySession`.
+- Impact: every captured entry is chapter-level; the advertised
+  verse-anchored-note workflow is unreachable.
+- Suggested fix: add accessible single-verse selection to the reader and pass
+  its canonical `book.chapter.verse` reference into the composer. Preserve the
+  read-before-write gate and add a keyboard/browser test.
+
+### A-019 - Settings integration is missing for completed write-path controls
+
+- Severity: medium integration gate
+- Evidence: Track B now provides `DeviceSessionControls` and
+  `VaultExportButton`, but the Track A Settings page only renders
+  `OfflineDownloads`.
+- Impact: sign-out, clear-device privacy, and the portable Markdown export are
+  implemented but unreachable to the user.
+- Suggested fix: render both controls below Offline Downloads and verify the
+  responsive layout and authenticated download.
+
+### A-020 - Scripture cache has no release invalidation
+
+- Severity: medium release-correctness gate
+- Evidence: `loader.ts` is cache-first under the fixed name
+  `bible-brain-scripture-v1`, while the same comments say rebuilding replaces
+  corpus content at the same URLs. Neither a data hash nor a cache-version bump
+  is generated with the corpus.
+- Impact: an installed app can retain an old index, verse map, or Bible file
+  indefinitely after a corrected corpus is deployed.
+- Suggested fix: derive the scripture cache namespace or asset URLs from a
+  generated corpus revision in `index.json`, and test that changing the
+  revision evicts or bypasses the previous files.
+
+### A-021 - Offline download failure leaves Settings stuck
+
+- Severity: medium resilience issue
+- Evidence: `OfflineDownloads.download()` awaits `warmVersion()` without a
+  catch/finally path. One failed book rejects the click handler and leaves the
+  translation marked `downloading`.
+- Impact: a transient network/quota error produces an unhandled rejection and
+  no actionable retry state.
+- Suggested fix: catch the download error, retain already cached books, report
+  partial progress, and return the control to a retryable state.
+
+### A-022 - One cached book is reported as a downloaded translation
+
+- Severity: high offline-readiness gate
+- Evidence: the Settings initialization calls `isBookCached(version.id, 1)`
+  only, then labels the entire translation `Downloaded`.
+- Impact: merely reading Genesis makes Settings claim all 66 books are ready
+  for a flight.
+- Suggested fix: verify all manifest books (or store a completed-download
+  receipt only after all 66 succeed). Add a partial-cache test that must not
+  show `Downloaded`.
+
+### A-023 - Service-worker cache writes are not kept alive
+
+- Severity: medium offline reliability issue
+- Evidence: the fetch handler starts
+  `caches.open(...).then(cache.put(...))` without returning or passing that
+  promise to `event.waitUntil()`. `respondWith()` can settle as soon as the
+  network response is returned.
+- Impact: the browser may terminate the worker before larger JS/font responses
+  finish writing, so a successful first visit does not reliably produce the
+  claimed offline shell.
+- Suggested fix: attach the best-effort cache-write promise to
+  `event.waitUntil()` (with a caught storage failure), then add a browser test
+  that reloads the visited shell offline.
+
+### A-025 - Review bars do not open the Sunday-review thread workflow
+
+- Severity: medium product-spec integration gap
+- Evidence: Review renders thread strength but has no thread-detail navigation.
+  Track B now provides `/threads/[slug]` and `ThreadDetail`, including editable
+  definition/“What I’m seeing” fields and computed entry backlinks.
+- Impact: the guide's Sunday step to open the threads you touched, read your
+  own lines, and add what you are seeing is otherwise unreachable.
+- Suggested fix: link each Review thread row/bar to `/threads/{slug}` and
+  verify the backlink count/text against the database-backed Review result.
+
+### A-026 - The raw personal vault and ZIP are staged for the first commit
+
+- Severity: critical pre-push privacy gate
+- Evidence: 44 raw-vault paths are added/staged: 43 under `Bible-Brain/**`
+  plus `Bible-Brain-Vault.zip`. Ignoring `web/data/seed/` does not protect
+  these source files.
+- Impact: the first GitHub push would upload the underlying personal journal,
+  not only application code. A public repository would publish it; a private
+  repository would still place it on a third-party server.
+- Suggested fix: before any commit/push, get an explicit user decision. For a
+  code-only repository, remove the vault and ZIP from the Git index before the
+  first commit and ignore them. If the user intentionally chooses a private
+  backup repository, document that scope and access model first.
+
+### A-027 - English corpus builder warns instead of validating and destroys the prior corpus first
+
+- Severity: critical data-pipeline gate
+- Evidence: `build_bible.py` deletes all of `web/public/bible` before parsing,
+  including Spanish and the verse map. It records missing books/chapter-count
+  mismatches as warnings, never exits nonzero, never asserts the claimed
+  31,102 verses per version, and writes an index whose versions omit the
+  contract-required `language` field until the separate Spanish script runs.
+- Impact: a partial or malformed source can replace the last known-good corpus
+  and still exit successfully; running the English builder alone leaves a
+  contract-invalid app.
+- Suggested fix: build all outputs in a temporary tree, fail closed on 66
+  books/1,189 chapters/31,102 verses per English version and any undeclared
+  empty verse slot, emit a complete contract-valid index, then atomically
+  replace the live corpus only after both English and Spanish validations pass.
+
+### A-028 - Declared verse numbers with omitted text render as silent blanks
+
+- Severity: high Scripture-reading correctness issue
+- Evidence: independent corpus inspection found 16 empty numbered slots in BSB,
+  16 in ASV, and 5 in SBL. These include known textual omissions such as
+  Matthew 17:21 and Acts 8:37; the ASV source represents them as a numbered
+  asterisk plus a textual footnote. The app ships neither footnotes nor an
+  omission marker. The primary reader renders only an empty superscript row,
+  while the Spanish pane drops empty strings entirely with `if (!text) return
+  null`.
+- Impact: readers see unexplained missing verses, and the parallel pane can
+  collapse a row that must remain present for alignment.
+- Suggested fix: make omissions explicit structured data or a declared gap
+  list, render an accessible “not present in this edition” marker without
+  inventing text, and preserve the row in parallel layout. Validate the exact
+  omission set per version during corpus builds.
+
+### A-029 - Sunday Review omits orphan writing
+
+- Severity: high product-spec gap
+- Evidence: the Review “Orphans” section renders only
+  `review.orphanPeople`. It does not compute or display entries/passages with
+  no thread, even though the current imported seed contains two written
+  chapters with no thread links. Track B's database ReviewSnapshot already
+  computes `orphanEntries`.
+- Impact: the weekly control that is supposed to catch “connect it or delete
+  it” failures cannot reveal the exact one-rule violations present in the
+  migrated data.
+- Suggested fix: migrate Review to the authenticated database snapshot, list
+  orphan entries/passages with links back to their reader locations, and add a
+  seeded orphan fixture that must appear.
+
+### A-030 - Production security headers are not configured
+
+- Severity: high pre-deploy hardening gate
+- Evidence: `next.config.ts` is empty. The app does not declare
+  `Content-Security-Policy`, `Referrer-Policy`, `X-Content-Type-Options`,
+  `Permissions-Policy`, or frame restrictions.
+- Impact: an auth-gated personal journal should not rely on browser/Vercel
+  defaults for script, embedding, referrer, and capability boundaries.
+- Suggested fix: add and browser-test a Next-compatible policy (including the
+  Google OAuth flow and Auth.js endpoints), plus `nosniff`, strict referrer,
+  deny framing, and a least-privilege permissions policy. Enable HSTS at the
+  deployed HTTPS boundary.
+
+### A-031 - Automatic sync is not mounted at the protected app boundary
+
+- Severity: high multi-device freshness issue
+- Evidence: online-event sync is installed only while `NoteComposer` is
+  mounted, after the read gate opens. Pending offline changes do not
+  automatically retry when the user returns online on Climb, Review, Settings,
+  or a thread page. Track B now provides `components/sync/SyncRegistration.tsx`
+  and deduplicates concurrent `syncNow()` calls.
+- Impact: server and second-device views can remain stale until the user opens
+  the capture composer again.
+- Suggested fix: mount `SyncRegistration` once in the protected `(app)` layout,
+  not the public root/sign-in layout, and verify an offline write syncs after an
+  online event from another protected screen.
+
+### A-032 - Read-before-write can unlock when no Scripture loaded
+
+- Severity: high product-invariant issue
+- Evidence: `ChapterReader` always wraps its page in `StudySession`, including
+  loading and error states. `StudySession` enables "I'm finished reading"
+  without receiving or checking whether `primaryVerses` loaded successfully.
+- Impact: an unavailable/offline or invalid chapter can be marked read and
+  open the capture UI even though there was no text to read. That breaks the
+  guide's first rule at the exact failure boundary where it matters.
+- Suggested fix: pass an explicit successful-text-ready signal from the reader
+  and keep the completion control disabled or absent until the primary chapter
+  has rendered at least one verse. Add a regression test for loader failure:
+  no progress write and no composer should become reachable.
+
+### A-033 - Spanish Scripture is not marked as Spanish
+
+- Severity: medium accessibility and fluency issue
+- Evidence: the parallel reader renders both columns inside unlabelled `div`
+  elements while the document language remains `en`; the Spanish column never
+  sets `lang="es"`.
+- Impact: screen readers and browser speech tools can apply English
+  pronunciation rules to Spanish Scripture, directly undercutting the fluency
+  goal.
+- Suggested fix: mark the Spanish column or each Spanish verse with
+  `lang="es"` (and the primary English column with `lang="en"`). Verify with
+  accessibility inspection before wiring pronunciation controls.
+
+### A-034 - Climb call-to-action nests a button inside a link
+
+- Severity: medium accessibility issue
+- Evidence: `ClimbHero.tsx` renders `<Link><Button>…</Button></Link>`, while
+  `Button` always emits a native `<button>`.
+- Impact: nested interactive elements are invalid HTML and can produce
+  duplicate or inconsistent focus/activation behavior for keyboard and
+  assistive-technology users.
+- Suggested fix: render one interactive element: add a link-styled button
+  primitive or apply the CTA class directly to `Link`. Add an accessibility
+  assertion that no anchor contains a button.
+
+## Resolved by Claude, 2026-07-29 morning session
+
+### A-026 - Raw vault and ZIP staged for the first commit
+
+Unstaged `Bible-Brain/` and `Bible-Brain-Vault.zip` before any commit existed
+(repo had zero commits — nothing had actually been pushed yet, only staged).
+Added both to `.gitignore` with an explanation, so a future `git add -A`
+cannot silently restage them. This is the actual personal content; a private
+repo doesn't fully neutralize putting it on a third-party server, so it needs
+Ken's explicit, separate decision (a scoped backup repo, if he wants one) —
+not a default. First commit is code, docs, and empty vault templates only.
+
+### A-006 - Parallel reader ignores mapped target references
+
+Rewrote the Spanish-loading path in `ChapterReader.tsx`: `spanishChapters` is
+now a map keyed by Spanish chapter RefKey (not a single fetched chapter), and
+a new effect loads every chapter any `alignedRows[].toKey` points into —
+almost always just the natural same-numbered chapter, plus the divergence
+target on Romans 14/16. Rendering resolves each row's actual text via
+`resolveSpanish(row.toKey)` (parse the key, load the right chapter, index the
+right verse) instead of `spanishVerses[loopIndex]`. Verified: `alignChapter`'s
+own output was already correct and unit-tested; the underlying Spanish 14:24-26
+text was independently confirmed present and correct earlier the same session
+(`check_romans.py`). A full browser-level regression test per Codex's
+suggestion ("test exact text pairings in both directions") is still worth
+adding — not done tonight, tracked in `PROGRESS.md`.
+
+### A-008 - Mountain labels answered questions as open
+
+`lib/vault/seed.ts::getMountain()` now only counts `entry.kind === "question"
+&& !entry.answeredAt`, matching `getReview()`'s own definition.
+
+### A-002 - Cache write failure blocks a successful network read
+
+`lib/bible/loader.ts::fetchWithCache()` — `cache.put()` is now fire-and-forget
+with its own `.catch()`, outside the `try` that guards the network fetch. A
+successful read returns even if storage is full or unavailable.
+
+### A-003 - Dynamic viewport unit is overridden
+
+Swapped the declaration order in `shell.module.css` — `100vh` first as
+fallback, `100dvh` after, so the later (correct) one wins.
+
+### A-033 - Spanish Scripture is not marked as Spanish
+
+Both reader columns and the single-version view now carry a `lang` attribute
+derived from the actual selected version's declared language (`lib/contracts
+.ts::VersionMeta.language`), not a hardcoded assumption — the Spanish column
+is always `lang="es"`.
+
+### A-034 - Climb call-to-action nests a button inside a link
+
+`ClimbHero`'s CTA was `<Link><Button>…</Button></Link>` — two nested
+interactive elements. Removed the `Button` wrapper; the `Link` itself now
+carries the primary-button visual styling directly, so there's exactly one
+interactive element.
+
+## Resolved while auditing
+
+### A-015 - Master status claims were stale and overstated verification
+
+Codex updated `BUILD_PLAN.md`, `PROGRESS.md`, and `web/README.md` to distinguish
+implemented work from open verification/deployment gates, record the current
+Track B surfaces and database seeder, and replace the stale audit status with
+the current zero-vulnerability result.
+
+### A-024 - Settings route had no navigation entry point
+
+Claude's current `ClimbHero` includes a focusable link to `/settings`. The route
+is reachable from the Climb home screen.
+
+### A-012 - Reader integration point for the write path
+
+Claude wrapped the reader content in Track B's `StudySession` with the
+canonical chapter key. The read-before-write transition, local progress mark,
+capture, entry list, and daily loop are now reachable from the reader.
+
+### A-001 - English to Spanish gap row was unreachable
+
+Claude corrected the direction condition and scoped the inserted gap keys to
+the requested chapter. The Romans 16 regression now passes; the current full
+suite is 35/35.
+
+### A-007 - Reader lint failures
+
+Claude refactored the synchronous effect resets. `npm run lint` is clean.
+
+### A-005 - Reader used an undeclared index field
+
+Claude added `spanishNames?: Record<string, string>` to `BibleIndex`.
+`npm run typecheck` is clean.
+
+### A-000 - SBL missing from shared contract
+
+Claude added `SBL` to `VersionId` and added the language metadata field after
+registering the version in `index.json`. The shared data and TypeScript contract
+now agree.

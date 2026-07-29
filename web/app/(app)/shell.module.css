@@ -1,0 +1,11 @@
+.shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--shell-bg);
+  padding-top: var(--safe-top);
+}
+
+.content {
+  padding-bottom: calc(64px + var(--safe-bottom));
+}
+

@@ -1,0 +1,105 @@
+.wrap {
+  padding: calc(20px + var(--safe-top)) var(--pad-page) 24px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.eyebrow {
+  font-family: var(--font-label);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--gold);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 24px;
+  color: var(--shell-text);
+  margin: 4px 0 6px;
+}
+
+.sub {
+  font-size: 13px;
+  color: var(--shell-muted-2);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.section {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--shell-border);
+}
+
+.h2 {
+  font-family: var(--font-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: var(--shell-text-2);
+  margin-bottom: 4px;
+}
+
+.hint {
+  font-size: 12.5px;
+  color: var(--shell-muted);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.barRow {
+  display: grid;
+  grid-template-columns: 130px 1fr 28px;
+  gap: 10px;
+  align-items: center;
+}
+
+.barName {
+  font-size: 12px;
+  color: var(--shell-muted-2);
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barTrack {
+  height: 12px;
+  background: var(--shell-border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 3px;
+}
+
+.barValue {
+  font-size: 12px;
+  color: var(--shell-muted-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.ok {
+  color: var(--shell-muted);
+  font-size: 13px;
+}
+
+.list {
+  color: var(--shell-text-2);
+  font-size: 13px;
+  padding-left: 18px;
+  line-height: 1.7;
+}

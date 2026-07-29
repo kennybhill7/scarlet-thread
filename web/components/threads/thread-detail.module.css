@@ -1,0 +1,125 @@
+.page {
+  display: grid;
+  gap: 1.25rem;
+  width: min(calc(100% - 2rem), 46rem);
+  margin: 0 auto;
+  padding: 1.5rem 0 7rem;
+}
+
+.header,
+.editor,
+.backlinks,
+.state {
+  padding: 1.25rem;
+  border: 1px solid var(--page-border);
+  border-radius: var(--r-xl);
+  background: var(--page-card);
+  color: var(--page-ink);
+}
+
+.header {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.header a {
+  justify-self: start;
+  color: var(--page-ink-3);
+}
+
+.header h1,
+.header p,
+.editor p,
+.backlinks p {
+  margin: 0;
+}
+
+.eyebrow {
+  color: var(--brass);
+  font-family: var(--font-narrow);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.editor {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.editor label {
+  font-weight: 750;
+}
+
+.editor textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 0.8rem;
+  border: 1px solid var(--page-border);
+  border-radius: var(--r-md);
+  background: var(--page-bg);
+  color: var(--page-ink);
+  font: inherit;
+  line-height: 1.5;
+}
+
+.saveRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.saveRow p {
+  color: var(--page-ink-3);
+  font-size: 0.85rem;
+}
+
+.saveRow button {
+  min-height: 2.75rem;
+  flex: none;
+  padding: 0.65rem 1rem;
+  border-radius: var(--r-pill);
+  background: var(--green);
+  color: var(--page-card);
+  font-weight: 750;
+}
+
+.backlinks {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.backlinks ol {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.backlinks a {
+  display: block;
+  padding: 0.9rem;
+  border: 1px solid var(--page-border);
+  border-radius: var(--r-md);
+  color: inherit;
+}
+
+.backlinks span {
+  color: var(--brass);
+  font-family: var(--font-narrow);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.backlinks a p {
+  margin-top: 0.35rem;
+  line-height: 1.5;
+}
+
+.state {
+  width: min(calc(100% - 2rem), 40rem);
+  margin: 2rem auto;
+}

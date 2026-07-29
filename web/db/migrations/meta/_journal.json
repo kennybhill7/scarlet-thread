@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1785298371106,
+      "tag": "0000_solid_mojo",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1785298396803,
+      "tag": "0001_deep_quasimodo",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1785302320073,
+      "tag": "0002_magical_stranger",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1785304512676,
+      "tag": "0003_enforce_active_thread_links",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1785305288939,
+      "tag": "0004_minimize_sync_receipts",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1785305478855,
+      "tag": "0005_tenant_scope_sync_receipts",
+      "breakpoints": true
+    }
+  ]
+}

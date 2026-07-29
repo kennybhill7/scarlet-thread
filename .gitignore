@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js
+web/.next/
+web/out/
+web/build/
+next-env.d.ts
+
+# Source translation JSON — 32 MB, regenerate with `py tools/build_bible.py`.
+# The converted output in web/public/bible/ IS committed: Vercel builds from the
+# repo and has no Python step.
+tools/.cache/
+web/data/seed/
+
+# Environment — never commit these
+.env
+.env*.local
+.env.production
+
+# Generated
+Bible-Brain-Map.html
+
+# Vercel
+.vercel/
+
+# The actual vault — Ken's real Bible study observations and questions.
+# CODEX_AUDIT.md A-026: this is personal spiritual writing, not code. A private
+# repo does not fully neutralize that — it still leaves this device. Excluded
+# from source control entirely until Ken explicitly decides otherwise (e.g. a
+# separate, clearly-scoped private backup repo). Code and empty templates are
+# fine to track; the filled-in vault is not.
+Bible-Brain/
+Bible-Brain-Vault.zip
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+npm-debug.log*

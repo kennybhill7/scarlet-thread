@@ -1,0 +1,47 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border-radius: var(--r-md);
+  font-family: var(--font-label);
+  font-weight: 700;
+  font-size: 14.5px;
+  letter-spacing: 0.01em;
+  transition: transform 0.08s ease, opacity 0.15s ease, background 0.15s ease;
+  white-space: nowrap;
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Reads correctly on either surface — the shell (dark) or the page (light) —
+   because it never assumes which custom-property scope it's inside. */
+.primary {
+  background: linear-gradient(100deg, var(--gold), var(--gold-deep));
+  color: var(--gold-ink);
+}
+
+.secondary {
+  background: var(--page-card, var(--shell-surface));
+  color: var(--green, var(--shell-text));
+  border: 1px solid var(--page-border-soft, var(--shell-border-hi));
+}
+
+.ghost {
+  background: transparent;
+  color: var(--shell-muted-2, var(--page-muted));
+  padding: 10px 14px;
+}
+
+.ghost:hover {
+  color: var(--shell-text, var(--page-ink));
+}

@@ -1,0 +1,131 @@
+.card {
+  display: grid;
+  gap: 1.5rem;
+  width: min(100%, var(--measure));
+  margin-inline: auto;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  border: 1px solid var(--page-border);
+  border-radius: var(--r-xl);
+  background: var(--page-card);
+  color: var(--page-ink);
+  box-shadow: var(--page-shadow);
+}
+
+.eyebrow {
+  margin-bottom: 0.3rem;
+  color: var(--brass);
+  font-family: var(--font-narrow);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.card h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.reassurance {
+  margin-top: 0.5rem;
+  color: var(--page-ink-3);
+  font-size: 0.85rem;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.4rem;
+}
+
+.steps button {
+  display: grid;
+  place-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+  padding: 0.45rem 0.2rem;
+  border: 1px solid var(--page-border);
+  border-radius: var(--r-md);
+  color: var(--page-ink-3);
+  font-size: 0.68rem;
+  font-weight: 650;
+}
+
+.steps button span {
+  display: grid;
+  width: 1.45rem;
+  height: 1.45rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--page-bg);
+  font-size: 0.7rem;
+}
+
+.steps button[data-complete] {
+  border-color: var(--green-soft-border);
+  background: var(--green-soft-bg);
+  color: var(--green);
+}
+
+.steps button[data-complete] span {
+  background: var(--green);
+  color: var(--page-card);
+}
+
+.fields {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.fields label {
+  margin-top: 0.55rem;
+  font-family: var(--font-label);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.fields textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid var(--page-border-soft);
+  border-radius: var(--r-md);
+  background: var(--page-card-alt);
+  color: var(--page-ink);
+  font-family: var(--font-read);
+  font-size: 1rem;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.footer p {
+  color: var(--page-ink-3);
+  font-size: 0.78rem;
+}
+
+.save {
+  flex: none;
+  min-height: 2.9rem;
+  padding: 0.65rem 1rem;
+  border-radius: var(--r-pill);
+  background: var(--green);
+  color: var(--page-card);
+  font-weight: 750;
+}
+
+@media (max-width: 28rem) {
+  .steps {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

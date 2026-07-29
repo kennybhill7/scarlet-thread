@@ -1,0 +1,1 @@
+ALTER TABLE "entry_threads" ADD CONSTRAINT "entry_threads_user_thread_fk" FOREIGN KEY ("user_id","thread_slug") REFERENCES "public"."threads"("user_id","slug") ON DELETE cascade ON UPDATE no action;

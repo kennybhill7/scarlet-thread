@@ -1,0 +1,155 @@
+.list {
+  display: grid;
+  gap: 1rem;
+  width: min(100%, var(--measure));
+  margin-inline: auto;
+}
+
+.status {
+  min-height: 1.2rem;
+  color: var(--page-ink-3);
+  font-size: 0.78rem;
+}
+
+.entry,
+.empty {
+  border: 1px solid var(--page-border);
+  border-radius: var(--r-lg);
+  background: var(--page-card);
+  color: var(--page-ink);
+  box-shadow: var(--page-shadow-sm);
+}
+
+.entry {
+  padding: 1.15rem;
+}
+
+.entry header,
+.entry footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.entry header time,
+.verse {
+  color: var(--page-muted);
+  font-size: 0.75rem;
+}
+
+.kind {
+  margin-right: 0.55rem;
+  color: var(--brass);
+  font-family: var(--font-narrow);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.body {
+  margin: 1rem 0;
+  white-space: pre-wrap;
+  font-family: var(--font-read);
+  font-size: 1.02rem;
+  line-height: 1.65;
+}
+
+.threads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.8rem 0;
+}
+
+.threads a {
+  padding: 0.25rem 0.55rem;
+  border-radius: var(--r-pill);
+  background: var(--green-soft-bg);
+  color: var(--green);
+  font-size: 0.72rem;
+}
+
+.ink {
+  display: inline-block;
+  margin: 0.2rem 0 0.8rem;
+  color: var(--green);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.entry footer {
+  justify-content: flex-end;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--page-border);
+}
+
+.entry footer button,
+.editor button {
+  min-height: 2.3rem;
+  padding: 0.35rem 0.55rem;
+  color: var(--page-ink-3);
+  font-size: 0.78rem;
+}
+
+.editor {
+  margin: 1rem 0;
+}
+
+.editor textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--page-border-soft);
+  border-radius: var(--r-md);
+  background: var(--page-card-alt);
+  color: var(--page-ink);
+  font: 1rem/1.6 var(--font-read);
+  resize: vertical;
+}
+
+.editLabel {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0.75rem 0;
+  color: var(--page-ink-3);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.editLabel input {
+  min-height: 2.75rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--page-border-soft);
+  border-radius: var(--r-md);
+  background: var(--page-card-alt);
+  color: var(--page-ink);
+  font: inherit;
+}
+
+.editor div {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.editor button:last-child {
+  color: var(--green);
+  font-weight: 700;
+}
+
+.empty {
+  width: min(100%, var(--measure));
+  margin-inline: auto;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.empty span {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--page-ink-3);
+  font-size: 0.82rem;
+}

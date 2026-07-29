@@ -1,0 +1,190 @@
+/*
+ * Design tokens — ported from dashboard-concepts.html.
+ *
+ * Two surfaces coexist rather than one theme toggling:
+ *   SHELL  ("The Climb")     always dark. Navigation, mountain, progress, review.
+ *   PAGE   ("Notecards")     the reading surface. Parchment by default, night by choice.
+ *
+ * The shell is dark because the mountain reads as a night sky and the app should
+ * feel like a quiet room. The page is light because you read it for twenty minutes
+ * and a dark wall of serif text at 6am is punishing. Night mode exists for anyone
+ * actually reading at 6am in the dark — set data-reading="night" on <html>.
+ *
+ * Two dead declarations from the mockup are deliberately not carried over:
+ * `color:#b9b6 af` and `color:#3a4karp`. Both were typos.
+ */
+
+:root {
+  color-scheme: dark;
+
+  /* --- Shell: The Climb -------------------------------------------------- */
+  --shell-bg: #0d1420;
+  --shell-surface: #131d2e;
+  --shell-surface-hi: #182338;
+  --shell-border: #22314a;
+  --shell-border-hi: #33405a;
+
+  --shell-text: #e8e6e0;
+  --shell-text-2: #d5dbe6;
+  --shell-muted: #7f8ba0;
+  --shell-muted-2: #8b97ab;
+
+  /* Gold is the "you are here" colour. Used sparingly — progress, the current
+     stage, the primary action. If everything is gold, nothing is. */
+  --gold: #e8b465;
+  --gold-deep: #d99a58;
+  --gold-ink: #241a08;
+  --gold-dim-bg: #1c1a12;
+  --gold-dim-border: #4a3d28;
+
+  /* --- Page: Notecards (parchment) --------------------------------------- */
+  --page-bg: #f3f0e8;
+  --page-card: #ffffff;
+  --page-card-alt: #fffef9;
+  --page-border: #e6e2d6;
+  --page-border-soft: #ddd8c8;
+
+  --page-ink: #233029;
+  --page-ink-2: #3a453f;
+  --page-ink-3: #6a746d;
+  --page-muted: #8a938c;
+  --page-muted-2: #a0a89f;
+
+  --green: #2f4f4a;
+  --green-soft-bg: #e7eeeb;
+  --green-soft-border: #d3e0da;
+  --brass: #a98b3e;
+
+  --page-shadow: 0 8px 24px rgba(47, 79, 74, 0.08);
+  --page-shadow-sm: 0 3px 10px rgba(47, 79, 74, 0.05);
+
+  /* --- Type -------------------------------------------------------------- */
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-read: var(--font-spectral), Georgia, serif;
+  --font-ui: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-label: var(--font-archivo), system-ui, sans-serif;
+  --font-narrow: var(--font-archivo-narrow), var(--font-archivo), system-ui, sans-serif;
+
+  /* --- Space & shape ------------------------------------------------------ */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-xl: 22px;
+  --r-pill: 999px;
+
+  --pad-page: 20px;
+  --measure: 34rem; /* reading column — roughly 68 characters of Spectral */
+
+  /* Respected by every fixed element so nothing hides under the iPhone home bar. */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Night reading — same page structure, inverted for a dark room. */
+:root[data-reading="night"] {
+  --page-bg: #10161d;
+  --page-card: #161e27;
+  --page-card-alt: #18212b;
+  --page-border: #26313d;
+  --page-border-soft: #2e3a47;
+
+  --page-ink: #e4e2da;
+  --page-ink-2: #cdcdc4;
+  --page-ink-3: #9aa4ad;
+  --page-muted: #7d8892;
+  --page-muted-2: #6b757e;
+
+  --green: #7fb3a6;
+  --green-soft-bg: #17262a;
+  --green-soft-border: #243a3d;
+  --brass: #c9a24b;
+
+  --page-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --page-shadow-sm: 0 3px 10px rgba(0, 0, 0, 0.25);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100%;
+  background: var(--shell-bg);
+  color: var(--shell-text);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  /* Reading is a two-hand-free activity; kill the pull-to-refresh bounce. */
+  overscroll-behavior-y: contain;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Every tap target clears the 44px Apple guideline. Studying happens half-awake. */
+button,
+a[role="button"],
+[data-tap] {
+  min-height: 44px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* The five-step loop and the mountain animate. Neither is load-bearing. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Utility: the label voice used throughout the shell. */
+.label {
+  font-family: var(--font-narrow);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--shell-muted);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

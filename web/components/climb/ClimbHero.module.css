@@ -1,0 +1,90 @@
+.wrap {
+  padding: calc(20px + var(--safe-top)) var(--pad-page) 8px;
+}
+
+.eyebrowRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.eyebrow {
+  font-family: var(--font-label);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--gold);
+}
+
+.settingsLink {
+  color: var(--shell-muted);
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+}
+
+.settingsLink:hover {
+  color: var(--shell-text);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 28px;
+  color: var(--shell-text);
+  margin: 4px 0 6px;
+}
+
+.sub {
+  font-size: 13.5px;
+  color: var(--shell-muted-2);
+  line-height: 1.5;
+  max-width: 34ch;
+}
+
+.stats {
+  display: flex;
+  gap: 22px;
+  margin: 18px 0 16px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.statValue {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--shell-text);
+}
+
+.statLabel {
+  font-family: var(--font-label);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--shell-muted);
+}
+
+.cta {
+  /* Was previously a <Button> wrapped in this <Link> -- two nested
+     interactive elements, invalid HTML and unreliable for keyboard/AT focus
+     (CODEX_AUDIT.md A-034). One interactive element, styled like the primary
+     button, instead. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 14px 20px;
+  border-radius: var(--r-md);
+  background: linear-gradient(100deg, var(--gold), var(--gold-deep));
+  color: var(--gold-ink);
+  font-family: var(--font-label);
+  font-weight: 700;
+  font-size: 14.5px;
+  text-align: center;
+}
