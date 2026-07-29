@@ -51,9 +51,9 @@ export default async function ReviewPage() {
       <section className={styles.section}>
         <h2 className={styles.h2}>Thread radar</h2>
         <p className={styles.hint}>
-          Words showing up more than once with no thread covering them yet. Not a suggestion of
-          what they mean — just a note that you&apos;ve seen something twice. The guide&apos;s own
-          rule: make a thread on the third sighting, not the first.
+          Words showing up in three or more separate passages with no thread covering them yet. Not
+          a suggestion of what they mean — just a note that you&apos;ve seen something three times.
+          The guide&apos;s own rule: make a thread on the third sighting, not the first.
         </p>
         {radar.length === 0 ? (
           <p className={styles.ok}>Nothing repeating outside your existing threads right now.</p>
@@ -63,7 +63,7 @@ export default async function ReviewPage() {
               <div key={hit.word} className={styles.radarHit}>
                 <span className={styles.radarWord}>{hit.word}</span>
                 <span className={styles.radarCount}>
-                  in {hit.count} entries · {hit.chapters.join(", ")}
+                  in {hit.count} passages · {hit.chapters.join(", ")}
                 </span>
               </div>
             ))}

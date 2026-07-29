@@ -25,7 +25,7 @@ export function VaultExportButton() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "bible-brain-vault.zip";
+      link.download = "scarlet-thread-vault.zip";
       document.body.append(link);
       link.click();
       link.remove();

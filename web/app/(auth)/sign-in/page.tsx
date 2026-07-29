@@ -12,7 +12,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   return (
     <main className={styles.page}>
       <section className={styles.card}>
-        <p className={styles.eyebrow}>BIBLE BRAIN</p>
+        <p className={styles.eyebrow}>SCARLET THREAD</p>
         <h1>Your study stays yours.</h1>
         <p className={styles.copy}>
           Sign in with the one Google account authorized for this private

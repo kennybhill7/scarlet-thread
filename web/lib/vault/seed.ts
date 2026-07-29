@@ -283,7 +283,7 @@ function normaliseWord(word: string): string {
 
 export interface RadarHit {
   word: string;
-  /** Distinct entries the word appears in. */
+  /** Distinct passages (chapters) the word appears in, not raw entry count. */
   count: number;
   /** Chapters those entries are anchored to, for display. */
   chapters: string[];
@@ -296,11 +296,20 @@ export async function getThreadRadar(): Promise<RadarHit[]> {
     threads.flatMap((t) => t.title.toLowerCase().split(/[^a-z]+/).filter(Boolean)),
   );
 
-  // word -> distinct entries (by index) that mention it AND don't already
-  // carry a thread whose own title is that same word.
-  const hits = new Map<string, { entryIndexes: Set<number>; chapters: Set<string> }>();
+  // word -> distinct PASSAGES (chapters) it appears in, and none of the
+  // entries there already carry a thread whose own title is that word.
+  //
+  // Counting distinct entries here was wrong: the importer produces several
+  // entries per stage that all share one chapter anchor, so a word said
+  // twice in notes about the SAME passage counted as "2 sightings" -- not
+  // what "you've seen this in three passages" means. Two verified real
+  // examples this caught: "humanity" showed 6 entries across only 2
+  // chapters, and the threshold below was checking >= 2 while the UI copy
+  // (unchanged, still correct) says "third sighting, not the first." Both
+  // fixed by counting and gating on distinct chapters.
+  const hits = new Map<string, Set<string>>();
 
-  entries.forEach((entry, index) => {
+  entries.forEach((entry) => {
     if (entry.kind !== "observation" && entry.kind !== "question") return;
     const entryThreadTitleWords = new Set(
       entry.threads
@@ -319,16 +328,14 @@ export async function getThreadRadar(): Promise<RadarHit[]> {
     for (const word of words) {
       // Already named by one of THIS entry's own threads -- not emerging, named.
       if (entryThreadTitleWords.has(word)) continue;
-      if (!hits.has(word)) hits.set(word, { entryIndexes: new Set(), chapters: new Set() });
-      const hit = hits.get(word)!;
-      hit.entryIndexes.add(index);
-      hit.chapters.add(entry.chapter);
+      if (!hits.has(word)) hits.set(word, new Set());
+      hits.get(word)!.add(entry.chapter);
     }
   });
 
   return Array.from(hits.entries())
-    .filter(([, hit]) => hit.entryIndexes.size >= 2)
-    .map(([word, hit]) => ({ word, count: hit.entryIndexes.size, chapters: Array.from(hit.chapters) }))
+    .filter(([, chapters]) => chapters.size >= 3)
+    .map(([word, chapters]) => ({ word, count: chapters.size, chapters: Array.from(chapters) }))
     .sort((a, b) => b.count - a.count || a.word.localeCompare(b.word))
     .slice(0, 8);
 }

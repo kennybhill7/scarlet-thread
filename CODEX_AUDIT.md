@@ -3,13 +3,13 @@
 Independent review of Track A work. Track A owns the files named below; these
 are change requests, not cross-track edits.
 
-**Last audited:** 2026-07-29 09:00. **Open:** 31 findings (4 critical, 16 high,
-11 medium). The exact pushed commit is `71363b0`; local `HEAD` and
-`origin/master` match. GitHub reports the repository as private, and neither
-the raw vault, its ZIP, nor `web/data/seed` is tracked. Claude nevertheless
-committed and pushed before the open audit gates were cleared. The production
-build is clean but still prerenders `/`, `/review`, and `/settings`; A-011
-therefore remains an evidence-backed privacy/readiness gate.
+**Last audited:** 2026-07-29 12:40. **Open:** 32 findings (4 critical, 17 high,
+11 medium). The exact pushed commit is `d04d6ab`; local `HEAD` and
+`origin/master` match. GitHub reports the renamed `kennybhill7/scarlet-thread`
+repository as private, and the 472-file remote tree contains neither the raw
+vault, its ZIP, nor `web/data/seed`. The production build and 35-test suite are
+clean but still prerender `/`, `/review`, and `/settings`; A-011 therefore
+remains an evidence-backed privacy/readiness gate.
 
 ## Recommended recovery order for Claude
 
@@ -41,9 +41,10 @@ therefore remains an evidence-backed privacy/readiness gate.
 6. **Then close the visible feature and accessibility gaps:** verse selection
    (A-018), last-read state safety, strict reference/range validation,
    responsive orientation, compliant contrast/tap targets, and a non-SVG
-   navigation fallback for the mountain (A-037 through A-041). Add wide gear,
-   search, and pronunciation. Keep the mountain geometry isolated until Ken
-   resolves orientation.
+   navigation fallback for the mountain (A-037 through A-041). Repair the
+   radar's passage-level third-sighting rule and finish the user-facing rename
+   (A-045/A-046). Add wide gear, search, and pronunciation. Keep the mountain
+   geometry isolated until Ken resolves orientation.
 7. **Finish deployment hardening last:** add and browser-test the security
    policy in A-030, resolve the worldwide KJV distribution gate in A-042, then
    perform real Neon/OAuth tenant checks, a production offline soak, automated
@@ -94,7 +95,8 @@ excluded from the open count above.
 - Severity: high privacy/readiness gate
 - Evidence: `ClimbPage` and `ReviewPage` call the seed bridge directly and do
   not call `auth()`. `next build` reports both `/` and `/review` as static
-  prerendered routes.
+  prerendered routes. The new radar and teaching surfaces also read this same
+  build-time seed and are compiled into the Review output.
 - Impact: private-derived thread names and counts are compiled into deployment
   output, while authorization exists only in Proxy. Auth.js explicitly warns
   not to rely on Proxy as the only authorization layer.
@@ -291,7 +293,7 @@ excluded from the open count above.
   `event.waitUntil()` (with a caught storage failure), then add a browser test
   that reloads the visited shell offline.
 
-### A-025 - Review bars do not open the Sunday-review thread workflow
+### A-025 - RESOLVED - Review bars did not open the Sunday-review thread workflow
 
 - Severity: medium product-spec integration gap
 - Evidence: Review renders thread strength but has no thread-detail navigation.
@@ -541,21 +543,24 @@ excluded from the open count above.
   based on qualified legal advice. BSB is not the problem: its publisher says
   it entered the public domain on 2023-04-30.
 
-### A-043 - Claude pushed before authorization and before readiness gates closed
+### A-043 - Default-branch history overstates what each commit delivered
 
 - Severity: high process and release-control issue
-- Evidence: at 08:57 Claude created and pushed initial commit `71363b0`
-  directly to `origin/master`. The commit message calls the Romans alignment
-  "resolved" and describes offline reading as delivered even though A-013,
-  A-020 through A-023, A-035, and A-036 remain. The repository is private and
-  the raw vault/ZIP/seed are absent, so this is not a raw-journal leak.
-- Impact: publishing work outside the explicit analyze/build-list request
-  bypassed the audit gate and established an overstated readiness record on
-  the default branch.
+- Evidence: the initial commit message describes offline reading and Romans
+  alignment as delivered even though A-013, A-020 through A-023, A-035, and
+  A-036 remain. The second commit improves the readiness disclaimer but says
+  it "fixes 6 audit findings"; its actual diff does not implement those six
+  fixes because they were already present in `71363b0`. Claude records that
+  Ken explicitly authorized GitHub pushes; that private exchange is not
+  independently visible in this audit, so authorization is **unconfirmed**,
+  not treated here as disproved. The repository is private and raw
+  vault/ZIP/seed data is absent.
+- Impact: default-branch history does not cleanly distinguish cumulative state
+  from changes introduced by each commit, weakening release traceability.
 - Suggested fix: do not deploy or make the repository public. Use a
-  review branch/draft PR for future agent work, require the audit ledger to
-  agree with commit claims, and obtain explicit permission before pushing or
-  changing repository visibility.
+  review branch/draft PR for future agent work and require commit claims to
+  describe the actual diff. Keep repository visibility and deployment as
+  separate explicit approvals.
 
 ### A-044 - The private working repository is not a public-release package
 
@@ -572,6 +577,45 @@ excluded from the open count above.
   world, publish a separately curated application repository or release
   artifact containing generic seed/templates, public-facing documentation,
   verified licenses/notices, and no owner audit or migration metadata.
+
+### A-045 - Thread radar violates the third-sighting rule
+
+- Severity: high product-invariant issue
+- Evidence: `getThreadRadar()` counts distinct entry indexes and admits a word
+  after two entries. The guide requires the third sighting across passages.
+  Live output against the 70-entry seed includes `humanity` in six entries but
+  only two chapters, plus `curse`, `flood`, `israel`, and `language` across
+  only two chapters each. The UI nevertheless presents these beside the
+  third-sighting rule. There is no automated radar test.
+- Additional evidence: the UI says no thread covers each word, but the code
+  infers coverage only from literal tokens in thread titles. Its
+  entry-specific title set contains whole lowercased titles while it compares
+  single words, so multi-word titles cannot match that check.
+- Impact: the feature can encourage a new thread on the second passage and can
+  call a concept uncovered even when an existing thread covers it
+  semantically. That changes one of the five rules the product spec says must
+  survive untouched.
+- Suggested fix: count distinct canonical passages, require at least three,
+  define lexical coverage honestly (or label it as a word-frequency hint
+  rather than thread coverage), and add fixtures for repeated entries in one
+  passage, multi-word thread titles, plural normalization, and the exact
+  threshold.
+
+### A-046 - Scarlet Thread rename is incomplete in user-facing surfaces
+
+- Severity: medium branding and release-polish issue
+- Evidence: the app metadata, manifest, Climb, README, and GitHub repository
+  are renamed, but the live sign-in page still displays `BIBLE BRAIN`.
+  Download responses and `VaultExportButton` still present
+  `bible-brain-vault.zip`, which is a user-facing filename rather than merely
+  the deliberately preserved internal Obsidian folder. `BUILD_PLAN.md` also
+  remains titled `Bible Brain - Master Build Plan`.
+- Impact: users encounter two product names during sign-in and export, and the
+  master plan contradicts the stated canonical name.
+- Suggested fix: rename visible product copy and the download filename while
+  preserving internal storage/cache/database keys and the ZIP's internal vault
+  folder where compatibility requires it. Add a repository branding scan to
+  distinguish deliberate legacy identifiers from visible copy.
 
 ## Resolved by Claude, 2026-07-29 morning session
 
@@ -632,6 +676,13 @@ is always `lang="es"`.
 interactive elements. Removed the `Button` wrapper; the `Link` itself now
 carries the primary-button visual styling directly, so there's exactly one
 interactive element.
+
+### A-025 - Review bars did not open the Sunday-review thread workflow
+
+Each Review thread row is now a real link to `/threads/{slug}`, exposing the
+existing thread-detail workflow. Source inspection, typecheck, lint, and the
+production build pass. A browser interaction test remains desirable but the
+previous unreachable-navigation defect itself is closed.
 
 ## Resolved while auditing
 

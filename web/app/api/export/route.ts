@@ -61,7 +61,7 @@ export async function GET() {
       headers: {
         "content-type": "application/zip",
         "content-disposition":
-          'attachment; filename="bible-brain-vault.zip"',
+          'attachment; filename="scarlet-thread-vault.zip"',
         "cache-control": "private, no-store",
       },
     });

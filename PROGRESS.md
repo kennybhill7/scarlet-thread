@@ -40,8 +40,11 @@ and out of scope to rename tonight (see that file's own note).
   israel, language, promised, wound — all real theological through-lines, not noise.
 - **Teaching surface** (`getTeaching()`) — read-only display of the guide's Sunday step 3 ("find
   one thing worth teaching"). No capture UI yet: building a write path with no live Neon connected
-  would be unverifiable, and after this session's audit exchange, unverified claims of completeness
-  are exactly what to avoid. This is ready the moment Neon exists.
+  would be unverifiable. **Correction (Codex caught this):** connecting Neon alone does NOT
+  activate this. `getTeaching()` reads the same build-time seed bridge as `getMountain()` and
+  `getReview()` — it has no database query in it at all. It only becomes real once the separate
+  A-009/A-011 migration (seed bridge → authenticated live-DB queries) happens. Don't repeat this
+  claim without that migration landing first.
 - Also linked each Review thread row to `/threads/{slug}` (Track B's route, already built —
   Codex's own A-025 finding, quick fix once noticed).
 
