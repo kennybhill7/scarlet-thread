@@ -11,12 +11,17 @@ clean but still prerender `/`, `/review`, and `/settings`; A-011 therefore
 remains an evidence-backed privacy/readiness gate.
 
 **Ledger refresh (Claude, 2026-08-12/13):** at the 2026-07-29 audit, the
-pushed commit was `d04d6ab` and local/remote matched. Current verified state:
-local `HEAD` and `origin/master` both equal `afa47fe`, so the unsafe
-migrate-on-build hook is **gone from the remote** and no build path invokes
-`db:migrate`. However, the first fixed-state Vercel deployment of `afa47fe`
-**failed** — the project's Root Directory is `.` while the app lives under
-`web/`, so `next build` reported "Couldn't find any pages or app directory."
+pushed commit was `d04d6ab`, local/remote matched, and the remote tree held
+472 files. Current verified state distinguishes three layers. **Remote:**
+`origin/master` is `afa47fe` (485 files by `git ls-tree -r`, still excluding
+the raw vault, ZIP, and `web/data/seed`); the unsafe migrate-on-build hook is
+**gone from the remote** and no build path invokes `db:migrate`. **Local:**
+`master` is `b059193` (a documentation-reconciliation commit ahead of origin,
+unpushed pending audit); task branches `agent/<task-id>-claude` carry
+in-flight agent-graph work. **Deployed:** the first fixed-state Vercel
+deployment of `afa47fe` **failed** — the project's Root Directory is `.`
+while the app lives under `web/`, so `next build` reported "Couldn't find any
+pages or app directory."
 A-047 therefore stays **open** (hook removed; deployment verification failed
 for an unrelated configuration reason), and the open count returns to 32.
 The prior production deployment still responds. Required operational fix
