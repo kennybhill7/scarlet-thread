@@ -392,7 +392,7 @@ An encounter may close after saved observation/question work. A deep session may
 #### Connections
 
 - Side-by-side source and destination passages.
-- Connection type, rationale, evidence level, and viewpoint.
+- Connection type, rationale, evidence label, and viewpoint.
 - Curated and personal edges never visually merge.
 - First/second motif sightings can remain provisional.
 - Third distinct sighting prompts, but does not force, thread creation.
@@ -479,7 +479,7 @@ Show:
 
 - definition and creation rationale;
 - distinct-passage sightings in canonical order;
-- connection type, rationale, evidence, confidence, viewpoint, and provenance;
+- connection type, rationale, evidence label, viewpoint, and provenance;
 - curated connections separate from learner discoveries;
 - weak or contradicted links that need reconsideration;
 - both sides of each canonical edge;
@@ -605,7 +605,7 @@ Each edge requires:
 - both passage ranges;
 - a typed relationship;
 - a rationale that uses both texts;
-- evidence level;
+- an evidence label — explicit | strong | plausible | devotional;
 - viewpoint when disputed;
 - provenance and reviewer;
 - citations where appropriate.
@@ -623,6 +623,8 @@ Allowed types:
 - parallel;
 - doctrinal synthesis;
 - personal resonance, which cannot support curated doctrine.
+
+The serialized snake_case values for these types and labels are fixed in `BUILD_PLAN.md` §3.2 and are the single vocabulary for every table, payload, and document; `personal_resonance` requires the `devotional` evidence label by database constraint.
 
 ### Theology
 
@@ -660,7 +662,7 @@ Do not calculate a spiritual-maturity score.
 
 Eleven stages produce five mirror pairs and one unpaired summit, not six pairs. Preserve the current six-week rhythm while teaching careful comparison.
 
-Begin with a short genre-and-connection primer covering literary units, narrative and apocalyptic genre, explicit quotation versus thematic resemblance, evidence levels, and why every proposed mirror relationship is a claim to test rather than an answer supplied by a diagram.
+Begin with a short genre-and-connection primer covering literary units, narrative and apocalyptic genre, explicit quotation versus thematic resemblance, evidence labels, and why every proposed mirror relationship is a claim to test rather than an answer supplied by a diagram.
 
 | Week | First passage | Mirror | Skill |
 |---|---|---|---|
@@ -1038,7 +1040,7 @@ Candidates store `id`, `workspace_id`, learner label, normalized key, and status
 
 #### `user_connections`
 
-`id`, `workspace_id`, `created_by`, source range, destination range, `edge_type`, `rationale`, `confidence`, `thread_slug`, `status(draft|confirmed|revisit)`, `revision`, timestamps.
+`id`, `workspace_id`, `created_by`, source range, destination range, `edge_type`, `rationale`, `evidence_label(explicit|strong|plausible|devotional)`, `thread_slug`, `status(draft|confirmed|revisit)`, `revision`, timestamps.
 
 #### `applications`
 
@@ -1106,7 +1108,7 @@ Passage, doctrine, theme, person, place, covenant, or mountain stage.
 
 #### `graph_edges`
 
-Source, destination, type, direction, rationale block, evidence confidence, viewpoint, release, and review status.
+Source, destination, type, direction, rationale block, evidence label, viewpoint, release, and review status.
 
 #### `graph_edge_evidence`
 
@@ -1507,7 +1509,7 @@ In the solo MVP, states are **Draft complete**, **Rehearsed**, and **Self-review
 - Reference/range parsing and validation.
 - Claim types and epistemic labels.
 - Stage-specific guidance/attempt gates and mode-specific completion states.
-- Connection types, evidence, direction, and confidence.
+- Connection types, evidence labels, and direction.
 - Third-distinct-passage sighting rule.
 - Application and promise classifications.
 - Search ranking and scope separation.
@@ -1835,7 +1837,7 @@ The founding cohort is free. Billing, entitlements, cancellation, refunds, taxes
 |---|---|
 | Theological overclaim | Claim labels, exact evidence, sources, named reviewers, corrections |
 | Hidden denominational bias | Public theological profile and viewpoint policy |
-| Forced canonical connections | Typed edges, both passages, evidence level, human review |
+| Forced canonical connections | Typed edges, both passages, evidence label, human review |
 | Bad modern application | Original-audience bridge, covenant qualification, misuse warning, safeguarding review |
 | Teacher/IP imitation | Pedagogical principles only; no copied voice or proprietary material |
 | Scripture/alignment corruption | Atomic builders, manifests, hashes, fail-closed rendering |

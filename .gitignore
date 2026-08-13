@@ -45,6 +45,10 @@ desktop.ini
 .idea/
 *.swp
 
+# Claude Code local settings — machine-specific permissions, never shared.
+# (.claude/ itself stays untracked unless deliberately reviewed as shared config.)
+.claude/settings.local.json
+
 # Logs
 *.log
 npm-debug.log*

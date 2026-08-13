@@ -15,7 +15,7 @@
 3. **Curated ≠ personal.** Curated content lives in versioned repo files compiled into immutable releases; user content lives in workspace-scoped DB rows. The UI must always show which one it is displaying. They never mix in one table — learner `user_connections` and reviewed `graph_edges` are different records.
 4. **Additive contracts only.** v1 `lib/contracts.ts` stays byte-stable; new types live in versioned modules (`lib/contracts/study-v2.ts`, `content-v1.ts`, `graph-v1.ts`). Client-clock last-write-wins is retired **in Phase 1**, not at some future milestone — one person on a phone and a laptop is already a multi-device product, and long-form prose (teaching drafts) must never be silently overwritten.
 5. **Fail closed.** Missing seed, missing verse map, missing production env = explicit error state, never an empty-success screen.
-6. **Tests certify software; a pastor certifies theology.** Every curated lesson carries `reviewedBy` + `reviewedAt` in frontmatter, the reviewer must differ from the author, and CI enforces both before `published`.
+6. **Tests certify software; a pastor certifies theology.** Every curated lesson names its `author` in frontmatter and is approved through structured `content_reviews` records (reviewer, discipline, decision, timestamp — master plan §12.4); `publish.ts` enforces author ≠ reviewer and discipline-specific approvals before `published`. Self-attested frontmatter is not a review.
 7. **One write path.** Sync push is the sole browser mutation path for learner entities (master plan §14); resource routes are read-only. The browser never both enqueues an op and calls an independent REST mutation.
 
 ---
@@ -55,7 +55,7 @@ Ship nothing user-facing until these 12 gates close. Each maps to an audit findi
 
 | # | Gate | Where | Done when |
 |---|------|-------|-----------|
-| 0.1 | Neon + Google OAuth configured on Vercel | Vercel env, `lib/auth/config.ts`, `lib/auth/allowlist.ts` | Real sign-in on the preview URL; the single-email `AUTH_ALLOWED_EMAIL` allowlist extended to a controlled invite/test list; then two test Google accounts cannot see each other's entries (tenant-isolation test in `tests/`) |
+| 0.1 | Neon + Google OAuth configured on Vercel | Vercel env, `lib/auth/config.ts`, `lib/auth/allowlist.ts` | Real sign-in on the preview URL; the single-email `AUTH_ALLOWED_EMAIL` allowlist extended to a controlled invite/test list; then two test Google accounts cannot see each other's entries via **application-level predicates** (tenant-isolation test in `tests/`; hostile RLS verification is the Phase 1 re-proof, §3.3) |
 | 0.2 | Private seed out of build path | `lib/vault/seed.ts`, `db/seed.ts` | Seed content migrates via `db:seed` into Ken's DB row set; `data/seed/` no longer read at build |
 | 0.3 | Setup-incomplete state | `app/(app)/review/page.tsx`, `lib/api/response.ts` | Missing DB/env renders a labeled setup error, never empty arrays |
 | 0.4 | Offline nav for unvisited chapters | service worker + `lib/bible/loader.ts` | Unvisited dynamic chapter route works offline or shows an explicit offline notice |
@@ -68,7 +68,7 @@ Ship nothing user-facing until these 12 gates close. Each maps to an audit findi
 | 0.11 | Licensing decision | `contracts.ts` VersionMeta, Settings | KJV UK Crown-copyright question answered (geo-note or drop); licence text rendered in Settings; `CODEX_AUDIT.md` updated |
 | 0.12 | Remove the `c29de2e` migrate-on-build hook | `web/vercel.json` | The `buildCommand` migrate hook is deleted (an env check is insufficient — it still migrates before the build is proven). Replacement: a serialized release job with database-identity checks, locking, backup/readiness checks, expand-contract migrations, and post-migration verification. No history rewrite; no rolling back migrations that may have already run |
 
-**Exit criterion:** the Vercel URL is a working single-user app with verified account isolation. Only then is it honest to call it deployed.
+**Exit criterion:** the Vercel URL is a working single-user app with verified application-level account isolation, **and zero critical/high privacy, Scripture-correctness, security, or data-loss findings remain open** in `CODEX_AUDIT.md` or `THEOLOGY_PRODUCT_AUDIT.md`. Only then is it honest to call it deployed.
 
 ---
 
@@ -91,38 +91,42 @@ Display references map through the versioned verse map per translation (SBL's Ro
 
 ### 3.2 New enums
 
+**This is the one canonical vocabulary.** Postgres enums, JSON payloads, and both planning documents use these snake_case serialized values verbatim (master plan §7 and §12 use the same list); no table, contract, or doc may introduce variant spellings.
+
 ```ts
-/** Matches master plan §12.3 claim_kind. */
 export type ClaimKind =
   | "observation" | "question" | "context" | "interpretation"
-  | "theology" | "conviction" | "application" | "teaching-seed";
+  | "theology" | "conviction" | "application" | "teaching_seed";
 /** What kind of warrant stands behind the claim. */
 export type EpistemicBasis =
-  | "text-explicit" | "historical-context" | "inference" | "canonical-synthesis"
-  | "tradition" | "prudential-judgment" | "personal-reflection";
-export type ClaimConfidence = "tentative" | "developing" | "well-supported";
+  | "text_explicit" | "historical_context" | "inference" | "canonical_synthesis"
+  | "tradition" | "prudential_judgment" | "personal_reflection";
+export type ClaimConfidence = "tentative" | "developing" | "well_supported";
+export type ClaimProvenance = "learner" | "imported";
 export type ConnectionType =
-  | "quotation" | "explicit-reference" | "allusion" | "motif"
-  | "promise-fulfillment" | "type-antitype" | "covenant-development"
-  | "contrast" | "doctrinal-synthesis" | "devotional-resonance";
+  | "quotation" | "explicit_reference" | "allusion" | "motif"
+  | "promise_fulfillment" | "type_antitype" | "covenant_development"
+  | "contrast_reversal" | "parallel" | "doctrinal_synthesis"
+  | "personal_resonance";
 /** How firmly the evidence supports a connection. "devotional" legitimizes
  *  personal resonance without letting it quietly upgrade into doctrine. */
 export type EvidenceLabel = "explicit" | "strong" | "plausible" | "devotional";
-/** Matches master plan doctrine_status. */
 export type DoctrineStatus = "core" | "conviction" | "open" | "disputed" | "wisdom";
 ```
 
+**Enforced constraints, not conventions:** `personal_resonance` connections require `evidence_label = 'devotional'` (DB check constraint), and devotional-labeled connections can never be cited as `claim_evidence` for a theology claim nor appear in curated doctrine (DB check + content CI + tests for all three).
+
 ### 3.3 New tables (Drizzle; user tables workspace-scoped w/ soft delete, curated tables are read-only release indexes)
 
-**User-owned (synced).** Every table below carries `workspace_id` (one personal workspace per user, backfilled) and an integer `revision` from day one, and Phase 1 turns on transaction-scoped RLS (`set_config('app.workspace_id', ..., true)` per master plan §12.1) plus account-scoped IndexedDB — the Phase 0 two-account isolation test needs both, so neither waits for an invited user.
+**User-owned (synced).** Every table below carries `workspace_id` (one personal workspace per user, backfilled) and an integer `revision` from day one. Isolation lands in two verifiable steps: **Phase 0** proves application-level isolation (route/repository workspace predicates, two test accounts, no cross-reads); **Phase 1** adds transaction-scoped RLS (`set_config('app.workspace_id', ..., true)` per master plan §12.1) plus account-scoped IndexedDB and re-proves isolation with hostile two-user tests — RLS is defense in depth on top of the Phase 0 predicates, not the thing the Phase 0 test waits for.
 
 - `study_sessions` — id, workspaceId, canonical range, mode, workflowState, connectionState (unexamined | provisional | linked | no_warrant_yet), optional pinned catalog/curriculum release, readGateAt, currentStep. The workspace routes by **sessionId**, not book/chapter: multiple studies of the same passage, resumability, and revision history all need it.
-- `study_claims` — id, workspaceId, sessionId, kind (ClaimKind), epistemicBasis (EpistemicBasis), body, passage (CanonicalRange), confidence (ClaimConfidence), doctrineStatus (theology claims only), viewpoint (nullable), status (draft | confirmed | needs_revision). Indexes on (workspaceId, passage), (workspaceId, kind). The learner's **first observation is preserved permanently** — later understanding creates revisions (`artifact_revisions`), never rewrites history. `conviction` claims are private-by-design: excluded from analytics/learning measures, never auto-shared or exported into teaching material.
+- `study_claims` — id, workspaceId, sessionId, kind (ClaimKind), epistemicBasis (EpistemicBasis), body, passage (CanonicalRange), confidence (ClaimConfidence), provenance (ClaimProvenance), doctrineStatus (theology claims only), viewpoint (nullable), status (draft | confirmed | needs_revision). Indexes on (workspaceId, passage), (workspaceId, kind). The learner's **first observation is preserved permanently** via **append-only `artifact_revisions` rows** — an integer revision counter alone is not the guarantee; every edit inserts the prior body as an immutable row. `conviction` claims are private-by-design, and that privacy is an **enforced, tested policy across five surfaces**: analytics/learning measures, server logs/telemetry, sharing, AI retrieval (Phase 6 corpus assembly must filter them), and teaching promotion — each exclusion has its own test.
 - `claim_evidence` — claimId, workspaceId, kind ("passage" | "citation" | "connection" | "claim"), ref — where "citation" is a first-class `citationId` into the sources/citations model (§3.3 curated), not a pasted string. One claim, many evidence rows. An `interpretation` with zero evidence rows renders with a visible **"unsupported"** badge — the structural fix for audit gap #1.
 - `motif_candidates` + `motif_sightings` — the radar and sightings 1–2 live here (label, normalized key, exact range, status), **before** any thread exists. Promotion on the third genuine sighting creates the thread and links earlier sightings transactionally; dismissal never deletes the underlying observation.
-- `user_connections` — id, workspaceId, fromRange, toRange, type (ConnectionType), evidenceLabel (EvidenceLabel), rationale (required, min 20 chars), threadSlug (nullable), status. Unique on (workspaceId, fromRange, toRange, type). **Learner-authored only**: reviewed edges live in curated `graph_edges` (below) and radar output lives in `motif_candidates` — the three provenances never share a table. Every connection renders both passages side by side; the evidence label keeps "these verses sound similar" from quietly becoming "the Bible teaches this."
-- `applications` — id, workspaceId, sessionId, originalMeaning, enduringPrinciple, discontinuity, domain ("work" | "money" | "relationships" | "grief" | "anxiety" | "leadership" | "justice" | "technology" | "sexuality" | "church"), responseType ("belief" | "repentance" | "prayer" | "lament" | "worship" | "rest" | "relationship" | "service" | "action" — not every passage produces a productivity assignment), concreteResponse, misuseWarning, status, reviewAt. All guardrail fields are **columns, not free text**. Partial drafts always save locally; completeness is enforced only at the explicit **finalize** transition. Sensitive domains never render medical, mental-health, legal, financial, abuse, or crisis advice — referral language only.
-- `teaching_drafts` — id, workspaceId, sessionId, format (60-second explanation | 5-minute table talk | 15-minute small-group lesson | 30-minute teaching), bigIdea, outline (jsonb points w/ refs), gospelConnection, objection + answer, illustration, application, notJustified, discussionQuestion, prayer, audience, deliveredAt (nullable). Same draft/finalize rule. Software flags missing evidence or structure; it never scores theological correctness.
+- `user_connections` — id, workspaceId, fromRange, toRange, type (ConnectionType), evidenceLabel (EvidenceLabel, with the §3.2 personal_resonance/devotional constraints), rationale (required, min 20 chars), threadSlug (nullable), status. Unique on (workspaceId, fromRange, toRange, type). **Learner-authored only**: reviewed edges live in curated `graph_edges` (below) and radar output lives in `motif_candidates` — the three provenances never share a table. Every connection renders both passages side by side; the evidence label keeps "these verses sound similar" from quietly becoming "the Bible teaches this."
+- `applications` — id, workspaceId, sessionId, sourceClaimId, and the master plan §12.3 bridge fields verbatim: `original_audience_meaning`, `enduring_principle`, `canonical_bridge`, `application_class`, `promise_scope`, `modern_domain` (work | money | relationships | grief | anxiety | leadership | justice | technology | sexuality | church), `situation`, `response_type` (belief | repentance | prayer | lament | worship | rest | relationship | service | action — not every passage produces a productivity assignment), `faithful_response`, `cautions`, optional `available_after`, status, revision. All bridge fields are **columns, not free text**. Partial drafts always save locally; completeness is enforced only at the explicit **finalize** transition. Sensitive domains never render medical, mental-health, legal, financial, abuse, or crisis advice — referral language only.
+- `teaching_drafts` + `teaching_sections` — the master plan §12.3 shape: draft holds id, workspaceId, sessionId, format (60-second explanation | 5-minute table talk | 15-minute small-group lesson | 30-minute teaching), title, bigIdea, audience, gospelConnection, status, revision, deliveredAt (nullable); ordered sections carry kind (outline | context | connection | theology | illustration | objection | application | not_justified | discussion | prayer), sortOrder, body. A `connection` section accepts a reasoned `no_warrant_yet` in place of an edge. Same draft/finalize rule. Software flags missing evidence or structure; it never scores theological correctness.
 
 **Thread-invariant correction (staged migration):** `lib/api/entries.ts` currently requires ≥1 thread per entry and migration `0003_enforce_active_thread_links.sql` enforces it — which contradicts the third-sighting rule (sightings 1–2 of a new motif have no thread yet). Relax the entry/sync schemas and the 0003 triggers in one coordinated migration so drafts can exist unlinked; the enforced rule moves to the session transition into `linked`. Rollback + import test before accepting unthreaded records.
 
@@ -166,7 +170,7 @@ One route: `app/(app)/study/[sessionId]/page.tsx` — a session pins its canonic
 | 7. Apply — **The Practice Bridge** | ≥1 theology claim | domain + response-type lists | Application (drafts save anytime; bridge fields checked at finalize) |
 | 8. Teach — **Teach It Back** | ≥1 finalized application | user's own claims for the session | TeachingDraft in one of the four formats |
 
-Component layout: `components/workspace/{WorkspaceShell,ReadPane,ObservePane,ContextPane,ConnectPane,TheologyPane,ConvictionPane,ApplyPane,TeachPane}.tsx`, reusing `Sheet`, `Chip`, `Field`, `ThreadPicker`. Mobile-first: sections are an accordion, not tabs, so the flow reads top-to-bottom like the method itself. Visual grammar: sparse, quiet screens before observation, increasing richness as understanding develops; connection lines drawn as thread, not network-diagram edges (palette decision — parchment/crimson/gold vs the workspace dark-theme default — is an open product call for Ken).
+Component layout: `components/workspace/{WorkspaceShell,ReadPane,ObservePane,ContextPane,ConnectPane,TheologyPane,ConvictionPane,ApplyPane,TeachPane}.tsx`, reusing `Sheet`, `Chip`, `Field`, `ThreadPicker`. Mobile-first: sections are an accordion, not tabs, so the flow reads top-to-bottom like the method itself. Visual grammar: sparse, quiet screens before observation, increasing richness as understanding develops; connection lines drawn as thread, not network-diagram edges. **Theme decision (Ken, 2026-08-13): use both.** The app shell stays midnight navy; the Quiet Page offers warm parchment; crimson marks active thread connections; muted gold is reserved for provenance/status indicators, never body text. Ship three themes — System, Midnight, Parchment — all passing accessible-contrast checks (the A-040 token fixes apply to every theme).
 
 Also in Phase 2:
 
@@ -182,14 +186,14 @@ The mountain's 11 stages each hold one anchor chapter today (audit gap #4). Fix 
 
 ### 5.1 Content pipeline and release machinery (this is executable work, not an assertion)
 
-- Author lessons as MDX in `content/curriculum/<track>/<nn-slug>.mdx` with zod-validated frontmatter: `passage`, `stage`, `bigIdea`, `contextId`, `connectionIds[]`, `doctrineSlugs[]`, `sources[]`, `reviewedBy`, `reviewedAt`, `status: draft | reviewed | published`.
+- Author lessons as MDX in `content/curriculum/<track>/<nn-slug>.mdx` with zod-validated frontmatter: `passage`, `stage`, `bigIdea`, `contextId`, `connectionIds[]`, `doctrineSlugs[]`, `sources[]`, `author`, `status: draft | in_review | published`. Review decisions are **not** frontmatter self-attestation: they are structured `content_reviews` records (master plan §12.4 — concrete node/release FK, reviewer, discipline, decision, notes, timestamp), and `publish.ts` enforces author ≠ reviewer plus discipline-specific approvals from those records.
 - Build the compiler in `web/scripts/content/`: `validate.ts` (schema + ref resolution), `build.ts` (emits the bundle), `publish.ts` (writes a **signed, checksummed catalog-release manifest** to durable append-only storage that does not depend on any single Vercel deployment), `verify-release.ts` (download + checksum verification, used by the app and the offline downloader). Corrections and withdrawals ship as a new release plus a signed revocation record; rollback and reconstruction of an old study against its pinned release are tested, not assumed. This machinery is a **prerequisite of first publication**, not post-launch hardening.
 - CI rules in `validate.ts`: every published lesson must have ≥1 source, all cited refs resolvable against the corpus, a teach-back prompt set, and a reviewer who is **not the author**. Connections are validated when present but **never required** — a lesson may honestly teach a passage with no warranted canonical connection (`no_warrant_yet` is a valid outcome, for lessons as for learners). Worked application examples must follow the Practice Bridge shape, but not every lesson must contain one.
 - Lesson counts: Genesis 1–12 = 15 units (creation, fall, Cain, flood, Babel, call of Abram — the existing Bible-Brain vault notes are the raw material); Matthew 1–7 = 15 units through the Sermon on the Mount.
 
 ### 5.2 Each lesson ships
 
-Context (curated `passage_contexts` row) · literary design notes · 3–5 curated typed connections · doctrine touchpoints · a guarded application worked example · a teach-back prompt set (explain w/o notes, 5-minute outline, likely objection, one thing this passage does **not** teach).
+Context (curated `passage_contexts` row) · literary design notes · **0–5 curated typed connections — only where warranted; a lesson with none records a reasoned no-warrant note instead** · doctrine touchpoints · a guarded application worked example · a teach-back prompt set (explain w/o notes, 5-minute outline, likely objection, one thing this passage does **not** teach, and "defend one connection **or give a reasoned `no_warrant_yet`**").
 
 ### 5.3 Governance (decide before the first lesson is written)
 
@@ -202,11 +206,11 @@ Teaching influences (Mitchell: sustained exposition, gospel center, discipleship
 ## 6. Phase 4 — Doctrine, life, and teaching surfaces (~3–4 weeks)
 
 - **Doctrine Library** (`app/(app)/doctrines/`): renders curated `doctrines`; each shows its DoctrineStatus badge (core | conviction | open | disputed | wisdom), whole-Bible development mapped onto the 11 stages, named positions where traditions differ with their strongest biblical arguments, and "your claims touching this doctrine" from the user's StudyClaims.
-- **Modern Life Lab** (`app/(app)/life/`): curated case studies (`content/cases/`) asking the learner to supply principle → context → competing wisdom → faithful action → possible misuse; answers save as Applications. Launch with ~10 cases across the domain list.
+- **Modern Life Lab** (`app/(app)/life/`): curated case studies (`content/life-labs/`) asking the learner to supply principle → context → competing wisdom → faithful action → possible misuse; answers save as Applications. Scope per master plan §8.5: **six labs**, built after the founding cohort validates the core method — not a pre-release deliverable.
 - **Teach-back Mode** (`app/(app)/teach/`): builds on TeachingDrafts. Four exercises per passage: blind explain (textarea, no notes visible), 5-minute lesson builder (outline points must cite refs), objection drill, negative-claim ("what this passage does not justify"). Completion feeds a **retrieval review** queue — extend `/api/review` with spaced re-teach prompts (7/30/90-day), measured by completed explanations, never streaks.
 - **Review page** goes fully live-data (audit gap #6 closed in Phase 0/1; here it gains claim-kind breakdowns and teach-back coverage per stage).
 
-**Phase 4 acceptance = the audit rubric:** a learner can distinguish the claim kinds and their epistemic bases, defend a connection from both passages (or honestly decline one), name where interpreters disagree, apply without bypassing the original audience, teach a cited 5-minute lesson, and name one unwarranted claim.
+**Phase 4 acceptance = the audit rubric plus transfer:** a learner can distinguish the claim kinds and their epistemic bases, defend a connection from both passages (or honestly decline one), name where interpreters disagree, apply without bypassing the original audience, teach a cited 5-minute lesson, name one unwarranted claim — and **use the method on an unfamiliar passage no curriculum covers** (master plan §7 transfer test). Completed lessons that look good are not the metric; a reusable method is.
 
 ---
 
@@ -241,7 +245,8 @@ Constraints before capability: retrieval **only** over the curated content + lic
 | 2 Passage Workspace | 3–4 wks | Genesis 3 vertical slice passes end-to-end (incl. sync-conflict, export, reload, release-pipeline publish + rollback); Playwright full-loop e2e green |
 | 3 Pilot curriculum | 4–6 wks (content-bound) | 15 Genesis + 15 Matthew 1–7 units published through the release pipeline with independent reviewer sign-off; correction/withdrawal exercised once |
 | 4 Doctrine/Life/Teach | 3–4 wks | Audit rubric demonstrable end-to-end on Genesis 3 and Matthew 5 |
-| 5 Public release readiness | 3–4 wks | Deletion/recovery/restore/rollback drills pass; accessibility verified; legal + disclosure pages live; monitoring carries no study content |
+| 4.5 Founding cohort | 4+ wks (calendar, external) | A free external cohort runs the Genesis pilot; cohort learners pass the unfamiliar-passage transfer test; their feedback triages into fixes before hardening |
+| 5 Public release readiness | 3–4 wks | Deletion/recovery/restore/rollback drills pass; accessibility verified; legal + disclosure pages live; monitoring carries no study content; conviction-exclusion tests green on all five surfaces |
 | 6 AI coach | not committed MVP scope | Estimate only after provider privacy controls, citation verification, evals, red-teaming, and pastoral-safety review are scoped — fail-closed + citation-required tests are the floor, not the whole job |
 
 Total for Phases 0–5: roughly 5–7 months part-time, with Phase 3 the least compressible because it is theology authorship + external review, not code. Phases 1–2 can overlap Phase 3 authoring since the content pipeline (§5.1) only needs the schema from Phase 1.
