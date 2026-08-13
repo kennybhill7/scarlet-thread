@@ -3,6 +3,7 @@
   "project": "Scarlet Thread",
   "defaultRoles": {
     "builder": "claude",
+    "operator": "human-operator",
     "auditor": "codex",
     "verifier": "deterministic-checks"
   },
@@ -14,7 +15,17 @@
     ".env",
     ".env.local",
     ".env.production",
-    ".claude/settings.local.json"
+    ".claude/",
+    ".github/",
+    ".gitignore",
+    "AGENTS.md",
+    "agent-graph/"
+  ],
+  "protectedBasenamePrefixes": [
+    ".env",
+    ".gitignore",
+    ".gitattributes",
+    "AGENTS.md"
   ],
   "humanGateCategories": [
     "doctrine",

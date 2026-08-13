@@ -5,6 +5,7 @@
       "id": "DOC-001",
       "title": "Reconcile the three theology planning documents",
       "objective": "Make BUILD_PLAN.md, THEOLOGY_MASTER_BUILD_PLAN.md, and THEOLOGY_PRODUCT_AUDIT.md agree on the canonical evidence contract, no-warrant behavior, conviction privacy, RLS sequencing, and Life Lab timing.",
+      "dependsOn": [],
       "ownedPaths": [
         "BUILD_PLAN.md",
         "THEOLOGY_MASTER_BUILD_PLAN.md",
@@ -32,6 +33,7 @@
       "id": "AUD-001",
       "title": "Refresh the release-readiness ledger from current evidence",
       "objective": "Correct stale commit, remote-tree, blocker-count, deployment, and A-047 statements in CODEX_AUDIT.md without closing any gate that lacks evidence.",
+      "dependsOn": [],
       "ownedPaths": [
         "CODEX_AUDIT.md"
       ],
@@ -57,6 +59,9 @@
       "id": "OPS-001",
       "title": "Repair and verify the Vercel project root",
       "objective": "Set the Vercel project Root Directory to web, redeploy the audited commit, and prove the build ran without a database migration.",
+      "dependsOn": [
+        "AUD-001"
+      ],
       "ownedPaths": [],
       "readOnlyPaths": [
         "web/package.json",
@@ -82,12 +87,15 @@
       "id": "P0-001",
       "title": "Prove two-account application-level tenant isolation",
       "objective": "Add a repeatable hostile integration test showing that account A cannot read or mutate account B data before proceeding to public multi-tenant work.",
+      "dependsOn": [],
       "ownedPaths": [
         "web/tests/tenant-isolation.test.ts",
         "web/lib/api/entries.ts",
         "web/lib/api/sync.ts",
-        "web/app/api/entries/",
-        "web/app/api/sync/"
+        "web/app/api/entries/route.ts",
+        "web/app/api/entries/[id]/route.ts",
+        "web/app/api/sync/pull/route.ts",
+        "web/app/api/sync/push/route.ts"
       ],
       "readOnlyPaths": [
         "web/lib/contracts.ts"
@@ -104,15 +112,13 @@
         "cd web; npm.cmd run typecheck",
         "cd web; npm.cmd run lint"
       ],
-      "humanGates": [
-        "secrets",
-        "production-database"
-      ]
+      "humanGates": []
     },
     {
       "id": "SEC-001",
       "title": "Add production security headers without breaking app flows",
       "objective": "Implement Phase 0 gate 0.9 with a deliberate CSP and baseline browser security headers on all application routes.",
+      "dependsOn": [],
       "ownedPaths": [
         "web/next.config.ts",
         "web/tests/security-headers.test.ts"
@@ -142,6 +148,7 @@
       "id": "P0UI-001",
       "title": "Complete protected sync and safe Settings controls",
       "objective": "Mount reconnect sync once inside the protected application, expose a current portable export, and provide one fail-closed clear-device-and-sign-out path while local storage remains account-unscoped.",
+      "dependsOn": [],
       "ownedPaths": [
         "web/app/(app)/layout.tsx",
         "web/app/(app)/settings/page.tsx",
@@ -182,6 +189,9 @@
       "id": "DOC-002",
       "title": "Resolve remaining executable-plan contradictions",
       "objective": "Reconcile the execution plan and authoritative theology plan before v2 schema work, preserving the proven v1 Entry invariant while separating session closure, established-thread linkage, motif promotion, and passage-comparison outcomes.",
+      "dependsOn": [
+        "DOC-001"
+      ],
       "ownedPaths": [
         "BUILD_PLAN.md",
         "THEOLOGY_MASTER_BUILD_PLAN.md"
