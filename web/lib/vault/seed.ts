@@ -66,18 +66,33 @@ let cache: {
   entries: SeedEntry[];
 } | null = null;
 
-async function readJson<T>(file: string): Promise<T> {
-  const raw = await readFile(path.join(SEED_DIR, file), "utf-8");
-  return JSON.parse(raw) as T;
+/**
+ * Falls back to `fallback` when the file is missing, rather than throwing.
+ * This matters specifically on Vercel: web/data/seed/ is gitignored (it's
+ * Ken's real content, not something to publish to a repo -- see the file
+ * header), so a fresh deploy checked out from GitHub has no seed directory
+ * at all. Without this fallback, next build's static prerendering of `/`
+ * and `/review` would throw ENOENT and fail the ENTIRE build over a missing
+ * personal-data file that was excluded from git on purpose. An empty array
+ * is the correct "no data seeded yet" state, not an error condition.
+ */
+async function readJson<T>(file: string, fallback: T): Promise<T> {
+  try {
+    const raw = await readFile(path.join(SEED_DIR, file), "utf-8");
+    return JSON.parse(raw) as T;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return fallback;
+    throw error;
+  }
 }
 
 async function loadSeed() {
   if (!cache) {
     const [stages, threads, people, entries] = await Promise.all([
-      readJson<SeedStage[]>("stages.json"),
-      readJson<SeedThread[]>("threads.json"),
-      readJson<SeedPerson[]>("people.json"),
-      readJson<SeedEntry[]>("entries.json"),
+      readJson<SeedStage[]>("stages.json", []),
+      readJson<SeedThread[]>("threads.json", []),
+      readJson<SeedPerson[]>("people.json", []),
+      readJson<SeedEntry[]>("entries.json", []),
     ]);
     cache = { stages, threads, people, entries };
   }
