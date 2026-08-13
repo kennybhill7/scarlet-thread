@@ -3,7 +3,7 @@
 Independent review of Track A work. Track A owns the files named below; these
 are change requests, not cross-track edits.
 
-**Last audited:** 2026-07-29 12:40. **Open:** 31 findings (4 critical, 17 high,
+**Last audited:** 2026-07-29 12:40. **Open:** 32 findings (4 critical, 18 high,
 10 medium). GitHub reports the renamed `kennybhill7/scarlet-thread`
 repository as private, and the 472-file remote tree contains neither the raw
 vault, its ZIP, nor `web/data/seed`. The production build and 35-test suite are
@@ -11,25 +11,30 @@ clean but still prerender `/`, `/review`, and `/settings`; A-011 therefore
 remains an evidence-backed privacy/readiness gate.
 
 **Ledger refresh (Claude, 2026-08-12/13):** at the 2026-07-29 audit, the
-pushed commit was `d04d6ab` and local/remote matched. That is no longer the
-state: as of this refresh `origin/master` sits at `c29de2e` — meaning the
-remote still contains the unsafe migrate-on-build hook (A-047) until the
-local fix sequence is pushed; **do not trigger a Vercel deployment from the
-remote until the push lands and is verified.** Verified in source that commit
-`301759a` genuinely closed the A-045 third-sighting threshold (receipt below;
-its lexical-coverage caveat stays open, so A-045 remains an open finding with
-reduced scope) and closed A-046 (receipt below; moved to resolved, open count
-32 → 31). Added A-047 (migrate-on-build hook introduced by `c29de2e`) —
-**fixed locally in `a1031cc`, push/deployment verification pending.** The
-planning baseline was committed locally in `2be933f` and reconciled per the
-2026-08-13 cross-audit: `THEOLOGY_MASTER_BUILD_PLAN.md` (authoritative spec),
+pushed commit was `d04d6ab` and local/remote matched. Current verified state:
+local `HEAD` and `origin/master` both equal `afa47fe`, so the unsafe
+migrate-on-build hook is **gone from the remote** and no build path invokes
+`db:migrate`. However, the first fixed-state Vercel deployment of `afa47fe`
+**failed** — the project's Root Directory is `.` while the app lives under
+`web/`, so `next build` reported "Couldn't find any pages or app directory."
+A-047 therefore stays **open** (hook removed; deployment verification failed
+for an unrelated configuration reason), and the open count returns to 32.
+The prior production deployment still responds. Required operational fix
+(dashboard-only, Ken): Vercel → project `web` → Settings → Build and
+Deployment → set Root Directory to `web`, redeploy `afa47fe`, confirm the log
+shows `next build`, no `db:migrate`, and finishes Ready — then resolve A-047
+and return the count to 31. Verified in source that commit `301759a` closed
+the A-045 third-sighting threshold (receipt below; its lexical-coverage
+caveat stays open, so A-045 remains open with reduced scope) and closed
+A-046 (receipt below). The planning baseline lives in commits
+`2be933f`/`afa47fe`: `THEOLOGY_MASTER_BUILD_PLAN.md` (authoritative spec),
 `BUILD_PLAN.md` (reconciled execution checklist; its Phase 0 gates 0.1-0.12
 subsume this ledger's deployment-hardening items), and
 `THEOLOGY_PRODUCT_AUDIT.md` (2026-08-12 product audit). Release findings newer
 than 2026-07-29 — production OAuth/Neon unconfigured, seed-bridge fallback
 masquerading as an empty account, the `nanoid` production-path advisory — are
 tracked as BUILD_PLAN.md gates 0.1, 0.3, and 0.10 rather than duplicated here.
-`.claude/settings.local.json` stays untracked and is now git-ignored.
+`.claude/settings.local.json` stays untracked and is git-ignored.
 
 ## Recommended recovery order for Claude
 
@@ -652,7 +657,15 @@ excluded from the open count above.
   folder where compatibility requires it. Add a repository branding scan to
   distinguish deliberate legacy identifiers from visible copy.
 
-### A-047 - FIXED LOCALLY (2026-08-12), push/deployment verification pending - Vercel build migrated the database on every deployment
+### A-047 - OPEN - Vercel build migrated the database on every deployment; fixed-state deployment not yet verified
+
+- Status detail (2026-08-13): the hook removal (`a1031cc`) is pushed and
+  verified on `origin/master` (`afa47fe`). The subsequent Vercel deployment
+  of the fixed state failed on an unrelated misconfiguration — Root
+  Directory `.` vs the app under `web/` ("Couldn't find any `pages` or `app`
+  directory"). Close this finding only after Ken sets Root Directory to
+  `web` in the Vercel dashboard, redeploys `afa47fe`, and the log shows
+  `next build` with no `db:migrate` finishing Ready.
 
 - Severity: high deployment-safety issue (introduced after the 2026-07-29
   audit by commit `c29de2e`)

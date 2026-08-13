@@ -459,7 +459,7 @@ Required components:
 - one-sentence big idea;
 - passage-shaped outline;
 - context in plain language;
-- one supported canonical connection;
+- one supported canonical connection, or a reasoned `no_warrant_yet` explaining why none is claimed;
 - theological truth and its status;
 - gospel relationship without forcing it;
 - likely objection or difficult question;
