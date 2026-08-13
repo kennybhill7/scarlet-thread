@@ -116,7 +116,7 @@ Expand the mountain into an evidence-based canonical map. Users should be able t
 
 ### Doctrine Library
 
-For each doctrine: concise definition, core passages, whole-Bible development, historical formulation, common misunderstandings, and primary/secondary/open-hand classification. Where Christian traditions differ, present named positions and their strongest textual arguments without manufacturing false certainty.
+For each doctrine: concise definition, core passages, whole-Bible development, historical formulation, common misunderstandings, and doctrine-status classification (core | conviction | open | disputed | wisdom — this draft originally said "primary/secondary/open-hand"; the canonical vocabulary supersedes it). Where Christian traditions differ, present named positions and their strongest textual arguments without manufacturing false certainty.
 
 ### Modern Life Lab
 
@@ -133,7 +133,7 @@ Introduce versioned, source-aware records rather than adding more free-text fiel
 - `PassageContext`: passage/unit, genre, author/audience, historical setting, literary structure, sources, disputed flags.
 - `StudyClaim`: observation/interpretation/theology/application, body, evidence references, viewpoint, confidence, reviewer.
 - `Connection`: from/to references, connection type, rationale, source, curated/user provenance, confidence.
-- `Doctrine`: definition, core texts, historical formulations, tradition tags, primary/secondary/open-hand status.
+- `Doctrine`: definition, core texts, historical formulations, tradition tags, doctrine_status (core | conviction | open | disputed | wisdom; superseding this draft's "primary/secondary/open-hand").
 - `Application`: original audience, enduring principle, modern domain, concrete practice, cautions, review date.
 - `TeachingDraft`: big idea, outline, gospel connection, objections, applications, prayer, audience, duration.
 - `Source` and `Citation`: author, title, publisher, edition, page/URL, license, and access date.
@@ -183,7 +183,7 @@ Build two fully reviewed book experiences: **Genesis 1–12** for the Scarlet Th
 
 ### Phase 3 — Doctrine, life, and teaching
 
-Add the doctrine library, Modern Life Lab, teach-back builder, retrieval review, and pastoral/editorial review flow.
+Add the doctrine library, teach-back builder, retrieval review, and pastoral/editorial review flow. (This draft also placed the Modern Life Lab here; the master plan later moved it explicitly **after public V1** — that sequencing supersedes this line.)
 
 ### Phase 4 — Optional cited assistant
 
@@ -195,7 +195,7 @@ A lesson is ready only when a learner can:
 
 - distinguish observation, interpretation, theology, and application;
 - explain the passage in its literary and historical context;
-- defend a canonical connection using both passages;
+- defend a canonical connection using both passages, or give a reasoned no-warrant judgment (`no_warrant_yet`) — a forced connection is a failure, not a pass;
 - identify where faithful interpreters disagree;
 - state a modern application without bypassing the original audience;
 - teach a clear five-minute lesson with cited sources;

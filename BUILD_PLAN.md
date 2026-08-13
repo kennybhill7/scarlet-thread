@@ -29,7 +29,7 @@ web/
     study/[sessionId]/          NEW Passage Workspace (resumable study sessions)
     threads/[slug]/             existing (gains typed connections)
     doctrines/ [slug]/          NEW Doctrine Library
-    life/ [case]/               NEW Modern Life Lab
+    life/ [case]/               Modern Life Lab (post-public-V1, §6)
     teach/ [id]/                NEW Teach-back builder + drafts
     review/                     existing (renamed metrics, live data)
   db/schema.ts                  new tables (§3)
@@ -78,16 +78,27 @@ The data layer everything else stands on. All schema below is additive; existing
 
 ### 3.1 New reference type (contracts) — freeze this before any v2 table
 
+The master plan §10 shapes are used verbatim — same names, same fields:
+
 ```ts
 /** Canonical, translation-independent range. Cross-chapter allowed (Gen 1:1–2:3). */
-export interface CanonicalRange {
+export interface CanonicalRangeV1 {
   versificationId: "eng-protestant-66-31102-v1";
   start: RefKey; // "1.1.1"
   end: RefKey;   // inclusive; same book, cross-chapter OK
 }
+
+/** What the learner actually saw: canonical range mapped into one translation. */
+export interface DisplayReferenceV1 {
+  canonicalRange: CanonicalRangeV1;
+  translationId: VersionId;
+  corpusReleaseId: string;
+  mappedStart: RefKey;
+  mappedEnd: RefKey;
+}
 ```
 
-Display references map through the versioned verse map per translation (SBL's Romans 14/16 divergences are already documented in `tools/versification-report.md`). Every quoted evidence record stores `translationId` + corpus release so a later text or verse-map update cannot silently change what the learner saw. Parsing/formatting joins `lib/bible/reference.ts` with tests: round-trip, canonical ordering, bounds against the real corpus, SBL mapping.
+Display references map through the versioned verse map per translation (SBL's Romans 14/16 divergences are already documented in `tools/versification-report.md`). Every quoted evidence record stores a `DisplayReferenceV1` — translation + corpus release included — so a later text or verse-map update cannot silently change what the learner saw. Parsing/formatting joins `lib/bible/reference.ts` with tests: round-trip, canonical ordering, bounds against the real corpus, SBL mapping.
 
 ### 3.2 New enums
 
@@ -111,6 +122,13 @@ export type ConnectionType =
 /** How firmly the evidence supports a connection. "devotional" legitimizes
  *  personal resonance without letting it quietly upgrade into doctrine. */
 export type EvidenceLabel = "explicit" | "strong" | "plausible" | "devotional";
+/** Matches master plan doctrine_status.
+ *  core       = historic essentials of the Christian faith;
+ *  conviction = important positions where faithful traditions differ;
+ *  open       = genuinely unsettled questions the text underdetermines;
+ *  disputed   = actively contested interpretive/historical questions —
+ *               curated content must flag these and present named positions;
+ *  wisdom     = prudential judgment applying Scripture, not doctrine. */
 export type DoctrineStatus = "core" | "conviction" | "open" | "disputed" | "wisdom";
 ```
 
@@ -120,8 +138,8 @@ export type DoctrineStatus = "core" | "conviction" | "open" | "disputed" | "wisd
 
 **User-owned (synced).** Every table below carries `workspace_id` (one personal workspace per user, backfilled) and an integer `revision` from day one. Isolation lands in two verifiable steps: **Phase 0** proves application-level isolation (route/repository workspace predicates, two test accounts, no cross-reads); **Phase 1** adds transaction-scoped RLS (`set_config('app.workspace_id', ..., true)` per master plan §12.1) plus account-scoped IndexedDB and re-proves isolation with hostile two-user tests — RLS is defense in depth on top of the Phase 0 predicates, not the thing the Phase 0 test waits for.
 
-- `study_sessions` — id, workspaceId, canonical range, mode, workflowState, connectionState (unexamined | provisional | linked | no_warrant_yet), optional pinned catalog/curriculum release, readGateAt, currentStep. The workspace routes by **sessionId**, not book/chapter: multiple studies of the same passage, resumability, and revision history all need it.
-- `study_claims` — id, workspaceId, sessionId, kind (ClaimKind), epistemicBasis (EpistemicBasis), body, passage (CanonicalRange), confidence (ClaimConfidence), provenance (ClaimProvenance), doctrineStatus (theology claims only), viewpoint (nullable), status (draft | confirmed | needs_revision). Indexes on (workspaceId, passage), (workspaceId, kind). The learner's **first observation is preserved permanently** via **append-only `artifact_revisions` rows** — an integer revision counter alone is not the guarantee; every edit inserts the prior body as an immutable row. `conviction` claims are private-by-design, and that privacy is an **enforced, tested policy across five surfaces**: analytics/learning measures, server logs/telemetry, automatic or bulk sharing, AI retrieval (Phase 6 corpus assembly must filter them), and teaching promotion — each exclusion has its own test. The line is **automatic vs deliberate**: no system ever shares, aggregates, or promotes a conviction claim on the learner's behalf, but the learner may explicitly share one specific conviction artifact by their own deliberate act (via the master plan §12.1 `shareable_artifacts` registry) — opt-in per artifact, never a default, never in bulk.
+- `study_sessions` — id, workspaceId, canonical range (CanonicalRangeV1), mode, workflowState, connectionState (unexamined | provisional | linked | no_warrant_yet), optional pinned catalog/curriculum release, readGateAt, currentStep. The workspace routes by **sessionId**, not book/chapter: multiple studies of the same passage, resumability, and revision history all need it.
+- `study_claims` — id, workspaceId, sessionId, kind (ClaimKind), epistemicBasis (EpistemicBasis), body, passage (CanonicalRangeV1), confidence (ClaimConfidence), provenance (ClaimProvenance), doctrineStatus (theology claims only), viewpoint (nullable), status (draft | confirmed | needs_revision) — quoted evidence carries DisplayReferenceV1. Indexes on (workspaceId, passage), (workspaceId, kind). The learner's **first observation is preserved permanently** via **append-only `artifact_revisions` rows** — an integer revision counter alone is not the guarantee; every edit inserts the prior body as an immutable row. `conviction` claims are private-by-design, and that privacy is an **enforced, tested policy across five surfaces**: analytics/learning measures, server logs/telemetry, automatic or bulk sharing, AI retrieval (Phase 6 corpus assembly must filter them), and teaching promotion — each exclusion has its own test. The line is **automatic vs deliberate**: no system ever shares, aggregates, or promotes a conviction claim on the learner's behalf, but the learner may explicitly share one specific conviction artifact by their own deliberate act (via the master plan §12.1 `shareable_artifacts` registry) — opt-in per artifact, never a default, never in bulk.
 - `claim_evidence` — the master plan §12.3 shape verbatim: id, workspaceId, claimId, evidenceType (passage | context | connection | source), canonical/display reference, contentBlockId, citationId, note — citations are first-class IDs into the sources/citations model, never pasted strings. One claim, many evidence rows. An `interpretation` with zero evidence rows renders with a visible **"unsupported"** badge — the structural fix for audit gap #1.
 - `motif_candidates` + `motif_sightings` — the radar and sightings 1–2 live here (label, normalized key, exact range, status), **before** any thread exists. Promotion on the third genuine sighting creates the thread and links earlier sightings transactionally; dismissal never deletes the underlying observation.
 - `user_connections` — id, workspaceId, fromRange, toRange, type (ConnectionType), evidenceLabel (EvidenceLabel, with the §3.2 personal_resonance/devotional constraints), rationale (required, min 20 chars), threadSlug (nullable), status. Unique on (workspaceId, fromRange, toRange, type). **Learner-authored only**: reviewed edges live in curated `graph_edges` (below) and radar output lives in `motif_candidates` — the three provenances never share a table. Every connection renders both passages side by side; the evidence label keeps "these verses sound similar" from quietly becoming "the Bible teaches this."
@@ -132,7 +150,7 @@ export type DoctrineStatus = "core" | "conviction" | "open" | "disputed" | "wisd
 
 **Curated (no userId; `/content` is the single authoring source):** the compiler emits immutable, checksummed release bundles (master plan §12.4 `catalog_releases`); the DB rows below are read-only release indexes, never independently edited. Corrections ship as a new release + a signed revocation record — published artifacts are never mutated.
 
-- `passage_contexts` — unit (CanonicalRange), genre, authorAudience, historicalSetting, literaryStructure, beforeAfter, disputedNotes, sourceIds[].
+- `passage_contexts` — unit (CanonicalRangeV1), genre, authorAudience, historicalSetting, literaryStructure, beforeAfter, disputedNotes, sourceIds[].
 - `sources` + `citations` — source: id, author, title, publisher, edition, year, url, licence, accessedAt; citation: sourceId, locator (page/section), passage range, note. Published releases snapshot their bibliography so editing a source later cannot alter historical content.
 - `graph_edges` (+ `graph_edge_evidence`) — the reviewed canonical graph: fromRange, toRange, type (ConnectionType), evidenceLabel, rationale block, viewpoint, release, review status. Personal overlays stay in `user_connections`; they are never written here.
 - `doctrines` — slug, title, definition, status (DoctrineStatus), coreRefs[], development (jsonb per-stage), formulations (jsonb: named tradition → position + best texts), misunderstandings[], sourceIds[].
@@ -149,7 +167,7 @@ export type DoctrineStatus = "core" | "conviction" | "open" | "disputed" | "wisd
 
 `Thread radar` keeps its lexical engine but its output changes shape: it emits **motif candidates**, never `Connection` rows — a theological edge exists only after the learner has compared both texts and typed a rationale. Accepting a candidate walks through the side-by-side comparison first. Add the missing dedicated tests: repeated-word detection, third-sighting threshold, candidate dedup vs existing motifs and connections.
 
-**Phase 1 tests:** CanonicalRange round-trip + SBL mapping, claim-evidence badge logic, connection uniqueness + required rationale, application finalize-completeness (drafts save partial), prose-conflict preservation, sync round-trip for all six entities, tenant isolation (RLS + app predicates) on every read route and the sync path. Target: 35 → ~60 tests.
+**Phase 1 tests:** CanonicalRangeV1/DisplayReferenceV1 round-trip + SBL mapping, claim-evidence badge logic, connection uniqueness + required rationale, application finalize-completeness (drafts save partial), prose-conflict preservation, sync round-trip for all six entities, tenant isolation (RLS + app predicates) on every read route and the sync path. Target: 35 → ~60 tests.
 
 ---
 
@@ -206,7 +224,7 @@ Teaching influences (Mitchell: sustained exposition, gospel center, discipleship
 ## 6. Phase 4 — Doctrine and teaching surfaces (~3–4 weeks)
 
 - **Doctrine Library** (`app/(app)/doctrines/`): renders curated `doctrines`; each shows its DoctrineStatus badge (core | conviction | open | disputed | wisdom), whole-Bible development mapped onto the 11 stages, named positions where traditions differ with their strongest biblical arguments, and "your claims touching this doctrine" from the user's StudyClaims.
-- **Modern Life Lab — explicitly NOT built in this phase.** Per master plan §8.5 it is six labs built **after** the Phase 4.5 founding cohort validates the core method (post-cohort backlog). The design is recorded here only so it isn't reinvented: curated case studies in `content/life-labs/` asking the learner to supply principle → context → competing wisdom → faithful action → possible misuse, answers saving as Applications at `app/(app)/life/`.
+- **Modern Life Lab — explicitly NOT built in this phase.** Per master plan §8.5 it is six labs built **after public V1 ships** — post-cohort AND post-release, not merely post-validation. The design is recorded here only so it isn't reinvented: curated case studies in `content/life-labs/` asking the learner to supply principle → context → competing wisdom → faithful action → possible misuse, answers saving as Applications at `app/(app)/life/`.
 - **Teach-back Mode** (`app/(app)/teach/`): builds on TeachingDrafts. Four exercises per passage: blind explain (textarea, no notes visible), 5-minute lesson builder (outline points must cite refs), objection drill, negative-claim ("what this passage does not justify"). Completion feeds a **retrieval review** queue — extend `/api/review` with spaced re-teach prompts (7/30/90-day), measured by completed explanations, never streaks.
 - **Review page** goes fully live-data (audit gap #6 closed in Phase 0/1; here it gains claim-kind breakdowns and teach-back coverage per stage).
 
