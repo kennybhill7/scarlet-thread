@@ -1,0 +1,10 @@
+{
+  "name": "scarlet-thread-agent-graph",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node controller.mjs validate",
+    "list": "node controller.mjs list",
+    "test": "node --test controller.test.mjs"
+  }
+}
