@@ -3,13 +3,27 @@
 Independent review of Track A work. Track A owns the files named below; these
 are change requests, not cross-track edits.
 
-**Last audited:** 2026-07-29 12:40. **Open:** 32 findings (4 critical, 17 high,
-11 medium). The exact pushed commit is `d04d6ab`; local `HEAD` and
+**Last audited:** 2026-07-29 12:40. **Open:** 31 findings (4 critical, 17 high,
+10 medium). The exact pushed commit is `d04d6ab`; local `HEAD` and
 `origin/master` match. GitHub reports the renamed `kennybhill7/scarlet-thread`
 repository as private, and the 472-file remote tree contains neither the raw
 vault, its ZIP, nor `web/data/seed`. The production build and 35-test suite are
 clean but still prerender `/`, `/review`, and `/settings`; A-011 therefore
 remains an evidence-backed privacy/readiness gate.
+
+**Ledger refresh (Claude, 2026-08-12):** verified in source that commit
+`301759a` genuinely closed the A-045 third-sighting threshold (receipt below;
+its lexical-coverage caveat stays open, so A-045 remains an open finding with
+reduced scope) and closed A-046 (receipt below; moved to resolved, open count
+32 → 31). Added and resolved A-047 (migrate-on-build hook introduced by
+`c29de2e`, removed in `a1031cc`). The planning baseline was committed in
+`2be933f`: `THEOLOGY_MASTER_BUILD_PLAN.md` (authoritative spec),
+`BUILD_PLAN.md` (reconciled execution checklist; its Phase 0 gates 0.1-0.12
+subsume this ledger's deployment-hardening items), and
+`THEOLOGY_PRODUCT_AUDIT.md` (2026-08-12 product audit). Release findings newer
+than 2026-07-29 — production OAuth/Neon unconfigured, seed-bridge fallback
+masquerading as an empty account, the `nanoid` production-path advisory — are
+tracked as BUILD_PLAN.md gates 0.1, 0.3, and 0.10 rather than duplicated here.
 
 ## Recommended recovery order for Claude
 
@@ -580,7 +594,15 @@ excluded from the open count above.
 
 ### A-045 - Thread radar violates the third-sighting rule
 
-- Severity: high product-invariant issue
+- Severity: high product-invariant issue — **threshold half RESOLVED with
+  receipt (2026-08-12); lexical-coverage half remains open.**
+- Verification: `web/lib/vault/seed.ts` now builds word → distinct-chapter
+  sets and gates on `chapters.size >= 3` (line 352), with the fix rationale
+  documented in the surrounding comment block (lines 314-324). The remaining
+  open scope is the coverage claim: the UI still infers "no thread covers
+  this word" from literal title tokens, which cannot match multi-word thread
+  titles; BUILD_PLAN.md §3.5 replaces radar output with motif candidates and
+  adds the missing dedicated tests.
 - Evidence: `getThreadRadar()` counts distinct entry indexes and admits a word
   after two entries. The guide requires the third sighting across passages.
   Live output against the 70-entry seed includes `humanity` in six entries but
@@ -601,8 +623,15 @@ excluded from the open count above.
   passage, multi-word thread titles, plural normalization, and the exact
   threshold.
 
-### A-046 - Scarlet Thread rename is incomplete in user-facing surfaces
+### A-046 - RESOLVED (2026-08-12) - Scarlet Thread rename is incomplete in user-facing surfaces
 
+- Verification: a repo-wide scan (excluding `node_modules`) finds no
+  user-facing `BIBLE BRAIN` copy and no `bible-brain-vault` download
+  filename. Remaining occurrences are the deliberately preserved internal
+  export folder (`Bible Brain/...` inside the ZIP, per this finding's own
+  compatibility allowance), its export README heading, test fixtures, and a
+  README note explaining the legacy name. The old `Bible Brain - Master Build
+  Plan` was replaced wholesale by the reconciled 2026-08-12 `BUILD_PLAN.md`.
 - Severity: medium branding and release-polish issue
 - Evidence: the app metadata, manifest, Climb, README, and GitHub repository
   are renamed, but the live sign-in page still displays `BIBLE BRAIN`.
@@ -616,6 +645,23 @@ excluded from the open count above.
   preserving internal storage/cache/database keys and the ZIP's internal vault
   folder where compatibility requires it. Add a repository branding scan to
   distinguish deliberate legacy identifiers from visible copy.
+
+### A-047 - RESOLVED (2026-08-12) - Vercel build migrated the database on every deployment
+
+- Severity: high deployment-safety issue (introduced after the 2026-07-29
+  audit by commit `c29de2e`)
+- Evidence: `web/vercel.json` set `buildCommand` to `npm run db:migrate &&
+  npm run build`, so every Vercel build — previews included — ran Drizzle
+  migrations against whatever `DATABASE_URL` its environment carried, before
+  the new application build was proven, with no locking across concurrent
+  deployments. A failed build would leave the old production app running
+  against the newer schema.
+- Action taken: `web/vercel.json` deleted in commit `a1031cc`, restoring the
+  default `npm run build` used by the first successful deployment. No
+  history rewrite; no applied migrations rolled back.
+- Replacement plan: BUILD_PLAN.md gate 0.12 — a serialized release migration
+  job with database-identity checks, locking, backup/readiness checks,
+  expand-contract migrations, and post-migration verification.
 
 ## Resolved by Claude, 2026-07-29 morning session
 
