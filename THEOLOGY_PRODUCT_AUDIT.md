@@ -179,7 +179,7 @@ Add verse selection, passage units, `StudyClaim`, `Connection`, sources/citation
 
 ### Phase 2 — Pilot curriculum
 
-Build two fully reviewed book experiences: **Genesis 1–12** for the Scarlet Thread foundation and **Matthew** for sustained, Christ-centered, book-by-book study. Each lesson should include context, literary design, theology, application, and teach-back. Include canonical links only where warranted; a reasoned `no_warrant_yet` is a valid lesson outcome and is preferable to a forced connection.
+Build two fully reviewed book experiences: **Genesis 1–12** for the Scarlet Thread foundation and **Matthew** for sustained, Christ-centered, book-by-book study. Each lesson should include context, literary design, theology, application, and teach-back. Canonical links appear only where warranted; otherwise the lesson carries a reviewed `connectionOmissionNote`. The serialized `no_warrant_yet` value is reserved for learner comparison attempts in the normative master plan.
 
 ### Phase 3 — Doctrine, life, and teaching
 

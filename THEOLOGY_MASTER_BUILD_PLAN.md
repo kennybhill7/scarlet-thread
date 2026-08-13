@@ -2,8 +2,8 @@
 
 **Status:** Proposed implementation blueprint  
 **Prepared:** 2026-08-12  
-**Repository baseline:** `5bd64ee`  
-**Companion documents:** `THEOLOGY_PRODUCT_AUDIT.md` diagnoses the product gaps; `CODEX_AUDIT.md` remains the release-risk ledger; `BUILD_PLAN.md` is Claude's concurrent shorter execution draft. Git history preserves the original foundation plan.
+**Repository baseline:** the current reconciled planning branch; `CODEX_AUDIT.md` remains authoritative for code/deployment readiness.
+**Companion documents:** `THEOLOGY_PRODUCT_AUDIT.md` is a non-normative diagnosis; `CODEX_AUDIT.md` is the release-risk ledger; `BUILD_PLAN.md` is the reconciled, subordinate execution checklist. Git history preserves the original foundation plan.
 
 ---
 
@@ -83,25 +83,18 @@ Prompt for words, actions, repetition, contrasts, structure, surprise, tension, 
 
 ### Law 3 — A new thread begins on the third genuine sighting
 
-- Record first and second sightings as provisional `MotifSighting` records.
-- Count distinct passages, not raw word frequency or repeated entries from one chapter.
-- On the third sighting, ask the learner whether the pattern is becoming a thread.
-- The learner names and confirms it. The system never silently creates theology from a repeated token.
+- This law governs **creation of a learner-promoted thread**, not linkage to an established one. A starter or imported thread may be linked on any genuine sighting.
+- Record first and second sightings for a potential learner-promoted thread as provisional `motif_sightings`; count three **active sightings in three distinct canonical passage scopes**, not raw word frequency or duplicate records from one scope.
+- On the third qualifying sighting, ask the learner whether the pattern is becoming a thread. Promotion requires explicit learner confirmation.
+- One transaction creates the v1 Thread, its `thread_profile(origin = learner_promoted)`, normalized `study_thread_sightings`, and reverse-edge backfill for the three qualifying passages. The system never silently creates theology from a repeated token.
 
 ### Law 4 — The one rule remains enforceable
 
-Every **finalized passage study** links to at least one established thread; the normalized relationship creates the reverse edge automatically.
+The frozen v1 rule remains literal: every active v1 `Entry` created through the v1 API or sync schema has at least one active established Thread, enforced by migration `0003_enforce_active_thread_links.sql`. No v2 plan or migration weakens it.
 
-This resolves a current design conflict:
+Unlinked structured work is stored as v2 `StudyClaim`, `formation_attempt`, or `comparison_attempt` records, **not** as a v1 Entry. `study_sessions.workflow_state(active|closed|archived)` records lifecycle only; it is independent from the derived `ThreadResolution(unexamined|provisional|linked|needs_connection)`. Derive with fixed precedence: `linked` only from an active normalized `study_thread_sightings` row; else `provisional` from an active motif sighting; else `needs_connection` from a persisted comparison attempt with no created connection; otherwise `unexamined`. `no_warrant_yet` is solely a `comparison_attempts.outcome`, never a session or thread state.
 
-- drafts must save without a thread so no writing is lost;
-- linking an already-established thread never violates the third-sighting rule;
-- a provisional sighting does **not** satisfy the one rule;
-- if no honest thread fits, the learner may close the encounter in `needs_connection` without seeing unfinished-work debt;
-- on the third distinct sighting, the learner may promote the motif and link the earlier passages;
-- only a linked study earns the separate `connected` state.
-
-Closing a study session and completing its connection work are therefore different states. The system preserves an honest orphan for review rather than forcing an artificial connection.
+Closing a session does not assert connection completion. When a genuine established link is made, the normalized relationship writes the reverse edge automatically; otherwise the system preserves the honest unresolved study without forcing a connection or creating an invalid v1 Entry.
 
 ### Law 5 — Never punish a missed day
 
@@ -137,13 +130,14 @@ This separation prevents an algorithm, editor, teacher, or learner opinion from 
 
 ### Law 8 — Help unlocks only after the matching learner attempt
 
-- Neutral context facts unlock after an observation.
-- Curated literary or interpretive conclusions unlock after the learner attempts an interpretation.
-- Connection suggestions unlock after the learner attempts to compare passages.
-- Application examples or coaching unlock after the learner attempts the meaning-to-practice bridge.
-- Teach-back feedback unlocks only after a learner draft.
+- Every gate is a server-computed `RevealAfter` predicate over persisted artifacts; `resume_step`, a client boolean, and session closure are never evidence.
+- Neutral context facts unlock after a persisted observation claim or a nonblank `formation_attempt(stage = observe, outcome = substantive_uncertainty)`.
+- Curated literary or interpretive conclusions unlock after a persisted interpretation claim or matching substantive-uncertainty formation attempt.
+- Connection suggestions unlock after a persisted `comparison_attempt` with a nonblank rationale, including `substantive_uncertainty`.
+- Application examples or coaching unlock after a persisted application or `formation_attempt(stage = apply, outcome = substantive_uncertainty)`.
+- Teach-back feedback unlocks only after a persisted learner teaching draft.
 
-A first observation is not a universal key that reveals every later answer.
+A substantive uncertainty is an honest attempt, not a fake StudyClaim. A first observation is not a universal key that reveals every later answer.
 
 ---
 
@@ -195,7 +189,7 @@ The learner-facing passage workspace groups it into seven approachable stages:
 |---|---|---|
 | **Text** | What is actually here? | Verse-anchored observations and a live question |
 | **Context** | What did this communicate there and then? | Context notes and original-audience statement |
-| **Connections** | How does Scripture itself develop this? | Typed link with both passages and a rationale |
+| **Connections** | How does Scripture itself develop this? | Typed link with both passages and a rationale, or a persisted reasoned comparison finding no warrant yet |
 | **Theology** | What truth about God and his work emerges? | Theological claim, evidence, status, and viewpoint |
 | **Conviction** | What corrects, confronts, comforts, or calls me? | Private reflection and prayer |
 | **Practice** | What is one warranted response now? | Application bridge, action, and caution |
@@ -209,11 +203,11 @@ Do not overload the original daily practice with a seminary-length workflow.
 
 1. Read with guidance closed.
 2. Record three observations, not a summary.
-3. Link an established thread; if no honest thread fits, record a provisional sighting and close in `needs_connection`.
+3. Attempt an established-thread link. If a genuine new motif is present, save a provisional sighting; otherwise close the v2 session unlinked in `needs_connection` without inventing a sighting.
 4. Write one live question.
 5. Record one sentence, pray, and close.
 
-The ten-minute version remains “read and link.” The learner may stop after any saved step. A closed `needs_connection` encounter is not displayed as debt, but its provisional sighting does not count as a completed backlink.
+The ten-minute version remains “read and consider a link.” The learner may stop after any saved step. A closed `needs_connection` encounter is not displayed as debt; a provisional sighting, when genuinely present, does not count as a completed backlink.
 
 #### Deep Study — 35 to 60 minutes, learner initiated
 
@@ -367,10 +361,9 @@ Every session records:
 
 - `mode`: encounter, deep, or guided;
 - `workflow_state`: active, closed, or archived;
-- `thread_resolution`: unexamined, provisional, or `needs_connection`;
 - a resumable navigation hint and the exact passage range.
 
-`linked` is derived from an active normalized `study_thread_sightings` relationship, never asserted by a writable session enum. `no_warrant_yet` is an outcome of a persisted comparison between passages, not a session or thread state. Reveal gates are derived from persisted learner artifacts; the navigation hint does not unlock content.
+The session does **not** store `thread_resolution`. Queries derive `ThreadResolution = unexamined | provisional | linked | needs_connection` from normalized learner artifacts, in that priority order: an active `study_thread_sightings` relationship yields `linked`; otherwise an active motif sighting yields `provisional`; otherwise a persisted comparison attempt with no created connection yields `needs_connection`; otherwise the result is `unexamined`. `no_warrant_yet` is solely an outcome of `comparison_attempts`, not a session or thread state. Reveal gates are derived from persisted learner artifacts; the navigation hint does not unlock content.
 
 An encounter may close after saved observation/question work. A deep session may close at any step. Teach-back is a curriculum-completion requirement only for a completed guided/deep lesson, never for an ordinary daily encounter.
 
@@ -397,7 +390,7 @@ An encounter may close after saved observation/question work. A deep session may
 - Connection type, rationale, evidence label, and viewpoint.
 - Curated and personal edges never visually merge.
 - First/second motif sightings can remain provisional.
-- Third distinct sighting prompts, but does not force, thread creation.
+- Established starter/imported threads may be linked on any genuine sighting. Three active sightings in distinct canonical passage scopes prompt, but do not force, creation of a learner-promoted thread.
 - Curated suggestions stay hidden until the learner first attempts the comparison or explicitly records “I do not see a connection yet.”
 
 #### Theology
@@ -408,7 +401,7 @@ Each claim records:
 
 - what this passage directly reveals;
 - what whole-Bible synthesis supports;
-- core, conviction, open question, or wisdom-judgment status;
+- core, conviction, open, disputed, or wisdom status;
 - tradition/viewpoint when relevant;
 - evidence and sources;
 - what remains uncertain.
@@ -461,7 +454,7 @@ Required components:
 - one-sentence big idea;
 - passage-shaped outline;
 - context in plain language;
-- one supported canonical connection, or a reasoned `no_warrant_yet` explaining why none is claimed;
+- one supported canonical connection, or a reasoned explanation backed by a persisted `comparison_attempts.outcome = no_warrant_yet`;
 - theological truth and its status;
 - gospel relationship without forcing it;
 - likely objection or difficult question;
@@ -650,7 +643,7 @@ Every lesson culminates in explanation, not passive completion.
 
 - Immediate: big idea plus supporting verse.
 - Two to seven days: explain without notes.
-- Module end: defend one connection and one application.
+- Module end: defend one supported connection or a persisted reasoned no-warrant comparison, and defend one application.
 - Transfer: use the method on an unfamiliar passage.
 - Course end: a five-minute teaching artifact.
 
@@ -742,6 +735,8 @@ The public library can ultimately contain these twelve doctrines, but the foundi
 
 ### 8.5 Initial Modern Life Labs
 
+This is a **post-public-V1 design backlog**, not a V1 build phase. Do not implement or publish these labs until the founding cohort and public V1 release gates have passed and the governance decision is re-ratified.
+
 1. Ambition, vocation, and identity.
 2. Money, provision, and generosity.
 3. Anxiety, trust, and professional care.
@@ -788,7 +783,7 @@ Publish these documents before publishing curated lessons:
 - Statement of faith.
 - Interpretive method.
 - Canon and translation policy.
-- Core/conviction/open-question/wisdom taxonomy.
+- Core/conviction/open-question/disputed/wisdom taxonomy.
 - Denominational and multi-tradition viewpoint policy.
 - Original-language claims standard.
 - Citation and source-quality standard.
@@ -818,11 +813,13 @@ The original-language standard must prohibit root fallacies, treating a lexicon 
 
 ### 9.3 Doctrine status
 
-- **Core:** central, creedal truths of historic Christianity.
-- **Conviction:** important conclusions on which faithful traditions differ.
-- **Open question:** an issue the product does not resolve dogmatically.
-- **Disputed:** an actively contested interpretive or historical question; curated content names the positions and their best warrant rather than flattening disagreement.
-- **Wisdom judgment:** contextual application rather than settled doctrine.
+- **`core`:** central, creedal truths of historic Christianity.
+- **`conviction`:** the product's disclosed adopted conclusion on a secondary issue where faithful traditions differ; named alternatives and their strongest biblical warrant remain visible.
+- **`open`:** the product intentionally adopts no conclusion because available evidence underdetermines the issue or the editorial decision has not been ratified.
+- **`disputed`:** an actively contested interpretive or historical proposition presented comparatively rather than silently adopted; curated content names the positions, their best warrant, and competent review disclosure.
+- **`wisdom`:** a contextual prudential application rather than settled doctrine.
+
+These are authoritative serialized semantics, not interchangeable caution labels. Use `conviction` when Scarlet Thread adopts a secondary conclusion; use `disputed` when it presents the live contest without silently making one position product-wide doctrine; use `open` only when the product deliberately withholds resolution.
 
 ### 9.4 Review roles
 
@@ -924,6 +921,47 @@ Validate canonical order, real book/chapter/verse bounds, and mapped ranges. Eve
 
 TypeScript DTOs use the camelCase properties shown above. Postgres and compiled release JSON use an explicit snake_case storage shape: `canonical_range = {versification_id,start,end}` and `display_reference = {canonical_range,translation_id,corpus_release_id,mapped_start,mapped_end}`. Repository/compiler mappers are the only conversion boundary. Round-trip fixtures must prove every field, inclusive endpoint, and versification/release identifier survives DTO → storage → DTO.
 
+API and sync DTO keys also use camelCase; Postgres columns and compiled release-document keys use snake_case; serialized enum literals remain identical snake_case values on both sides. The authoritative disputed mappings are:
+
+| DTO / contract | Storage |
+|---|---|
+| `workflowState`, `resumeStep` | `workflow_state`, `resume_step` |
+| derived `threadResolution` | no session column; computed projection |
+| `claimKind`, `epistemicBasis`, `doctrineStatus`, `status` | `claim_kind`, `epistemic_basis`, `doctrine_status`, `status` |
+| `sourceRange`, `destinationRange`, `passageScopeKey` | `source_range`, `destination_range`, `passage_scope_key` |
+| `comparisonAttemptId`, `formationAttemptId` | `comparison_attempt_id`, `formation_attempt_id` |
+| `bigIdea`, `durationMinutes`, `gospelConnection`, `sortOrder` | `big_idea`, `duration_minutes`, `gospel_connection`, `sort_order` |
+
+Direct DTO/storage casts and aliases such as `current_step`, `revisit`, `connection_identified`, `uncertain`, or any alternate comparison outcome are invalid. Contract, repository, sync, export, import, and content-compiler round-trip fixtures enforce the mapping.
+
+The canonical v2 vocabulary is:
+
+- `ClaimStatus = draft | revisited | confirmed | needs_revision`;
+- `ConnectionStatus = draft | revisited | confirmed`;
+- `ApplicationStatus = draft | finalized | revisited | needs_revision`;
+- `TeachingDraftStatus = draft | draft_complete | rehearsed | self_reviewed`;
+- `WorkflowState = active | closed | archived` (stored);
+- `ThreadResolution = unexamined | provisional | linked | needs_connection` (derived);
+- `ThreadOrigin = starter | imported | learner_promoted`;
+- `ComparisonOutcome = connection_created | no_warrant_yet | substantive_uncertainty`.
+
+```ts
+type RevealArtifact =
+  | "scripture_loaded" | "read_marker" | "observation_claim" | "observation_uncertainty"
+  | "interpretation_claim" | "interpretation_uncertainty" | "comparison_attempt"
+  | "finalized_application" | "application_uncertainty" | "teaching_draft";
+
+interface RevealAfter {
+  surface:
+    | "observe_help" | "context_help" | "connection_help" | "theology_help"
+    | "application_help" | "teach_builder" | "teach_feedback";
+  requiresAll?: RevealArtifact[];
+  requiresAny?: RevealArtifact[];
+}
+```
+
+The server evaluates `RevealAfter` from persisted records; clients only render the result. `scripture_loaded` is a successful runtime corpus check paired with the persisted `read_marker`; neither `resume_step` nor a client-only completion flag is accepted.
+
 ---
 
 ## 11. Repository target structure
@@ -1019,51 +1057,59 @@ With Neon/serverless pooling, each private operation runs inside a transaction t
 
 Keep `Entry`, `Thread`, `Person`, `DailyLog`, and `ReadingProgress` for fast backward-compatible journal capture. New structured workspace observations are canonical `StudyClaim` records. `legacy_entry_id` is a unique optional bridge used only for import or explicit “promote to study” actions; there is no routine dual-write. Export and search union and deduplicate both models.
 
-Add normalized motif candidates and sightings so observations one and two can exist before a thread is created.
+The v1 `Entry` contract, API routes, sync schemas, thread-existence checks, and deferred migration `0003_enforce_active_thread_links.sql` remain unchanged: every active v1 Entry has at least one active established Thread. Unlinked drafts never masquerade as Entries. Imported data that cannot satisfy the invariant is repaired/quarantined or imported as v2 structured work; it does not weaken v1.
+
+Add normalized motif candidates and sightings so observations one and two can exist before a learner-promoted thread is created. Established starter/imported threads remain linkable on any genuine sighting.
 
 ### 12.3 Learner formation records
 
 #### `study_sessions`
 
-`id`, `workspace_id`, `created_by`, `mode(encounter|deep|guided)`, `workflow_state(active|closed|archived)`, `thread_resolution(unexamined|provisional|needs_connection)`, optional `passage_unit_id`, canonical range, optional `catalog_release_id`, `read_gate_at`, `current_step`, `revision`, timestamps. `current_step` is a navigation hint only. A linked state is derived from active normalized `study_thread_sightings`; it is not directly writable.
+`id`, `workspace_id`, `created_by`, `mode(encounter|deep|guided)`, `workflow_state(active|closed|archived)`, optional `passage_unit_id`, canonical range, optional `catalog_release_id`, `read_gate_at`, `resume_step`, `revision`, timestamps, `deleted_at`. The DTO maps these to camelCase. `resume_step` is a navigation hint only. There is no stored `thread_resolution`: derive `unexamined | provisional | linked | needs_connection` from normalized artifacts, with `linked` requiring an active `study_thread_sightings` row.
 
 Free study may have no passage unit or content release. When a unit is attached, database constraints require it to belong to the pinned catalog release. The exact canonical range remains on the session even if a curriculum is upgraded or withdrawn.
 
 #### `study_claims`
 
-`id`, `workspace_id`, `session_id`, unique optional `legacy_entry_id`, `claim_kind(observation|question|context|interpretation|theology|application|conviction|teaching_seed)`, `epistemic_basis(text_explicit|historical_context|inference|canonical_synthesis|tradition|prudential_judgment|personal_reflection)`, `body`, `confidence(tentative|developing|well_supported)`, optional `viewpoint_id`, `doctrine_status(core|conviction|open|disputed|wisdom)`, `provenance(learner|imported)`, `status(draft|revisited|confirmed|needs_revision)`, `revision`, timestamps, `deleted_at`.
+`id`, `workspace_id`, `session_id`, unique optional `legacy_entry_id`, `claim_kind(observation|question|context|interpretation|theology|application|conviction|teaching_seed)`, `epistemic_basis(text_explicit|historical_context|inference|canonical_synthesis|tradition|prudential_judgment|personal_reflection)`, `body`, `confidence(tentative|developing|well_supported)`, optional `viewpoint_id`, `doctrine_status(core|conviction|open|disputed|wisdom)`, `provenance(learner|imported)`, `status(ClaimStatus: draft|revisited|confirmed|needs_revision)`, `revision`, timestamps, `deleted_at`.
 
 Curated claims live in published content blocks, coach responses in `coach_feedback`, and saved assistant suggestions in `assistant_artifacts` with source response IDs. They never masquerade as learner claims.
 
 #### `claim_evidence`
 
-`id`, `workspace_id`, `claim_id`, `evidence_type(passage|context|connection|source)`, nullable `canonical_range`, nullable `display_reference`, nullable `content_block_id`, nullable `citation_id`, `note`. The matching DTO fields are `workspaceId`, `claimId`, `evidenceType`, `canonicalRange`, `displayReference`, `contentBlockId`, and `citationId`; the mapper follows the canonical reference boundary above. Evidence-type checks require the appropriate reference ID and reject contradictory payloads.
+`id`, `workspace_id`, `claim_id`, `evidence_type(passage|context|connection|source)`, nullable `canonical_range`, nullable `display_reference`, nullable `content_block_id`, nullable `citation_id`, `note`, `revision`. The matching DTO fields are `workspaceId`, `claimId`, `evidenceType`, `canonicalRange`, `displayReference`, `contentBlockId`, `citationId`, and `revision`; the mapper follows the canonical reference boundary above. Evidence-type checks require the appropriate reference ID and reject contradictory payloads. The `study_claim` aggregate atomically owns all evidence; evidence edits advance the claim root revision.
 
-#### `motif_candidates`, `motif_sightings`, and `study_thread_sightings`
+#### `thread_profiles`, `motif_candidates`, `motif_sightings`, and `study_thread_sightings`
 
-Candidates store `id`, `workspace_id`, learner label, normalized key, and status. Sightings reference the candidate, canonical passage-scope key, exact range, optional entry/claim, and status. For a learner-created thread, enforce three active sightings across distinct canonical passage scopes plus explicit learner confirmation; promotion creates the thread and backfills normalized `study_thread_sightings` transactionally. Starter/imported or otherwise established threads may be linked on any genuine sighting. The third-sighting threshold controls new learner thread creation, not linkage to an existing thread. Dismissal never deletes the underlying observation.
+`thread_profiles` adds workspace, thread slug, and `origin(starter|imported|learner_promoted)` without changing the frozen v1 Thread contract. Candidates store `id`, `workspace_id`, learner label, normalized key, status, and revision. Motif sightings reference the candidate, `passage_scope_key`, exact canonical range, optional entry/claim, active/dismissed status, and revision. Exact `study_thread_sightings` storage is `id`, `workspace_id`, `session_id`, `thread_slug`, `passage_scope_key`, `canonical_range`, nullable `source_claim_id`, nullable `motif_sighting_id`, `status(active|dismissed)`, `revision`, timestamps. Composite FKs bind all references to the same workspace, and a partial unique index permits one active row per `(workspace_id, session_id, thread_slug, passage_scope_key)`. Only existence of an active normalized row derives `linked`.
 
-#### `passage_comparisons`
+Starter/imported established threads may be linked on any genuine sighting. A `learner_promoted` thread requires three active motif sightings across three distinct canonical passage scopes and explicit learner confirmation; one transaction creates the v1 Thread, profile, normalized thread sightings, and reverse-edge backfill. Dismissal never deletes the underlying observation.
 
-`id`, `workspace_id`, `session_id`, source and destination canonical ranges, `outcome(connection_created|no_warrant_yet|uncertain)`, `rationale`, `revision`, timestamps. `no_warrant_yet` is solely a comparison outcome. A substantive uncertainty record is a valid learner attempt for reveal gating and never manufactures a connection.
+#### `comparison_attempts`
+
+`id`, `workspace_id`, `session_id`, `source_range`, `destination_range`, `outcome(connection_created|no_warrant_yet|substantive_uncertainty)`, nonblank `rationale`, nullable `user_connection_id`, `status(ConnectionStatus: draft|revisited|confirmed)`, `revision`, timestamps, `deleted_at`. A workspace-scoped FK and outcome-dependent check require a live `user_connection_id` exactly for `connection_created`; other outcomes require null. Edge deletion/replacement updates the comparison in the same transaction or fails. `no_warrant_yet` is solely a comparison-attempt outcome. `substantive_uncertainty` is a valid learner attempt for reveal gating and never manufactures a connection.
+
+#### `formation_attempts`
+
+`id`, `workspace_id`, `session_id`, `stage(observe|interpret|apply)`, nonblank `body`, fixed `outcome(substantive_uncertainty)`, `revision`, timestamps, `deleted_at`. This record preserves an honest substantive uncertainty when a StudyClaim or Application is not warranted. It satisfies only the matching `RevealAfter` predicate and never implies successful completion.
 
 #### `user_connections`
 
-`id`, `workspace_id`, `created_by`, source range, destination range, `edge_type`, `rationale`, `evidence_label(explicit|strong|plausible|devotional)`, `thread_slug`, `status(draft|confirmed|revisit)`, `revision`, timestamps.
+`id`, `workspace_id`, `created_by`, source range, destination range, `edge_type`, `rationale`, `evidence_label(explicit|strong|plausible|devotional)`, `thread_slug`, `status(ConnectionStatus: draft|revisited|confirmed)`, `revision`, timestamps.
 
 #### `applications`
 
-`id`, `workspace_id`, `session_id`, `source_claim_id`, `original_audience_meaning`, `enduring_principle`, `canonical_bridge`, `application_class`, `promise_scope`, `modern_domain(work|money|relationships|grief|anxiety|leadership|justice|technology|sexuality|church|formation)`, `situation`, `response_type`, `faithful_response`, `cautions`, optional `available_after`, `status`, `revision`, timestamps.
+`id`, `workspace_id`, `session_id`, `source_claim_id`, `original_audience_meaning`, `enduring_principle`, `canonical_bridge`, `application_class`, `promise_scope`, `modern_domain(work|money|relationships|grief|anxiety|leadership|justice|technology|sexuality|church|formation)`, `situation`, `response_type`, `faithful_response`, `cautions`, optional `available_after`, `status(ApplicationStatus: draft|finalized|revisited|needs_revision)`, `revision`, timestamps.
 
 Draft applications save partially. Completeness is required only for the explicit finalize transition.
 
 #### `teaching_drafts`
 
-`id`, `workspace_id`, `session_id`, `title`, `big_idea`, `audience`, `duration_minutes`, `gospel_connection`, `status`, `revision`, timestamps. DTO fields are `workspaceId`, `sessionId`, `bigIdea`, `durationMinutes`, and `gospelConnection` at the repository boundary.
+`id`, `workspace_id`, `session_id`, `title`, `big_idea`, `audience`, `duration_minutes`, `gospel_connection`, `status(TeachingDraftStatus: draft|draft_complete|rehearsed|self_reviewed)`, `revision`, timestamps. DTO fields are `workspaceId`, `sessionId`, `bigIdea`, `durationMinutes`, and `gospelConnection` at the repository boundary. The UI label **Self-reviewed** means only that the learner completed the self-review rubric; independent qualified human review is stored separately in `teaching_reviews`.
 
 #### `teaching_sections`
 
-`id`, `workspace_id`, `draft_id`, `kind(outline|context|connection|theology|illustration|objection|application|not_justified|discussion|prayer)`, `sort_order`, `body`. DTO fields are `workspaceId`, `draftId`, and `sortOrder`. A `connection` section may reference a persisted `passage_comparisons.outcome = no_warrant_yet`; the token is never stored as an ungrounded teaching assertion.
+`id`, `workspace_id`, `draft_id`, `kind(outline|context|connection|theology|illustration|objection|application|not_justified|discussion|prayer)`, `sort_order`, `body`, `revision`. DTO fields are `workspaceId`, `draftId`, `sortOrder`, and `revision`. The `teaching_draft` aggregate atomically owns its complete ordered sections; edits/reorders advance the draft root revision. A `connection` section may reference a persisted `comparison_attempts.outcome = no_warrant_yet`; the token is never stored as an ungrounded teaching assertion.
 
 #### `review_items` and `learning_attempts`
 
@@ -1146,7 +1192,7 @@ Personal overlays remain in `user_connections`; never store them as reviewed gra
 
 ## 14. Sync v2
 
-The current client-clock last-write-wins model is adequate for a small single-user prototype but can silently overwrite long-form work in a multi-device public product.
+Client-clock last-write-wins is the **current v1 behavior**, not the target architecture. Phase 1 retires it for v2 learner entities with the revision/cursor/conflict protocol below; the frozen v1 `SyncEntity`, Entry payload/response schema, and compatibility path remain unchanged until their announced retirement gate passes. Define the new union as `SyncEntityV2` in a versioned contract module rather than extending `lib/contracts.ts`.
 
 ### Server records
 
@@ -1180,7 +1226,17 @@ The server responds accepted, rejected, or conflict, including the authoritative
 
 Initial sync is a paginated snapshot taken against a transactional high-watermark, followed by changes after that watermark. If a cursor expires because the log was compacted, the server returns `resetRequired` and a new snapshot token. Define retention, maximum batch/log sizes, conflict-payload limits, create `baseRevision` semantics, delete conflicts, and rejected-receipt replay.
 
-Related offline creations—session, claim with evidence, motif with sightings, connection/thread sighting, application, and teaching draft with ordered sections—use a bounded atomic `mutationGroupId`, or explicit `dependsOn` ordering when atomicity is not possible. Aggregate children such as `claim_evidence` and `teaching_sections` cannot become independently visible in a partial order: an accepted aggregate mutation atomically writes the root and ordered children, their revisions, prior artifact revisions, tombstones where relevant, change-log entries, and idempotency receipts. Reordering or deleting a child advances the aggregate revision and conflicts preserve both prose versions.
+Canonical `SyncEntityV2` aggregate roots are `study_session | study_claim | motif_candidate | comparison_attempt | user_connection | formation_attempt | application | teaching_draft`.
+
+Atomic boundaries are executable, not advisory:
+
+- a `study_claim` mutation atomically replaces its ordered `claim_evidence` collection; evidence never syncs independently;
+- a `teaching_draft` mutation atomically replaces its ordered `teaching_sections`; reorder/delete advances the draft revision and sections never become partly visible;
+- a `comparison_attempt` mutation atomically creates its optional `user_connection` when the outcome is `connection_created`;
+- learner motif promotion atomically updates the candidate/sightings, creates the v1 Thread and `thread_profile(origin = learner_promoted)`, creates every normalized `study_thread_sighting`, and backfills reverse edges;
+- session and established-thread-sighting set operations may share a bounded `mutationGroupId`, but each remains an independently revisioned/tombstoned root.
+
+An accepted aggregate mutation writes the root and owned children, prior artifact revisions, tombstones where relevant, change-log entries, and idempotency receipts in one server transaction. When truly separate roots cannot be atomic, explicit `dependsOn` order is allowed, but the server never exposes a child without its required parent.
 
 ### Merge rules
 
@@ -1228,11 +1284,14 @@ Every private operation—not only mutations—requires Auth.js session, validat
 - `GET /api/v2/workspaces/[workspaceId]/study-sessions/[id]/claims`
 - `GET /api/v2/workspaces/[workspaceId]/claims/[id]/evidence`
 - `GET /api/v2/workspaces/[workspaceId]/motif-sightings`
+- `GET /api/v2/workspaces/[workspaceId]/thread-sightings`
+- `GET /api/v2/workspaces/[workspaceId]/comparison-attempts`
+- `GET /api/v2/workspaces/[workspaceId]/formation-attempts`
 - `GET /api/v2/workspaces/[workspaceId]/connections`
 - `GET /api/v2/workspaces/[workspaceId]/applications`
 - `GET /api/v2/workspaces/[workspaceId]/teaching-drafts`
 
-Browser creation/edit/deletion for these resources goes through sync. A future server-only editorial or import path must call the same domain transaction, not write tables directly.
+Browser creation/edit/deletion for these resources goes through sync. These are resource endpoints, not UI routes: V1 Teach remains section 8 inside `/study/[sessionId]`; there is no separate `/teach` page. A future server-only editorial or import path must call the same domain transaction, not write tables directly.
 
 ### Reviewed content
 
@@ -1900,18 +1959,18 @@ These decisions change content or product meaning and require explicit ratificat
 
 This section preserves the audit input that produced the current reconciled plans. It is historical, not a second set of current requirements: the normative architecture is §§1–29 and the current `BUILD_PLAN.md`. The numbered defects below describe the pre-reconciliation draft and must not be read as claims about the present documents.
 
-1. It calls `lib/contracts.ts` frozen while instructing the team to add approximately ten types directly to it. Use versioned v2 contract modules.
-2. Its same-chapter `RefRange` cannot represent normal literary units such as Genesis 1:1–2:3 and is not versification-aware for SBL. Freeze the canonical range contract first.
-3. It keeps client-clock last-write-wins and `userId`-only tables. That is acceptable for the current private prototype, but unsafe for a public, multi-device product or later coaching.
-4. It lacks a resumable `StudySession` identity and keys the workspace by book/chapter. Multiple studies of the same passage, pinned curriculum versions, mode-specific completion, and revision history need session IDs.
-5. It does not resolve the database/API rule requiring every active Entry to have a thread against the third-sighting rule. Provisional sightings and the finalized-session transition must be modeled explicitly.
-6. Its fixed unlock chain requires a connection before theology and theology before application. That can train users to invent a connection where none is warranted. Only the matching learner-attempt gates should be strict.
-7. It requires all application fields to save. Partial drafts must save locally; completeness belongs to a deliberate finalize transition.
-8. It describes curated content as both build-time files and database tables without one authority, immutable catalog releases, durable historical storage, checksum rollback, or withdrawal semantics.
-9. Its two-account Gate 0 test cannot run under the current single-email allowlist without a controlled invitation/test-auth change.
-10. It treats radar output as connection rows before the learner has compared two texts. Radar must create motif candidates, not theological edges.
-11. It has no explicit account-scoped IndexedDB migration, trusted-device offline identity, RLS transaction context, cursor compaction/reset, or prose-conflict preservation.
-12. Its two-to-three-week AI estimate does not include provider privacy controls, citation verification, evaluation, red teaming, or pastoral-safety review; AI remains outside the committed MVP.
+1. It called `lib/contracts.ts` frozen while adding types there; the reconciled plan uses versioned v2 contract modules.
+2. Its same-chapter `RefRange` could not represent units such as Genesis 1:1–2:3 or SBL mapping; the reconciled plan froze `CanonicalRangeV1` first.
+3. It retained client-clock last-write-wins and `userId`-only tables; the reconciled Phase 1 replaces the active path with workspace-scoped revision/cursor sync.
+4. It lacked resumable `StudySession` identity; the reconciled workspace and Teach pane route by session ID.
+5. It conflated the v1 Entry thread invariant, session closure, and third-sighting promotion; the reconciled model freezes v1 and separates lifecycle from derived thread resolution.
+6. Its fixed unlock chain could force a connection; the reconciled `RevealAfter` gates require only the matching persisted attempt.
+7. It required complete application fields on every save; the reconciled model saves partial drafts and validates at finalize.
+8. It gave curated files and database rows competing authority; immutable catalog releases and read-only indexes now define the boundary.
+9. Its two-account Gate 0 test conflicted with the single-email allowlist; the gate now requires a controlled invitation/test-auth change.
+10. It made radar output into connection rows; the reconciled radar emits motif candidates until the learner compares passages.
+11. It omitted account-scoped IndexedDB migration, transaction-local RLS, cursor reset, and prose-conflict preservation; those are now explicit Phase 1 dependencies.
+12. Its AI estimate omitted privacy, citation, evaluation, red-team, and pastoral-safety work; AI remains outside the committed MVP.
 
 The current shorter plan is now the sprint-oriented checklist subordinate to this master. Any future conflict is resolved in favor of the normative sections of this master, not this historical ledger.
 
@@ -1941,7 +2000,7 @@ The initial public product is genuinely ready when all of the following are true
 
 ### Formation
 
-- Pilot learners can interpret an unfamiliar passage, defend a connection from both texts, form a warranted application, and explain the passage without notes.
+- Pilot learners can interpret an unfamiliar passage, defend a supported connection from both texts or a persisted reasoned no-warrant comparison, form a warranted application, and explain the passage without notes.
 - Modern applications name the original audience, enduring principle, concrete response, and misuse caution.
 - No metric or copy punishes absence.
 
