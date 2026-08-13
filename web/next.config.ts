@@ -66,6 +66,23 @@ export function contentSecurityPolicy(isDev: boolean): string {
   return directives.join("; ");
 }
 
+/**
+ * The seven headers below are the bounded gate: each one is verifiable from
+ * this repo alone, on the wire, with no external evidence required.
+ *
+ * Deliberately NOT included:
+ * - Cross-Origin-Opener-Policy / Cross-Origin-Resource-Policy. Both change
+ *   how the browser treats cross-origin windows and subresources, so honest
+ *   sign-off needs browser-level evidence — a real OAuth popup/redirect round
+ *   trip and an offline service-worker fetch — that this gate does not have.
+ * - `includeSubDomains` on HSTS. Subdomains are not inventoried, and the
+ *   directive would pin every future one for two years.
+ *
+ * The live Google OAuth round trip remains a SEPARATELY LABELED,
+ * credential-gated acceptance receipt. This gate does not claim it: nothing
+ * here exercises accounts.google.com, so nothing here may be read as evidence
+ * that the sign-in flow works end to end.
+ */
 export function securityHeaders(isDev: boolean): SecurityHeader[] {
   const headers: SecurityHeader[] = [
     { key: "Content-Security-Policy", value: contentSecurityPolicy(isDev) },
@@ -73,8 +90,6 @@ export function securityHeaders(isDev: boolean): SecurityHeader[] {
     { key: "X-Content-Type-Options", value: "nosniff" },
     { key: "Referrer-Policy", value: "same-origin" },
     { key: "Permissions-Policy", value: PERMISSIONS_POLICY },
-    { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-    { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
     { key: "X-DNS-Prefetch-Control", value: "off" },
   ];
   // Omitted in dev: inert over http://localhost, but would pin localhost for
@@ -82,7 +97,7 @@ export function securityHeaders(isDev: boolean): SecurityHeader[] {
   if (!isDev) {
     headers.push({
       key: "Strict-Transport-Security",
-      value: "max-age=63072000; includeSubDomains",
+      value: "max-age=63072000",
     });
   }
   return headers;

@@ -1,11 +1,27 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import { spawn, type ChildProcess } from "node:child_process";
+import { existsSync } from "node:fs";
+import { readdir } from "node:fs/promises";
+import net from "node:net";
+import path from "node:path";
+import test, { after, before, describe } from "node:test";
 
 import nextConfig, {
   contentSecurityPolicy,
   securityHeaders,
   SECURITY_HEADER_SOURCE,
 } from "../next.config";
+
+/** The bounded gate, pinned in one place and asserted both in-process and on the wire. */
+const PRODUCTION_HEADER_KEYS = [
+  "Content-Security-Policy",
+  "X-Frame-Options",
+  "X-Content-Type-Options",
+  "Referrer-Policy",
+  "Permissions-Policy",
+  "X-DNS-Prefetch-Control",
+  "Strict-Transport-Security",
+] as const;
 
 async function resolveHeaderRules() {
   const { headers } = nextConfig;
@@ -146,22 +162,21 @@ test("the production CSP is exactly the reviewed policy, token for token", () =>
   assert.equal(countOccurrences(csp, "https://"), 1, "only accounts.google.com");
 });
 
-test("the production header set is exactly the reviewed nine, in order", () => {
+test("the production header set is exactly the reviewed seven, in order", () => {
   assert.deepEqual(
     securityHeaders(false).map((header) => header.key),
-    [
-      "Content-Security-Policy",
-      "X-Frame-Options",
-      "X-Content-Type-Options",
-      "Referrer-Policy",
-      "Permissions-Policy",
-      "Cross-Origin-Opener-Policy",
-      "Cross-Origin-Resource-Policy",
-      "X-DNS-Prefetch-Control",
-      "Strict-Transport-Security",
-    ],
+    PRODUCTION_HEADER_KEYS,
     "header key set must match exactly — nothing added, nothing missing",
   );
+});
+
+test("the cross-origin isolation headers stay out of this bounded gate", () => {
+  // COOP/CORP change how the browser treats cross-origin windows and
+  // subresources. Shipping them without a real OAuth round trip and an
+  // offline service-worker fetch would be a claim this gate cannot back.
+  const keys = new Set(securityHeaders(false).map((header) => header.key));
+  assert.equal(keys.has("Cross-Origin-Opener-Policy"), false);
+  assert.equal(keys.has("Cross-Origin-Resource-Policy"), false);
 });
 
 test("the production CSP is byte-clean and has no duplicate directives", () => {
@@ -202,8 +217,10 @@ test("HSTS ships in production only", () => {
     (header) => header.key === "Strict-Transport-Security",
   );
   assert.ok(hsts, "production must send HSTS");
-  assert.ok(hsts.value.includes("max-age=63072000"));
-  assert.ok(hsts.value.includes("includeSubDomains"));
+  // Exact full value, not includes(): `includeSubDomains` is deliberately
+  // absent because the subdomains are not inventoried, and a substring check
+  // would let it (or `preload`) reappear silently.
+  assert.equal(hsts.value, "max-age=63072000");
 
   assert.equal(
     development.some((header) => header.key === "Strict-Transport-Security"),
@@ -234,3 +251,223 @@ test("no header regresses the offline-first caching contract", async () => {
     assert.ok(!/^cross-origin-embedder-policy$/i.test(header.key));
   }
 });
+
+// ---------------------------------------------------------------------------
+// Wire test — the assertions above only prove what next.config.ts *returns*.
+// This suite boots the real production server and proves what actually
+// reaches a client, because `headers()` is compiled into routes-manifest.json
+// at build time and applied by the router — neither of which the in-process
+// tests exercise. Full-value deepEqual on every response class, no substrings.
+// ---------------------------------------------------------------------------
+
+/** npm scripts run with cwd = web/; tests/corpus.test.ts relies on the same. */
+const WEB_ROOT = process.cwd();
+const BUILD_ID_PATH = path.join(WEB_ROOT, ".next", "BUILD_ID");
+const STATIC_ROOT = path.join(WEB_ROOT, ".next", "static");
+const WIRE_PORT = 3123;
+const BASE_URL = `http://localhost:${WIRE_PORT}`;
+const READY_TIMEOUT_MS = 30_000;
+
+/**
+ * A plain `npm test` with no build present must stay green, so the whole suite
+ * skips with an explicit reason rather than failing or silently passing.
+ */
+const wireSkip: string | false = existsSync(BUILD_ID_PATH)
+  ? false
+  : "no production build: .next/BUILD_ID is missing — run `npm run build` first";
+
+/** Wire keys are compared case-insensitively; fetch lowercases them. */
+const expectedWireHeaders: Record<string, string> = Object.fromEntries(
+  securityHeaders(false).map((header) => [
+    header.key.toLowerCase(),
+    header.value,
+  ]),
+);
+
+function wireHeaderMap(response: Response): Record<string, string | null> {
+  return Object.fromEntries(
+    PRODUCTION_HEADER_KEYS.map((key) => [
+      key.toLowerCase(),
+      response.headers.get(key),
+    ]),
+  );
+}
+
+async function isPortBusy(port: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const probe = net.createServer();
+    probe.once("error", (error: NodeJS.ErrnoException) =>
+      resolve(error.code === "EADDRINUSE"),
+    );
+    probe.once("listening", () => probe.close(() => resolve(false)));
+    probe.listen(port, "127.0.0.1");
+  });
+}
+
+/** First real file under .next/static, as a URL path. Hashes change per build. */
+async function findStaticAsset(root: string): Promise<string> {
+  const stack = [""];
+  while (stack.length > 0) {
+    const relative = stack.pop() as string;
+    const entries = await readdir(path.join(root, relative), {
+      withFileTypes: true,
+    });
+    for (const entry of entries) {
+      const child = relative ? `${relative}/${entry.name}` : entry.name;
+      if (entry.isFile()) return `/_next/static/${child}`;
+      if (entry.isDirectory()) stack.push(child);
+    }
+  }
+  throw new Error(`no files under ${root}: cannot verify a static asset`);
+}
+
+const WIRE_CASES = [
+  { path: "/", status: 307, why: "proxy sends the unauthenticated root to sign-in" },
+  { path: "/sign-in", status: 200, why: "rendered page" },
+  { path: "/api/review", status: 401, why: "unauthenticated API call is rejected" },
+  { path: "/api/definitely-not-a-route", status: 404, why: "unmatched API path" },
+  // proxy.ts matches every dotless path that is not api/_next/sign-in, so an
+  // unknown *page* path is redirected before the router can 404 it. Asserted
+  // as 307 because that is what the server really does.
+  { path: "/definitely-missing-page-404", status: 307, why: "proxy-intercepted unknown page" },
+  // A dotted path is excluded by the proxy matcher, so this is the genuine
+  // app-router 404 response class.
+  { path: "/definitely-missing-page-404.html", status: 404, why: "app-router 404" },
+  { path: "/sw.js", status: 200, why: "service worker from public/" },
+  { path: "/manifest.webmanifest", status: 200, why: "PWA manifest route" },
+  { path: "/bible/index.json", status: 200, why: "offline corpus index from public/" },
+] as const;
+
+describe(
+  "wire: every response class carries exactly the production header set",
+  { skip: wireSkip },
+  () => {
+    let server: ChildProcess | undefined;
+    let serverLog = "";
+    let staticAssetPath = "";
+
+    async function waitForReady(): Promise<void> {
+      const deadline = Date.now() + READY_TIMEOUT_MS;
+      let lastError = "unknown";
+      while (Date.now() < deadline) {
+        if (server?.exitCode !== null && server?.exitCode !== undefined) {
+          throw new Error(
+            `next start exited early (code ${server.exitCode}):\n${serverLog}`,
+          );
+        }
+        try {
+          await fetch(`${BASE_URL}/sign-in`, { redirect: "manual" });
+          return;
+        } catch (error) {
+          lastError = (error as Error).message;
+          await new Promise((resolve) => setTimeout(resolve, 250));
+        }
+      }
+      throw new Error(
+        `next start did not answer on ${BASE_URL} within ${READY_TIMEOUT_MS}ms ` +
+          `(last error: ${lastError})\n${serverLog}`,
+      );
+    }
+
+    before(async () => {
+      if (await isPortBusy(WIRE_PORT)) {
+        throw new Error(
+          `port ${WIRE_PORT} is already in use — stop that process and re-run; ` +
+            "this test needs the port to bind its own `next start`",
+        );
+      }
+
+      staticAssetPath = await findStaticAsset(STATIC_ROOT);
+
+      // node is invoked directly rather than through npm: `shell: true` with
+      // npm on Windows spawns cmd.exe, and killing the shell would orphan the
+      // server. detached:false keeps the child in this process group so a
+      // plain child.kill() tears down the whole tree.
+      server = spawn(
+        process.execPath,
+        [
+          path.join("node_modules", "next", "dist", "bin", "next"),
+          "start",
+          "-p",
+          String(WIRE_PORT),
+        ],
+        {
+          cwd: WEB_ROOT,
+          detached: false,
+          shell: false,
+          stdio: ["ignore", "pipe", "pipe"],
+          // The server never queries the database on any path asserted here,
+          // but the module graph needs a parseable URL to boot. Supplied to
+          // the child process only — no .env file is read or written.
+          env: {
+            ...process.env,
+            DATABASE_URL:
+              process.env.DATABASE_URL ??
+              "postgresql://wire-test:wire-test@127.0.0.1:5432/wire-test",
+          },
+        },
+      );
+
+      const record = (chunk: Buffer) => {
+        serverLog += chunk.toString();
+      };
+      server.stdout?.on("data", record);
+      server.stderr?.on("data", record);
+      server.once("error", (error) => {
+        serverLog += `spawn error: ${error.message}\n`;
+      });
+
+      await waitForReady();
+    });
+
+    after(async () => {
+      if (!server || server.exitCode !== null) return;
+      const exited = new Promise<void>((resolve) =>
+        server?.once("exit", () => resolve()),
+      );
+      server.kill();
+      const grace = new Promise<void>((resolve) =>
+        setTimeout(resolve, 5_000).unref(),
+      );
+      await Promise.race([exited, grace]);
+    });
+
+    for (const wireCase of WIRE_CASES) {
+      test(`${wireCase.path} -> ${wireCase.status} (${wireCase.why})`, async () => {
+        const response = await fetch(`${BASE_URL}${wireCase.path}`, {
+          redirect: "manual",
+        });
+        await response.arrayBuffer();
+
+        assert.equal(response.status, wireCase.status, wireCase.why);
+        assert.deepEqual(
+          wireHeaderMap(response),
+          expectedWireHeaders,
+          `${wireCase.path} must send the exact production header values`,
+        );
+        assert.equal(
+          response.headers.get("x-powered-by"),
+          null,
+          `${wireCase.path} must not leak x-powered-by`,
+        );
+      });
+    }
+
+    test("a real hashed static asset carries the same header set", async () => {
+      assert.ok(staticAssetPath, "before() must discover a static asset");
+
+      const response = await fetch(`${BASE_URL}${staticAssetPath}`, {
+        redirect: "manual",
+      });
+      await response.arrayBuffer();
+
+      assert.equal(response.status, 200, `${staticAssetPath} must be served`);
+      assert.deepEqual(
+        wireHeaderMap(response),
+        expectedWireHeaders,
+        `${staticAssetPath} must send the exact production header values`,
+      );
+      assert.equal(response.headers.get("x-powered-by"), null);
+    });
+  },
+);
