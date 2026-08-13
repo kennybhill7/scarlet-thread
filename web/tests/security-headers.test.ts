@@ -8,8 +8,11 @@ import test, { after, before, describe } from "node:test";
 
 import nextConfig, {
   contentSecurityPolicy,
+  isDevEnvironment,
   securityHeaders,
+  serviceWorkerHeaders,
   SECURITY_HEADER_SOURCE,
+  SERVICE_WORKER_SOURCE,
 } from "../next.config";
 
 /** The bounded gate, pinned in one place and asserted both in-process and on the wire. */
@@ -23,12 +26,28 @@ const PRODUCTION_HEADER_KEYS = [
   "Strict-Transport-Security",
 ] as const;
 
+/**
+ * The three headers layered on /sw.js only, pinned as literals here so the
+ * config cannot drift: Content-Type and Cache-Control are additive, while
+ * Content-Security-Policy deliberately REPLACES the page policy on this one
+ * path (Next takes last-rule-wins on a repeated key).
+ */
+const SERVICE_WORKER_HEADERS = [
+  { key: "Content-Type", value: "application/javascript; charset=utf-8" },
+  { key: "Cache-Control", value: "no-cache,no-store,must-revalidate" },
+  {
+    key: "Content-Security-Policy",
+    value: "default-src 'self'; script-src 'self'",
+  },
+] as const;
+
 async function resolveHeaderRules() {
   const { headers } = nextConfig;
   assert.ok(typeof headers === "function", "next.config must define headers()");
   return headers();
 }
 
+/** Rule 0 is the global `/:path*` gate; rule 1 is the /sw.js overlay. */
 async function resolveHeaderMap() {
   const rules = await resolveHeaderRules();
   return new Map(rules[0].headers.map((header) => [header.key, header.value]));
@@ -48,34 +67,110 @@ function parseCsp(csp: string): Map<string, string[]> {
   return parsed;
 }
 
-test("headers() emits exactly one rule covering every path", async () => {
+test("headers() emits exactly two rules: the global gate and the /sw.js overlay", async () => {
   const rules = await resolveHeaderRules();
-  assert.equal(rules.length, 1);
+  assert.equal(rules.length, 2, "exactly the global rule and the /sw.js rule");
 
-  const [rule] = rules;
-  assert.equal(rule.source, SECURITY_HEADER_SOURCE);
-  assert.equal(rule.source, "/:path*");
-  assert.ok(Array.isArray(rule.headers));
-  assert.ok(rule.headers.length > 0);
+  const [globalRule, serviceWorkerRule] = rules;
+
+  // The unit suite runs with NODE_ENV unset, so the live config must be
+  // serving the strict production set. Stated as an assertion, not assumed.
+  assert.equal(isDevEnvironment(), false, "unit suite must run outside dev");
+
+  assert.equal(globalRule.source, SECURITY_HEADER_SOURCE);
+  assert.equal(globalRule.source, "/:path*");
+  // Strict equality on the whole list: the global rule is UNCHANGED by the
+  // /sw.js work — same seven headers, same values, same order.
+  assert.deepEqual(globalRule.headers, securityHeaders(false));
+  assert.deepEqual(
+    globalRule.headers.map((header) => header.key),
+    PRODUCTION_HEADER_KEYS,
+  );
+
+  assert.equal(serviceWorkerRule.source, SERVICE_WORKER_SOURCE);
+  assert.equal(serviceWorkerRule.source, "/sw.js");
+  assert.equal(serviceWorkerRule.headers.length, 3, "exactly three headers");
+  // Strict equality against literals — a changed value, an extra header or a
+  // reordered list all fail here rather than being absorbed by a substring.
+  assert.deepEqual(serviceWorkerRule.headers, [
+    { key: "Content-Type", value: "application/javascript; charset=utf-8" },
+    { key: "Cache-Control", value: "no-cache,no-store,must-revalidate" },
+    {
+      key: "Content-Security-Policy",
+      value: "default-src 'self'; script-src 'self'",
+    },
+  ]);
+  // ...and the exported constant the wire suite builds its expectation from is
+  // the same list, so the wire assertions cannot drift from the unit ones.
+  assert.deepEqual(serviceWorkerRule.headers, serviceWorkerHeaders);
+  assert.deepEqual(serviceWorkerHeaders, [...SERVICE_WORKER_HEADERS]);
+});
+
+test("the /sw.js rule is ordered last so its worker CSP wins the merge", async () => {
+  const rules = await resolveHeaderRules();
+  // next.js headers.md, "Header Overriding Behavior": when two rules match the
+  // same path and set the same key, the LAST one wins (resolve-routes.js:543-560
+  // assigns resHeaders[key] = value in rule order). Both rules match /sw.js and
+  // both set Content-Security-Policy, so the ordering below is load-bearing:
+  // the worker-scoped policy must be the one that survives on /sw.js.
+  assert.equal(rules[0].source, SECURITY_HEADER_SOURCE);
+  assert.equal(rules[1].source, SERVICE_WORKER_SOURCE);
+
+  const globalCsp = rules[0].headers.find(
+    (header) => header.key === "Content-Security-Policy",
+  );
+  const workerCsp = rules[1].headers.find(
+    (header) => header.key === "Content-Security-Policy",
+  );
+  assert.ok(globalCsp);
+  assert.ok(workerCsp);
+  assert.equal(workerCsp.value, "default-src 'self'; script-src 'self'");
+  assert.notEqual(
+    workerCsp.value,
+    globalCsp.value,
+    "the override is intentional; if these ever match, the overlay is dead code",
+  );
+  // The worker policy must not smuggle in the page relaxations.
+  assert.ok(!workerCsp.value.includes("'unsafe-inline'"));
+  assert.ok(!workerCsp.value.includes("'unsafe-eval'"));
+  assert.ok(!workerCsp.value.includes("http"));
 });
 
 test("every header entry is a clean, non-empty, single-line key/value pair", async () => {
   const rules = await resolveHeaderRules();
-  for (const header of rules[0].headers) {
-    assert.equal(typeof header.key, "string");
-    assert.equal(typeof header.value, "string");
-    assert.ok(header.key.length > 0, "header key must not be empty");
-    assert.ok(header.value.length > 0, `${header.key} must not be empty`);
-    assert.ok(!/[\n\r]/.test(header.key), `${header.key} key has a newline`);
-    assert.ok(!/[\n\r]/.test(header.value), `${header.key} value has a newline`);
+  for (const rule of rules) {
+    for (const header of rule.headers) {
+      assert.equal(typeof header.key, "string");
+      assert.equal(typeof header.value, "string");
+      assert.ok(header.key.length > 0, "header key must not be empty");
+      assert.ok(header.value.length > 0, `${header.key} must not be empty`);
+      assert.ok(!/[\n\r]/.test(header.key), `${header.key} key has a newline`);
+      assert.ok(
+        !/[\n\r]/.test(header.value),
+        `${header.key} value has a newline`,
+      );
+    }
   }
 });
 
-test("header keys are unique so no rule silently overrides another", async () => {
+test("header keys are unique within a rule so nothing silently overrides", async () => {
   const rules = await resolveHeaderRules();
-  const keys = rules[0].headers.map((header) => header.key);
-  // next.js headers.md:47 — a later entry with the same key wins silently.
-  assert.equal(new Set(keys).size, keys.length);
+  for (const rule of rules) {
+    const keys = rule.headers.map((header) => header.key);
+    // next.js headers.md:47 — a later entry with the same key wins silently.
+    // Cross-RULE reuse of a key is deliberate and tested above; reuse WITHIN a
+    // rule is always an accident.
+    assert.equal(new Set(keys).size, keys.length, rule.source);
+  }
+});
+
+test("the /sw.js rule cannot be widened into a path pattern", async () => {
+  const rules = await resolveHeaderRules();
+  // A literal source takes the hasParams === false branch in
+  // resolve-routes.js:542, so no compileNonPath rewriting touches these values.
+  // ":" or "*" here would both widen the match and switch that branch on.
+  assert.ok(!rules[1].source.includes(":"));
+  assert.ok(!rules[1].source.includes("*"));
 });
 
 test("the X-Powered-By banner is suppressed", () => {
@@ -242,11 +337,29 @@ test("the live config picks its policy by NODE_ENV, failing closed", async () =>
 });
 
 test("no header regresses the offline-first caching contract", async () => {
-  const rules = await resolveHeaderRules();
-  for (const header of rules[0].headers) {
-    // Cache-Control here would fight lib/api/response.ts ("private, no-store")
-    // and the service worker shell cache; Clear-Site-Data would erase it.
-    assert.ok(!/^cache-control$/i.test(header.key));
+  const [globalRule, serviceWorkerRule] = await resolveHeaderRules();
+
+  for (const header of globalRule.headers) {
+    // Scoped to the GLOBAL rule: a Cache-Control here would land on every path
+    // and fight lib/api/response.ts ("private, no-store") and the service
+    // worker shell cache; Clear-Site-Data would erase that cache outright.
+    assert.ok(!/^cache-control$/i.test(header.key), "global rule: no Cache-Control");
+    assert.ok(!/^clear-site-data$/i.test(header.key));
+    assert.ok(!/^cross-origin-embedder-policy$/i.test(header.key));
+  }
+
+  // The inverse for the worker SCRIPT, which is not app content: the browser
+  // must revalidate /sw.js on every update check, or a stale cached worker
+  // pins the app to an old build forever. This does not weaken offline-first —
+  // the SW itself still caches the shell and corpus.
+  const cacheControl = serviceWorkerRule.headers.find((header) =>
+    /^cache-control$/i.test(header.key),
+  );
+  assert.ok(cacheControl, "/sw.js must pin Cache-Control");
+  assert.equal(cacheControl.value, "no-cache,no-store,must-revalidate");
+
+  for (const header of serviceWorkerRule.headers) {
+    // The eraser and the isolation header stay out of the overlay too.
     assert.ok(!/^clear-site-data$/i.test(header.key));
     assert.ok(!/^cross-origin-embedder-policy$/i.test(header.key));
   }
@@ -284,12 +397,35 @@ const expectedWireHeaders: Record<string, string> = Object.fromEntries(
   ]),
 );
 
-function wireHeaderMap(response: Response): Record<string, string | null> {
-  return Object.fromEntries(
-    PRODUCTION_HEADER_KEYS.map((key) => [
-      key.toLowerCase(),
-      response.headers.get(key),
+/** The seven global keys plus the two additive worker keys. */
+const SERVICE_WORKER_WIRE_KEYS = [
+  ...PRODUCTION_HEADER_KEYS,
+  "Content-Type",
+  "Cache-Control",
+] as const;
+
+/**
+ * What /sw.js must actually emit: the global seven, then the overlay applied
+ * last — so Content-Type and Cache-Control are added and the page CSP is
+ * replaced by the worker-scoped one. Spread order mirrors the merge the router
+ * performs, and the unit suite pins both halves against literals.
+ */
+const expectedServiceWorkerWireHeaders: Record<string, string> = {
+  ...expectedWireHeaders,
+  ...Object.fromEntries(
+    serviceWorkerHeaders.map((header) => [
+      header.key.toLowerCase(),
+      header.value,
     ]),
+  ),
+};
+
+function wireHeaderMap(
+  response: Response,
+  keys: readonly string[] = PRODUCTION_HEADER_KEYS,
+): Record<string, string | null> {
+  return Object.fromEntries(
+    keys.map((key) => [key.toLowerCase(), response.headers.get(key)]),
   );
 }
 
@@ -433,6 +569,8 @@ describe(
     });
 
     for (const wireCase of WIRE_CASES) {
+      const isServiceWorker = wireCase.path === SERVICE_WORKER_SOURCE;
+
       test(`${wireCase.path} -> ${wireCase.status} (${wireCase.why})`, async () => {
         const response = await fetch(`${BASE_URL}${wireCase.path}`, {
           redirect: "manual",
@@ -440,11 +578,32 @@ describe(
         await response.arrayBuffer();
 
         assert.equal(response.status, wireCase.status, wireCase.why);
-        assert.deepEqual(
-          wireHeaderMap(response),
-          expectedWireHeaders,
-          `${wireCase.path} must send the exact production header values`,
-        );
+
+        if (isServiceWorker) {
+          // The worker script is the one path that carries the overlay: the
+          // seven global headers PLUS Content-Type and Cache-Control, with the
+          // page CSP replaced by the worker-scoped policy. Full-value
+          // deepEqual — no substrings, no partial credit.
+          assert.deepEqual(
+            wireHeaderMap(response, SERVICE_WORKER_WIRE_KEYS),
+            expectedServiceWorkerWireHeaders,
+            "/sw.js must send the global set merged with the worker overlay",
+          );
+        } else {
+          assert.deepEqual(
+            wireHeaderMap(response),
+            expectedWireHeaders,
+            `${wireCase.path} must send the exact production header values`,
+          );
+          // The overlay is route-scoped: its no-cache value must not appear on
+          // any other response class.
+          assert.notEqual(
+            response.headers.get("cache-control"),
+            "no-cache,no-store,must-revalidate",
+            `${wireCase.path} must not inherit the /sw.js cache policy`,
+          );
+        }
+
         assert.equal(
           response.headers.get("x-powered-by"),
           null,
@@ -466,6 +625,11 @@ describe(
         wireHeaderMap(response),
         expectedWireHeaders,
         `${staticAssetPath} must send the exact production header values`,
+      );
+      assert.notEqual(
+        response.headers.get("cache-control"),
+        "no-cache,no-store,must-revalidate",
+        "hashed assets must keep their immutable cache policy",
       );
       assert.equal(response.headers.get("x-powered-by"), null);
     });

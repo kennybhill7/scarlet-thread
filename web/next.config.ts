@@ -106,6 +106,32 @@ export function securityHeaders(isDev: boolean): SecurityHeader[] {
 /** Matches "/" and every nested path: pages, /api/*, /bible/*, /sw.js, /_next/*. */
 export const SECURITY_HEADER_SOURCE = "/:path*";
 
+/** The service worker script itself, served from public/sw.js. */
+export const SERVICE_WORKER_SOURCE = "/sw.js";
+
+/**
+ * Layered on top of the global rule for /sw.js only. Next checks every header
+ * rule in order and merges the matches (headers.md, "Header Overriding
+ * Behavior": a later rule setting the same key wins), so /sw.js receives the
+ * global set with these three applied last — Content-Type and Cache-Control are
+ * additive, and Content-Security-Policy REPLACES the page policy with the
+ * worker-scoped one, which is the intent: the CSP delivered with a worker
+ * script governs that worker's execution context, not a document.
+ *
+ * no-cache on the worker script governs SW update propagation and does not
+ * conflict with the offline-first app-content contract: the service worker
+ * itself caches content, while the browser must always revalidate the worker
+ * script so a new build's SW is picked up instead of a stale cached copy.
+ */
+export const serviceWorkerHeaders: SecurityHeader[] = [
+  { key: "Content-Type", value: "application/javascript; charset=utf-8" },
+  { key: "Cache-Control", value: "no-cache,no-store,must-revalidate" },
+  {
+    key: "Content-Security-Policy",
+    value: "default-src 'self'; script-src 'self'",
+  },
+];
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   async headers() {
@@ -113,6 +139,10 @@ const nextConfig: NextConfig = {
       {
         source: SECURITY_HEADER_SOURCE,
         headers: securityHeaders(isDevEnvironment()),
+      },
+      {
+        source: SERVICE_WORKER_SOURCE,
+        headers: serviceWorkerHeaders,
       },
     ];
   },
