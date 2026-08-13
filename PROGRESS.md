@@ -4,7 +4,42 @@
 this file plus `BUILD_PLAN.md` and continues without re-deriving anything. Update it as work
 lands, not at the end.
 
-**Last updated:** 2026-07-29 morning · by Claude Code (Track A), responding to the audit below
+**Last updated:** 2026-08-12 · by Claude Code (Track A) — first live deployment
+
+---
+
+## 2026-08-12 — first deployment to Vercel
+
+Two weeks quiet (no commits between 301759a on 07-29 and this session). Ken asked to push to
+Vercel. Found and fixed a real deploy-blocker first: `loadSeed()` in `lib/vault/seed.ts` had no
+error handling, and `web/data/seed/` is gitignored (real personal content, A-026) — so it doesn't
+exist on a fresh Vercel checkout, and `next build`'s static prerendering of `/` and `/review` would
+throw ENOENT and fail the whole build. Fixed to fall back to empty arrays on ENOENT specifically.
+Verified two ways before trusting it: moved `data/seed` aside locally and confirmed a clean build,
+then confirmed for real on Vercel (which never had the directory).
+
+**Live at:** https://web-puce-omega-50.vercel.app (Vercel project `kennybhill7s-projects/web`).
+Vercel auto-assigned this to production on first deploy — not something the CLI could avoid, it's
+platform behavior for a brand-new project's first deployment.
+
+**Verified live, not assumed:** unauthenticated `/` correctly redirects to `/sign-in` (proxy.ts
+fail-closed, confirmed in the real deployed environment), static Bible JSON serves without auth,
+sign-in page renders 200.
+
+**Env vars set:** `AUTH_SECRET` (generated), `AUTH_ALLOWED_EMAIL` (kennybhill7@gmail.com — already
+known, no external account needed for either).
+
+**Env vars still missing — sign-in will not actually work until these exist:**
+- `DATABASE_URL` — needs the Neon Postgres integration connected via the Vercel dashboard
+  (Storage tab → Neon). This also gates the seed-bridge → live-DB migration (A-009/A-011).
+- `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` — needs a Google Cloud Console OAuth client. Authorized
+  redirect URI: `https://web-puce-omega-50.vercel.app/api/auth/callback/google`. Note: if Ken later
+  adds a custom domain, this redirect URI (and the one registered with Google) needs to be updated
+  to match — the `.vercel.app` URL is not necessarily permanent.
+
+**Do not claim this deployment means the app is ready for real use.** It proves the build succeeds
+and the auth gate holds in production — nothing more. `CODEX_AUDIT.md`'s open findings (A-009,
+A-011, A-013, A-030, and the rest) are unaffected by this deployment existing.
 
 ---
 
