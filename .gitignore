@@ -52,3 +52,13 @@ desktop.ini
 # Logs
 *.log
 npm-debug.log*
+
+# Agent graph runtime state and receipts are machine-local. The reviewed task
+# definitions and controller are tracked; mutable run history is not.
+agent-graph/ledger.local.json
+agent-graph/ledger.local.json.lock
+agent-graph/ledger.local.json.tmp
+# Legacy advisory files from the pre-atomic prototype.
+agent-graph/state.local.json
+agent-graph/receipts.local.jsonl
+.worktrees/

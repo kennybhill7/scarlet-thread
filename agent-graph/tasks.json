@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 1,
+  "tasks": [
+    {
+      "id": "DOC-001",
+      "title": "Reconcile the three theology planning documents",
+      "objective": "Make BUILD_PLAN.md, THEOLOGY_MASTER_BUILD_PLAN.md, and THEOLOGY_PRODUCT_AUDIT.md agree on the canonical evidence contract, no-warrant behavior, conviction privacy, RLS sequencing, and Life Lab timing.",
+      "ownedPaths": [
+        "BUILD_PLAN.md",
+        "THEOLOGY_MASTER_BUILD_PLAN.md",
+        "THEOLOGY_PRODUCT_AUDIT.md"
+      ],
+      "readOnlyPaths": [
+        "web/lib/contracts.ts",
+        "CODEX_AUDIT.md"
+      ],
+      "acceptanceCriteria": [
+        "Teach It Back accepts a reasoned no_warrant_yet and never forces a connection.",
+        "One snake_case evidence and teaching-draft vocabulary is named as canonical in all current normative documents.",
+        "The devotional/personal_resonance database enforcement is specified as a constraint trigger or enforceable schema design, not an ordinary cross-table CHECK.",
+        "Conviction privacy distinguishes forbidden automatic or bulk sharing from explicit learner-authorized sharing.",
+        "Phase 0 application isolation and Phase 1 hostile RLS tests are sequenced consistently.",
+        "Life Labs use the authoritative master plan sequence: after the founding cohort and public V1, unless a reviewed product decision changes every normative document together."
+      ],
+      "verification": [
+        "git diff --check",
+        "rg -n \"no_warrant_yet|personal_resonance|constraint trigger|hostile RLS|Life Lab\" BUILD_PLAN.md THEOLOGY_MASTER_BUILD_PLAN.md THEOLOGY_PRODUCT_AUDIT.md"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "AUD-001",
+      "title": "Refresh the release-readiness ledger from current evidence",
+      "objective": "Correct stale commit, remote-tree, blocker-count, deployment, and A-047 statements in CODEX_AUDIT.md without closing any gate that lacks evidence.",
+      "ownedPaths": [
+        "CODEX_AUDIT.md"
+      ],
+      "readOnlyPaths": [
+        "BUILD_PLAN.md",
+        "THEOLOGY_MASTER_BUILD_PLAN.md",
+        "THEOLOGY_PRODUCT_AUDIT.md"
+      ],
+      "acceptanceCriteria": [
+        "The ledger identifies the current audited commit SHA and distinguishes local, remote, and deployed state.",
+        "A-047 says the unsafe migration hook is absent from the audited commit but the replacement deployment is not verified successful.",
+        "Critical, high, and medium open counts mechanically match the finding statuses.",
+        "No credential-blocked or failed deployment check is described as passed."
+      ],
+      "verification": [
+        "git diff --check",
+        "git rev-parse HEAD",
+        "git status --short"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "OPS-001",
+      "title": "Repair and verify the Vercel project root",
+      "objective": "Set the Vercel project Root Directory to web, redeploy the audited commit, and prove the build ran without a database migration.",
+      "ownedPaths": [],
+      "readOnlyPaths": [
+        "web/package.json",
+        "CODEX_AUDIT.md"
+      ],
+      "acceptanceCriteria": [
+        "The deployment builds from the web directory.",
+        "Logs show next build and no db:migrate invocation.",
+        "The deployed commit SHA equals the audited commit SHA.",
+        "A browser smoke test reaches the intended application route."
+      ],
+      "verification": [
+        "Vercel deployment log receipt",
+        "deployed commit SHA receipt",
+        "browser smoke-test receipt"
+      ],
+      "humanGates": [
+        "deployment",
+        "secrets"
+      ]
+    },
+    {
+      "id": "P0-001",
+      "title": "Prove two-account application-level tenant isolation",
+      "objective": "Add a repeatable hostile integration test showing that account A cannot read or mutate account B data before proceeding to public multi-tenant work.",
+      "ownedPaths": [
+        "web/tests/tenant-isolation.test.ts",
+        "web/lib/api/entries.ts",
+        "web/lib/api/sync.ts",
+        "web/app/api/entries/",
+        "web/app/api/sync/"
+      ],
+      "readOnlyPaths": [
+        "web/lib/contracts.ts"
+      ],
+      "acceptanceCriteria": [
+        "Two distinct authenticated identities are exercised.",
+        "Cross-tenant reads return no protected records.",
+        "Cross-tenant create, update, and delete attempts fail closed.",
+        "The test fails when tenant predicates are deliberately removed.",
+        "No production database or personal vault data is used."
+      ],
+      "verification": [
+        "cd web; npm.cmd test",
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint"
+      ],
+      "humanGates": [
+        "secrets",
+        "production-database"
+      ]
+    },
+    {
+      "id": "SEC-001",
+      "title": "Add production security headers without breaking app flows",
+      "objective": "Implement Phase 0 gate 0.9 with a deliberate CSP and baseline browser security headers on all application routes.",
+      "ownedPaths": [
+        "web/next.config.ts",
+        "web/tests/security-headers.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/contracts.ts",
+        "web/proxy.ts",
+        "web/public/sw.js"
+      ],
+      "acceptanceCriteria": [
+        "CSP, frame-ancestors or X-Frame-Options, nosniff, referrer policy, and permissions policy are present on every route.",
+        "The CSP explicitly accounts for Next.js runtime behavior, Google OAuth, Neon, and service-worker requirements without broad wildcard sources.",
+        "Development-only allowances do not weaken the production policy.",
+        "Automated tests validate exact high-risk directives and fail when a required header is removed.",
+        "Existing authentication, offline, Scripture, and sync tests remain green."
+      ],
+      "verification": [
+        "cd web; npm.cmd test",
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "Inspect built-route response headers and document any OAuth smoke test that still needs live credentials."
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "P0UI-001",
+      "title": "Complete protected sync and safe Settings controls",
+      "objective": "Mount reconnect sync once inside the protected application, expose a current portable export, and provide one fail-closed clear-device-and-sign-out path while local storage remains account-unscoped.",
+      "ownedPaths": [
+        "web/app/(app)/layout.tsx",
+        "web/app/(app)/settings/page.tsx",
+        "web/app/(app)/settings/settings.module.css",
+        "web/components/auth/DeviceSessionControls.tsx",
+        "web/components/export/VaultExportButton.tsx",
+        "web/lib/sync/clear.ts",
+        "web/tests/device-clear.test.ts",
+        "web/tests/protected-integrations.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/contracts.ts",
+        "web/lib/sync/client.ts",
+        "web/lib/sync/store.ts",
+        "web/proxy.ts",
+        "web/public/sw.js"
+      ],
+      "acceptanceCriteria": [
+        "The protected app layout mounts exactly one SyncRegistration; public and sign-in layouts do not mount it.",
+        "Settings exposes offline downloads, a portable export, and one clear-device-and-sign-out action in that order.",
+        "Ordinary sign-out that retains the unscoped IndexedDB vault is not offered until account/workspace namespacing lands.",
+        "Export synchronizes pending writes first and fails with an explicit incomplete-export message when offline, rejected, or unsynced; it never presents a stale server archive as current.",
+        "Clear-device refuses offline operation, failed sync clears nothing, successful clearing removes the app IndexedDB, matching app caches, and bible-brain:last-read while retaining unrelated caches.",
+        "If server sign-out succeeds but local clearing fails, the UI gives a shared-device warning and never claims the device was cleared.",
+        "This task does not claim the normal-sign-out cache-policy finding closed; arbitrary authenticated document/RSC caching remains a separate task."
+      ],
+      "verification": [
+        "cd web; npm.cmd test",
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd exec drizzle-kit check",
+        "cd web; npm.cmd run build",
+        "Source test proves protected-only mounting and Settings reachability; fake-indexeddb/cache/localStorage test proves scoped deletion and failure ordering."
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "DOC-002",
+      "title": "Resolve remaining executable-plan contradictions",
+      "objective": "Reconcile the execution plan and authoritative theology plan before v2 schema work, preserving the proven v1 Entry invariant while separating session closure, established-thread linkage, motif promotion, and passage-comparison outcomes.",
+      "ownedPaths": [
+        "BUILD_PLAN.md",
+        "THEOLOGY_MASTER_BUILD_PLAN.md"
+      ],
+      "readOnlyPaths": [
+        "THEOLOGY_PRODUCT_AUDIT.md",
+        "web/lib/contracts.ts",
+        "web/lib/api/entries.ts",
+        "web/lib/api/sync.ts",
+        "web/db/migrations/0003_enforce_active_thread_links.sql"
+      ],
+      "acceptanceCriteria": [
+        "The stack summary identifies client-clock last-write-wins as current v1 behavior that Phase 1 retires, without calling it both unchanged and retired.",
+        "The master plan labels its old-plan critique as historical input or removes obsolete claims now resolved by the reconciled BUILD_PLAN.",
+        "Claim status, route ownership, and sync aggregate boundaries use one vocabulary: revisited is retained; Teach remains inside /study/[sessionId] for V1; evidence and ordered child rows have an explicit atomic aggregate rule.",
+        "The v1 Entry API, sync schema, and deferred one-thread invariant remain unchanged; no plan instructs implementation to weaken them.",
+        "V2 distinguishes workflow_state from thread_resolution, derives linked state from normalized study_thread_sightings, and keeps no_warrant_yet solely on passage comparison attempts.",
+        "Existing starter/imported threads may be linked on any sighting; only creation of a learner-promoted thread requires three active sightings in three distinct passage scopes plus explicit learner confirmation and atomic backfill.",
+        "Reveal gates are derived from persisted learner artifacts rather than currentStep or client booleans, and an honest substantive uncertainty can satisfy an attempt gate without fabricating a claim.",
+        "The modern-domain vocabulary includes formation, and teach-back output is Self-reviewed until independent human review exists."
+      ],
+      "verification": [
+        "git diff --check",
+        "rg -n \"last-write-wins|revisited|study_thread_sightings|comparison_attempts|learner_promoted|RevealAfter|formation|Self-reviewed\" BUILD_PLAN.md THEOLOGY_MASTER_BUILD_PLAN.md",
+        "rg -n \"Relax the entry|relax.*v1|connection_state\" BUILD_PLAN.md THEOLOGY_MASTER_BUILD_PLAN.md returns no normative instruction to weaken v1 or overload session state"
+      ],
+      "humanGates": []
+    }
+  ]
+}

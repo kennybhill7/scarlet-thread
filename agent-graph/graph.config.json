@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "project": "Scarlet Thread",
+  "defaultRoles": {
+    "builder": "claude",
+    "auditor": "codex",
+    "verifier": "deterministic-checks"
+  },
+  "maxRepairCycles": 3,
+  "trustModel": "shared-local-state-is-advisory; audit and approval transitions require independent orchestrator confirmation",
+  "protectedPaths": [
+    "Bible-Brain/",
+    "Bible-Brain-Vault.zip",
+    ".env",
+    ".env.local",
+    ".env.production",
+    ".claude/settings.local.json"
+  ],
+  "humanGateCategories": [
+    "doctrine",
+    "scripture-publication",
+    "pastoral-approval",
+    "privacy-policy",
+    "licensing",
+    "secrets",
+    "production-database",
+    "deployment",
+    "public-release"
+  ],
+  "globalVerification": [
+    "git diff --check",
+    "cd web; npm.cmd test",
+    "cd web; npm.cmd run typecheck",
+    "cd web; npm.cmd run lint"
+  ]
+}
