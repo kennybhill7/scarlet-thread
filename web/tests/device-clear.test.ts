@@ -6,15 +6,17 @@ import fs from "node:fs";
 import path from "node:path";
 
 /**
- * Clear-device: what it destroys, what it must never destroy, and what it must
- * refuse to start.
+ * Clear-device: what it destroys, what it must never destroy, what it must
+ * refuse to start, what it must not claim when it cannot tell, and how the
+ * user gets out of every failure.
  *
  * Test order is load-bearing. lib/sync/store.ts holds its IndexedDB handle in
  * a module-level singleton, and the first successful clear closes it for the
  * rest of the process (verified: getPendingOps then throws InvalidStateError).
  * So every test that needs a live store — i.e. the real sync pre-flight — runs
- * before the first successful destroy, and the scoped-deletion test injects a
- * flush instead. Node isolates test *files*, not tests within a file.
+ * before the first successful destroy, and every test after it either injects
+ * a flush or recreates the database raw. Node isolates test *files*, not tests
+ * within a file.
  */
 
 const root = process.cwd();
@@ -78,6 +80,31 @@ function syncResponse() {
   );
 }
 
+/** Recreate the local database without lib/sync/store, whose handle may be dead. */
+function openLocalDatabase(): Promise<IDBDatabase> {
+  return new Promise((resolve) => {
+    const request = indexedDB.open("bible-brain", 1);
+    request.onupgradeneeded = () => request.result.createObjectStore("entries");
+    request.onsuccess = () => resolve(request.result);
+  });
+}
+
+async function localDatabaseExists(): Promise<boolean> {
+  return (await indexedDB.databases()).some(
+    (info) => info.name === "bible-brain",
+  );
+}
+
+/** Resolve with the rejection reason, or fail if the promise resolves. */
+async function failureOf(promise: Promise<unknown>): Promise<unknown> {
+  return promise.then(
+    () => {
+      throw new Error("expected a rejection, but the call succeeded");
+    },
+    (error: unknown) => error,
+  );
+}
+
 const SEED_CACHES = [
   "bible-brain-scripture-v1",
   "bible-brain-shell-v1",
@@ -89,8 +116,7 @@ const SEED_STORAGE = () => ({
 });
 
 async function assertNothingDestroyed(message: string) {
-  const databases = (await indexedDB.databases()).map((info) => info.name);
-  assert.ok(databases.includes("bible-brain"), `${message}: database kept`);
+  assert.ok(await localDatabaseExists(), `${message}: database kept`);
   assert.deepEqual(
     (await caches.keys()).sort(),
     [...SEED_CACHES].sort(),
@@ -251,34 +277,94 @@ test("a failed sign-out clears nothing", async () => {
   }
 });
 
-// --- 5. signed out but not cleared: the shared-device signal ----------------
+// --- 5. runtime recovery: a failed sync is retryable, and the retry works ----
 
-test("a failed clear after a successful sign-out is reported as not cleared", async () => {
-  const { DeviceClearFailure, DeviceClearIncompleteError, runDeviceClear } =
+/**
+ * The stuck-controls case. A failure that leaves the user with no next move is
+ * worse than the failure itself, so this drives the real flow through an
+ * injected sync failure and then an injected success, and checks the state the
+ * UI would render in between (`canRetry`, and the ordinary "error" state that
+ * keeps the button enabled — `busy` is only `clearing`/`rechecking`).
+ */
+test("a failed sync leaves an actionable retry, and the retry completes", async () => {
+  const { DeviceClearFailure, describeClearFailure, runDeviceClear } =
     await import("@/lib/sync/clear");
   setOnline(true);
-  makeCaches(SEED_CACHES, { deletes: false });
+  makeCaches(SEED_CACHES);
   makeStorage(SEED_STORAGE());
 
   const originalFetch = globalThis.fetch;
-  globalThis.fetch = async () => syncResponse();
+  globalThis.fetch = async () => new Response("nope", { status: 500 });
+  let failure: unknown;
   try {
-    await assert.rejects(
+    failure = await failureOf(
       runDeviceClear({ signOut: async () => ({ url: "/sign-in" }) }),
-      (error: unknown) =>
-        error instanceof DeviceClearFailure &&
-        error.signedOut === true &&
-        error.cause instanceof DeviceClearIncompleteError &&
-        error.cause.remaining.includes("caches"),
-    );
-    assert.deepEqual(
-      (await caches.keys()).sort(),
-      [...SEED_CACHES].sort(),
-      "the undeletable caches are what verification caught",
     );
   } finally {
     globalThis.fetch = originalFetch;
   }
+  assert.ok(failure instanceof DeviceClearFailure);
+  assert.equal(failure.signedOut, false);
+  assert.deepEqual(describeClearFailure(failure), {
+    state: "error",
+    unknown: false,
+    canRetry: true,
+    message:
+      "Nothing was cleared because sync and sign-out could not be confirmed. Please try again.",
+  });
+  await assertNothingDestroyed("recoverable sync failure");
+
+  // Same controls, same device, sync now succeeds.
+  globalThis.fetch = async () => syncResponse();
+  try {
+    assert.deepEqual(
+      await runDeviceClear({ signOut: async () => ({ url: "/sign-in" }) }),
+      { redirectTo: "/sign-in" },
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+  assert.ok(!(await localDatabaseExists()), "the retry cleared the device");
+  assert.equal(localStorage.getItem("bible-brain:last-read"), null);
+  assert.equal(localStorage.getItem("unrelated"), "keep");
+});
+
+// --- 6. signed out but not cleared: the shared-device signal ----------------
+
+test("a failed clear after a successful sign-out is reported as not cleared", async () => {
+  const {
+    DeviceClearFailure,
+    DeviceClearIncompleteError,
+    describeClearFailure,
+    runDeviceClear,
+  } = await import("@/lib/sync/clear");
+  setOnline(true);
+  makeCaches(SEED_CACHES, { deletes: false });
+  makeStorage(SEED_STORAGE());
+
+  // The store singleton died with the successful clear in test 5, so the
+  // pre-flight is injected. Its ordering is proven by tests 2-5.
+  const failure = await failureOf(
+    runDeviceClear({
+      signOut: async () => ({ url: "/sign-in" }),
+      flush: async () => {},
+    }),
+  );
+  assert.ok(failure instanceof DeviceClearFailure);
+  assert.equal(failure.signedOut, true);
+  assert.ok(failure.cause instanceof DeviceClearIncompleteError);
+  assert.ok(failure.cause.remaining.includes("caches"));
+  assert.deepEqual(
+    (await caches.keys()).sort(),
+    [...SEED_CACHES].sort(),
+    "the undeletable caches are what verification caught",
+  );
+
+  const view = describeClearFailure(failure);
+  assert.equal(view.state, "not-cleared");
+  assert.equal(view.unknown, false, "this outcome is known, not unknown");
+  assert.equal(view.canRetry, true);
+  assert.match(view.message, /still stored in this browser/);
 });
 
 test("the UI copy for that state never claims the device was cleared", () => {
@@ -290,28 +376,87 @@ test("the UI copy for that state never claims the device was cleared", () => {
   assert.match(src, /not-cleared/);
   assert.doesNotMatch(src, /device was cleared/i);
   assert.doesNotMatch(src, /Cleared\.["`]/);
+  // The message is whatever describeClearFailure decided, so the unknown case
+  // cannot be shown with the settled-failure wording.
+  assert.match(src, /describeClearFailure/);
+  // And the state has an exit that re-checks the device rather than a dead end.
+  assert.match(src, /void checkAgain\(\)/);
+  assert.match(src, /await clearLocalStudyData\(\)/);
 });
 
-// --- 6. a successful clear is correctly scoped ------------------------------
+// --- 7. the copy, the code, and the tests all state one order ---------------
+
+test("the clear-device copy states the same order the code runs", async () => {
+  const { CLEAR_DEVICE_CONFIRM, CLEAR_DEVICE_STEPS } = await import(
+    "@/lib/sync/clear"
+  );
+  assert.deepEqual(
+    [...CLEAR_DEVICE_STEPS],
+    [
+      "Sync your writing to the server",
+      "Sign out of this account",
+      "Delete this app's notes and offline Bible data from this browser",
+      "Check that they are really gone, and say so if anything is left",
+    ],
+  );
+
+  // The confirm dialog numbers them in that order.
+  CLEAR_DEVICE_STEPS.forEach((step, index) => {
+    assert.ok(
+      CLEAR_DEVICE_CONFIRM.includes(`${index + 1}. ${step}.`),
+      `confirm text lists step ${index + 1}`,
+    );
+  });
+  const positions = CLEAR_DEVICE_STEPS.map((step) =>
+    CLEAR_DEVICE_CONFIRM.indexOf(step),
+  );
+  assert.deepEqual([...positions].sort((a, b) => a - b), [...positions]);
+
+  // The code performs them in that order: flush, sign-out, destroy, verify.
+  const lib = fs.readFileSync(path.join(root, "lib/sync/clear.ts"), "utf8");
+  const orchestration = lib.slice(
+    lib.indexOf("export async function runDeviceClear"),
+  );
+  const flushAt = orchestration.indexOf("await flush()");
+  const signOutAt = orchestration.indexOf("await deps.signOut()");
+  const destroyAt = orchestration.indexOf("await clearLocalStudyData(");
+  assert.ok(flushAt > -1, "the flush call is where the test thinks it is");
+  assert.ok(signOutAt > flushAt, "sign-out follows the sync flush");
+  assert.ok(destroyAt > signOutAt, "destruction follows sign-out");
+
+  const destruction = lib.slice(
+    lib.indexOf("export async function clearLocalStudyData"),
+  );
+  assert.ok(
+    destruction.indexOf("deleteDB(LOCAL_DATABASE") <
+      destruction.indexOf("// Verification."),
+    "verification follows destruction",
+  );
+
+  // The component states that order and nothing else.
+  const ui = fs.readFileSync(
+    path.join(root, "components/auth/DeviceSessionControls.tsx"),
+    "utf8",
+  );
+  assert.match(ui, /window\.confirm\(CLEAR_DEVICE_CONFIRM\)/);
+  assert.match(ui, /CLEAR_DEVICE_STEPS\.map/);
+  assert.doesNotMatch(
+    ui,
+    /then sign out\?/,
+    "the old hand-written copy put sign-out last",
+  );
+});
+
+// --- 8. a successful clear is correctly scoped ------------------------------
 
 test("a successful clear removes app data and keeps everything else", async () => {
   const { runDeviceClear } = await import("@/lib/sync/clear");
   setOnline(true);
-  // The store singleton died with the clear in test 5, so the local database
-  // is recreated raw here and the pre-flight is injected. Ordering of the real
-  // pre-flight is proven by tests 2-4.
-  await new Promise<void>((resolve) => {
-    const request = indexedDB.open("bible-brain", 1);
-    request.onupgradeneeded = () => request.result.createObjectStore("entries");
-    request.onsuccess = () => {
-      request.result.close();
-      resolve();
-    };
-  });
-  assert.ok(
-    (await indexedDB.databases()).some((info) => info.name === "bible-brain"),
-    "the database exists before clearing",
-  );
+  // The store singleton is dead, so the local database is recreated raw and
+  // the pre-flight is injected. Ordering of the real pre-flight is proven by
+  // tests 2-5.
+  (await openLocalDatabase()).close();
+  assert.ok(await localDatabaseExists(), "the database exists before clearing");
 
   makeCaches([
     "bible-brain-scripture-v1",
@@ -331,10 +476,7 @@ test("a successful clear removes app data and keeps everything else", async () =
   });
 
   assert.deepEqual(result, { redirectTo: "/sign-in" });
-  assert.ok(
-    !(await indexedDB.databases()).some((info) => info.name === "bible-brain"),
-    "the app database is gone",
-  );
+  assert.ok(!(await localDatabaseExists()), "the app database is gone");
   assert.deepEqual((await caches.keys()).sort(), [
     "other-app-v2",
     "unrelated-cache",
@@ -344,25 +486,113 @@ test("a successful clear removes app data and keeps everything else", async () =
   assert.equal(localStorage.getItem("unrelated"), "keep");
 });
 
-// --- 7. a blocked delete fails loudly instead of hanging --------------------
+// --- 9. the order the copy promises, observed at runtime --------------------
 
-test("a delete blocked by another tab fails instead of hanging", async () => {
-  const { DeviceClearIncompleteError, clearLocalStudyData } = await import(
-    "@/lib/sync/clear"
-  );
-  const blocker = await new Promise<IDBDatabase>((resolve) => {
-    const request = indexedDB.open("bible-brain", 1);
-    request.onupgradeneeded = () => request.result.createObjectStore("entries");
-    request.onsuccess = () => resolve(request.result);
+test("nothing is destroyed until after sign-out, and destruction is verified", async () => {
+  const { runDeviceClear } = await import("@/lib/sync/clear");
+  setOnline(true);
+  (await openLocalDatabase()).close();
+  makeCaches(SEED_CACHES);
+  makeStorage(SEED_STORAGE());
+
+  const order: string[] = [];
+  await runDeviceClear({
+    flush: async () => {
+      order.push("flush");
+      assert.ok(await localDatabaseExists(), "nothing destroyed before sync");
+      assert.equal(localStorage.getItem("bible-brain:last-read"), '{"book":1}');
+    },
+    signOut: async () => {
+      order.push("sign-out");
+      assert.ok(
+        await localDatabaseExists(),
+        "nothing destroyed before sign-out",
+      );
+      assert.equal(localStorage.getItem("bible-brain:last-read"), '{"book":1}');
+      return { url: "/sign-in" };
+    },
   });
+  // Resolving is itself the proof of step 4: clearLocalStudyData re-reads
+  // every surface after destroying it and throws if anything is left.
+  order.push("destroyed-and-verified");
+
+  assert.deepEqual(order, ["flush", "sign-out", "destroyed-and-verified"]);
+  assert.ok(!(await localDatabaseExists()));
+  assert.equal(localStorage.getItem("bible-brain:last-read"), null);
+});
+
+// --- 10. a blocked delete is UNKNOWN, not a clean failure -------------------
+
+test("a delete blocked by another tab reports an unknown state, not a failure", async () => {
+  const {
+    DEVICE_CLEAR_UNKNOWN_MESSAGE,
+    DEVICE_NOT_CLEARED_MESSAGE,
+    DeviceClearFailure,
+    DeviceClearIncompleteError,
+    DeviceClearUnknownError,
+    clearLocalStudyData,
+    describeClearFailure,
+  } = await import("@/lib/sync/clear");
+  makeCaches(["bible-brain-shell-v1", "unrelated-cache"]);
+  makeStorage(SEED_STORAGE());
+  const blocker = await openLocalDatabase();
   try {
-    await assert.rejects(
-      clearLocalStudyData({ deleteTimeoutMs: 100 }),
-      (error: unknown) =>
-        error instanceof DeviceClearIncompleteError &&
-        error.remaining.includes("indexeddb"),
+    const error = await failureOf(clearLocalStudyData({ deleteTimeoutMs: 100 }));
+    assert.ok(
+      error instanceof DeviceClearUnknownError,
+      "a timeout is an unknown outcome",
     );
+    assert.ok(
+      !(error instanceof DeviceClearIncompleteError),
+      "and must not be reported as a settled incomplete clear",
+    );
+    assert.equal(error.surface, "indexeddb");
+    assert.deepEqual(
+      error.alsoRemaining,
+      [],
+      "the other surfaces really were cleared",
+    );
+
+    const view = describeClearFailure(new DeviceClearFailure(true, error));
+    assert.equal(view.state, "not-cleared");
+    assert.equal(view.unknown, true);
+    assert.equal(view.canRetry, true);
+    assert.equal(view.message, DEVICE_CLEAR_UNKNOWN_MESSAGE);
+    assert.notEqual(
+      view.message,
+      DEVICE_NOT_CLEARED_MESSAGE,
+      "the unknown state does not borrow the settled-failure copy",
+    );
+    assert.match(view.message, /may still be completing in the background/);
+    assert.match(view.message, /NOT cleared until it has been checked/);
   } finally {
     blocker.close();
   }
+});
+
+// --- 11. the retry re-reads the device instead of assuming ------------------
+
+test("retrying after an unknown state re-verifies actual state", async () => {
+  const { DeviceClearIncompleteError, clearLocalStudyData } = await import(
+    "@/lib/sync/clear"
+  );
+  // The blocking tab from test 10 is closed now. Nothing may be assumed from
+  // that: the retry has to destroy and re-read again.
+  makeCaches(["bible-brain-shell-v1", "unrelated-cache"], { deletes: false });
+  makeStorage(SEED_STORAGE());
+  const error = await failureOf(clearLocalStudyData({ deleteTimeoutMs: 2_000 }));
+  assert.ok(error instanceof DeviceClearIncompleteError);
+  assert.deepEqual(
+    error.remaining,
+    ["caches"],
+    "indexeddb is no longer reported: the re-read found it gone",
+  );
+
+  // Third attempt, same device, the cache now deletable.
+  makeCaches(["bible-brain-shell-v1", "unrelated-cache"]);
+  makeStorage(SEED_STORAGE());
+  await clearLocalStudyData({ deleteTimeoutMs: 2_000 });
+  assert.deepEqual(await caches.keys(), ["unrelated-cache"]);
+  assert.ok(!(await localDatabaseExists()));
+  assert.equal(localStorage.getItem("bible-brain:last-read"), null);
 });

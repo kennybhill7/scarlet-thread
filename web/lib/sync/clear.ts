@@ -18,10 +18,13 @@
  * `next build` while prerendering /settings). Deferring the import keeps this
  * module server-safe without touching a read-only file.
  *
- * This flow does not close CODEX_AUDIT A-015. A normal browsing session still
- * lets `public/sw.js` cache authenticated document and RSC responses in
+ * This flow does not close CODEX_AUDIT A-014 ("Authenticated page/RSC caches
+ * persist after sign-out"). A normal browsing session still lets
+ * `public/sw.js` cache authenticated document and RSC responses in
  * `bible-brain-shell-*`; clearing the device deletes that cache, but the
- * caching policy itself is a separate task.
+ * caching policy itself is a separate task. (A-015 is a docs finding and has
+ * nothing to do with this module — an earlier revision of this header cited it
+ * by mistake.)
  */
 
 import { deleteDB } from "idb";
@@ -56,6 +59,40 @@ export class UnsyncedWritesError extends Error {
   ) {
     super(message);
     this.name = "UnsyncedWritesError";
+  }
+}
+
+/** A write was saved after the export archive was built, so it is not in it. */
+export class ExportLateWriteError extends Error {
+  constructor(
+    readonly pending: number,
+    message = `${pending} local change(s) were saved while the archive was being built`,
+  ) {
+    super(message);
+    this.name = "ExportLateWriteError";
+  }
+}
+
+/**
+ * Destruction did not finish in the time allowed, so the outcome is UNKNOWN —
+ * not failed.
+ *
+ * An IndexedDB delete blocked by another tab is not cancelled by our timeout:
+ * the request stays queued in the browser and can complete seconds or minutes
+ * later, once the blocking connection closes. Reporting that as a clean
+ * failure would be a lie in both directions (it may already be gone; it may
+ * still be there), so it gets its own type and its own copy. The only honest
+ * instruction is "treat this device as NOT cleared until it has been checked".
+ */
+export class DeviceClearUnknownError extends Error {
+  constructor(
+    readonly surface: string,
+    /** Surfaces that separately failed verification during the same attempt. */
+    readonly alsoRemaining: string[] = [],
+    message = `Clearing ${surface} did not finish in time, so this device's state is unknown`,
+  ) {
+    super(message);
+    this.name = "DeviceClearUnknownError";
   }
 }
 
@@ -153,6 +190,17 @@ function isAppCacheKey(key: string): boolean {
  * clear removes as much as it can; the failure is reported afterwards. An
  * IndexedDB delete blocked by another tab hangs forever, so it is raced
  * against a timeout rather than left to stall the UI on "Clearing…".
+ *
+ * Losing that race raises DeviceClearUnknownError, never
+ * DeviceClearIncompleteError. The timeout only stops us waiting; it does not
+ * abort the browser's delete request, which may still complete afterwards.
+ * Being blocked is NOT recorded on its own for the mirror-image reason: a
+ * delete that was blocked and then unblocked really did succeed, and the
+ * verification pass below is what decides.
+ *
+ * Every call re-runs both the destruction and the verification, so calling
+ * this again after an unknown or incomplete outcome re-reads the device rather
+ * than assuming anything about the previous attempt.
  */
 export async function clearLocalStudyData(
   options: { deleteTimeoutMs?: number } = {},
@@ -167,6 +215,7 @@ export async function clearLocalStudyData(
   await closeLocalDatabase();
 
   let blockedByOtherTab = false;
+  let deleteOutcomeUnknown = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
     const timedOut = await Promise.race([
@@ -179,8 +228,11 @@ export async function clearLocalStudyData(
         timer = setTimeout(() => resolve(true), deleteTimeoutMs);
       }),
     ]);
-    if (timedOut || blockedByOtherTab) record("indexeddb");
+    // Unknown, not failed: the delete request outlives this race.
+    // Unknown, not failed: the delete request outlives this race.
+    if (timedOut) deleteOutcomeUnknown = true;
   } catch {
+    // A rejected delete is a real, finished failure.
     record("indexeddb");
   } finally {
     if (timer !== undefined) clearTimeout(timer);
@@ -243,10 +295,60 @@ export async function clearLocalStudyData(
     }
   }
 
+  // Unknown outranks incomplete. When the delete is still outstanding, the
+  // "indexeddb" that verification just found may be deleted a moment from now,
+  // so reporting a settled failure would overstate what we know.
+  if (deleteOutcomeUnknown) {
+    throw new DeviceClearUnknownError(
+      "indexeddb",
+      remaining.filter((surface) => surface !== "indexeddb"),
+      blockedByOtherTab
+        ? "Another tab is holding this app's database open, so the delete did not finish in time"
+        : "The database delete did not finish in time",
+    );
+  }
+
   if (remaining.length > 0) {
     throw new DeviceClearIncompleteError(remaining);
   }
 }
+
+/**
+ * The clear-device sequence in the exact order runDeviceClear() performs it.
+ *
+ * It lives beside the code that performs it, and both the confirm dialog and
+ * the on-screen list are built from this one array, so user-facing copy cannot
+ * describe an order the code does not run. tests/device-clear.test.ts asserts
+ * the array against the call order in runDeviceClear() and against the
+ * component that renders it.
+ */
+export const CLEAR_DEVICE_STEPS = [
+  "Sync your writing to the server",
+  "Sign out of this account",
+  "Delete this app's notes and offline Bible data from this browser",
+  "Check that they are really gone, and say so if anything is left",
+] as const;
+
+/** The confirm text, generated from the steps so it cannot drift from them. */
+export const CLEAR_DEVICE_CONFIRM = [
+  "Clear this device? This runs in order:",
+  "",
+  ...CLEAR_DEVICE_STEPS.map((step, index) => `${index + 1}. ${step}.`),
+  "",
+  "Your writing stays in your account — it is removed only from this browser.",
+].join("\n");
+
+/**
+ * Copy for the outcome where the server session is gone and local data may
+ * still be on the device. Exported so the component and its tests share one
+ * wording.
+ */
+export const DEVICE_NOT_CLEARED_MESSAGE =
+  "Your notes and offline Bible data are still stored in this browser. If anyone else uses this device, clear this site's data in your browser settings now.";
+
+/** Copy for the unknown outcome. It must never say the device is clear. */
+export const DEVICE_CLEAR_UNKNOWN_MESSAGE =
+  "Clearing did not finish in time, and it may still be completing in the background. Treat this device as NOT cleared until it has been checked — usually another tab or window with this app open is holding it up. Close them, then check again.";
 
 /**
  * Clear-device orchestration.
@@ -260,6 +362,10 @@ export async function clearLocalStudyData(
  *
  * Nothing destructive runs before `signOut()`, which is what makes
  * `DeviceClearFailure.signedOut === false` a hard "nothing was destroyed".
+ *
+ * The order below is CLEAR_DEVICE_STEPS: sync flush, server sign-out, local
+ * destruction, verification (the last two are both inside
+ * clearLocalStudyData, which verifies after it destroys).
  */
 export async function runDeviceClear(deps: {
   signOut: () => Promise<{ url?: string | null } | void>;
@@ -279,6 +385,66 @@ export async function runDeviceClear(deps: {
   }
 }
 
+/** Why nothing was cleared, for a failure raised before sign-out. */
+export function messageForPreSignOut(cause: unknown): string {
+  if (cause instanceof DeviceOfflineError) {
+    return "Nothing was cleared. You went offline before your writing could sync.";
+  }
+  if (cause instanceof UnsyncedWritesError) {
+    return `Nothing was cleared. ${cause.pending} change(s) are still waiting to sync — try again in a moment.`;
+  }
+  if (isSyncRejectedError(cause)) {
+    return "Nothing was cleared. The server rejected some of your writing, so it only exists on this device.";
+  }
+  return "Nothing was cleared because sync and sign-out could not be confirmed. Please try again.";
+}
+
+/**
+ * What the UI should show, and whether the user can act again.
+ *
+ * `canRetry` is always true and typed as such deliberately: no clear-device
+ * failure is a dead end. Before sign-out the whole flow can simply be run
+ * again; after sign-out the session is gone, so the remaining action is to
+ * re-attempt the local destruction and re-verify it. A state the user cannot
+ * leave would be the worst outcome of all, because the device is unclean and
+ * they have no control that admits it.
+ */
+export type ClearFailureView = {
+  /** "error" keeps the normal action row; "not-cleared" is a standing alert. */
+  state: "error" | "not-cleared";
+  /** True when the device's state could not be determined at all. */
+  unknown: boolean;
+  canRetry: true;
+  message: string;
+};
+
+export function describeClearFailure(
+  failure: DeviceClearFailure,
+): ClearFailureView {
+  if (!failure.signedOut) {
+    return {
+      state: "error",
+      unknown: false,
+      canRetry: true,
+      message: messageForPreSignOut(failure.cause),
+    };
+  }
+  if (failure.cause instanceof DeviceClearUnknownError) {
+    return {
+      state: "not-cleared",
+      unknown: true,
+      canRetry: true,
+      message: DEVICE_CLEAR_UNKNOWN_MESSAGE,
+    };
+  }
+  return {
+    state: "not-cleared",
+    unknown: false,
+    canRetry: true,
+    message: DEVICE_NOT_CLEARED_MESSAGE,
+  };
+}
+
 /**
  * Guard the export payload itself. `response.ok` alone is not enough: a
  * redirect to a sign-in or captive-portal page also reports ok, and saving
@@ -296,4 +462,66 @@ export function assertCurrentArchiveResponse(response: Response): void {
   if (!contentType.startsWith("application/zip")) {
     throw new Error(`Export returned ${contentType || "no content type"}`);
   }
+}
+
+/**
+ * Fetch the archive and prove it is still current at the moment it is handed
+ * over.
+ *
+ * flushPendingWrites() only proves the queue was empty *before* /api/export was
+ * requested. The server builds the archive from synced rows, so a write saved
+ * while the request was in flight — or after the response arrived but before
+ * the download starts — is missing from an archive the user will file away
+ * believing it is complete. That is the whole failure mode this export gate
+ * exists to prevent, so the queue is re-read after the body has fully arrived
+ * and immediately before the blob is returned. Anything pending cancels the
+ * export; a stale archive is worse than no archive, because no archive is
+ * obvious and a stale one is not.
+ *
+ * `fetchImpl` is injected only so tests can land a write inside that window.
+ */
+export async function fetchCurrentArchive(
+  deps: { fetchImpl?: typeof fetch } = {},
+): Promise<Blob> {
+  const fetchImpl =
+    deps.fetchImpl ??
+    ((...args: Parameters<typeof fetch>) => globalThis.fetch(...args));
+
+  const response = await fetchImpl("/api/export", {
+    cache: "no-store",
+    credentials: "same-origin",
+  });
+  assertCurrentArchiveResponse(response);
+  const blob = await response.blob();
+
+  // The close of the TOCTOU window. Re-read, do not remember.
+  const { getPendingOps } = await import("@/lib/sync/store");
+  const late = await getPendingOps();
+  if (late.length > 0) {
+    throw new ExportLateWriteError(late.length);
+  }
+
+  return blob;
+}
+
+/**
+ * Export copy. Every blocked path names the incomplete archive as the reason
+ * rather than reporting a generic failure, because "export failed" and "your
+ * export would have been missing your last three notes" call for different
+ * actions from the user.
+ */
+export function exportBlockedMessage(error: unknown): string {
+  if (error instanceof DeviceOfflineError) {
+    return "Export cancelled to avoid an incomplete archive: you are offline, so this device's latest writing has not reached the server. Reconnect and try again.";
+  }
+  if (isSyncRejectedError(error)) {
+    return `Export cancelled to avoid an incomplete archive: the server rejected ${error.rejected.length} change(s), so they would be missing from it.`;
+  }
+  if (error instanceof UnsyncedWritesError) {
+    return `Export cancelled to avoid an incomplete archive: ${error.pending} change(s) are still waiting to sync. Try again in a moment.`;
+  }
+  if (error instanceof ExportLateWriteError) {
+    return `Export cancelled to avoid an incomplete archive: ${error.pending} change(s) were saved while it was being built, so they are not in it. Nothing was downloaded — try again in a moment.`;
+  }
+  return "Export cancelled to avoid an incomplete archive: your writing could not be synced. Try again when the connection is stable.";
 }

@@ -3,35 +3,15 @@
 import { useState } from "react";
 
 import {
-  DeviceOfflineError,
-  UnsyncedWritesError,
-  assertCurrentArchiveResponse,
+  ExportLateWriteError,
+  exportBlockedMessage,
+  fetchCurrentArchive,
   flushPendingWrites,
-  isSyncRejectedError,
 } from "@/lib/sync/clear";
 
 import styles from "./vault-export-button.module.css";
 
 type Status = "idle" | "syncing" | "exporting" | "error";
-
-/**
- * The archive is built on the server from synced rows, so an export taken
- * while local writing is still queued is silently missing that writing. Every
- * blocked path therefore names the incomplete archive as the reason rather
- * than reporting a generic failure.
- */
-function exportBlockedMessage(error: unknown): string {
-  if (error instanceof DeviceOfflineError) {
-    return "Export cancelled to avoid an incomplete archive: you are offline, so this device's latest writing has not reached the server. Reconnect and try again.";
-  }
-  if (isSyncRejectedError(error)) {
-    return `Export cancelled to avoid an incomplete archive: the server rejected ${error.rejected.length} change(s), so they would be missing from it.`;
-  }
-  if (error instanceof UnsyncedWritesError) {
-    return `Export cancelled to avoid an incomplete archive: ${error.pending} change(s) are still waiting to sync. Try again in a moment.`;
-  }
-  return "Export cancelled to avoid an incomplete archive: your writing could not be synced. Try again when the connection is stable.";
-}
 
 export function VaultExportButton() {
   const [status, setStatus] = useState<Status>("idle");
@@ -55,12 +35,10 @@ export function VaultExportButton() {
     setStatus("exporting");
     setMessage("Building your Markdown archive…");
     try {
-      const response = await fetch("/api/export", {
-        cache: "no-store",
-        credentials: "same-origin",
-      });
-      assertCurrentArchiveResponse(response);
-      const blob = await response.blob();
+      // fetchCurrentArchive re-checks the queue after the response has fully
+      // arrived, so a write saved during the request cancels the download
+      // instead of being silently absent from a file the user keeps.
+      const blob = await fetchCurrentArchive();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -71,10 +49,12 @@ export function VaultExportButton() {
       window.setTimeout(() => URL.revokeObjectURL(url), 0);
       setStatus("idle");
       setMessage("Export downloaded — it includes everything synced a moment ago.");
-    } catch {
+    } catch (error) {
       setStatus("error");
       setMessage(
-        "The export could not be downloaded, so nothing was saved. Try again.",
+        error instanceof ExportLateWriteError
+          ? exportBlockedMessage(error)
+          : "The export could not be downloaded, so nothing was saved. Try again.",
       );
     }
   }

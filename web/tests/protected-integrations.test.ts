@@ -66,16 +66,34 @@ async function drainQueue() {
 // --- A. one sync mount, inside the protected tree only -----------------------
 
 test("SyncRegistration is mounted exactly once, only in the protected layout", () => {
+  // The mount moved into ProtectedClientMounts (see that component's header:
+  // the protected layout has to stay a Server Component to hold the auth
+  // check, and `ssr: false` is only legal inside a Client Component).
   const mentions = [...walk("app"), ...walk("components")]
     .filter((file) => /\bSyncRegistration\b/.test(read(file)))
     .sort();
   assert.deepEqual(mentions, [
-    "app/(app)/layout.tsx",
+    "components/auth/DeviceSessionControls.tsx",
     "components/sync/SyncRegistration.tsx",
+  ]);
+  assert.equal(
+    (read("components/auth/DeviceSessionControls.tsx").match(
+      /<SyncRegistration\b/g,
+    ) ?? []).length,
+    1,
+    "exactly one <SyncRegistration /> in the tree",
+  );
+
+  const hosts = [...walk("app"), ...walk("components")]
+    .filter((file) => /\bProtectedClientMounts\b/.test(read(file)))
+    .sort();
+  assert.deepEqual(hosts, [
+    "app/(app)/layout.tsx",
+    "components/auth/DeviceSessionControls.tsx",
   ]);
 
   const layout = read("app/(app)/layout.tsx");
-  assert.equal((layout.match(/<SyncRegistration\b/g) ?? []).length, 1);
+  assert.equal((layout.match(/<ProtectedClientMounts\b/g) ?? []).length, 1);
 
   const otherLayouts = walk("app").filter(
     (file) =>
@@ -83,11 +101,74 @@ test("SyncRegistration is mounted exactly once, only in the protected layout", (
   );
   assert.ok(otherLayouts.includes("app/layout.tsx"));
   for (const file of otherLayouts) {
-    assert.doesNotMatch(read(file), /SyncRegistration/, file);
+    assert.doesNotMatch(
+      read(file),
+      /SyncRegistration|ProtectedClientMounts/,
+      file,
+    );
   }
 });
 
+// --- A2. the protected layout is the auth boundary ---------------------------
+
+test("the protected layout is a server component that awaits auth() and redirects", () => {
+  const layout = read("app/(app)/layout.tsx");
+  assert.doesNotMatch(
+    layout,
+    /^\s*["']use client["']/m,
+    "a Client Component cannot hold a server-side auth check",
+  );
+  assert.match(layout, /from "@\/auth"/);
+  assert.match(layout, /await auth\(\)/);
+  assert.match(layout, /redirect\("\/sign-in"\)/);
+
+  const guard = layout.indexOf("await auth()");
+  const redirected = layout.indexOf('redirect("/sign-in")');
+  const mount = layout.indexOf("<ProtectedClientMounts");
+  const children = layout.indexOf("{children}");
+  assert.ok(guard > -1 && redirected > guard, "the redirect follows the check");
+  assert.ok(
+    redirected < mount && mount < children,
+    "no protected content or sync mount renders before the check",
+  );
+});
+
 // --- B. settings order -------------------------------------------------------
+
+test("settings is a reachable route inside the protected tree", () => {
+  const route = "app/(app)/settings/page.tsx";
+  assert.ok(
+    fs.existsSync(path.join(root, route)),
+    "the settings route file is where the URL /settings expects it",
+  );
+  // Fails if the page is moved or renamed: the device sections may be rendered
+  // from that path and nowhere else.
+  assert.deepEqual(
+    walk("app").filter((file) => /<DeviceSessionControls/.test(read(file))),
+    [route],
+  );
+
+  // Inside the protected group, so the layout's auth check covers it.
+  const layout = read("app/(app)/layout.tsx");
+  assert.match(layout, /await auth\(\)/);
+  assert.match(layout, /redirect\("\/sign-in"\)/);
+
+  // Its three sections are all present.
+  const page = read(route);
+  for (const section of [
+    "<OfflineDownloads",
+    "<VaultExportButton",
+    "<DeviceSessionControls",
+  ]) {
+    assert.ok(page.includes(section), `settings renders ${section}`);
+  }
+
+  // And a user can get there: something in the app links to it (A-024).
+  const linking = [...walk("app"), ...walk("components")].filter((file) =>
+    read(file).includes('href="/settings"'),
+  );
+  assert.ok(linking.length > 0, "a link to /settings exists in the app");
+});
 
 test("settings renders downloads, then export, then clear device", () => {
   const page = read("app/(app)/settings/page.tsx");
@@ -104,15 +185,16 @@ test("settings renders downloads, then export, then clear device", () => {
 test("no sign-out that retains the unscoped local vault is offered", () => {
   const src = read("components/auth/DeviceSessionControls.tsx");
   assert.equal(
-    (src.match(/<button/g) ?? []).length,
-    1,
-    "exactly one action button",
-  );
-  assert.equal(
     (src.match(/signOut\(/g) ?? []).length,
     1,
     "exactly one sign-out call site",
   );
+  // Two buttons, and both are accounted for by name: the destructive flow, and
+  // the re-check that gets a signed-out user out of the not-cleared state.
+  // Neither is a sign-out that leaves the unscoped local vault behind.
+  assert.equal((src.match(/<button/g) ?? []).length, 2, "two named buttons");
+  assert.equal((src.match(/void clearAndSignOut\(\)/g) ?? []).length, 1);
+  assert.equal((src.match(/void checkAgain\(\)/g) ?? []).length, 1);
   assert.match(src, /account\/workspace namespacing/);
   assert.doesNotMatch(src, />\s*Sign out\s*</);
 });
@@ -127,12 +209,22 @@ test("the cleared last-read key still matches lib/bible/lastRead.ts", () => {
   );
 });
 
-// --- E. A-015 is not silently claimed closed --------------------------------
+// --- E. A-014 is not silently claimed closed --------------------------------
 
-test("clear.ts states that the cache-policy finding stays open", () => {
+test("clear.ts states that the cache-policy finding stays open, by its real ID", () => {
   const src = read("lib/sync/clear.ts");
-  assert.match(src, /A-015/);
-  assert.match(src, /does not close/);
+  assert.match(src, /does not close CODEX_AUDIT A-014/);
+  // The ID is checked against the audit itself, so a wrong one cannot pass.
+  const audit = fs.readFileSync(path.join(root, "..", "CODEX_AUDIT.md"), "utf8");
+  assert.match(
+    audit,
+    /### A-014 - Authenticated page\/RSC caches persist after sign-out/,
+  );
+  assert.doesNotMatch(
+    src,
+    /does not close CODEX_AUDIT A-015/,
+    "A-015 is the stale-docs finding, not the cache-policy one",
+  );
 });
 
 // --- F-J. the export pre-flight ---------------------------------------------
@@ -165,10 +257,91 @@ test("offline export never reaches /api/export", async () => {
   const src = read("components/export/VaultExportButton.tsx");
   const flushCall = src.indexOf("await flushPendingWrites()");
   const bail = src.indexOf("return;", flushCall);
-  const exportFetch = src.indexOf('fetch("/api/export"');
-  assert.ok(flushCall > -1 && bail > -1 && exportFetch > -1);
-  assert.ok(bail < exportFetch, "a blocked pre-flight returns before /api/export");
-  assert.match(src, /assertCurrentArchiveResponse\(response\)/);
+  const archive = src.indexOf("fetchCurrentArchive()");
+  assert.ok(flushCall > -1 && bail > -1 && archive > -1);
+  assert.ok(bail < archive, "a blocked pre-flight returns before /api/export");
+
+  // The request itself lives in clear.ts so it is testable. Its shape is the
+  // rest of the guarantee: guard the response, read the body, THEN re-check
+  // the queue, and only then hand the blob over.
+  const lib = read("lib/sync/clear.ts");
+  const requested = lib.indexOf('fetchImpl("/api/export"');
+  const guarded = lib.indexOf("assertCurrentArchiveResponse(response)");
+  const body = lib.indexOf("await response.blob()");
+  const recheck = lib.indexOf("const late = await getPendingOps()");
+  const handover = lib.indexOf("return blob;");
+  assert.ok(requested > -1 && guarded > requested, "the response is guarded");
+  assert.ok(body > guarded, "the body is read after the guard");
+  assert.ok(recheck > body, "the queue is re-read after the body arrives");
+  assert.ok(handover > recheck, "and before the archive is handed over");
+});
+
+test("a write that lands after the archive arrives cancels the export", async () => {
+  const store = await import("@/lib/sync/store");
+  const { ExportLateWriteError, exportBlockedMessage, fetchCurrentArchive } =
+    await import("@/lib/sync/clear");
+  setOnline(true);
+  await drainQueue();
+
+  const zip = () =>
+    new Response(new Uint8Array([80, 75, 3, 4]), {
+      status: 200,
+      headers: { "content-type": "application/zip" },
+    });
+
+  // Control: an empty queue at hand-over time delivers the archive.
+  const clean = await fetchCurrentArchive({ fetchImpl: async () => zip() });
+  assert.equal(clean.size, 4, "the archive is returned when nothing is queued");
+
+  // Now land a write strictly after the fetch promise has resolved — the
+  // response object is already in hand and its body is being read. This is the
+  // window flushPendingWrites cannot see.
+  let landed = 0;
+  const fetchImpl = async () => {
+    const response = zip();
+    const readBody = response.blob.bind(response);
+    Object.defineProperty(response, "blob", {
+      configurable: true,
+      value: async () => {
+        landed += 1;
+        const now = isoNow();
+        await store.saveLocalThread({
+          slug: "late-write",
+          title: "Late write",
+          definition: "",
+          seeing: "",
+          createdAt: now,
+          updatedAt: now,
+        });
+        return readBody();
+      },
+    });
+    return response;
+  };
+
+  try {
+    await assert.rejects(
+      fetchCurrentArchive({ fetchImpl }),
+      (error: unknown) =>
+        error instanceof ExportLateWriteError && error.pending === 1,
+    );
+    assert.equal(landed, 1, "the write really did land inside the window");
+    assert.equal(
+      (await store.getPendingOps()).length,
+      1,
+      "and it is still queued, not silently dropped from the archive",
+    );
+    assert.equal(
+      exportBlockedMessage(new ExportLateWriteError(1)),
+      "Export cancelled to avoid an incomplete archive: 1 change(s) were saved while it was being built, so they are not in it. Nothing was downloaded — try again in a moment.",
+    );
+    // The component shows exactly that message for this error.
+    const src = read("components/export/VaultExportButton.tsx");
+    assert.match(src, /error instanceof ExportLateWriteError/);
+    assert.match(src, /exportBlockedMessage\(error\)/);
+  } finally {
+    await drainQueue();
+  }
 });
 
 test("a server-rejected write blocks the export and stays queued", async () => {
