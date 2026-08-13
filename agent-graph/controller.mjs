@@ -231,15 +231,15 @@ function requireCommit(flags) {
   return commit.toLowerCase();
 }
 
-async function resolveCommit(commit, branch, expectedBranch) {
+async function resolveCommit(commit, branch, expectedBranch, runGit = execFileAsync) {
   if (!commit?.trim()) fail("--commit is required");
   if (!branch?.trim()) fail("--branch is required so the submitted SHA can be checked against its branch tip");
   if (branch.trim() !== expectedBranch) fail(`--branch must be exactly ${expectedBranch}`);
   let resolved;
   let branchTip;
   try {
-    ({ stdout: resolved } = await execFileAsync("git", ["rev-parse", "--verify", `${commit.trim()}^{commit}`]));
-    ({ stdout: branchTip } = await execFileAsync("git", ["show-ref", "--verify", "--hash", `refs/heads/${branch.trim()}`]));
+    ({ stdout: resolved } = await runGit("git", ["rev-parse", "--verify", `${commit.trim()}^{commit}`]));
+    ({ stdout: branchTip } = await runGit("git", ["show-ref", "--verify", "--hash", `refs/heads/${branch.trim()}`]));
   } catch {
     fail("--commit and --branch must name existing Git objects");
   }

@@ -116,13 +116,27 @@ test("only the configured deterministic verifier can advance verification", () =
 });
 
 test("submitted commits resolve only from the exact existing agent branch tip", async () => {
-  assert.match(await resolveCommit("HEAD", "agent/GRAPH-001-codex", "agent/GRAPH-001-codex"), /^[0-9a-f]{40}$/);
+  const fullSha = "a".repeat(40);
+  const calls = [];
+  const fakeGit = async (_command, args) => {
+    calls.push(args);
+    return { stdout: `${fullSha}\n`, stderr: "" };
+  };
+  assert.equal(
+    await resolveCommit(fullSha, "agent/GRAPH-001-codex", "agent/GRAPH-001-codex", fakeGit),
+    fullSha,
+  );
+  assert.deepEqual(calls, [
+    ["rev-parse", "--verify", `${fullSha}^{commit}`],
+    ["show-ref", "--verify", "--hash", "refs/heads/agent/GRAPH-001-codex"],
+  ]);
   await assert.rejects(
-    () => resolveCommit("HEAD", "HEAD", "agent/GRAPH-001-codex"),
+    () => resolveCommit(fullSha, "HEAD", "agent/GRAPH-001-codex", fakeGit),
     /must be exactly agent\/GRAPH-001-codex/,
   );
+  const missingGit = async () => { throw new Error("missing"); };
   await assert.rejects(
-    () => resolveCommit("abcdef1", "agent/GRAPH-001-codex", "agent/GRAPH-001-codex"),
+    () => resolveCommit("abcdef1", "agent/GRAPH-001-codex", "agent/GRAPH-001-codex", missingGit),
     /existing Git objects/,
   );
 });
