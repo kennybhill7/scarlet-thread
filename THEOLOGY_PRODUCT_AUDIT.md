@@ -1,5 +1,18 @@
 # Scarlet Thread — Theology Teaching Product Audit
 
+> **Historical evidence document — non-normative.** This audit is a dated
+> snapshot (2026-08-12) preserved as the evidence base for the plans that
+> followed. The canonical, current specifications are
+> `THEOLOGY_MASTER_BUILD_PLAN.md` (authoritative) and `BUILD_PLAN.md`
+> (execution checklist), whose §3.2 snake_case vocabulary supersedes any
+> older terms used below — in particular, "primary/secondary/open-hand"
+> doctrine tiers are superseded by `doctrine_status`
+> (core | conviction | open | disputed | wisdom), and generic connection
+> "confidence" is superseded by `evidence_label`
+> (explicit | strong | plausible | devotional) for connections plus
+> `claim_confidence` (tentative | developing | well_supported) for claims.
+> Where this document and the plans disagree, the plans win.
+
 **Audit date:** 2026-08-12  
 **Scope:** Current repository, generated seed structure, production preview, tests/build/security posture, and the learning model required to become a theology teaching app.  
 **Verdict:** Scarlet Thread is a promising Scripture reader and personal connection journal. It is **not yet a theology teaching app**. The current product helps users record what they notice, but it does not yet guide them through context, interpretation, doctrinal synthesis, warranted modern application, or teaching another person.
