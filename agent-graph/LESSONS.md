@@ -16,13 +16,15 @@ for the exact premortem/retro prompts.
 | BUILD_PLAN / THEOLOGY docs | CROSS-TABLE-INVARIANT-001 | The devotional/personal_resonance exclusion rule spans two tables; an ordinary `CHECK` constraint can't see across them. | `aade632` (doc fix), schema fix pending |
 | `queue.state.json` seed | ORPHAN-REFERENCE-001 | `P0-002` was referenced in the shared queue state before its definition was committed to `tasks.json` on the same branch. The first live cloud worker run correctly declined to improvise and reported the gap. | `38c54ae` (fix) |
 | Interactive controller state | GITIGNORED-COORDINATION-STATE-001 | `agent-graph/state.local.json` (git-ignored) held all task-lifecycle state; a scheduled cloud worker on a fresh clone could not see any of it. `queue.state.json`, committed on `ops/agent-queue`, was introduced to fix this. | `8f844dc` |
+| P0-002 | FAIL-CLOSED-COVERAGE-GAP (candidate) | The PocketPg WHERE evaluator's `<>` operator was `!equal(left, right) && left !== null` — Postgres three-valued NULL logic requires *both* sides non-null for `<>` to be true/false rather than UNKNOWN, but the old code only checked the left side, so a NULL right operand made `<>` return true for every non-null left value. No production code calls `ne()`/`<>` today (confirmed by grep), so this was purely latent; fixed to `left !== null && right !== null && left !== right` with a direct unit test (`EVAL1`) against `evaluatePredicate`. Also closed 5 audit-identified gaps in the tenant-isolation attack matrix (mixed-batch partial rejection, in-batch duplicate-id dedupe, person/log slug-collision squats, soft-deleted-entry id-squat) — all test-only, no production code touched. | `c2324d2` |
 
 ## Open, not yet retro'd
 
-- `P0-001`'s audit found a latent evaluator gap (`ne()`/`<>` with a NULL
-  operand would be misinterpreted, not rejected, if ever introduced) —
-  worth a `GENERAL_LEDGER.md` entry once `P0-002` closes it: a name like
-  **FAIL-CLOSED-COVERAGE-GAP** for "a validator's default-safe behavior
-  only covers operators actually exercised today; an unused-but-latent
-  operator can silently misbehave the moment someone starts using it."
-  Draft after `P0-002` lands so it's grounded in the fix, not speculation.
+- The `FAIL-CLOSED-COVERAGE-GAP` pattern above is now grounded in a landed
+  fix (`P0-002`, commit `c2324d2`) rather than speculation. Ready for a
+  human to review and promote into `GENERAL_LEDGER.md` — the general shape
+  is "a validator's default-safe behavior only covers operators/branches
+  actually exercised today; an unused-but-latent one can silently
+  misbehave the moment something starts exercising it," which is broader
+  than just SQL operators and likely recurs in schema validators, permission
+  checks, and parsers elsewhere.

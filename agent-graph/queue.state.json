@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-14T05:13:29Z",
+  "updatedAt": "2026-08-14T05:47:00Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
-    "taskId": "P0-002",
-    "runId": "cloud-20260814051329",
-    "takenAt": "2026-08-14T05:13:29Z",
-    "expiresAt": "2026-08-14T06:43:29Z"
+    "taskId": null,
+    "runId": null,
+    "takenAt": null,
+    "expiresAt": null
   },
   "tasks": {
     "SEC-002": {
@@ -28,13 +28,13 @@
       "notes": "Successor to blocked P0UI-001. Base branch agent/P0UI-001-claude (tip 2ec3457). Scope EXPANDED to lib/sync/store.ts by Ken 2026-08-13."
     },
     "P0-002": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "submitted",
+      "branch": "agent/P0-002-cloud",
+      "commitSha": "c2324d2197037a8a4918f473cc8fb6183cf9179b",
       "attempts": 0,
       "lastRunId": "cloud-20260814051329",
-      "lastEvidence": null,
-      "notes": "Base branch agent/SYNC-001-claude (tip 12f65b2), which contains the isolation suite plus the sync fix."
+      "lastEvidence": "typecheck exit 0 (no output); lint exit 0 (no output); npm test -> tests 93, pass 93, fail 0, cancelled 0, skipped 0 (tenant-isolation.test.ts alone: 55 tests all passing, incl. the 6 new: C2b, S10, S11, S12, S13, EVAL1); DATABASE_URL='postgresql://u:p@localhost:5432/db' npm run build -> exit 0, 'Compiled successfully', no db:migrate invoked. Criterion 1: PocketPg's <> evaluator now implements Postgres three-valued NULL logic (left!==null && right!==null && left!==right) instead of the old !equal(left,right)&&left!==null, which returned true whenever the right operand was NULL regardless of the left side; grep confirmed no production code calls ne()/<> today, so this closes a latent gap, proven directly by new test EVAL1 against evaluatePredicate. Criterion 2: new attack S10 mixes a B-targeted entry upsert with a valid A log upsert in one push batch; asserts exactly one rejection, the A op's write+receipt land, the rejected op has no receipt, B's entry and every other B row unchanged. Criterion 3: new attack S11 pushes two ops sharing one id in the same batch; asserts the second is silently deduped (not applied, not rejected) and exactly one receipt exists. Criterion 4: new attacks S12 (person slug collision) and S13 (daily-log date collision) mirror S4's existing thread-slug pattern, each creating A's own row under the composite primary key without touching B's. Criterion 5: new attack C2b mirrors C2 (id-squat on B's active entry) against B's soft-deleted entry, proving the same fail-closed 500 (finding F2) holds for a deleted row in the same global entries.id namespace. Criterion 6: every new attack calls assertBUntouched; S10-S13 also added to S8's snapshot-survives-every-attack sweep. Only web/tests/tenant-isolation.test.ts touched (its sole owned path); no production code changed. No PR opened — this queue's prior submitted tasks (SEC-002, P0UI-002) coordinate via this file and branch/commit alone, per QUEUE.md, not GitHub PRs.",
+      "notes": "Base branch agent/SYNC-001-claude (tip 12f65b2), which contains the isolation suite plus the sync fix. Awaiting independent audit, same as SYNC-001 itself."
     },
     "SEC-001": {
       "status": "blocked",
