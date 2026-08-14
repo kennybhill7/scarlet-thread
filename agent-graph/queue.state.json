@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-14T04:05:00Z",
+  "updatedAt": "2026-08-14T04:15:00Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
-    "taskId": null,
-    "runId": null,
-    "takenAt": null,
-    "expiresAt": null
+    "taskId": "P0UI-002",
+    "runId": "cloud-20260814041500",
+    "takenAt": "2026-08-14T04:15:00Z",
+    "expiresAt": "2026-08-14T05:45:00Z"
   },
   "tasks": {
     "SEC-002": {
@@ -19,11 +19,11 @@
       "notes": "Successor to blocked SEC-001. Base branch agent/SEC-001-claude (tip 658cc3d)."
     },
     "P0UI-002": {
-      "status": "ready",
+      "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": null,
+      "lastRunId": "cloud-20260814041500",
       "lastEvidence": null,
       "notes": "Successor to blocked P0UI-001. Base branch agent/P0UI-001-claude (tip 2ec3457). Scope EXPANDED to lib/sync/store.ts by Ken 2026-08-13."
     },
