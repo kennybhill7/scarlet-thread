@@ -41,6 +41,25 @@ export const APP_CACHE_PREFIXES = [
   "bible-brain-shell",
 ] as const;
 
+/**
+ * The object store lib/sync/store.ts:47-51 queues unsynced writes in. Named
+ * here as a literal rather than imported because the read below deliberately
+ * does not go through that module — see countPendingWrites().
+ */
+const SYNC_QUEUE_STORE = "syncQueue";
+
+/**
+ * Where the "this device was NOT cleared" warning survives a reload.
+ *
+ * The value is one of three fixed reason words and never anything the user
+ * wrote, so persisting it leaks nothing even on a shared device — it is a flag
+ * saying the vault may still be resident, not any part of the vault. It sits
+ * under LOCAL_KEY_PREFIX on purpose: the sweep in clearLocalStudyData() then
+ * removes it as part of any clear that actually succeeds, so a stale warning
+ * cannot outlive the condition it describes.
+ */
+export const DEVICE_NOT_CLEARED_KEY = "bible-brain:device-not-cleared";
+
 const DEFAULT_DELETE_TIMEOUT_MS = 5_000;
 
 /** The device is offline, so nothing that requires a synced server can run. */
@@ -59,6 +78,28 @@ export class UnsyncedWritesError extends Error {
   ) {
     super(message);
     this.name = "UnsyncedWritesError";
+  }
+}
+
+/**
+ * Local writing is queued (or the queue could not be read) at the moment
+ * destruction was about to start, so nothing was destroyed.
+ *
+ * This is NOT UnsyncedWritesError. That one is the pre-flight refusing to
+ * start; this one is the destroy refusing to run after the pre-flight already
+ * passed and the session has since been given up, which is a different fact
+ * about the device and calls for different copy.
+ */
+export class DeviceClearUnsyncedError extends Error {
+  constructor(
+    /** Queued write count, or null when the queue could not be read at all. */
+    readonly pending: number | null,
+    message = pending === null
+      ? "This device's unsynced-writing queue could not be read, so nothing was deleted"
+      : `${pending} local change(s) are still waiting to sync, so nothing was deleted`,
+  ) {
+    super(message);
+    this.name = "DeviceClearUnsyncedError";
   }
 }
 
@@ -183,6 +224,101 @@ function isAppCacheKey(key: string): boolean {
   return APP_CACHE_PREFIXES.some((prefix) => key.startsWith(prefix));
 }
 
+/** Open the app database as another tab would: at whatever version it is on. */
+function openRawDatabase(): Promise<{
+  db: IDBDatabase;
+  created: boolean;
+} | null> {
+  return new Promise((resolve) => {
+    let request: IDBOpenDBRequest;
+    try {
+      request = indexedDB.open(LOCAL_DATABASE);
+    } catch {
+      resolve(null);
+      return;
+    }
+    let created = false;
+    // Fires only when the database did not exist, because no version was asked
+    // for. That is how a look becomes a create, and how we know to undo it.
+    request.onupgradeneeded = () => {
+      created = true;
+    };
+    request.onerror = () => resolve(null);
+    request.onblocked = () => resolve(null);
+    request.onsuccess = () => resolve({ db: request.result, created });
+  });
+}
+
+function countStoreRecords(db: IDBDatabase): Promise<number | null> {
+  return new Promise((resolve) => {
+    try {
+      const request = db
+        .transaction(SYNC_QUEUE_STORE, "readonly")
+        .objectStore(SYNC_QUEUE_STORE)
+        .count();
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => resolve(null);
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+/**
+ * How many writes are still queued on this device — or `null` when the queue
+ * could not be read at all, which callers must treat as "unknown", not "none".
+ *
+ * This deliberately does NOT call lib/sync/store's getPendingOps(). That module
+ * holds one IndexedDB connection in a module-level promise (store.ts:58), and
+ * closeLocalDatabase() closes it for the rest of the page's life
+ * (store.ts:320-323) — which is exactly what a first clear attempt does. Every
+ * later call then throws InvalidStateError, and the re-verify path runs in
+ * precisely that state, so this guard has to be able to read the queue with the
+ * module's handle already dead.
+ *
+ * `indexedDB.databases()` is consulted first so a device with no app database
+ * is answered without opening — and therefore creating — one. Where that API is
+ * missing (old Safari) the versionless open can create an empty database; that
+ * is detected through `upgradeneeded` and undone before returning.
+ */
+export async function countPendingWrites(): Promise<number | null> {
+  // No IndexedDB at all means nothing was ever stored here, so nothing can be
+  // lost. Answering "unknown" would make such a context impossible to clear.
+  if (typeof indexedDB === "undefined") return 0;
+
+  let present: boolean | null;
+  try {
+    const databases = await indexedDB.databases?.();
+    present = databases
+      ? databases.some((info) => info.name === LOCAL_DATABASE)
+      : null;
+  } catch {
+    present = null;
+  }
+  if (present === false) return 0;
+
+  const opened = await openRawDatabase();
+  if (opened === null) return null;
+  const { db, created } = opened;
+  try {
+    // A database we just created holds nothing, and a schema without the queue
+    // store predates it — both are a definite zero, not an unknown.
+    if (created || !db.objectStoreNames.contains(SYNC_QUEUE_STORE)) return 0;
+    return await countStoreRecords(db);
+  } finally {
+    db.close();
+    if (created) {
+      // We only meant to look. Leaving the empty database behind would make
+      // the verification pass below report this device as un-cleared.
+      try {
+        await deleteDB(LOCAL_DATABASE);
+      } catch {
+        // The destroy that follows deletes it anyway.
+      }
+    }
+  }
+}
+
 /**
  * Destroy this app's local data, then verify it is actually gone.
  *
@@ -201,10 +337,34 @@ function isAppCacheKey(key: string): boolean {
  * Every call re-runs both the destruction and the verification, so calling
  * this again after an unknown or incomplete outcome re-reads the device rather
  * than assuming anything about the previous attempt.
+ *
+ * Nothing is destroyed while local writing is still queued. That check is the
+ * first statement in the function, not a caller's responsibility, because both
+ * entry points need it: runDeviceClear() reaches here across a sign-out network
+ * round-trip, and the re-verify path reaches here with no session at all.
  */
 export async function clearLocalStudyData(
   options: { deleteTimeoutMs?: number } = {},
 ): Promise<void> {
+  // Re-read, do not remember — the mirror of the export close in
+  // fetchCurrentArchive(). flushPendingWrites() only proved the queue was empty
+  // when it ran; runDeviceClear() then awaits signOut(), and lib/sync/store.ts
+  // writes into the same shared `bible-brain` database from every tab on this
+  // origin, so a note saved in another tab during that window is queued,
+  // unsyncable (the session is gone by now) and one deleteDB away from being
+  // destroyed with no trace and a `{redirectTo}` success returned over it.
+  //
+  // Failing closed here also closes the blocked-then-closed ending: because no
+  // deleteDB is ever issued while the queue is non-empty, there is no delete
+  // request left queued in the browser to complete — and destroy that writing —
+  // when the user closes the blocking tab. And because the re-verify path calls
+  // straight into this function, a device holding unsynced writing can never be
+  // certified "clear" either.
+  const pending = await countPendingWrites();
+  if (pending === null || pending > 0) {
+    throw new DeviceClearUnsyncedError(pending);
+  }
+
   const deleteTimeoutMs = options.deleteTimeoutMs ?? DEFAULT_DELETE_TIMEOUT_MS;
   const remaining: string[] = [];
   const record = (surface: string) => {
@@ -218,17 +378,24 @@ export async function clearLocalStudyData(
   let deleteOutcomeUnknown = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
+    const deletion = deleteDB(LOCAL_DATABASE, {
+      blocked: () => {
+        blockedByOtherTab = true;
+      },
+    }).then(() => false);
+    // Promise.race attaches a rejection handler to every input, so a delete
+    // that rejects after the timeout has already won is handled as the code
+    // stands. This explicit no-op keeps that true if the race is ever
+    // restructured: an unhandled rejection from a flow whose entire job is
+    // telling the user exactly what happened would be the worst kind of noise.
+    deletion.catch(() => {});
+
     const timedOut = await Promise.race([
-      deleteDB(LOCAL_DATABASE, {
-        blocked: () => {
-          blockedByOtherTab = true;
-        },
-      }).then(() => false),
+      deletion,
       new Promise<boolean>((resolve) => {
         timer = setTimeout(() => resolve(true), deleteTimeoutMs);
       }),
     ]);
-    // Unknown, not failed: the delete request outlives this race.
     // Unknown, not failed: the delete request outlives this race.
     if (timedOut) deleteOutcomeUnknown = true;
   } catch {
@@ -263,6 +430,12 @@ export async function clearLocalStudyData(
       // Private-browsing quota states throw on write.
       record("localstorage");
     }
+    // The sweep just removed DEVICE_NOT_CLEARED_KEY along with everything else
+    // under the prefix, and a same-window removal raises no `storage` event, so
+    // any mounted warning has to be told. Doing it here rather than only on the
+    // success path means a partial clear that still managed the sweep does not
+    // leave a warning on screen that its own key no longer backs.
+    notifyDeviceNotCleared();
   }
 
   // Verification. `caches.delete()` resolving false is not an error, so
@@ -336,6 +509,7 @@ export const CLEAR_DEVICE_CONFIRM = [
   ...CLEAR_DEVICE_STEPS.map((step, index) => `${index + 1}. ${step}.`),
   "",
   "Your writing stays in your account — it is removed only from this browser.",
+  "If anything is still unsynced when step 3 begins, nothing is deleted.",
 ].join("\n");
 
 /**
@@ -349,6 +523,144 @@ export const DEVICE_NOT_CLEARED_MESSAGE =
 /** Copy for the unknown outcome. It must never say the device is clear. */
 export const DEVICE_CLEAR_UNKNOWN_MESSAGE =
   "Clearing did not finish in time, and it may still be completing in the background. Treat this device as NOT cleared until it has been checked — usually another tab or window with this app open is holding it up. Close them, then check again.";
+
+/**
+ * Copy for the outcome where the destroy refused to run because local writing
+ * is still queued. It has to say two separate things the other two messages do
+ * not: nothing was deleted, and the writing that stopped it cannot be synced
+ * from here because the session is already gone.
+ */
+export const DEVICE_UNSYNCED_NOT_CLEARED_MESSAGE =
+  "Nothing was deleted. Writing saved on this device — most likely in another tab — has not reached the server, and you are already signed out, so it cannot be synced from here. Sign in again, let it sync, then clear this device.";
+
+/**
+ * The same refusal for the other reason it can happen: the queue could not be
+ * read at all, so we do not know whether anything is unsynced and fail closed.
+ *
+ * It needs its own copy because the instruction differs. "Sign in again and let
+ * it sync" is not actionable when the browser will not let the app read the
+ * queue in the first place — that user's only route to a clean device is the
+ * browser's own site-data control, so the message says so.
+ */
+export const DEVICE_QUEUE_UNREADABLE_MESSAGE =
+  "Nothing was deleted. This browser would not let the app read its own list of unsynced writing, so clearing could have destroyed writing that never reached the server. If you need this device clean now, clear this site's data in your browser settings.";
+
+/**
+ * Copy for a warning recovered from a previous visit. The user is signed in
+ * again by the time they read it, so it neither claims they are signed out nor
+ * claims to know the device's current state: an unknown-outcome delete really
+ * may have completed in the background after the page was closed.
+ */
+export const DEVICE_RESIDUE_MESSAGE =
+  "An earlier attempt to clear this device did not finish, so this browser may still hold notes and offline Bible data from that session. It may also have finished in the background afterwards — this warning cannot tell which. Clearing this device again settles it, and so does clearing this site's data in your browser settings.";
+
+/** Which not-cleared outcome a device was left in. Never any user content. */
+export type DeviceNotClearedReason = "unknown" | "incomplete" | "unsynced";
+
+/**
+ * The reason to persist for a failure, or null when nothing local was touched
+ * and there is therefore nothing to warn about later.
+ *
+ * Separate from describeClearFailure() rather than a field on ClearFailureView
+ * because that view is the render contract and is asserted whole by tests; the
+ * warning that outlives the page is a different concern with a different
+ * lifetime.
+ */
+export function notClearedReasonFor(
+  failure: DeviceClearFailure,
+): DeviceNotClearedReason | null {
+  if (!failure.signedOut) return null;
+  if (failure.cause instanceof DeviceClearUnsyncedError) return "unsynced";
+  if (failure.cause instanceof DeviceClearUnknownError) return "unknown";
+  return "incomplete";
+}
+
+export function messageForNotClearedReason(
+  reason: DeviceNotClearedReason,
+): string {
+  if (reason === "unknown") return DEVICE_CLEAR_UNKNOWN_MESSAGE;
+  if (reason === "unsynced") return DEVICE_UNSYNCED_NOT_CLEARED_MESSAGE;
+  return DEVICE_NOT_CLEARED_MESSAGE;
+}
+
+/**
+ * Persist the shared-device warning.
+ *
+ * React state was the only record of it, so a reload, a crash, or a mobile tab
+ * discard threw away the one signal that an unscoped vault is still resident —
+ * and the reload sends the user to /sign-in, where they are told nothing.
+ *
+ * ORDERING: call this only AFTER a destroy attempt has already run its
+ * localStorage sweep. The key sits under LOCAL_KEY_PREFIX, so a clear that
+ * succeeds removes it, and a clear that fails re-writes it here afterwards.
+ */
+export function rememberDeviceNotCleared(reason: DeviceNotClearedReason): void {
+  try {
+    globalThis.localStorage?.setItem(DEVICE_NOT_CLEARED_KEY, reason);
+  } catch {
+    // Private-browsing quota states throw on write. A warning we cannot store
+    // is not worth failing a flow over.
+  }
+  notifyDeviceNotCleared();
+}
+
+export function readDeviceNotCleared(): DeviceNotClearedReason | null {
+  try {
+    const value = globalThis.localStorage?.getItem(DEVICE_NOT_CLEARED_KEY);
+    return value === "unknown" || value === "incomplete" || value === "unsynced"
+      ? value
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+export function forgetDeviceNotCleared(): void {
+  try {
+    globalThis.localStorage?.removeItem(DEVICE_NOT_CLEARED_KEY);
+  } catch {
+    // Same as above.
+  }
+  notifyDeviceNotCleared();
+}
+
+/**
+ * There is no localStorage on the server, so the flag is always absent there.
+ * Named rather than inlined so useSyncExternalStore gets a stable reference.
+ */
+export function readDeviceNotClearedOnServer(): DeviceNotClearedReason | null {
+  return null;
+}
+
+const notClearedListeners = new Set<() => void>();
+
+function notifyDeviceNotCleared(): void {
+  for (const listener of notClearedListeners) listener();
+}
+
+/**
+ * Subscription half of the useSyncExternalStore contract.
+ *
+ * The flag is external state (localStorage), not React state — which was the
+ * whole defect: reading it once into `useState` inside an effect is both a
+ * cascading-render smell and blind to the two ways it changes underneath a
+ * mounted page. Both are covered here: `storage` fires when ANOTHER tab's clear
+ * attempt fails or succeeds, and notifyDeviceNotCleared() covers this tab's own
+ * writes, which never raise `storage` events for their own window.
+ */
+export function subscribeDeviceNotCleared(onChange: () => void): () => void {
+  notClearedListeners.add(onChange);
+  const onStorage = (event: Event) => {
+    const key = (event as StorageEvent).key;
+    // A null key is the whole store being cleared, which includes this flag.
+    if (key === null || key === DEVICE_NOT_CLEARED_KEY) onChange();
+  };
+  globalThis.addEventListener?.("storage", onStorage);
+  return () => {
+    notClearedListeners.delete(onChange);
+    globalThis.removeEventListener?.("storage", onStorage);
+  };
+}
 
 /**
  * Clear-device orchestration.
@@ -429,6 +741,22 @@ export function describeClearFailure(
       message: messageForPreSignOut(failure.cause),
     };
   }
+  // Checked before the unknown branch because it is a stronger statement: the
+  // destroy never started, so this outcome is settled, not indeterminate.
+  if (failure.cause instanceof DeviceClearUnsyncedError) {
+    return {
+      state: "not-cleared",
+      unknown: false,
+      canRetry: true,
+      // Two different facts refuse the destroy, and they call for two different
+      // next moves. `unknown` stays false for both: the destroy provably never
+      // started, which is settled knowledge even when the queue is not.
+      message:
+        failure.cause.pending === null
+          ? DEVICE_QUEUE_UNREADABLE_MESSAGE
+          : DEVICE_UNSYNCED_NOT_CLEARED_MESSAGE,
+    };
+  }
   if (failure.cause instanceof DeviceClearUnknownError) {
     return {
       state: "not-cleared",
@@ -503,6 +831,24 @@ export async function fetchCurrentArchive(
 
   return blob;
 }
+
+/**
+ * Export success copy — and the exact limit of what this flow can prove.
+ *
+ * fetchCurrentArchive() re-reads THIS device's queue, so it can prove no local
+ * write was left out of the archive. It cannot prove the archive is current
+ * against the account: a write another device saved and synced AFTER the server
+ * finished building it is absent while the local queue is legitimately empty,
+ * and nothing in the response carries the watermark the server built from. The
+ * earlier wording ("everything synced a moment ago") asserted exactly that
+ * account-wide currency, which no code here establishes.
+ *
+ * A real claim needs /api/export to return its build watermark and this client
+ * to compare it — a server change outside this task's owned paths. Until then
+ * the copy is narrowed to the device-scoped fact the recheck does establish.
+ */
+export const EXPORT_DOWNLOADED_MESSAGE =
+  "Export downloaded — it includes everything this device had synced when the archive was built.";
 
 /**
  * Export copy. Every blocked path names the incomplete archive as the reason

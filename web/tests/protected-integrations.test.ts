@@ -122,11 +122,31 @@ test("the protected layout is a server component that awaits auth() and redirect
   assert.match(layout, /await auth\(\)/);
   assert.match(layout, /redirect\("\/sign-in"\)/);
 
+  // The condition itself, pinned. `!session` would satisfy every other
+  // assertion in this test while readmitting a de-allowlisted account:
+  // lib/auth/config.ts:43 blanks `session.user.id` when the email is no longer
+  // on the allowlist and leaves the session object itself intact.
+  assert.match(
+    layout,
+    /if \(!session\?\.user\?\.id\) \{/,
+    "the boundary is a usable user id, not merely the presence of a session",
+  );
+  assert.match(
+    read("lib/auth/config.ts"),
+    /session\.user\.id = isAllowedEmail\(session\.user\.email\) \? user\.id : ""/,
+    "and that is what makes the id condition the fail-closed one",
+  );
+
   const guard = layout.indexOf("await auth()");
+  const idGuard = layout.indexOf("if (!session?.user?.id) {");
   const redirected = layout.indexOf('redirect("/sign-in")');
   const mount = layout.indexOf("<ProtectedClientMounts");
   const children = layout.indexOf("{children}");
   assert.ok(guard > -1 && redirected > guard, "the redirect follows the check");
+  assert.ok(
+    idGuard > guard && redirected > idGuard,
+    "the id condition sits between the session read and the redirect",
+  );
   assert.ok(
     redirected < mount && mount < children,
     "no protected content or sync mount renders before the check",
@@ -477,6 +497,43 @@ test("the single retry drains a write that landed mid-sync", async () => {
     globalThis.fetch = originalFetch;
     await drainQueue();
   }
+});
+
+// --- J2. the export success copy claims only what the recheck proves --------
+
+/**
+ * The recheck in fetchCurrentArchive() reads the LOCAL queue. That proves no
+ * write from THIS device was left out of the archive; it proves nothing about a
+ * write another device synced after the server finished building it, because
+ * the response carries no build watermark to compare against.
+ */
+test("the export success copy claims device-scoped currency, not account-wide", async () => {
+  const { EXPORT_DOWNLOADED_MESSAGE } = await import("@/lib/sync/clear");
+  assert.equal(
+    EXPORT_DOWNLOADED_MESSAGE,
+    "Export downloaded — it includes everything this device had synced when the archive was built.",
+  );
+  assert.doesNotMatch(
+    EXPORT_DOWNLOADED_MESSAGE,
+    /everything synced a moment ago/,
+    "the previous wording asserted currency no code here establishes",
+  );
+  assert.doesNotMatch(
+    EXPORT_DOWNLOADED_MESSAGE,
+    /all your devices|your account|up to date|complete copy/i,
+    "and no other account-wide claim replaced it",
+  );
+
+  // The component shows exactly that constant, so the claim cannot drift from
+  // the guard that backs it.
+  const src = read("components/export/VaultExportButton.tsx");
+  assert.match(src, /setMessage\(EXPORT_DOWNLOADED_MESSAGE\)/);
+  assert.doesNotMatch(src, /everything synced a moment ago/);
+  assert.equal(
+    (src.match(/Export downloaded/g) ?? []).length,
+    0,
+    "the success wording lives in clear.ts only",
+  );
 });
 
 // --- K. the archive response itself -----------------------------------------

@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import {
+  EXPORT_DOWNLOADED_MESSAGE,
   ExportLateWriteError,
   exportBlockedMessage,
   fetchCurrentArchive,
@@ -48,7 +49,10 @@ export function VaultExportButton() {
       link.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 0);
       setStatus("idle");
-      setMessage("Export downloaded — it includes everything synced a moment ago.");
+      // The wording lives in clear.ts beside the recheck that backs it, so the
+      // claim cannot outgrow the proof. See EXPORT_DOWNLOADED_MESSAGE for what
+      // this flow can and cannot establish about an archive's currency.
+      setMessage(EXPORT_DOWNLOADED_MESSAGE);
     } catch (error) {
       setStatus("error");
       setMessage(

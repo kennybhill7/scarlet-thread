@@ -80,6 +80,15 @@ function syncResponse() {
   );
 }
 
+/** Open the app database as another tab would: at whatever version it is on. */
+function openExistingDatabase(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open("bible-brain");
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
 /** Recreate the local database without lib/sync/store, whose handle may be dead. */
 function openLocalDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve) => {
@@ -275,6 +284,178 @@ test("a failed sign-out clears nothing", async () => {
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+// --- 4b. the late-write TOCTOU, ending (a): silent permanent loss -----------
+
+/**
+ * The interleaving the auditors reproduced. t0 the flush drains the shared
+ * queue; t1 another tab on this origin saves a note into the same `bible-brain`
+ * database; t2 signOut() resolves, so that op can never sync; t3 deleteDB
+ * destroys it and the flow returns {redirectTo} as if all was well.
+ *
+ * signOut is the injection point because in production it is a network
+ * round-trip — seconds wide — and it is the only await between the queue check
+ * and the destroy.
+ */
+test("a write saved between the sync flush and the destroy blocks the clear and is not lost", async () => {
+  const store = await import("@/lib/sync/store");
+  const {
+    DEVICE_QUEUE_UNREADABLE_MESSAGE,
+    DEVICE_UNSYNCED_NOT_CLEARED_MESSAGE,
+    DeviceClearFailure,
+    DeviceClearUnsyncedError,
+    describeClearFailure,
+    notClearedReasonFor,
+    runDeviceClear,
+  } = await import("@/lib/sync/clear");
+  setOnline(true);
+  makeCaches(SEED_CACHES);
+  makeStorage(SEED_STORAGE());
+  assert.equal(
+    (await store.getPendingOps()).length,
+    0,
+    "the queue starts empty, so the real pre-flight genuinely passes",
+  );
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => syncResponse();
+  let failure: unknown;
+  try {
+    failure = await failureOf(
+      runDeviceClear({
+        signOut: async () => {
+          const now = isoNow();
+          await store.saveLocalThread({
+            slug: "saved-in-another-tab",
+            title: "Saved in another tab",
+            definition: "",
+            seeing: "",
+            createdAt: now,
+            updatedAt: now,
+          });
+          return { url: "/sign-in" };
+        },
+      }),
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+
+  assert.ok(
+    failure instanceof DeviceClearFailure,
+    "the flow fails closed instead of resolving a redirect",
+  );
+  assert.equal(failure.signedOut, true, "the session really is gone by then");
+  assert.ok(
+    failure.cause instanceof DeviceClearUnsyncedError,
+    "and the reason is the re-read queue, not anything the destroy found",
+  );
+  assert.equal(failure.cause.pending, 1);
+
+  // Nothing was destroyed, and the write that stopped it is still here.
+  await assertNothingDestroyed("late write during sign-out");
+  assert.deepEqual(
+    (await store.getPendingOps()).map((op) => op.entityId),
+    ["saved-in-another-tab"],
+    "the unsynced write survives",
+  );
+
+  const view = describeClearFailure(failure);
+  assert.equal(view.state, "not-cleared");
+  assert.equal(view.unknown, false, "the destroy never started, so this is settled");
+  assert.equal(view.canRetry, true);
+  assert.equal(view.message, DEVICE_UNSYNCED_NOT_CLEARED_MESSAGE);
+  assert.match(view.message, /Nothing was deleted/);
+  assert.match(view.message, /has not reached the server/);
+  assert.match(view.message, /Sign in again/);
+  assert.equal(notClearedReasonFor(failure), "unsynced");
+
+  // The other way the same guard refuses: the queue could not be read at all,
+  // so we do not know. It fails closed the same way but must not hand out an
+  // instruction ("sign in and let it sync") that cannot help in that state.
+  const unreadable = describeClearFailure(
+    new DeviceClearFailure(true, new DeviceClearUnsyncedError(null)),
+  );
+  assert.equal(unreadable.state, "not-cleared");
+  assert.equal(unreadable.unknown, false, "the destroy provably never started");
+  assert.equal(unreadable.message, DEVICE_QUEUE_UNREADABLE_MESSAGE);
+  assert.notEqual(
+    unreadable.message,
+    DEVICE_UNSYNCED_NOT_CLEARED_MESSAGE,
+    "the unreadable case does not borrow the queued-writing instruction",
+  );
+  assert.match(unreadable.message, /Nothing was deleted/);
+  assert.match(unreadable.message, /browser settings/);
+  assert.doesNotMatch(unreadable.message, /Sign in again/);
+});
+
+// --- 4c. the late-write TOCTOU, ending (b): blocked, then closed ------------
+
+/**
+ * The other ending. Without the queue re-read, deleteDB is issued while an
+ * unsynced write is queued; another tab blocks it; the timeout reports UNKNOWN
+ * ("Close them, then check again"); the user closes that tab; the browser's
+ * still-queued delete destroys the note; the re-check finds an empty device and
+ * the UI renders "this device is clear".
+ *
+ * The fix is upstream of all of it: no deleteDB is ever issued, so there is no
+ * queued delete for the tab-close to release.
+ */
+test("an unsynced write survives the blocked-then-closed sequence and the re-check refuses to certify", async () => {
+  const store = await import("@/lib/sync/store");
+  const {
+    DeviceClearUnknownError,
+    DeviceClearUnsyncedError,
+    clearLocalStudyData,
+  } = await import("@/lib/sync/clear");
+  makeCaches(SEED_CACHES);
+  makeStorage(SEED_STORAGE());
+  assert.equal(
+    (await store.getPendingOps()).length,
+    1,
+    "the unsynced write from the previous test is still queued",
+  );
+
+  const blocker = await openExistingDatabase();
+  let error: unknown;
+  try {
+    error = await failureOf(clearLocalStudyData({ deleteTimeoutMs: 100 }));
+  } finally {
+    blocker.close();
+  }
+  assert.ok(
+    error instanceof DeviceClearUnsyncedError,
+    "the destroy is refused before deleteDB is ever issued",
+  );
+  assert.ok(
+    !(error instanceof DeviceClearUnknownError),
+    "so the outcome is not the unknown state whose copy says to close tabs and re-check",
+  );
+
+  // Closing the blocking tab therefore releases nothing.
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.ok(
+    await localDatabaseExists(),
+    "the database survives the blocking tab closing",
+  );
+  assert.equal(
+    (await store.getPendingOps()).length,
+    1,
+    "and so does the unsynced write",
+  );
+  await assertNothingDestroyed("blocked then closed");
+
+  // checkAgain() calls straight into clearLocalStudyData, so the signed-out
+  // re-verify cannot reach "verified-clear" while the queue is non-empty.
+  const again = await failureOf(clearLocalStudyData({ deleteTimeoutMs: 100 }));
+  assert.ok(
+    again instanceof DeviceClearUnsyncedError,
+    "the re-check reports unsynced writing rather than certifying the device",
+  );
+
+  await store.removePendingOps((await store.getPendingOps()).map((op) => op.id));
+  assert.equal((await store.getPendingOps()).length, 0);
 });
 
 // --- 5. runtime recovery: a failed sync is retryable, and the retry works ----
@@ -595,4 +776,183 @@ test("retrying after an unknown state re-verifies actual state", async () => {
   assert.deepEqual(await caches.keys(), ["unrelated-cache"]);
   assert.ok(!(await localDatabaseExists()));
   assert.equal(localStorage.getItem("bible-brain:last-read"), null);
+});
+
+// --- 12. the shared-device warning outlives the page it was raised on -------
+
+test("the not-cleared warning is persisted under the swept prefix and retracted by a successful clear", async () => {
+  const {
+    DEVICE_CLEAR_UNKNOWN_MESSAGE,
+    DEVICE_NOT_CLEARED_KEY,
+    DEVICE_NOT_CLEARED_MESSAGE,
+    DEVICE_UNSYNCED_NOT_CLEARED_MESSAGE,
+    LOCAL_KEY_PREFIX,
+    clearLocalStudyData,
+    forgetDeviceNotCleared,
+    messageForNotClearedReason,
+    readDeviceNotCleared,
+    readDeviceNotClearedOnServer,
+    rememberDeviceNotCleared,
+    subscribeDeviceNotCleared,
+  } = await import("@/lib/sync/clear");
+
+  const storage = makeStorage(SEED_STORAGE());
+  assert.equal(readDeviceNotCleared(), null);
+  assert.equal(readDeviceNotClearedOnServer(), null, "no flag on the server");
+
+  // A mounted warning is told when the flag changes, including by this tab —
+  // a same-window localStorage write raises no `storage` event.
+  let notifications = 0;
+  const unsubscribe = subscribeDeviceNotCleared(() => {
+    notifications += 1;
+  });
+
+  // It lives in localStorage, so it outlives the React state that used to be
+  // the only record of it: a reload reads exactly this back.
+  rememberDeviceNotCleared("incomplete");
+  assert.equal(storage.getItem(DEVICE_NOT_CLEARED_KEY), "incomplete");
+  assert.equal(readDeviceNotCleared(), "incomplete");
+  assert.equal(notifications, 1, "the subscriber was told");
+
+  // The stored value is a fixed reason word, never anything the user wrote, and
+  // it sits under the prefix this module's own sweep deletes.
+  assert.ok(
+    DEVICE_NOT_CLEARED_KEY.startsWith(LOCAL_KEY_PREFIX),
+    "a successful clear owns the key",
+  );
+  assert.deepEqual(
+    (["unknown", "incomplete", "unsynced"] as const).map(
+      messageForNotClearedReason,
+    ),
+    [
+      DEVICE_CLEAR_UNKNOWN_MESSAGE,
+      DEVICE_NOT_CLEARED_MESSAGE,
+      DEVICE_UNSYNCED_NOT_CLEARED_MESSAGE,
+    ],
+    "each reason maps to the copy already tested elsewhere",
+  );
+
+  // Garbage in storage is not a warning.
+  storage.setItem(DEVICE_NOT_CLEARED_KEY, "something-else");
+  assert.equal(readDeviceNotCleared(), null);
+  rememberDeviceNotCleared("unknown");
+  assert.equal(readDeviceNotCleared(), "unknown");
+
+  // And a clear that actually succeeds retracts it, because the sweep runs
+  // over the prefix and the flag is only ever written after destruction.
+  makeCaches(["bible-brain-shell-v1", "unrelated-cache"]);
+  (await openLocalDatabase()).close();
+  const before = notifications;
+  await clearLocalStudyData({ deleteTimeoutMs: 2_000 });
+  assert.equal(
+    storage.getItem(DEVICE_NOT_CLEARED_KEY),
+    null,
+    "a verified clear removes the warning",
+  );
+  assert.equal(readDeviceNotCleared(), null);
+  assert.ok(
+    notifications > before,
+    "and the sweep tells any mounted warning it is no longer backed",
+  );
+
+  forgetDeviceNotCleared();
+  assert.equal(readDeviceNotCleared(), null);
+
+  unsubscribe();
+  const settled = notifications;
+  rememberDeviceNotCleared("unsynced");
+  assert.equal(notifications, settled, "unsubscribing really detaches");
+  forgetDeviceNotCleared();
+  assert.equal(readDeviceNotCleared(), null);
+});
+
+test("the component persists the warning after a destroy attempt and retracts it on success", () => {
+  const src = fs.readFileSync(
+    path.join(root, "components/auth/DeviceSessionControls.tsx"),
+    "utf8",
+  );
+  // Subscribed, not read once into React state: the flag is external state, so
+  // a reload surfaces it and a change (this tab's or another's) updates it.
+  assert.match(src, /useSyncExternalStore\(\s*subscribeDeviceNotCleared,\s*readDeviceNotCleared,\s*readDeviceNotClearedOnServer,?\s*\)/);
+  assert.match(src, /DEVICE_RESIDUE_MESSAGE/);
+  assert.doesNotMatch(
+    src,
+    /useState<DeviceNotClearedReason/,
+    "in-memory-only React state was the defect",
+  );
+
+  // Ordering: every write happens after a destroy attempt has already run its
+  // localStorage sweep, or the flag would delete itself.
+  const writes = [...src.matchAll(/rememberDeviceNotCleared\(reason\)/g)];
+  assert.equal(writes.length, 2, "one per failure branch");
+  const destroyCalls = [
+    src.indexOf("await runDeviceClear({"),
+    src.indexOf("await clearLocalStudyData()"),
+  ];
+  for (const write of writes) {
+    assert.ok(
+      destroyCalls.some((at) => at > -1 && at < (write.index ?? 0)),
+      "the flag is written only after a destroy attempt has run",
+    );
+  }
+  assert.match(src, /forgetDeviceNotCleared\(\)/);
+
+  // The recovered banner carries no destructive one-click action of its own.
+  const banner = src.indexOf("{residue ?");
+  assert.ok(banner > -1, "the recovered warning is rendered");
+  const bannerEnd = src.indexOf(") : null}", banner);
+  assert.doesNotMatch(src.slice(banner, bannerEnd), /<button/);
+});
+
+// --- 13. small guards on the destroy path -----------------------------------
+
+test("a late delete rejection cannot become an unhandled rejection", async () => {
+  const lib = fs.readFileSync(path.join(root, "lib/sync/clear.ts"), "utf8");
+  const destruction = lib.slice(
+    lib.indexOf("export async function clearLocalStudyData"),
+  );
+  assert.match(
+    destruction,
+    /deletion\.catch\(\(\) => \{\}\)/,
+    "the delete promise carries its own rejection handler",
+  );
+  assert.ok(
+    destruction.indexOf("deletion.catch(() => {})") <
+      destruction.indexOf("await Promise.race("),
+    "attached before the race, so the handler exists for the whole window",
+  );
+
+  // And the shape really does swallow a rejection arriving after the timeout
+  // has already won.
+  const seen: unknown[] = [];
+  const onUnhandled = (reason: unknown) => void seen.push(reason);
+  process.on("unhandledRejection", onUnhandled);
+  try {
+    const deletion = new Promise<boolean>((_resolve, reject) => {
+      setTimeout(() => reject(new Error("late delete failure")), 20);
+    });
+    deletion.catch(() => {});
+    const timedOut = await Promise.race([
+      deletion,
+      new Promise<boolean>((resolve) => setTimeout(() => resolve(true), 5)),
+    ]);
+    assert.equal(timedOut, true, "the timeout wins the race");
+    await new Promise((resolve) => setTimeout(resolve, 60));
+    assert.deepEqual(seen, [], "and the late rejection is swallowed");
+  } finally {
+    process.off("unhandledRejection", onUnhandled);
+  }
+});
+
+test("the destroy path carries each piece of guidance exactly once", () => {
+  const lib = fs.readFileSync(path.join(root, "lib/sync/clear.ts"), "utf8");
+  assert.equal(
+    (
+      lib.match(
+        /Unknown, not failed: the delete request outlives this race\./g,
+      ) ?? []
+    ).length,
+    1,
+    "the duplicated comment line is gone",
+  );
 });

@@ -1,17 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
 import { signOut } from "next-auth/react";
 
 import {
   CLEAR_DEVICE_CONFIRM,
   CLEAR_DEVICE_STEPS,
+  DEVICE_RESIDUE_MESSAGE,
   DeviceClearFailure,
   clearLocalStudyData,
   describeClearFailure,
+  forgetDeviceNotCleared,
   isOnline,
+  notClearedReasonFor,
+  readDeviceNotCleared,
+  readDeviceNotClearedOnServer,
+  rememberDeviceNotCleared,
   runDeviceClear,
+  subscribeDeviceNotCleared,
 } from "@/lib/sync/clear";
 
 import styles from "./device-session-controls.module.css";
@@ -67,6 +74,22 @@ type State =
 export function DeviceSessionControls() {
   const [state, setState] = useState<State>("idle");
   const [message, setMessage] = useState("");
+  /**
+   * A not-cleared warning recovered from a PREVIOUS visit. React state is
+   * destroyed by the reload that follows a failed clear, so the live `state`
+   * above cannot be the only record that an unscoped vault is still resident.
+   *
+   * It is subscribed to rather than read once: the flag lives in localStorage,
+   * which is external state, and it changes both from this tab (the clear
+   * flow's own writes and its sweep) and from other tabs (`storage` events).
+   * The server snapshot is null, so hydration matches and the warning appears
+   * on the client pass.
+   */
+  const residue = useSyncExternalStore(
+    subscribeDeviceNotCleared,
+    readDeviceNotCleared,
+    readDeviceNotClearedOnServer,
+  );
   const busy = state === "clearing" || state === "rechecking";
   const signedOut =
     state === "not-cleared" ||
@@ -109,6 +132,11 @@ export function DeviceSessionControls() {
       const view = describeClearFailure(failure);
       setState(view.state);
       setMessage(view.message);
+      // Written here, in the catch, so it lands AFTER runDeviceClear's own
+      // localStorage sweep — the flag is under the swept prefix, so setting it
+      // any earlier would delete it. null means nothing local was touched.
+      const reason = notClearedReasonFor(failure);
+      if (reason) rememberDeviceNotCleared(reason);
     }
   }
 
@@ -116,6 +144,10 @@ export function DeviceSessionControls() {
    * The exit from the signed-out branch. clearLocalStudyData() destroys and
    * then re-reads every surface, so this reports what the device actually
    * holds now rather than assuming the earlier attempt finished or failed.
+   *
+   * It also re-reads the unsynced-writing queue before it destroys anything, so
+   * "verified-clear" below cannot be reached while writing is still queued on
+   * this device — that path throws DeviceClearUnsyncedError instead.
    */
   async function checkAgain() {
     setState("rechecking");
@@ -124,10 +156,17 @@ export function DeviceSessionControls() {
       await clearLocalStudyData();
       setState("verified-clear");
       setMessage("");
+      // The sweep inside clearLocalStudyData already removed the key; this is
+      // the explicit statement that a verified clear retracts the warning.
+      forgetDeviceNotCleared();
     } catch (error) {
-      const view = describeClearFailure(new DeviceClearFailure(true, error));
+      const failure = new DeviceClearFailure(true, error);
+      const view = describeClearFailure(failure);
       setState("not-cleared");
       setMessage(view.message);
+      // After the destroy attempt, for the same ordering reason as above.
+      const reason = notClearedReasonFor(failure);
+      if (reason) rememberDeviceNotCleared(reason);
     }
   }
 
@@ -186,6 +225,23 @@ export function DeviceSessionControls() {
         </div>
       ) : (
         <>
+          {/* Recovered from a previous visit. It carries no action of its own:
+              the exit is the ordinary clear below, which sweeps the flag when
+              it succeeds. Offering a one-click "check" here would destroy a
+              signed-in user's local vault without a confirm, which is a worse
+              trade than one extra sentence.
+
+              RESIDUAL GAP, stated rather than hidden: this is the earliest
+              surface reachable from this task's owned files. A user who signs
+              out and lands on /sign-in sees nothing until they sign in again
+              and open Settings, because the pre-auth surface is not owned
+              here. */}
+          {residue ? (
+            <p role="alert" style={{ margin: 0 }}>
+              <strong>This device may not be clear.</strong>{" "}
+              {DEVICE_RESIDUE_MESSAGE}
+            </p>
+          ) : null}
           {/* The same four steps the confirm dialog lists, in the order
               runDeviceClear performs them, shown before the user commits. */}
           {/* Inline spacing for the same reason as the alert above: the
