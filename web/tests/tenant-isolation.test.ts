@@ -291,7 +291,16 @@ function evaluatePredicate(predicate: Predicate, context: JoinContext): boolean 
       if (!eat(")")) return fail('expected ")" closing an IN list');
       return candidates.some((candidate) => equal(left, candidate));
     }
-    if (eat("<>")) return !equal(left, parseOperand()) && left !== null;
+    if (eat("<>")) {
+      // Postgres three-valued logic: `x <> y` is UNKNOWN (excluded by WHERE)
+      // whenever either side is NULL, not just when the left side is. The
+      // prior `!equal(left, right) && left !== null` treated a NULL right
+      // operand as always-not-equal, which would have silently widened any
+      // future `ne()`/`<>` predicate the moment someone started using it —
+      // see agent-graph/LESSONS.md's FAIL-CLOSED-COVERAGE-GAP.
+      const right = parseOperand();
+      return left !== null && right !== null && left !== right;
+    }
     if (eat("=")) return equal(left, parseOperand());
     return fail("unsupported operator");
   };
@@ -1616,6 +1625,39 @@ const attacks = {
     assertBUntouched("C2");
   },
 
+  /** P0-002: the audit of 415763e found only the active-entry id-squat (C2)
+   *  exercised; a soft-deleted victim entry is a distinct row in the same
+   *  global `entries.id` namespace and must fail exactly as closed. */
+  async C2b_idSquatOnBDeletedEntry() {
+    resetWorld();
+    const before = clone(findEntry(B_DELETED));
+    await asUser(SESSION_A, async () => {
+      const response = await withSilencedErrors(() =>
+        api.createEntry({
+          id: B_DELETED,
+          kind: "note",
+          body: "squatting B's soft-deleted id",
+          chapter: "1.3",
+          threads: [A_THREAD],
+        }),
+      );
+      // Same finding F2 path as C2: no 23505 handler, so this fails closed as
+      // a 500 rather than a clean 409.
+      assert.ok(
+        response.status >= 400,
+        "id-squatting another account's soft-deleted entry must not succeed",
+      );
+      assert.equal(response.status, 500);
+      assert.equal((await readJson(response)).error.code, "INTERNAL_ERROR");
+    });
+    assert.deepEqual(
+      findEntry(B_DELETED),
+      before,
+      "B's soft-deleted entry was modified",
+    );
+    assertBUntouched("C2b");
+  },
+
   async C3_createEntryWithSpoofedUserId() {
     resetWorld();
     await asUser(SESSION_A, async () => {
@@ -2341,6 +2383,225 @@ const attacks = {
     assertBUntouched("S9");
   },
 
+  /**
+   * P0-002 criterion: a single push batch mixing a B-targeted op with a
+   * valid A op must apply the A op, reject only the B-targeted one, and
+   * leave no partial state — proving `pushSyncOps`'s per-op try/catch
+   * (lib/db/sync.ts:387-409) isolates one op's failure from the rest of
+   * the batch instead of aborting or partially applying it.
+   */
+  async S10_mixedBatchPartialRejection() {
+    resetWorld();
+    const before = clone(findEntry(B_ENTRY));
+    await asUser(SESSION_A, async () => {
+      const body = await readJson(
+        await api.push([
+          {
+            id: op(20),
+            entity: "entry",
+            entityId: B_ENTRY,
+            op: "upsert",
+            updatedAt: T2,
+            payload: {
+              id: B_ENTRY,
+              kind: "note",
+              body: "pwned through a mixed batch",
+              chapter: "1.3",
+              threads: [A_THREAD],
+              createdAt: T0,
+              updatedAt: T2,
+            },
+          },
+          {
+            id: op(21),
+            entity: "log",
+            entityId: "2026-05-06",
+            op: "upsert",
+            updatedAt: T2,
+            payload: logPayload("2026-05-06", "A's own valid op", T2),
+          },
+        ]),
+      );
+      assert.equal(
+        body.rejected.length,
+        1,
+        "exactly one op in the mixed batch must be rejected",
+      );
+      assert.deepEqual(body.rejected, [
+        { id: op(20), reason: "Entry ID belongs to another user" },
+      ]);
+    });
+    assert.deepEqual(
+      findEntry(B_ENTRY),
+      before,
+      "the rejected op left partial state on B's entry",
+    );
+    assert.ok(
+      rowsOf("daily_logs").some(
+        (row) => row.userId === USER_A && row.date === "2026-05-06",
+      ),
+      "the valid A op in the same batch must still be applied",
+    );
+    assert.equal(
+      rowsOf("sync_receipts").find((row) => row.opId === op(20)),
+      undefined,
+      "a rejected op must not record a receipt",
+    );
+    assert.ok(
+      rowsOf("sync_receipts").some((row) => row.opId === op(21)),
+      "the accepted op in the same batch must record its receipt",
+    );
+    assertBUntouched("S10");
+  },
+
+  /**
+   * P0-002 criterion: duplicate op ids within one push batch are exercised
+   * and the dedupe behavior asserted. `pushSyncOps` checks `hasReceipt`
+   * before applying each op (lib/db/sync.ts:388) and records the receipt as
+   * part of applying it, so a second op reusing an id already applied
+   * earlier in the *same* batch must be silently skipped, not re-applied.
+   */
+  async S11_duplicateOpIdsWithinBatch() {
+    resetWorld();
+    const duplicateId = op(22);
+    await asUser(SESSION_A, async () => {
+      const body = await readJson(
+        await api.push([
+          {
+            id: duplicateId,
+            entity: "log",
+            entityId: "2026-05-10",
+            op: "upsert",
+            updatedAt: T2,
+            payload: logPayload("2026-05-10", "first write wins", T2),
+          },
+          {
+            id: duplicateId,
+            entity: "log",
+            entityId: "2026-05-11",
+            op: "upsert",
+            updatedAt: T2,
+            payload: logPayload("2026-05-11", "second write must be skipped", T2),
+          },
+        ]),
+      );
+      assert.deepEqual(
+        body.rejected,
+        [],
+        "a duplicate op id is silently deduped, not rejected",
+      );
+    });
+    assert.ok(
+      rowsOf("daily_logs").some(
+        (row) => row.userId === USER_A && row.date === "2026-05-10",
+      ),
+      "the first op sharing the duplicated id must still be applied",
+    );
+    assert.equal(
+      rowsOf("daily_logs").find((row) => row.date === "2026-05-11"),
+      undefined,
+      "a second op reusing an id already applied earlier in the same batch must be deduped",
+    );
+    assert.equal(
+      rowsOf("sync_receipts").filter((row) => row.opId === duplicateId).length,
+      1,
+      "exactly one receipt must exist for a deduped op id",
+    );
+    assertBUntouched("S11");
+  },
+
+  /** Namespace-collision squat via sync, mirroring S4 (threads) for people:
+   *  the primary key is (userId, slug), so this creates A's own row rather
+   *  than a takeover. */
+  async S12_pushPersonWithBSlug() {
+    resetWorld();
+    const before = clone(
+      rowsOf("people").find(
+        (row) => row.userId === USER_B && row.slug === "b-private-person",
+      ),
+    );
+    await asUser(SESSION_A, async () => {
+      const body = await readJson(
+        await api.push([
+          {
+            id: op(23),
+            entity: "person",
+            entityId: "b-private-person",
+            op: "upsert",
+            updatedAt: T2,
+            payload: {
+              slug: "b-private-person",
+              name: "A's version",
+              body: "",
+              chapters: [],
+              threads: [],
+              createdAt: T2,
+              updatedAt: T2,
+            },
+          },
+        ]),
+      );
+      assert.deepEqual(body.rejected, []);
+    });
+    const written = rowsOf("people").filter(
+      (row) => row.slug === "b-private-person",
+    );
+    assert.equal(written.length, 2, "expected one row per account");
+    assert.equal(
+      written.find((row) => row.name === "A's version")?.userId,
+      USER_A,
+      "A's synced person must be written under A",
+    );
+    assert.deepEqual(
+      written.find((row) => row.userId === USER_B),
+      before,
+      "B's person was overwritten",
+    );
+    assertBUntouched("S12");
+  },
+
+  /** Namespace-collision squat via sync, mirroring S4 (threads) for daily
+   *  logs: the primary key is (userId, date), so this creates A's own row
+   *  rather than a takeover. */
+  async S13_pushLogWithBDate() {
+    resetWorld();
+    const before = clone(
+      rowsOf("daily_logs").find(
+        (row) => row.userId === USER_B && row.date === "2026-02-02",
+      ),
+    );
+    await asUser(SESSION_A, async () => {
+      const body = await readJson(
+        await api.push([
+          {
+            id: op(24),
+            entity: "log",
+            entityId: "2026-02-02",
+            op: "upsert",
+            updatedAt: T2,
+            payload: logPayload("2026-02-02", "A's own entry for B's date", T2),
+          },
+        ]),
+      );
+      assert.deepEqual(body.rejected, []);
+    });
+    const written = rowsOf("daily_logs").filter(
+      (row) => row.date === "2026-02-02",
+    );
+    assert.equal(written.length, 2, "expected one row per account");
+    assert.equal(
+      written.find((row) => row.sentence === "A's own entry for B's date")
+        ?.userId,
+      USER_A,
+    );
+    assert.deepEqual(
+      written.find((row) => row.userId === USER_B),
+      before,
+      "B's daily log was overwritten",
+    );
+    assertBUntouched("S13");
+  },
+
   async S7_pushResponseBody() {
     resetWorld();
     await asUser(SESSION_A, async () => {
@@ -2377,6 +2638,10 @@ const attacks = {
       attacksRef.S9_pushProgressOverBChapter,
       attacksRef.F5_progressReadAtNeverRegresses,
       attacksRef.F6_progressSpoofedPayloadRejected,
+      attacksRef.S10_mixedBatchPartialRejection,
+      attacksRef.S11_duplicateOpIdsWithinBatch,
+      attacksRef.S12_pushPersonWithBSlug,
+      attacksRef.S13_pushLogWithBDate,
     ]) {
       await attack();
     }
@@ -2447,6 +2712,7 @@ const BASELINE: [string, () => Promise<void>][] = [
   ["R9 the vault export archive contains no B data", attacks.R9_export],
   ["C1 creating an entry against B's thread is refused", attacks.C1_createEntryLinkingBThread],
   ["C2 id-squatting B's entry fails closed", attacks.C2_idSquatOnBEntry],
+  ["C2b id-squatting B's soft-deleted entry fails closed", attacks.C2b_idSquatOnBDeletedEntry],
   ["C3 a spoofed userId in a create payload is rejected", attacks.C3_createEntryWithSpoofedUserId],
   ["C4 a thread slug collision creates A's own row", attacks.C4_threadSlugNamespaceCollision],
   ["C5 a spoofed userId in a thread payload is rejected", attacks.C5_createThreadWithSpoofedUserId],
@@ -2469,6 +2735,10 @@ const BASELINE: [string, () => Promise<void>][] = [
   ["F7 the client's own progress op is accepted by the server", attacks.F7_clientEmittedProgressOpIsAccepted],
   ["F8 the updatedAt cross-check still holds for every other entity", attacks.F8_updatedAtCrossCheckStillEnforced],
   ["S9 progress for a chapter B also read stays tenant-scoped", attacks.S9_pushProgressOverBChapter],
+  ["S10 a mixed batch applies the valid op and rejects only the B-targeted op", attacks.S10_mixedBatchPartialRejection],
+  ["S11 a duplicate op id within one batch is deduped, not re-applied", attacks.S11_duplicateOpIdsWithinBatch],
+  ["S12 sync person with B's slug is written under A", attacks.S12_pushPersonWithBSlug],
+  ["S13 sync log with B's date is written under A", attacks.S13_pushLogWithBDate],
   ["S6 sync receipts are tenant-scoped", attacks.S6_receiptReplayIsolation],
   ["S7 the push response body contains no B data", attacks.S7_pushResponseBody],
   ["S8 B's snapshot survives every sync attack", attacks.S8_bSnapshotSurvivesEveryAttack],
@@ -2477,6 +2747,33 @@ const BASELINE: [string, () => Promise<void>][] = [
 ];
 
 for (const [name, run] of BASELINE) test(name, run);
+
+// ---------------------------------------------------------------------------
+// 12b. P0-002 criterion 1 — the WHERE evaluator's `<>` operator must follow
+//      Postgres three-valued NULL logic, not just the naive negation of `=`.
+//      No production code uses `ne()`/`<>` today, so this is a latent-gap
+//      proof against the evaluator itself, not an attack fixture.
+// ---------------------------------------------------------------------------
+
+test("EVAL1 <> follows Postgres three-valued NULL semantics", () => {
+  const ne = (left: unknown, right: unknown) =>
+    evaluatePredicate({ sql: "$1 <> $2", params: [left, right] }, {});
+
+  assert.equal(ne("a", "b"), true, "two distinct non-null values must differ");
+  assert.equal(ne("a", "a"), false, "two equal non-null values must not differ");
+  assert.equal(
+    ne("a", null),
+    false,
+    "`x <> NULL` is UNKNOWN in Postgres and must be excluded (false) by WHERE, " +
+      "not silently treated as true for every non-null x",
+  );
+  assert.equal(
+    ne(null, "a"),
+    false,
+    "`NULL <> x` is UNKNOWN in Postgres and must be excluded (false) by WHERE",
+  );
+  assert.equal(ne(null, null), false, "`NULL <> NULL` is UNKNOWN, not true");
+});
 
 // ---------------------------------------------------------------------------
 // 13. Criterion 4 — predicate-removal proof.
