@@ -52,6 +52,30 @@ work anyway.
 The worker never resets an attempt counter and never unblocks a task; that is a
 human decision, mirroring the interactive controller where `blocked` is terminal.
 
+## Lessons protocol — read before, write after
+
+Two files, one cross-project and one project-local:
+`C:\Users\kenny\.claude\lessons\GENERAL_LEDGER.md` (pattern-level, every
+project on this machine) and `agent-graph/LESSONS.md` (this project's
+occurrences, linking back to those patterns). Full protocol and exact
+prompts in `C:\Users\kenny\.claude\lessons\README.md`.
+
+**Before starting any task (mandatory, part of STEP 4 in the worker
+prompt):** read both ledgers. For each pattern in `GENERAL_LEDGER.md`,
+decide applies/does-not-apply to this task's shape, one sentence why. For
+every "applies," add a concrete acceptance criterion to your own working
+notes for this task that operationalizes its structural check — not a
+mention in prose, a requirement your own verification step must satisfy.
+
+**After a task reaches `submitted` or `blocked` (mandatory, part of STEP
+6):** write a short retro entry to `agent-graph/LESSONS.md` — task,
+pattern (existing ID or propose one), what happened, commit. If the
+pattern is new or an existing pattern's structural check would not have
+caught this instance, note that explicitly; a human reviews new/refined
+`GENERAL_LEDGER.md` entries before they're promoted (the worker may only
+append candidates to `agent-graph/LESSONS.md`'s "Open, not yet retro'd"
+section — it does not edit the cross-project ledger directly).
+
 ## Hard limits on the worker
 
 - Never pushes `master`. Never merges. Never force-pushes anything.
