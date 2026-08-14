@@ -19,8 +19,9 @@
  * only answered by a constraint rather than by application code.
  *
  * ---------------------------------------------------------------------------
- * Isolation audit findings (no live cross-tenant defect was found, so no file
- * outside `web/tests/` was changed):
+ * Isolation audit findings (no live cross-tenant defect was found; the only
+ * production change since, in `lib/db/sync.ts`, is the SYNC-001 fix for the
+ * functional finding F4 recorded further down):
  *
  * F1 — `lib/db/entries.ts:54-68` (`hydrateEntries`) carries no `user_id`
  *      predicate. It is safe only because (a) the entry-id set it filters on was
@@ -63,6 +64,9 @@ import {
   is,
 } from "drizzle-orm";
 import { PgDialect } from "drizzle-orm/pg-core";
+// Attack F7 drives the real client write path (lib/sync/store.ts), which opens
+// IndexedDB at module scope. This must be loaded before that import.
+import "fake-indexeddb/auto";
 import { strFromU8, unzipSync } from "fflate";
 
 import * as schema from "@/db/schema";
@@ -1314,6 +1318,23 @@ const rowsFor = (sqlName: string, userId: string) =>
 
 const findEntry = (id: string) => rowsOf("entries").find((row) => row.id === id);
 
+const progressRow = (userId: string, chapter: string) =>
+  rowsOf("reading_progress").find(
+    (row) => row.userId === userId && row.chapter === chapter,
+  );
+
+/** The wire shape `lib/sync/store.ts:markChapterRead` produces: the envelope
+ *  timestamp is the payload's `readAt`, and the payload has no `updatedAt`
+ *  because `ReadingProgress` (lib/contracts.ts:162-165) has none. */
+const progressOp = (id: string, chapter: string, readAt: string) => ({
+  id,
+  entity: "progress",
+  entityId: chapter,
+  op: "upsert",
+  updatedAt: readAt,
+  payload: { chapter, readAt },
+});
+
 const logPayload = (date: string, sentence: string, updatedAt: string) => ({
   date,
   chapter: "1.5",
@@ -1995,17 +2016,26 @@ const attacks = {
   },
 
   /**
-   * Finding F4 (functional, not isolation): `syncProgressSchema`
-   * (lib/api/sync.ts:63-68) has no `updatedAt` field, but `parsePayload`
-   * (lib/db/sync.ts:79) rejects any payload whose `updatedAt` differs from the
-   * operation's. Every `progress` op is therefore rejected unconditionally and
-   * `applyProgress`'s body is unreachable. Left unfixed: it is outside this
-   * task's owned-path rule, which permits lib/ edits only for isolation defects.
+   * Finding F4, now FIXED (SYNC-001) — this guard is inverted on purpose.
+   *
+   * `syncProgressSchema` (lib/api/sync.ts:63-68) carries no `updatedAt` field,
+   * because `ReadingProgress` is a frozen v1 contract of exactly
+   * `{ chapter, readAt }` (lib/contracts.ts:162-165) and the same schema types
+   * the pull response. The old `parsePayload` compared a hard-coded
+   * `payload.updatedAt` against `op.updatedAt`, so for progress it compared
+   * `undefined` and rejected every operation, leaving `applyProgress`
+   * unreachable. `parsePayload` now takes the timestamp accessor from its
+   * caller and `applyProgress` passes `readAt`, so the cross-check is still
+   * enforced — against the field progress actually carries.
+   *
+   * This test proves application and the full push -> apply -> pull round trip,
+   * and keeps the tenant assertions: the row lands under A, the receipt is A's,
+   * no B data appears in either response, and B's rows are untouched.
    */
-  async F4_progressSyncIsUnreachable() {
+  async F4_progressSyncRoundTrips() {
     resetWorld();
     await asUser(SESSION_A, async () => {
-      const body = await readJson(
+      const pushed = await readJson(
         await api.push([
           {
             id: op(9),
@@ -2017,16 +2047,298 @@ const attacks = {
           },
         ]),
       );
-      assert.deepEqual(body.rejected, [
-        { id: op(9), reason: "Operation timestamp does not match its payload" },
-      ]);
+      assert.deepEqual(
+        pushed.rejected,
+        [],
+        "a well-formed progress operation must be accepted",
+      );
+      assertNoBLeak(pushed, "F4 push");
+
+      const pulled = await readJson(await api.pull());
+      assert.deepEqual(
+        pulled.progress
+          .map((row: any) => `${row.chapter}@${row.readAt}`)
+          .sort(),
+        [`1.3@${T0}`, `1.5@${T2}`],
+        "the applied progress must come back from sync pull",
+      );
+      assertNoBLeak(pulled, "F4 pull");
     });
+    const written = progressRow(USER_A, "1.5");
+    assert.equal(written?.readAt, T2, "progress sync did not reach the database");
     assert.equal(
-      rowsOf("reading_progress").find((row) => row.chapter === "1.5"),
-      undefined,
-      "progress sync is currently unreachable (finding F4)",
+      rowsOf("reading_progress").filter((row) => row.chapter === "1.5").length,
+      1,
+      "progress must be written for the acting account only",
+    );
+    assert.equal(
+      rowsOf("sync_receipts").find((row) => row.opId === op(9))?.userId,
+      USER_A,
     );
     assertBUntouched("F4");
+  },
+
+  /**
+   * Monotonic-union merge rule: `readAt` may move forward, never backward.
+   * A stale operation is absorbed idempotently (accepted, receipt written, no
+   * value change) rather than rejected — it carries no new information — but the
+   * stored value must not regress.
+   */
+  async F5_progressReadAtNeverRegresses() {
+    resetWorld();
+    await asUser(SESSION_A, async () => {
+      const newer = await readJson(
+        await api.push([progressOp(op(10), "1.3", T2)]),
+      );
+      assert.deepEqual(newer.rejected, []);
+      assert.equal(progressRow(USER_A, "1.3")?.readAt, T2);
+
+      const stale = await readJson(
+        await api.push([progressOp(op(11), "1.3", T1)]),
+      );
+      assert.deepEqual(stale.rejected, []);
+      assert.equal(
+        progressRow(USER_A, "1.3")?.readAt,
+        T2,
+        "an older readAt overwrote a newer one — progress is not monotonic",
+      );
+      assert.equal(
+        stale.progress.find((row: any) => row.chapter === "1.3")?.readAt,
+        T2,
+      );
+    });
+    assertBUntouched("F5");
+  },
+
+  /** A progress payload may not smuggle a tenant column or a foreign entityId. */
+  async F6_progressSpoofedPayloadRejected() {
+    resetWorld();
+    await asUser(SESSION_A, async () => {
+      const spoofed = await readJson(
+        await api.push([
+          {
+            id: op(12),
+            entity: "progress",
+            entityId: "1.5",
+            op: "upsert",
+            updatedAt: T2,
+            payload: { chapter: "1.5", readAt: T2, userId: USER_B },
+          },
+        ]),
+      );
+      assert.deepEqual(
+        spoofed.rejected,
+        [{ id: op(12), reason: "Invalid progress payload" }],
+        "syncProgressSchema is .strict() — a userId field must be refused",
+      );
+
+      const mismatched = await readJson(
+        await api.push([
+          {
+            id: op(13),
+            entity: "progress",
+            entityId: "40.1",
+            op: "upsert",
+            updatedAt: T2,
+            payload: { chapter: "1.5", readAt: T2 },
+          },
+        ]),
+      );
+      assert.deepEqual(mismatched.rejected, [
+        {
+          id: op(13),
+          reason: "Operation entityId does not match its payload",
+        },
+      ]);
+
+      const deletion = await readJson(
+        await api.push([
+          {
+            id: op(14),
+            entity: "progress",
+            entityId: "1.3",
+            op: "delete",
+            updatedAt: T2,
+            payload: { chapter: "1.3", readAt: T2 },
+          },
+        ]),
+      );
+      assert.deepEqual(deletion.rejected, [
+        {
+          id: op(14),
+          reason: "Reading progress is monotonic and cannot be deleted",
+        },
+      ]);
+    });
+    assert.equal(progressRow(USER_A, "1.5"), undefined);
+    assert.equal(progressRow(USER_A, "1.3")?.readAt, T0, "progress was deleted");
+    assertBUntouched("F6");
+  },
+
+  /**
+   * The op is generated by the real client write path
+   * (`lib/sync/store.ts:136-158`, `markChapterRead`) and pushed verbatim — no
+   * field is rewritten here. This is what proves the client and the server
+   * agree on the progress wire shape rather than the test agreeing with itself.
+   */
+  async F7_clientEmittedProgressOpIsAccepted() {
+    resetWorld();
+    const store = await import("@/lib/sync/store");
+    const readAt = "2026-05-05T00:00:00.000Z";
+    await store.markChapterRead({ chapter: "1.6", readAt });
+    const queued = (await store.getPendingOps()).filter(
+      (item) => item.entity === "progress",
+    );
+    try {
+      assert.equal(
+        queued.length,
+        1,
+        "markChapterRead must enqueue exactly one progress op",
+      );
+      assert.deepEqual(queued[0].payload, { chapter: "1.6", readAt });
+      assert.equal(queued[0].updatedAt, readAt);
+
+      await asUser(SESSION_A, async () => {
+        const body = await readJson(await api.push(queued));
+        assert.deepEqual(
+          body.rejected,
+          [],
+          "the client's own progress op was refused by the server",
+        );
+        assert.equal(
+          body.progress.find((row: any) => row.chapter === "1.6")?.readAt,
+          readAt,
+        );
+      });
+      assert.equal(progressRow(USER_A, "1.6")?.readAt, readAt);
+    } finally {
+      await store.removePendingOps(queued.map((item) => item.id));
+    }
+    assertBUntouched("F7");
+  },
+
+  /**
+   * Criterion 3 guard: relaxing the cross-check for progress must not relax it
+   * anywhere else. Every schema that declares `updatedAt` must still refuse an
+   * operation whose envelope timestamp disagrees with its payload, or
+   * last-write-wins could be driven from a forged envelope.
+   */
+  async F8_updatedAtCrossCheckStillEnforced() {
+    resetWorld();
+    const mismatched = [
+      {
+        id: op(15),
+        entity: "thread",
+        entityId: "a-mismatch",
+        op: "upsert",
+        updatedAt: T2,
+        payload: {
+          slug: "a-mismatch",
+          title: "Mismatch",
+          definition: "",
+          seeing: "",
+          createdAt: T0,
+          updatedAt: T1,
+        },
+      },
+      {
+        id: op(16),
+        entity: "entry",
+        entityId: NEW_ENTRY,
+        op: "upsert",
+        updatedAt: T2,
+        payload: {
+          id: NEW_ENTRY,
+          kind: "note",
+          body: "mismatched envelope",
+          chapter: "1.3",
+          threads: [A_THREAD],
+          createdAt: T0,
+          updatedAt: T1,
+        },
+      },
+      {
+        id: op(17),
+        entity: "person",
+        entityId: "a-mismatch-person",
+        op: "upsert",
+        updatedAt: T2,
+        payload: {
+          slug: "a-mismatch-person",
+          name: "Mismatch",
+          body: "",
+          chapters: [],
+          threads: [],
+          createdAt: T0,
+          updatedAt: T1,
+        },
+      },
+      {
+        id: op(18),
+        entity: "log",
+        entityId: "2026-03-03",
+        op: "upsert",
+        updatedAt: T2,
+        payload: logPayload("2026-03-03", "mismatched envelope", T1),
+      },
+    ];
+    await asUser(SESSION_A, async () => {
+      const body = await readJson(await api.push(mismatched));
+      assert.deepEqual(
+        body.rejected,
+        mismatched.map((item) => ({
+          id: item.id,
+          reason: "Operation timestamp does not match its payload",
+        })),
+        "the updatedAt cross-check must stay enforced for every entity that carries one",
+      );
+    });
+    assert.equal(rowsOf("threads").find((row) => row.slug === "a-mismatch"), undefined);
+    assert.equal(findEntry(NEW_ENTRY), undefined);
+    assert.equal(
+      rowsOf("people").find((row) => row.slug === "a-mismatch-person"),
+      undefined,
+    );
+    assert.equal(
+      rowsOf("daily_logs").find((row) => row.date === "2026-03-03"),
+      undefined,
+    );
+    assertBUntouched("F8");
+  },
+
+  /**
+   * A chapter both accounts have read. The primary key is
+   * (user_id, chapter), so this is a namespace overlap, not a takeover — but the
+   * read A performs before writing must still be tenant-bound. T0 is OLDER than
+   * B's readAt for 40.1 (T1): with the ownership predicate removed, B's row is
+   * found as `current` and the monotonic guard silently swallows A's own first
+   * read of that chapter. Mutation M3 proves exactly that.
+   */
+  async S9_pushProgressOverBChapter() {
+    resetWorld();
+    await asUser(SESSION_A, async () => {
+      const body = await readJson(
+        await api.push([progressOp(op(19), "40.1", T0)]),
+      );
+      assert.deepEqual(body.rejected, []);
+      assertNoBLeak(body, "S9");
+      assert.deepEqual(
+        body.progress.map((row: any) => row.chapter).sort(),
+        ["1.3", "40.1"],
+        "A must see only A's own progress",
+      );
+    });
+    const rows = rowsOf("reading_progress").filter(
+      (row) => row.chapter === "40.1",
+    );
+    assert.equal(rows.length, 2, "expected one progress row per account");
+    assert.equal(rows.find((row) => row.userId === USER_A)?.readAt, T0);
+    assert.equal(
+      rows.find((row) => row.userId === USER_B)?.readAt,
+      T1,
+      "B's reading progress was overwritten",
+    );
+    assertBUntouched("S9");
   },
 
   async S7_pushResponseBody() {
@@ -2062,6 +2374,9 @@ const attacks = {
       attacksRef.S3_pushEntryReferencingBThread,
       attacksRef.S4_pushThreadWithBSlug,
       attacksRef.S5_pushProgressLogPerson,
+      attacksRef.S9_pushProgressOverBChapter,
+      attacksRef.F5_progressReadAtNeverRegresses,
+      attacksRef.F6_progressSpoofedPayloadRejected,
     ]) {
       await attack();
     }
@@ -2148,7 +2463,12 @@ const BASELINE: [string, () => Promise<void>][] = [
   ["S3 sync entry referencing B's thread is rejected", attacks.S3_pushEntryReferencingBThread],
   ["S4 sync thread with B's slug is written under A", attacks.S4_pushThreadWithBSlug],
   ["S5 synced logs and people are written under A", attacks.S5_pushProgressLogPerson],
-  ["F4 progress sync is unreachable (documented defect)", attacks.F4_progressSyncIsUnreachable],
+  ["F4 progress sync round-trips: pushed, applied, pulled", attacks.F4_progressSyncRoundTrips],
+  ["F5 a stale readAt never overwrites a newer one", attacks.F5_progressReadAtNeverRegresses],
+  ["F6 a spoofed or deleting progress payload is rejected", attacks.F6_progressSpoofedPayloadRejected],
+  ["F7 the client's own progress op is accepted by the server", attacks.F7_clientEmittedProgressOpIsAccepted],
+  ["F8 the updatedAt cross-check still holds for every other entity", attacks.F8_updatedAtCrossCheckStillEnforced],
+  ["S9 progress for a chapter B also read stays tenant-scoped", attacks.S9_pushProgressOverBChapter],
   ["S6 sync receipts are tenant-scoped", attacks.S6_receiptReplayIsolation],
   ["S7 the push response body contains no B data", attacks.S7_pushResponseBody],
   ["S8 B's snapshot survives every sync attack", attacks.S8_bSnapshotSurvivesEveryAttack],
@@ -2262,11 +2582,12 @@ test("M2 removing tenant predicates from lib/db/threads.ts breaks R5/R6/U3/D2", 
   );
 });
 
-test("M3 removing tenant predicates from lib/db/sync.ts breaks R7/S6", async () => {
+test("M3 removing tenant predicates from lib/db/sync.ts breaks R7/S6/S9", async () => {
   await withMutation("M3", path.join("lib", "db", "sync.ts"), () =>
     assertNowLeaks([
       ["R7", attacks.R7_syncPull],
       ["S6", attacks.S6_receiptReplayIsolation],
+      ["S9", attacks.S9_pushProgressOverBChapter],
     ]),
   );
 });
