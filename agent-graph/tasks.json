@@ -287,6 +287,35 @@
         "rg -n \"Relax the entry|relax.*v1|connection_state\" BUILD_PLAN.md THEOLOGY_MASTER_BUILD_PLAN.md returns no normative instruction to weaken v1 or overload session state"
       ],
       "humanGates": []
+    },
+    {
+      "id": "P0-002",
+      "title": "Close the tenant-isolation harness gaps found by the P0-001 audit",
+      "objective": "Extend the isolation suite with the attack variants and one evaluator hardening the independent audit of 415763e identified as unexercised. No production-code changes expected.",
+      "baseBranch": "agent/SYNC-001-claude",
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/tests/tenant-isolation.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/contracts.ts",
+        "web/lib/db/sync.ts",
+        "web/lib/api/sync.ts"
+      ],
+      "acceptanceCriteria": [
+        "The WHERE evaluator either rejects ne()/<> outright or implements Postgres three-valued logic for a NULL right operand, so a future predicate cannot be silently misinterpreted.",
+        "A single push batch mixing a B-targeted op with a valid A op proves the A op applies, exactly one rejection is returned, and no partial state remains.",
+        "Duplicate op ids within one push batch are exercised and the dedupe behavior asserted.",
+        "Person slug-collision and daily-log date-collision squats are exercised as S4 already does for threads.",
+        "An id-squat against B's soft-deleted entry is exercised alongside the existing active-entry case.",
+        "The suite stays green and every added attack is accompanied by a snapshot proving the victim tenant's rows are unchanged."
+      ],
+      "verification": [
+        "cd web; npm.cmd test",
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint"
+      ],
+      "humanGates": []
     }
   ]
 }
