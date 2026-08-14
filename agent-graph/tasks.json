@@ -2,6 +2,72 @@
   "schemaVersion": 1,
   "tasks": [
     {
+      "id": "SEC-002",
+      "title": "Close the header gaps the SEC-001 audit proved on the wire",
+      "objective": "SEC-001 blocked at three cycles with its core policy sound but four wire-verified gaps open. Fix them on top of agent/SEC-001-claude (658cc3d) without weakening the existing policy or tests.",
+      "baseBranch": "agent/SEC-001-claude",
+      "ownedPaths": [
+        "web/next.config.ts",
+        "web/tests/security-headers.test.ts",
+        ".github/workflows/ci.yml"
+      ],
+      "readOnlyPaths": [
+        "web/lib/contracts.ts",
+        "web/proxy.ts",
+        "web/public/sw.js"
+      ],
+      "acceptanceCriteria": [
+        "Trailing-slash requests (/sign-in/, /read/, /api/review/) carry the full security header set; today they 308 with ZERO headers, wire-verified, so the 'every route' claim is currently false.",
+        "The /sw.js overlay no longer applies to case variants (/SW.js, /Sw.Js); it must match the real worker script only.",
+        "A CI workflow exists that runs typecheck, lint, build, and the full test suite so the wire suite cannot silently skip; the workflow must fail if .next/BUILD_ID is absent when the wire suite runs.",
+        "The wire suite derives its expectations from the resolved rule list rather than the exported constants, so de-registering a rule fails the wire tests and not only the unit tests.",
+        "A CSP report-to or report-uri endpoint, or a Report-Only companion policy, exists so a policy mistake in the credential-gated OAuth flow surfaces as a report instead of silent breakage.",
+        "Every existing security-headers test still passes unweakened, and the live Google OAuth round trip remains an explicitly open, credential-gated receipt that is NOT claimed closed."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "P0UI-002",
+      "title": "Eliminate the blocked-delete data-loss window with a cross-tab write lock",
+      "objective": "P0UI-001 blocked at three cycles because a write made in another tab while deleteDB sits blocked is destroyed when that tab closes, and the UI then certifies the device clear. The root fix needs the writers to participate, which the prior task was not permitted to touch. Build on agent/P0UI-001-claude (2ec3457).",
+      "baseBranch": "agent/P0UI-001-claude",
+      "scopeChange": "web/lib/sync/store.ts moved from read-only to owned by Ken on 2026-08-13 so the writers can take the lock. This is the whole point of the successor task.",
+      "ownedPaths": [
+        "web/lib/sync/clear.ts",
+        "web/lib/sync/store.ts",
+        "web/components/auth/DeviceSessionControls.tsx",
+        "web/tests/device-clear.test.ts",
+        "web/tests/protected-integrations.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/contracts.ts",
+        "web/lib/sync/client.ts",
+        "web/public/sw.js"
+      ],
+      "acceptanceCriteria": [
+        "A write committed in a second tab AFTER the pending-queue check, while a deleteDB is blocked and queued, is never destroyed: either the delete cannot remain armed, or writers cannot commit while a clear is in progress.",
+        "The fix is taken by the writers (navigator.locks in lib/sync/store.ts and/or an idb blocking/versionchange handler that closes other connections), not only by the clear path; a lock taken solely in clear.ts is explicitly insufficient.",
+        "A regression test seeds the write AFTER the queue check while the delete is blocked, and fails against 2ec3457; the prior test only covered a write seeded before the check, which is why 68/68 passed while the bug was live.",
+        "After any interleaving that loses or could lose writing, the UI never renders a verified-clear claim; if the app cannot prove the device is clean it must say so.",
+        "The clear-device guidance no longer instructs the user to take an action that destroys data.",
+        "Fallback behaviour is defined and tested where navigator.locks is unavailable, and the fallback fails closed rather than destroying.",
+        "Every previously passing acceptance criterion of P0UI-001 still holds, and no existing test is weakened or deleted."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd test",
+        "cd web; npm.cmd run build"
+      ],
+      "humanGates": []
+    },
+    {
       "id": "DOC-001",
       "title": "Reconcile the three theology planning documents",
       "objective": "Make BUILD_PLAN.md, THEOLOGY_MASTER_BUILD_PLAN.md, and THEOLOGY_PRODUCT_AUDIT.md agree on the canonical evidence contract, no-warrant behavior, conviction privacy, RLS sequencing, and Life Lab timing.",

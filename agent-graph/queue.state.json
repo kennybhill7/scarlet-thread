@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-08-14T03:55:00Z",
+  "seededBy": "interactive-claude-session 2026-08-13",
+  "lease": {
+    "taskId": null,
+    "runId": null,
+    "takenAt": null,
+    "expiresAt": null
+  },
+  "tasks": {
+    "SEC-002": {
+      "status": "ready",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Successor to blocked SEC-001. Base branch agent/SEC-001-claude (tip 658cc3d)."
+    },
+    "P0UI-002": {
+      "status": "ready",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Successor to blocked P0UI-001. Base branch agent/P0UI-001-claude (tip 2ec3457). Scope EXPANDED to lib/sync/store.ts by Ken 2026-08-13."
+    },
+    "P0-002": {
+      "status": "ready",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Base branch agent/SYNC-001-claude (tip 12f65b2), which contains the isolation suite plus the sync fix."
+    },
+    "SEC-001": {
+      "status": "blocked",
+      "branch": "agent/SEC-001-claude",
+      "commitSha": "658cc3de572c925010b0285e8f906c70773b1bfa",
+      "attempts": 3,
+      "lastRunId": null,
+      "lastEvidence": "Three cycles reached. Superseded by SEC-002. Do not work this id.",
+      "notes": "Historical record only."
+    },
+    "P0UI-001": {
+      "status": "blocked",
+      "branch": "agent/P0UI-001-claude",
+      "commitSha": "2ec3457aa2094f26bb2eccbb01f33890a58e637b",
+      "attempts": 3,
+      "lastRunId": null,
+      "lastEvidence": "Three cycles reached. Superseded by P0UI-002. Do not work this id.",
+      "notes": "Historical record only."
+    },
+    "DOC-001": {
+      "status": "blocked",
+      "branch": "agent/DOC-001-claude",
+      "commitSha": "aade632af3841c0dd3c827027072b1c195a81dae",
+      "attempts": 3,
+      "lastRunId": null,
+      "lastEvidence": "Three cycles reached; leftovers moved to DOC-002 by Codex.",
+      "notes": "Historical record only."
+    },
+    "P0-001": {
+      "status": "done",
+      "branch": "agent/P0-001-claude",
+      "commitSha": "415763ea9b9a6c54b7742cc5320f0fc58547024e",
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": "Audited PASS 3/3; human gate approved by Ken 2026-08-13.",
+      "notes": "Do not rework."
+    },
+    "SYNC-001": {
+      "status": "submitted",
+      "branch": "agent/SYNC-001-claude",
+      "commitSha": "12f65b2a4260e2e1677c9a2ee319e915e2ef1ee2",
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": "87/87 tests; awaiting independent audit. Do not rebuild; audit only.",
+      "notes": "Progress-sync fix."
+    },
+    "DEP-001": {
+      "status": "done",
+      "branch": "agent/DEP-001-codex",
+      "commitSha": "9cf643ae7a120b8da741538b5e36c59c26fa72f9",
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": "Audited PASS independently.",
+      "notes": "Do not rework."
+    },
+    "AUD-001": {
+      "status": "done",
+      "branch": "agent/AUD-001-claude",
+      "commitSha": "2a2a6bc0612d073a9feaec27b39d5626c962f680",
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": "Audited PASS.",
+      "notes": "Do not rework."
+    },
+    "OPS-001": {
+      "status": "blocked",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": "HUMAN ONLY: Vercel dashboard Root Directory '.' -> 'web', redeploy afa47fe. No agent can perform or verify this.",
+      "notes": "Never attempt."
+    }
+  }
+}
