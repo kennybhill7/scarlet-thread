@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-14T04:50:00Z",
+  "updatedAt": "2026-08-14T05:13:29Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
-    "taskId": null,
-    "runId": null,
-    "takenAt": null,
-    "expiresAt": null
+    "taskId": "P0-002",
+    "runId": "cloud-20260814051329",
+    "takenAt": "2026-08-14T05:13:29Z",
+    "expiresAt": "2026-08-14T06:43:29Z"
   },
   "tasks": {
     "SEC-002": {
@@ -28,11 +28,11 @@
       "notes": "Successor to blocked P0UI-001. Base branch agent/P0UI-001-claude (tip 2ec3457). Scope EXPANDED to lib/sync/store.ts by Ken 2026-08-13."
     },
     "P0-002": {
-      "status": "ready",
+      "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": null,
+      "lastRunId": "cloud-20260814051329",
       "lastEvidence": null,
       "notes": "Base branch agent/SYNC-001-claude (tip 12f65b2), which contains the isolation suite plus the sync fix."
     },
