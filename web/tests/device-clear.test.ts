@@ -22,10 +22,95 @@ import path from "node:path";
 const root = process.cwd();
 const isoNow = () => new Date().toISOString();
 
+/**
+ * Node has no Web Locks API, so lib/sync/clear.ts's exclusive hold and
+ * lib/sync/store.ts's shared writer locks need a real implementation here to
+ * exercise the fix at all — without one, every test below would hit the
+ * fail-closed DeviceClearCoordinationUnsupportedError path instead of the
+ * coordination it exists to test.
+ *
+ * Requests are granted strictly in FIFO order per lock name: a shared request
+ * behind a still-pending exclusive one waits for it, even if a later shared
+ * request could otherwise be granted immediately — the same anti-starvation
+ * behavior real browsers implement, and the property clearLocalStudyData()'s
+ * fix depends on (a writer queued behind an in-progress clear must not jump
+ * ahead of it just because the clear is itself waiting on something else).
+ */
+function createLockManager() {
+  const lockStates = new Map<
+    string,
+    {
+      sharedCount: number;
+      exclusive: boolean;
+      queue: { mode: "shared" | "exclusive"; grant: () => void }[];
+    }
+  >();
+
+  function stateFor(name: string) {
+    let state = lockStates.get(name);
+    if (!state) {
+      state = { sharedCount: 0, exclusive: false, queue: [] };
+      lockStates.set(name, state);
+    }
+    return state;
+  }
+
+  function pump(name: string) {
+    const state = stateFor(name);
+    while (state.queue.length > 0) {
+      const head = state.queue[0];
+      if (head.mode === "shared") {
+        if (state.exclusive) break;
+        state.queue.shift();
+        state.sharedCount += 1;
+        head.grant();
+      } else {
+        if (state.exclusive || state.sharedCount > 0) break;
+        state.queue.shift();
+        state.exclusive = true;
+        head.grant();
+      }
+    }
+  }
+
+  function release(name: string, mode: "shared" | "exclusive") {
+    const state = stateFor(name);
+    if (mode === "shared") state.sharedCount -= 1;
+    else state.exclusive = false;
+    pump(name);
+  }
+
+  async function request<T>(
+    name: string,
+    optionsOrCallback: { mode?: "shared" | "exclusive" } | (() => T | Promise<T>),
+    maybeCallback?: () => T | Promise<T>,
+  ): Promise<T> {
+    const callback =
+      typeof optionsOrCallback === "function" ? optionsOrCallback : maybeCallback!;
+    const mode =
+      typeof optionsOrCallback === "function"
+        ? "exclusive"
+        : (optionsOrCallback.mode ?? "exclusive");
+    await new Promise<void>((resolve) => {
+      stateFor(name).queue.push({ mode, grant: resolve });
+      pump(name);
+    });
+    try {
+      return await callback();
+    } finally {
+      release(name, mode);
+    }
+  }
+
+  return { request } as unknown as LockManager;
+}
+
+const sharedLockManager = createLockManager();
+
 // node 24 exposes navigator as a configurable getter with no onLine.
 function setOnline(onLine: boolean) {
   Object.defineProperty(globalThis, "navigator", {
-    value: { onLine },
+    value: { onLine, locks: sharedLockManager },
     configurable: true,
   });
 }
@@ -283,6 +368,52 @@ test("a failed sign-out clears nothing", async () => {
     await assertNothingDestroyed("failed sign-out");
   } finally {
     globalThis.fetch = originalFetch;
+  }
+});
+
+// --- 4a. no coordination lock, no automated delete --------------------------
+
+test("clearing refuses when this browser has no Web Locks API, instead of deleting uncoordinated", async () => {
+  const {
+    DeviceClearCoordinationUnsupportedError,
+    DeviceClearFailure,
+    clearLocalStudyData,
+    describeClearFailure,
+  } = await import("@/lib/sync/clear");
+  makeCaches(SEED_CACHES);
+  makeStorage(SEED_STORAGE());
+  assert.ok(
+    await localDatabaseExists(),
+    "the database exists before the refused attempt",
+  );
+
+  // A browser with no navigator.locks at all - old Safari, or (as here) any
+  // context this app cannot coordinate a delete safely from.
+  Object.defineProperty(globalThis, "navigator", {
+    value: { onLine: true },
+    configurable: true,
+  });
+  try {
+    const error = await failureOf(clearLocalStudyData());
+    assert.ok(
+      error instanceof DeviceClearCoordinationUnsupportedError,
+      "refuses closed instead of deleting without a way to hold writers off",
+    );
+    await assertNothingDestroyed("no lock coordination available");
+
+    const view = describeClearFailure(new DeviceClearFailure(true, error));
+    assert.equal(view.state, "not-cleared");
+    assert.equal(
+      view.unknown,
+      false,
+      "this is a settled refusal, not an indeterminate one",
+    );
+    assert.equal(view.canRetry, true);
+    assert.match(view.message, /Nothing was deleted/);
+    assert.match(view.message, /cannot coordinate/);
+  } finally {
+    // Restore real coordination for every test after this one.
+    setOnline(true);
   }
 });
 
@@ -746,6 +877,13 @@ test("a delete blocked by another tab reports an unknown state, not a failure", 
     );
     assert.match(view.message, /may still be completing in the background/);
     assert.match(view.message, /NOT cleared until it has been checked/);
+    // The guidance used to be a bare "Close them, then check again" — exactly
+    // the action that destroyed a write in round 2 of P0UI-001, because
+    // nothing then stopped a write from landing in the window that closing
+    // released. WRITE_LOCK_NAME closes that window (see the 11a test below),
+    // so the copy says so instead of just repeating the old instruction.
+    assert.match(view.message, /will not lose any writing/);
+    assert.doesNotMatch(view.message, /Close them, then check again/);
   } finally {
     blocker.close();
   }
@@ -776,6 +914,82 @@ test("retrying after an unknown state re-verifies actual state", async () => {
   assert.deepEqual(await caches.keys(), ["unrelated-cache"]);
   assert.ok(!(await localDatabaseExists()));
   assert.equal(localStorage.getItem("bible-brain:last-read"), null);
+});
+
+// --- 11a. the fix: writers cannot commit while a clear is in progress -------
+
+/**
+ * The root fix, exercised directly. Round 2 of P0UI-001 refused the destroy
+ * whenever the *pending queue* held a late write, but nothing stopped a write
+ * that arrived after that check while deleteDB sat blocked and queued in the
+ * browser — closing the blocking tab released it, destroying the write with
+ * no trace. The fix is that lib/sync/store.ts's writers take WRITE_LOCK_NAME
+ * in shared mode, and clearLocalStudyData() holds it exclusively for the
+ * REAL duration of the delete, not just until it stops reporting progress to
+ * the caller — so a writer queued behind an in-progress clear cannot run
+ * until the delete has genuinely settled, at which point there is nothing
+ * left mid-flight for it to race.
+ *
+ * This must fail against 658cc3d/2ec3457: neither commit's clear.ts touches
+ * navigator.locks at all, so nothing there would ever shut a writer out —
+ * `granted` would flip `true` immediately instead of waiting on `blocker`.
+ */
+test("a writer using the shared write lock cannot commit while a clear holds it exclusively, and is let through only once the real delete settles", async () => {
+  const store = await import("@/lib/sync/store");
+  const { DeviceClearUnknownError, clearLocalStudyData } = await import(
+    "@/lib/sync/clear"
+  );
+  makeCaches(SEED_CACHES);
+  makeStorage(SEED_STORAGE());
+  // The store singleton died at test 5; recreate the database raw, the same
+  // way tests 8/9/10 do, rather than through the (now-dead) store API.
+  (await openLocalDatabase()).close();
+
+  // Simulates another tab's live connection: deleteDB blocks on it until it
+  // closes.
+  const blocker = await openExistingDatabase();
+
+  const clearError = await failureOf(
+    clearLocalStudyData({ deleteTimeoutMs: 100 }),
+  );
+  assert.ok(
+    clearError instanceof DeviceClearUnknownError,
+    "the report times out while the delete is genuinely still blocked",
+  );
+
+  // The report settled, but per the fix the coordination lock must not have:
+  // a writer taking WRITE_LOCK_NAME in shared mode — exactly what every
+  // lib/sync/store.ts mutation does — is still shut out, because the real
+  // deleteDB() has not resolved yet.
+  const locks = (globalThis as unknown as { navigator: { locks: LockManager } })
+    .navigator.locks;
+  let granted = false;
+  const writerAttempt = locks.request(
+    store.WRITE_LOCK_NAME,
+    { mode: "shared" },
+    async () => {
+      granted = true;
+    },
+  );
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  assert.equal(
+    granted,
+    false,
+    "still shut out 20ms after the timed-out report: the real delete has not settled",
+  );
+  assert.ok(
+    await localDatabaseExists(),
+    "and nothing has actually been destroyed yet either — the delete is still pending, not finished",
+  );
+
+  // Unblock the real delete. Only now can the queued writer proceed.
+  blocker.close();
+  await writerAttempt;
+  assert.equal(
+    granted,
+    true,
+    "granted once the real delete finally settles, not before",
+  );
 });
 
 // --- 12. the shared-device warning outlives the page it was raised on -------

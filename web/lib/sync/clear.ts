@@ -149,6 +149,23 @@ export class DeviceClearIncompleteError extends Error {
 }
 
 /**
+ * This browser has no Web Locks API, so there is no way to hold the writers
+ * in lib/sync/store.ts off while a delete is in flight — exactly the gap that
+ * let a write committed in another tab get destroyed by a delete that outlived
+ * the wait for it (round 2 of P0UI-001). Refusing here is the fail-closed
+ * side of that fix: better an automated clear that cannot run than one that
+ * runs uncoordinated.
+ */
+export class DeviceClearCoordinationUnsupportedError extends Error {
+  constructor(
+    message = "This browser cannot coordinate clearing with other open tabs, so this device was not cleared",
+  ) {
+    super(message);
+    this.name = "DeviceClearCoordinationUnsupportedError";
+  }
+}
+
+/**
  * The clear-device flow failed. `signedOut` is the whole point of this type:
  * `false` guarantees nothing local was touched, `true` means the server
  * session is gone while local data may still be on a possibly shared device.
@@ -319,32 +336,97 @@ export async function countPendingWrites(): Promise<number | null> {
   }
 }
 
+/** What runClearUnderLock() has to tell clearLocalStudyData() to hand the caller. */
+type ClearOutcome = { ok: true } | { ok: false; error: Error };
+
 /**
  * Destroy this app's local data, then verify it is actually gone.
  *
- * Deletion is attempted for every surface even after one fails, so a partial
- * clear removes as much as it can; the failure is reported afterwards. An
- * IndexedDB delete blocked by another tab hangs forever, so it is raced
- * against a timeout rather than left to stall the UI on "Clearing…".
+ * Runs the whole sequence — pending-queue check, own-connection close,
+ * deleteDB, and verification, all in runClearUnderLock() below — while
+ * holding lib/sync/store.ts's WRITE_LOCK_NAME in EXCLUSIVE mode. Every writer
+ * there takes the same lock in SHARED mode around its own transaction (see
+ * store.ts), so none of them can begin a new write for as long as this holds
+ * it: a write already in flight when this is requested finishes first, which
+ * is why it shows up in the pending-queue check below and correctly refuses
+ * the clear instead of racing it; a write attempted after this is granted
+ * simply waits its turn.
  *
- * Losing that race raises DeviceClearUnknownError, never
- * DeviceClearIncompleteError. The timeout only stops us waiting; it does not
- * abort the browser's delete request, which may still complete afterwards.
- * Being blocked is NOT recorded on its own for the mirror-image reason: a
- * delete that was blocked and then unblocked really did succeed, and the
- * verification pass below is what decides.
+ * Without navigator.locks there is no way to hold those writers off at all,
+ * so this refuses outright rather than deleting uncoordinated — see
+ * DeviceClearCoordinationUnsupportedError. That is the fail-closed mirror of
+ * the exclusion above: an automated clear that cannot run beats one that runs
+ * unable to prove nothing else is writing underneath it.
  *
  * Every call re-runs both the destruction and the verification, so calling
  * this again after an unknown or incomplete outcome re-reads the device rather
  * than assuming anything about the previous attempt.
- *
- * Nothing is destroyed while local writing is still queued. That check is the
- * first statement in the function, not a caller's responsibility, because both
- * entry points need it: runDeviceClear() reaches here across a sign-out network
- * round-trip, and the re-verify path reaches here with no session at all.
  */
 export async function clearLocalStudyData(
   options: { deleteTimeoutMs?: number } = {},
+): Promise<void> {
+  const locks = globalThis.navigator?.locks;
+  if (!locks) {
+    throw new DeviceClearCoordinationUnsupportedError();
+  }
+
+  const { WRITE_LOCK_NAME } = await import("@/lib/sync/store");
+  const deleteTimeoutMs = options.deleteTimeoutMs ?? DEFAULT_DELETE_TIMEOUT_MS;
+
+  let reportOutcome!: (outcome: ClearOutcome) => void;
+  const reported = new Promise<ClearOutcome>((resolve) => {
+    reportOutcome = resolve;
+  });
+
+  const held = locks.request(WRITE_LOCK_NAME, { mode: "exclusive" }, () =>
+    runClearUnderLock(deleteTimeoutMs, reportOutcome),
+  );
+  // runClearUnderLock() reports every outcome through reportOutcome() rather
+  // than throwing, so `held` never actually rejects in practice — this
+  // handler is defensive only, the same reasoning as deletion.catch() below:
+  // nothing else observes `held` once `reported` has already settled.
+  held.catch(() => {});
+
+  const outcome = await reported;
+  if (!outcome.ok) throw outcome.error;
+}
+
+/**
+ * The destroy-and-verify sequence, run as the body of the exclusive
+ * WRITE_LOCK_NAME hold clearLocalStudyData() takes.
+ *
+ * `reportOutcome` fires as soon as this has an answer for the CALLER — at the
+ * same deleteTimeoutMs-bounded point the pre-lock version of this function
+ * used to return or throw. Deletion is attempted for every surface even after
+ * one fails, so a partial clear removes as much as it can; the failure is
+ * reported afterwards. An IndexedDB delete blocked by another tab hangs
+ * forever, so the CALLER is only kept waiting up to deleteTimeoutMs for it —
+ * "unknown" is reported instead of stalling the UI on "Clearing…" indefinitely.
+ *
+ * But an "unknown" outcome does NOT make this function return right away: it
+ * goes on to actually await the real deleteDB() settling before returning,
+ * because returning is what ends the exclusive hold. Reporting "unknown" and
+ * releasing the lock together would reopen the exact gap this task closes —
+ * a writer freed the instant this stops watching could still land in the
+ * browser-level window a still-outstanding delete request leaves open, and be
+ * destroyed the moment that delete finally runs, unseen by anything that
+ * could have refused it.
+ *
+ * Losing the deleteTimeoutMs race reports DeviceClearUnknownError, never
+ * DeviceClearIncompleteError: the timeout only bounds the caller's wait, it
+ * does not abort the browser's delete request. Being blocked is NOT recorded
+ * on its own for the mirror-image reason: a delete that was blocked and then
+ * unblocked really did succeed, and the verification pass below is what
+ * decides.
+ *
+ * Nothing is destroyed while local writing is still queued. That check is the
+ * first statement here, not a caller's responsibility, because both entry
+ * points need it: runDeviceClear() reaches here across a sign-out network
+ * round-trip, and the re-verify path reaches here with no session at all.
+ */
+async function runClearUnderLock(
+  deleteTimeoutMs: number,
+  reportOutcome: (outcome: ClearOutcome) => void,
 ): Promise<void> {
   // Re-read, do not remember — the mirror of the export close in
   // fetchCurrentArchive(). flushPendingWrites() only proved the queue was empty
@@ -362,10 +444,10 @@ export async function clearLocalStudyData(
   // certified "clear" either.
   const pending = await countPendingWrites();
   if (pending === null || pending > 0) {
-    throw new DeviceClearUnsyncedError(pending);
+    reportOutcome({ ok: false, error: new DeviceClearUnsyncedError(pending) });
+    return;
   }
 
-  const deleteTimeoutMs = options.deleteTimeoutMs ?? DEFAULT_DELETE_TIMEOUT_MS;
   const remaining: string[] = [];
   const record = (surface: string) => {
     if (!remaining.includes(surface)) remaining.push(surface);
@@ -377,19 +459,19 @@ export async function clearLocalStudyData(
   let blockedByOtherTab = false;
   let deleteOutcomeUnknown = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
-  try {
-    const deletion = deleteDB(LOCAL_DATABASE, {
-      blocked: () => {
-        blockedByOtherTab = true;
-      },
-    }).then(() => false);
-    // Promise.race attaches a rejection handler to every input, so a delete
-    // that rejects after the timeout has already won is handled as the code
-    // stands. This explicit no-op keeps that true if the race is ever
-    // restructured: an unhandled rejection from a flow whose entire job is
-    // telling the user exactly what happened would be the worst kind of noise.
-    deletion.catch(() => {});
+  const deletion = deleteDB(LOCAL_DATABASE, {
+    blocked: () => {
+      blockedByOtherTab = true;
+    },
+  }).then(() => false);
+  // Promise.race attaches a rejection handler to every input, so a delete
+  // that rejects after the timeout has already won is handled as the code
+  // stands. This explicit no-op keeps that true if the race is ever
+  // restructured: an unhandled rejection from a flow whose entire job is
+  // telling the user exactly what happened would be the worst kind of noise.
+  deletion.catch(() => {});
 
+  try {
     const timedOut = await Promise.race([
       deletion,
       new Promise<boolean>((resolve) => {
@@ -472,18 +554,29 @@ export async function clearLocalStudyData(
   // "indexeddb" that verification just found may be deleted a moment from now,
   // so reporting a settled failure would overstate what we know.
   if (deleteOutcomeUnknown) {
-    throw new DeviceClearUnknownError(
-      "indexeddb",
-      remaining.filter((surface) => surface !== "indexeddb"),
-      blockedByOtherTab
-        ? "Another tab is holding this app's database open, so the delete did not finish in time"
-        : "The database delete did not finish in time",
-    );
+    reportOutcome({
+      ok: false,
+      error: new DeviceClearUnknownError(
+        "indexeddb",
+        remaining.filter((surface) => surface !== "indexeddb"),
+        blockedByOtherTab
+          ? "Another tab is holding this app's database open, so the delete did not finish in time"
+          : "The database delete did not finish in time",
+      ),
+    });
+    // The caller has its answer; this function's own exclusive lock does not
+    // release until the line below actually settles — see this function's
+    // header for why that gap matters.
+    await deletion;
+    return;
   }
 
   if (remaining.length > 0) {
-    throw new DeviceClearIncompleteError(remaining);
+    reportOutcome({ ok: false, error: new DeviceClearIncompleteError(remaining) });
+    return;
   }
+
+  reportOutcome({ ok: true });
 }
 
 /**
@@ -520,9 +613,20 @@ export const CLEAR_DEVICE_CONFIRM = [
 export const DEVICE_NOT_CLEARED_MESSAGE =
   "Your notes and offline Bible data are still stored in this browser. If anyone else uses this device, clear this site's data in your browser settings now.";
 
-/** Copy for the unknown outcome. It must never say the device is clear. */
+/**
+ * Copy for the unknown outcome. It must never say the device is clear.
+ *
+ * "Close them" used to be the whole instruction here — and closing the
+ * blocking tab was exactly the action that let a write saved in it be
+ * destroyed by a delete request the app had already issued and given up
+ * waiting on (round 2 of P0UI-001). It is safe to say again now: every write
+ * in lib/sync/store.ts takes WRITE_LOCK_NAME in shared mode, and this clear
+ * holds it exclusively for as long as the real delete is outstanding — not
+ * just until this message is shown — so nothing can be saved into the gap
+ * closing that tab used to open.
+ */
 export const DEVICE_CLEAR_UNKNOWN_MESSAGE =
-  "Clearing did not finish in time, and it may still be completing in the background. Treat this device as NOT cleared until it has been checked — usually another tab or window with this app open is holding it up. Close them, then check again.";
+  "Clearing did not finish in time, and it may still be completing in the background. Treat this device as NOT cleared until it has been checked — usually another tab or window with this app open is holding it up. Closing other tabs will not lose any writing already saved to this browser; do that, then check again.";
 
 /**
  * Copy for the outcome where the destroy refused to run because local writing
@@ -546,6 +650,14 @@ export const DEVICE_QUEUE_UNREADABLE_MESSAGE =
   "Nothing was deleted. This browser would not let the app read its own list of unsynced writing, so clearing could have destroyed writing that never reached the server. If you need this device clean now, clear this site's data in your browser settings.";
 
 /**
+ * Copy for the outcome where this browser has no Web Locks API at all, so
+ * clearing refused to start rather than delete without any way to hold other
+ * tabs' writers off — see DeviceClearCoordinationUnsupportedError.
+ */
+export const DEVICE_COORDINATION_UNSUPPORTED_MESSAGE =
+  "Nothing was deleted. This browser cannot coordinate with other tabs that might have this app open, so an automated clear here is not safe. Close every other tab and window with this app open, then clear this site's data in your browser settings.";
+
+/**
  * Copy for a warning recovered from a previous visit. The user is signed in
  * again by the time they read it, so it neither claims they are signed out nor
  * claims to know the device's current state: an unknown-outcome delete really
@@ -555,7 +667,11 @@ export const DEVICE_RESIDUE_MESSAGE =
   "An earlier attempt to clear this device did not finish, so this browser may still hold notes and offline Bible data from that session. It may also have finished in the background afterwards — this warning cannot tell which. Clearing this device again settles it, and so does clearing this site's data in your browser settings.";
 
 /** Which not-cleared outcome a device was left in. Never any user content. */
-export type DeviceNotClearedReason = "unknown" | "incomplete" | "unsynced";
+export type DeviceNotClearedReason =
+  | "unknown"
+  | "incomplete"
+  | "unsynced"
+  | "unsupported";
 
 /**
  * The reason to persist for a failure, or null when nothing local was touched
@@ -570,6 +686,8 @@ export function notClearedReasonFor(
   failure: DeviceClearFailure,
 ): DeviceNotClearedReason | null {
   if (!failure.signedOut) return null;
+  if (failure.cause instanceof DeviceClearCoordinationUnsupportedError)
+    return "unsupported";
   if (failure.cause instanceof DeviceClearUnsyncedError) return "unsynced";
   if (failure.cause instanceof DeviceClearUnknownError) return "unknown";
   return "incomplete";
@@ -580,6 +698,7 @@ export function messageForNotClearedReason(
 ): string {
   if (reason === "unknown") return DEVICE_CLEAR_UNKNOWN_MESSAGE;
   if (reason === "unsynced") return DEVICE_UNSYNCED_NOT_CLEARED_MESSAGE;
+  if (reason === "unsupported") return DEVICE_COORDINATION_UNSUPPORTED_MESSAGE;
   return DEVICE_NOT_CLEARED_MESSAGE;
 }
 
@@ -607,7 +726,10 @@ export function rememberDeviceNotCleared(reason: DeviceNotClearedReason): void {
 export function readDeviceNotCleared(): DeviceNotClearedReason | null {
   try {
     const value = globalThis.localStorage?.getItem(DEVICE_NOT_CLEARED_KEY);
-    return value === "unknown" || value === "incomplete" || value === "unsynced"
+    return value === "unknown" ||
+      value === "incomplete" ||
+      value === "unsynced" ||
+      value === "unsupported"
       ? value
       : null;
   } catch {
@@ -743,6 +865,14 @@ export function describeClearFailure(
   }
   // Checked before the unknown branch because it is a stronger statement: the
   // destroy never started, so this outcome is settled, not indeterminate.
+  if (failure.cause instanceof DeviceClearCoordinationUnsupportedError) {
+    return {
+      state: "not-cleared",
+      unknown: false,
+      canRetry: true,
+      message: DEVICE_COORDINATION_UNSUPPORTED_MESSAGE,
+    };
+  }
   if (failure.cause instanceof DeviceClearUnsyncedError) {
     return {
       state: "not-cleared",
