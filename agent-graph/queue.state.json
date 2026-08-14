@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-14T07:05:00Z",
+  "updatedAt": "1970-01-01T00:00:00.000Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -29,12 +29,12 @@
     },
     "P0UI-002": {
       "status": "submitted",
-      "branch": "agent/P0UI-002-cloud",
-      "commitSha": "868c8a1d7b00c45cb4d4e59e07a9c671865440ee",
-      "attempts": 0,
-      "lastRunId": "cloud-20260814041500",
-      "lastEvidence": "typecheck exit 0; lint exit 0; build exit 0 (DATABASE_URL=... npm run build, no db:migrate invoked); npm test 70/70 pass, 0 fail, 0 skipped (device-clear suite 36/36). lib/sync/store.ts writers (saveLocalEntry, saveLocalThread, markChapterRead, saveLocalLog, saveLocalPerson, mergeRemoteChanges, removePendingOps, setLastPull) now take WRITE_LOCK_NAME in shared mode; lib/sync/clear.ts's clearLocalStudyData() holds it exclusively for the real duration of deleteDB (not just until its deleteTimeoutMs report), via a background lock-holding callback decoupled from the bounded report to the caller. New test 'a writer using the shared write lock cannot commit while a clear holds it exclusively...' seeds the write AFTER the pending-queue check while deleteDB is genuinely blocked; confirmed it FAILS against baseline 2ec3457 (writer granted immediately, no exclusion exists there) and PASSES with this fix (writer stays shut out until the real delete settles, then proceeds). Fallback: no navigator.locks -> DeviceClearCoordinationUnsupportedError, fails closed, nothing deleted; new test 'clearing refuses when this browser has no Web Locks API...' also confirmed fails against baseline (old code deletes uncoordinated instead of refusing) and passes with the fix. DEVICE_CLEAR_UNKNOWN_MESSAGE's 'close other tabs' guidance updated to state that is now safe, since it can no longer lose a write; verified via updated assertions in the existing 'a delete blocked by another tab...' test. Every prior P0UI-001 acceptance criterion's test still present and passing unweakened. Only web/lib/sync/clear.ts, web/lib/sync/store.ts, and web/tests/device-clear.test.ts touched; web/components/auth/DeviceSessionControls.tsx and web/tests/protected-integrations.test.ts were owned but not modified (not needed: the new error flows through the existing describeClearFailure not-cleared rendering path).",
-      "notes": "Successor to blocked P0UI-001. Base branch agent/P0UI-001-claude (tip 2ec3457). Scope EXPANDED to lib/sync/store.ts by Ken 2026-08-13."
+      "branch": "agent/P0UI-002-claude-fix",
+      "commitSha": "80050f24d189b0d29fc4848b1cec6b2ab1eea875",
+      "attempts": 1,
+      "lastRunId": "interactive-claude-2026-08-14",
+      "lastEvidence": "Fixes the two independently-verified findings from a 3-lens adversarial audit of 868c8a1 (2/3 fail: no data loss or false-clear found on the core mandate, but a real liveness regression and a mutation-tested coverage hole). Finding 1: a retry queued behind a still-held exclusive lock never got a timer at all (not just a late one) - fixed with one absolute deadline covering both lock-acquisition and the delete wait, withdrawn via AbortSignal on expiry, reporting a new distinct DeviceClearBusyError/busy reason rather than reusing the unknown-state copy. Finding 2: the delivered regression test only exercised the lock mock, never a real store.ts writer - mutation-tested via a no-op withWriteLock bypass, 70/70 still passed; new test calls the real saveLocalThread and is proven to fail under that exact mutation. I independently re-verified both fail-before/pass-after proofs myself in a fresh isolated worktree (typecheck/lint/build clean, 72/72; reverted clear.ts to 868c8a1 alone -> only the finding-1 test fails at the same ~2100ms; separately bypassed withWriteLock in store.ts -> only the finding-2 test fails with the exact claimed message; restored both -> 72/72 clean). store.ts confirmed byte-identical to 868c8a1. Caught and corrected my own tooling error mid-verification (a python3-based mutation silently no-opped; redone via Edit and reconfirmed a real diff before trusting the test run).",
+      "notes": "Second attempt on this task id. Superseded 868c8a1 (audit-failed, 2/3). Fix branch, not yet merged to master."
     },
     "P0-002": {
       "status": "submitted",
