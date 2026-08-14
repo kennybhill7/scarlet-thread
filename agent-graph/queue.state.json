@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-14T04:15:00Z",
+  "updatedAt": "2026-08-14T04:50:00Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
-    "taskId": "P0UI-002",
-    "runId": "cloud-20260814041500",
-    "takenAt": "2026-08-14T04:15:00Z",
-    "expiresAt": "2026-08-14T05:45:00Z"
+    "taskId": null,
+    "runId": null,
+    "takenAt": null,
+    "expiresAt": null
   },
   "tasks": {
     "SEC-002": {
@@ -19,12 +19,12 @@
       "notes": "Successor to blocked SEC-001. Base branch agent/SEC-001-claude (tip 658cc3d)."
     },
     "P0UI-002": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "submitted",
+      "branch": "agent/P0UI-002-cloud",
+      "commitSha": "868c8a1d7b00c45cb4d4e59e07a9c671865440ee",
       "attempts": 0,
       "lastRunId": "cloud-20260814041500",
-      "lastEvidence": null,
+      "lastEvidence": "typecheck exit 0; lint exit 0; build exit 0 (DATABASE_URL=... npm run build, no db:migrate invoked); npm test 70/70 pass, 0 fail, 0 skipped (device-clear suite 36/36). lib/sync/store.ts writers (saveLocalEntry, saveLocalThread, markChapterRead, saveLocalLog, saveLocalPerson, mergeRemoteChanges, removePendingOps, setLastPull) now take WRITE_LOCK_NAME in shared mode; lib/sync/clear.ts's clearLocalStudyData() holds it exclusively for the real duration of deleteDB (not just until its deleteTimeoutMs report), via a background lock-holding callback decoupled from the bounded report to the caller. New test 'a writer using the shared write lock cannot commit while a clear holds it exclusively...' seeds the write AFTER the pending-queue check while deleteDB is genuinely blocked; confirmed it FAILS against baseline 2ec3457 (writer granted immediately, no exclusion exists there) and PASSES with this fix (writer stays shut out until the real delete settles, then proceeds). Fallback: no navigator.locks -> DeviceClearCoordinationUnsupportedError, fails closed, nothing deleted; new test 'clearing refuses when this browser has no Web Locks API...' also confirmed fails against baseline (old code deletes uncoordinated instead of refusing) and passes with the fix. DEVICE_CLEAR_UNKNOWN_MESSAGE's 'close other tabs' guidance updated to state that is now safe, since it can no longer lose a write; verified via updated assertions in the existing 'a delete blocked by another tab...' test. Every prior P0UI-001 acceptance criterion's test still present and passing unweakened. Only web/lib/sync/clear.ts, web/lib/sync/store.ts, and web/tests/device-clear.test.ts touched; web/components/auth/DeviceSessionControls.tsx and web/tests/protected-integrations.test.ts were owned but not modified (not needed: the new error flows through the existing describeClearFailure not-cleared rendering path).",
       "notes": "Successor to blocked P0UI-001. Base branch agent/P0UI-001-claude (tip 2ec3457). Scope EXPANDED to lib/sync/store.ts by Ken 2026-08-13."
     },
     "P0-002": {
