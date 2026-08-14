@@ -137,6 +137,33 @@ export class DeviceClearUnknownError extends Error {
   }
 }
 
+/**
+ * This call could not even START within its own time bound, because a PREVIOUS
+ * clear attempt on this device is still holding the coordination lock.
+ *
+ * That is the ordinary two-tab shape, not an exotic one: attempt 1 finds its
+ * deleteDB blocked by another tab, reports "unknown" to its caller at
+ * deleteTimeoutMs, and then — deliberately, see runClearUnderLock() — keeps
+ * holding WRITE_LOCK_NAME exclusively until the real delete settles. A retry
+ * issued in that window (which is exactly what the UI's "check again" does)
+ * queues behind that hold. It used to queue there with no bound at all,
+ * because its own timeout only started once the lock was granted; now the
+ * bound covers acquisition too and this is what the caller is told.
+ *
+ * It is NOT DeviceClearUnknownError. Nothing about the device changed here —
+ * this attempt issued no delete, swept nothing, and verified nothing — and the
+ * unknown state's instruction ("close other tabs, then check again") is the
+ * wrong move: the tab to wait for is this app's own previous attempt.
+ */
+export class DeviceClearBusyError extends Error {
+  constructor(
+    message = "A previous attempt to clear this device is still finishing, so this attempt did not start",
+  ) {
+    super(message);
+    this.name = "DeviceClearBusyError";
+  }
+}
+
 /** Destruction ran but verification still found app data on the device. */
 export class DeviceClearIncompleteError extends Error {
   constructor(
@@ -361,6 +388,25 @@ type ClearOutcome = { ok: true } | { ok: false; error: Error };
  * Every call re-runs both the destruction and the verification, so calling
  * this again after an unknown or incomplete outcome re-reads the device rather
  * than assuming anything about the previous attempt.
+ *
+ * THE BOUND COVERS ACQUIRING THE LOCK, NOT JUST THE WORK UNDER IT. Both waits
+ * that can hang indefinitely — being queued for the exclusive request, and a
+ * deleteDB blocked by another connection — are held inside ONE bound:
+ * `deadline` below, computed once here. The acquisition timer owns it until
+ * the lock is granted; runClearUnderLock() then gets whatever is left of it
+ * for the delete. One shared deadline rather than a timeout per stage, so two
+ * waits cannot add up to twice what the caller was promised. (The steps in
+ * between — counting the queue, the sweeps, the verification re-reads — are
+ * finite local IndexedDB/CacheStorage calls and are untimed, as they were
+ * before this change.)
+ *
+ * Getting this wrong is not a corner case. A previous attempt whose delete is
+ * still blocked deliberately keeps this lock (see runClearUnderLock()), so the
+ * retry the UI offers — clearLocalStudyData() again — is issued *precisely*
+ * into a held lock whenever the user has a second tab open. Timing only the
+ * work after the grant left that retry with no timer running at all: it hung
+ * for as long as the blocking tab stayed open, with no error and no feedback,
+ * which is the dead end DeviceSessionControls exists to avoid.
  */
 export async function clearLocalStudyData(
   options: { deleteTimeoutMs?: number } = {},
@@ -372,19 +418,51 @@ export async function clearLocalStudyData(
 
   const { WRITE_LOCK_NAME } = await import("@/lib/sync/store");
   const deleteTimeoutMs = options.deleteTimeoutMs ?? DEFAULT_DELETE_TIMEOUT_MS;
+  const deadline = Date.now() + deleteTimeoutMs;
 
   let reportOutcome!: (outcome: ClearOutcome) => void;
   const reported = new Promise<ClearOutcome>((resolve) => {
     reportOutcome = resolve;
   });
 
-  const held = locks.request(WRITE_LOCK_NAME, { mode: "exclusive" }, () =>
-    runClearUnderLock(deleteTimeoutMs, reportOutcome),
+  let granted = false;
+  // Withdraws a request that is still QUEUED when the bound expires. Browsers
+  // drop an aborted request only if it has not been granted yet and ignore the
+  // abort otherwise, so this can never cut short a hold that has already
+  // started — the `granted` guard states the same intent locally rather than
+  // relying on that. Guarded by typeof because a context without
+  // AbortController still gets the bound below; it just leaves the withdrawn
+  // request queued, which costs nothing the caller can observe.
+  const withdraw =
+    typeof AbortController === "function" ? new AbortController() : undefined;
+  let acquireTimer: ReturnType<typeof setTimeout> | undefined = setTimeout(() => {
+    acquireTimer = undefined;
+    if (granted) return; // The hold is running; its own deadline applies now.
+    withdraw?.abort();
+    // Honest and specific: this attempt touched nothing at all, and the thing
+    // to wait for is our own previous attempt, not the user's other tabs.
+    reportOutcome({ ok: false, error: new DeviceClearBusyError() });
+  }, deleteTimeoutMs);
+
+  const held = locks.request(
+    WRITE_LOCK_NAME,
+    withdraw
+      ? { mode: "exclusive", signal: withdraw.signal }
+      : { mode: "exclusive" },
+    () => {
+      granted = true;
+      if (acquireTimer !== undefined) {
+        clearTimeout(acquireTimer);
+        acquireTimer = undefined;
+      }
+      return runClearUnderLock(deadline, reportOutcome);
+    },
   );
   // runClearUnderLock() reports every outcome through reportOutcome() rather
-  // than throwing, so `held` never actually rejects in practice — this
-  // handler is defensive only, the same reasoning as deletion.catch() below:
-  // nothing else observes `held` once `reported` has already settled.
+  // than throwing, so `held` only actually rejects when the request above is
+  // withdrawn — and by then `reported` has already settled with the reason.
+  // Beyond that this handler is defensive, the same reasoning as
+  // deletion.catch() below: nothing else observes `held`.
   held.catch(() => {});
 
   const outcome = await reported;
@@ -402,6 +480,12 @@ export async function clearLocalStudyData(
  * reported afterwards. An IndexedDB delete blocked by another tab hangs
  * forever, so the CALLER is only kept waiting up to deleteTimeoutMs for it —
  * "unknown" is reported instead of stalling the UI on "Clearing…" indefinitely.
+ *
+ * `deadline` is an absolute time, not a duration, because the caller's bound
+ * started when it called clearLocalStudyData() — which may have spent some of
+ * it waiting for this exclusive lock to be granted. Taking a fresh
+ * deleteTimeoutMs here would let acquisition and deletion each spend the whole
+ * bound and keep the caller waiting for twice what it was promised.
  *
  * But an "unknown" outcome does NOT make this function return right away: it
  * goes on to actually await the real deleteDB() settling before returning,
@@ -425,7 +509,7 @@ export async function clearLocalStudyData(
  * round-trip, and the re-verify path reaches here with no session at all.
  */
 async function runClearUnderLock(
-  deleteTimeoutMs: number,
+  deadline: number,
   reportOutcome: (outcome: ClearOutcome) => void,
 ): Promise<void> {
   // Re-read, do not remember — the mirror of the export close in
@@ -472,10 +556,14 @@ async function runClearUnderLock(
   deletion.catch(() => {});
 
   try {
+    // Whatever is left of the caller's one bound. Never negative: a deadline
+    // already spent means the delete gets a single turn of the event loop and
+    // is then reported as unknown, which is the truthful answer at that point.
+    const remainingMs = Math.max(0, deadline - Date.now());
     const timedOut = await Promise.race([
       deletion,
       new Promise<boolean>((resolve) => {
-        timer = setTimeout(() => resolve(true), deleteTimeoutMs);
+        timer = setTimeout(() => resolve(true), remainingMs);
       }),
     ]);
     // Unknown, not failed: the delete request outlives this race.
@@ -629,6 +717,20 @@ export const DEVICE_CLEAR_UNKNOWN_MESSAGE =
   "Clearing did not finish in time, and it may still be completing in the background. Treat this device as NOT cleared until it has been checked — usually another tab or window with this app open is holding it up. Closing other tabs will not lose any writing already saved to this browser; do that, then check again.";
 
 /**
+ * Copy for the outcome where a previous attempt on this device still holds the
+ * coordination lock, so this attempt never started — see DeviceClearBusyError.
+ *
+ * It deliberately does not reuse DEVICE_CLEAR_UNKNOWN_MESSAGE. That one tells
+ * the user to close their other tabs and check again; here the thing being
+ * waited on is this app's own previous attempt, closing tabs is what will
+ * release it, and the honest next move is simply to wait a moment and retry.
+ * It also must not claim the device is clear or unclear: this attempt read
+ * nothing, and the earlier attempt may complete at any moment.
+ */
+export const DEVICE_CLEAR_BUSY_MESSAGE =
+  "A previous attempt to clear this device is still finishing in the background, so this check did not run and nothing here changed. Treat this device as NOT cleared until a check completes — closing other tabs and windows with this app open is what lets that earlier attempt finish. Try again in a moment.";
+
+/**
  * Copy for the outcome where the destroy refused to run because local writing
  * is still queued. It has to say two separate things the other two messages do
  * not: nothing was deleted, and the writing that stopped it cannot be synced
@@ -671,7 +773,8 @@ export type DeviceNotClearedReason =
   | "unknown"
   | "incomplete"
   | "unsynced"
-  | "unsupported";
+  | "unsupported"
+  | "busy";
 
 /**
  * The reason to persist for a failure, or null when nothing local was touched
@@ -688,6 +791,10 @@ export function notClearedReasonFor(
   if (!failure.signedOut) return null;
   if (failure.cause instanceof DeviceClearCoordinationUnsupportedError)
     return "unsupported";
+  // Recorded even though this attempt touched nothing: the user is signed out
+  // and the device is still un-cleared as far as anything here knows, which is
+  // exactly what the persisted warning is for.
+  if (failure.cause instanceof DeviceClearBusyError) return "busy";
   if (failure.cause instanceof DeviceClearUnsyncedError) return "unsynced";
   if (failure.cause instanceof DeviceClearUnknownError) return "unknown";
   return "incomplete";
@@ -699,6 +806,7 @@ export function messageForNotClearedReason(
   if (reason === "unknown") return DEVICE_CLEAR_UNKNOWN_MESSAGE;
   if (reason === "unsynced") return DEVICE_UNSYNCED_NOT_CLEARED_MESSAGE;
   if (reason === "unsupported") return DEVICE_COORDINATION_UNSUPPORTED_MESSAGE;
+  if (reason === "busy") return DEVICE_CLEAR_BUSY_MESSAGE;
   return DEVICE_NOT_CLEARED_MESSAGE;
 }
 
@@ -729,7 +837,8 @@ export function readDeviceNotCleared(): DeviceNotClearedReason | null {
     return value === "unknown" ||
       value === "incomplete" ||
       value === "unsynced" ||
-      value === "unsupported"
+      value === "unsupported" ||
+      value === "busy"
       ? value
       : null;
   } catch {
@@ -871,6 +980,20 @@ export function describeClearFailure(
       unknown: false,
       canRetry: true,
       message: DEVICE_COORDINATION_UNSUPPORTED_MESSAGE,
+    };
+  }
+  // Its own branch for its own fact: this attempt never ran, so it is neither
+  // an indeterminate delete nor a settled failure, and its instruction ("wait
+  // a moment, then try again") belongs to no other outcome. `unknown` is true
+  // because the device's state genuinely is undetermined — the earlier
+  // attempt's delete may or may not have landed by now — but the copy says
+  // which attempt is outstanding rather than blaming the user's other tabs.
+  if (failure.cause instanceof DeviceClearBusyError) {
+    return {
+      state: "not-cleared",
+      unknown: true,
+      canRetry: true,
+      message: DEVICE_CLEAR_BUSY_MESSAGE,
     };
   }
   if (failure.cause instanceof DeviceClearUnsyncedError) {

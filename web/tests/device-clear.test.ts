@@ -82,17 +82,35 @@ function createLockManager() {
 
   async function request<T>(
     name: string,
-    optionsOrCallback: { mode?: "shared" | "exclusive" } | (() => T | Promise<T>),
+    optionsOrCallback:
+      | { mode?: "shared" | "exclusive"; signal?: AbortSignal }
+      | (() => T | Promise<T>),
     maybeCallback?: () => T | Promise<T>,
   ): Promise<T> {
     const callback =
       typeof optionsOrCallback === "function" ? optionsOrCallback : maybeCallback!;
-    const mode =
-      typeof optionsOrCallback === "function"
-        ? "exclusive"
-        : (optionsOrCallback.mode ?? "exclusive");
-    await new Promise<void>((resolve) => {
-      stateFor(name).queue.push({ mode, grant: resolve });
+    const options =
+      typeof optionsOrCallback === "function" ? {} : optionsOrCallback;
+    const mode = options.mode ?? "exclusive";
+    const signal = options.signal;
+    // Browsers drop a request aborted BEFORE it is granted and ignore an abort
+    // that arrives after ("the lock request is dropped if it was not already
+    // granted"). clearLocalStudyData()'s acquisition bound depends on exactly
+    // that asymmetry: it must be able to withdraw a still-queued request
+    // without ever disturbing a hold that has already started.
+    if (signal?.aborted) throw signal.reason ?? new Error("AbortError");
+    const state = stateFor(name);
+    await new Promise<void>((resolve, reject) => {
+      const entry = { mode, grant: resolve };
+      state.queue.push(entry);
+      signal?.addEventListener("abort", () => {
+        const index = state.queue.indexOf(entry);
+        if (index === -1) return; // already granted: an abort does nothing
+        state.queue.splice(index, 1);
+        // Removing a queued exclusive request can unblock requests behind it.
+        pump(name);
+        reject(signal.reason ?? new Error("AbortError"));
+      });
       pump(name);
     });
     try {
@@ -589,6 +607,114 @@ test("an unsynced write survives the blocked-then-closed sequence and the re-che
   assert.equal((await store.getPendingOps()).length, 0);
 });
 
+// --- 4d. the exclusion, proven through a REAL writer, not the lock mock -----
+
+/**
+ * Test 11a proves the clear holds WRITE_LOCK_NAME for the real duration of the
+ * delete — but it proves it by calling the lock mock directly, so it says
+ * nothing about whether lib/sync/store.ts's writers actually take that lock.
+ * An auditor demonstrated the hole by replacing withWriteLock's body with
+ * `return run();` — bypassing the lock for every writer in the module — and the
+ * whole suite still passed. That is the same shape of gap (a passing test that
+ * never exercises the real interleaving) that let rounds 1 and 2 of this
+ * feature ship broken.
+ *
+ * So this drives a REAL store mutation — saveLocalThread, the same call the
+ * "another tab saved a note" tests use — against a held exclusive lock, and
+ * checks the queue itself rather than a flag the mock sets. It must fail if
+ * withWriteLock is ever bypassed, dropped, or takes the wrong lock name.
+ *
+ * It runs here, before test 5, because test 5 is the first successful clear and
+ * that closes lib/sync/store.ts's module-level IndexedDB handle for the rest of
+ * the process — after it, no real writer can commit anything at all.
+ */
+test("a real store writer cannot commit while a clear holds the write lock exclusively, and commits once it is released", async () => {
+  const store = await import("@/lib/sync/store");
+  setOnline(true);
+  await store.removePendingOps((await store.getPendingOps()).map((op) => op.id));
+  assert.equal(
+    (await store.getPendingOps()).length,
+    0,
+    "the queue starts empty, so anything found below came from this writer",
+  );
+
+  // Stands in for clearLocalStudyData()'s hold: same lock name, same mode, held
+  // open for as long as this test wants — exactly the state the real clear is
+  // in while its deleteDB sits blocked.
+  let releaseClear!: () => void;
+  const clearReleased = new Promise<void>((resolve) => {
+    releaseClear = resolve;
+  });
+  let clearIsHolding!: () => void;
+  const clearHolding = new Promise<void>((resolve) => {
+    clearIsHolding = resolve;
+  });
+  const hold = sharedLockManager.request(
+    store.WRITE_LOCK_NAME,
+    { mode: "exclusive" },
+    async () => {
+      clearIsHolding();
+      await clearReleased;
+    },
+  );
+  await clearHolding;
+
+  const now = isoNow();
+  let committed = false;
+  const write = store
+    .saveLocalThread({
+      slug: "written-during-a-clear",
+      title: "Written during a clear",
+      definition: "",
+      seeing: "",
+      createdAt: now,
+      updatedAt: now,
+    })
+    .then(() => {
+      committed = true;
+    });
+  write.catch(() => {});
+
+  // try/finally so that a FAILURE of this test releases the hold too: without
+  // it, the assertion that catches the regression would also strand an
+  // exclusive lock and every later test would fail for the wrong reason.
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    assert.equal(
+      committed,
+      false,
+      "the real writer is shut out while the clear holds the lock — not merely the mock",
+    );
+    // getPendingOps takes no lock, so this reads the true state of the queue
+    // from underneath the hold: the writer's transaction has not landed.
+    assert.equal(
+      (await store.getPendingOps()).length,
+      0,
+      "and nothing of its transaction reached the database",
+    );
+  } finally {
+    releaseClear();
+    await hold;
+  }
+  await write;
+  assert.equal(committed, true, "the writer is let through once the hold ends");
+  assert.deepEqual(
+    (await store.getPendingOps()).map((op) => op.entityId),
+    ["written-during-a-clear"],
+    "and the write really commits — it was deferred, not dropped",
+  );
+  assert.ok(
+    (await store.listLocalThreads()).some(
+      (thread) => thread.slug === "written-during-a-clear",
+    ),
+    "the record itself is in the store, not just the queue op",
+  );
+
+  // Leave the queue as this test found it: test 5 runs the real pre-flight.
+  await store.removePendingOps((await store.getPendingOps()).map((op) => op.id));
+  assert.equal((await store.getPendingOps()).length, 0);
+});
+
 // --- 5. runtime recovery: a failed sync is retryable, and the retry works ----
 
 /**
@@ -989,6 +1115,134 @@ test("a writer using the shared write lock cannot commit while a clear holds it 
     granted,
     true,
     "granted once the real delete finally settles, not before",
+  );
+});
+
+// --- 11b. the retry is bounded by its OWN timeout, lock or no lock ----------
+
+/**
+ * The liveness hole the exclusive hold opened, and the reason it is not an
+ * exotic one: it is the ordinary result of clearing a device with two tabs
+ * open.
+ *
+ * Attempt 1 finds its deleteDB blocked by another connection, reports UNKNOWN
+ * at deleteTimeoutMs — and keeps holding WRITE_LOCK_NAME exclusively while it
+ * waits for that delete for real (test 11a is that behaviour, and it must stay
+ * that way). The user then clicks "Try again and check this device", which is
+ * clearLocalStudyData() a second time. Before the fix, the retry's own timeout
+ * timer only started INSIDE the lock callback, so a request still queued behind
+ * attempt 1 started no timer at all: the retry hung with no bound, no error and
+ * no feedback for as long as the blocking tab stayed open — contradicting both
+ * this module's "the CALLER is only kept waiting up to deleteTimeoutMs" and
+ * DeviceSessionControls' "never a dead end".
+ *
+ * The bound now covers acquisition as well as the delete, so a caller always
+ * gets an answer. It is a DISTINCT answer: nothing about this device changed,
+ * a previous attempt is simply still finishing, and the generic unknown copy
+ * ("close other tabs, then check again") is the wrong instruction for that.
+ */
+test("a retry issued while a prior attempt's delete is still blocked is answered within its own timeout instead of hanging on the lock", async () => {
+  const store = await import("@/lib/sync/store");
+  const {
+    DEVICE_CLEAR_BUSY_MESSAGE,
+    DEVICE_CLEAR_UNKNOWN_MESSAGE,
+    DeviceClearBusyError,
+    DeviceClearFailure,
+    DeviceClearUnknownError,
+    clearLocalStudyData,
+    describeClearFailure,
+    notClearedReasonFor,
+  } = await import("@/lib/sync/clear");
+  makeCaches(SEED_CACHES);
+  makeStorage(SEED_STORAGE());
+  (await openLocalDatabase()).close();
+
+  // Another tab's live connection. deleteDB blocks on it and stays blocked for
+  // as long as it is open — the real, ordinary two-tab case.
+  const blocker = await openExistingDatabase();
+  let settled: unknown;
+  let waited = 0;
+  try {
+    const first = await failureOf(clearLocalStudyData({ deleteTimeoutMs: 100 }));
+    assert.ok(
+      first instanceof DeviceClearUnknownError,
+      "attempt 1 reports unknown at its bound while its delete is genuinely still blocked",
+    );
+
+    // Attempt 1 has answered its caller but still holds the lock (it awaits the
+    // real deleteDB before returning — test 11a). This is checkAgain(), issued
+    // into exactly that state.
+    const startedAt = Date.now();
+    const retry = clearLocalStudyData({ deleteTimeoutMs: 100 });
+    retry.catch(() => {});
+    settled = await Promise.race([
+      retry.then(
+        () => "resolved" as const,
+        (error: unknown) => error,
+      ),
+      new Promise((resolve) =>
+        setTimeout(() => resolve("still-pending" as const), 2_000),
+      ),
+    ]);
+    waited = Date.now() - startedAt;
+  } finally {
+    blocker.close();
+  }
+
+  assert.notEqual(
+    settled,
+    "still-pending",
+    "the retry must honour its own deleteTimeoutMs even when the wait is for the lock, not the delete",
+  );
+  assert.ok(
+    waited < 2_000,
+    `the caller was answered in ${waited}ms, inside its own bound`,
+  );
+  assert.ok(
+    settled instanceof DeviceClearBusyError,
+    "and the answer names the real reason: a previous attempt is still finishing",
+  );
+  assert.ok(
+    !(settled instanceof DeviceClearUnknownError),
+    "which is not the same fact as a delete that timed out under this call",
+  );
+
+  const view = describeClearFailure(new DeviceClearFailure(true, settled));
+  assert.equal(view.state, "not-cleared");
+  assert.equal(view.canRetry, true);
+  assert.equal(view.message, DEVICE_CLEAR_BUSY_MESSAGE);
+  assert.notEqual(
+    view.message,
+    DEVICE_CLEAR_UNKNOWN_MESSAGE,
+    "the busy state does not borrow the unknown state's close-your-tabs instruction",
+  );
+  assert.match(view.message, /try again in a moment/i);
+  assert.equal(notClearedReasonFor(new DeviceClearFailure(true, settled)), "busy");
+
+  // The retry never got the lock, so it destroyed nothing itself; attempt 1's
+  // delete completes now that its blocking connection is closed.
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.ok(
+    !(await localDatabaseExists()),
+    "attempt 1's delete finishes once the blocking tab closes",
+  );
+
+  // And the withdrawn retry left no hold behind: a writer gets the lock at once.
+  let writerGranted = false;
+  await Promise.race([
+    sharedLockManager.request(
+      store.WRITE_LOCK_NAME,
+      { mode: "shared" },
+      async () => {
+        writerGranted = true;
+      },
+    ),
+    new Promise((resolve) => setTimeout(resolve, 500)),
+  ]);
+  assert.equal(
+    writerGranted,
+    true,
+    "the timed-out attempt does not leave writers queued behind a dead request",
   );
 });
 
