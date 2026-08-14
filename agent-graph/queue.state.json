@@ -1,14 +1,23 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-14T05:47:00Z",
+  "updatedAt": "2026-08-14T06:19:35Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
-    "taskId": null,
-    "runId": null,
-    "takenAt": null,
-    "expiresAt": null
+    "taskId": "DOC-002",
+    "runId": "cloud-20260814061935",
+    "takenAt": "2026-08-14T06:19:35Z",
+    "expiresAt": "2026-08-14T07:49:35Z"
   },
   "tasks": {
+    "DOC-002": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "cloud-20260814061935",
+      "lastEvidence": null,
+      "notes": "Taken by night queue worker; dependsOn DOC-001 which is terminally blocked, so working from master directly per QUEUE.md eligibility rules."
+    },
     "SEC-002": {
       "status": "submitted",
       "branch": "agent/SEC-002-cloud",
