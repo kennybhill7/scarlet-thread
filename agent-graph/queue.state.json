@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-14T03:55:00Z",
+  "updatedAt": "2026-08-14T03:52:47Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
-    "taskId": null,
-    "runId": null,
-    "takenAt": null,
-    "expiresAt": null
+    "taskId": "SEC-002",
+    "runId": "cloud-20260814035247",
+    "takenAt": "2026-08-14T03:52:47Z",
+    "expiresAt": "2026-08-14T05:22:47Z"
   },
   "tasks": {
     "SEC-002": {
-      "status": "ready",
+      "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": null,
+      "lastRunId": "cloud-20260814035247",
       "lastEvidence": null,
       "notes": "Successor to blocked SEC-001. Base branch agent/SEC-001-claude (tip 658cc3d)."
     },
