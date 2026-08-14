@@ -6,10 +6,11 @@
       "title": "Close the header gaps the SEC-001 audit proved on the wire",
       "objective": "SEC-001 blocked at three cycles with its core policy sound but four wire-verified gaps open. Fix them on top of agent/SEC-001-claude (658cc3d) without weakening the existing policy or tests.",
       "baseBranch": "agent/SEC-001-claude",
+      "dependsOn": [],
+      "humanItemNotAgentWork": "A CI workflow is required so the wire suite cannot silently skip, but .github/ is a protected path and no agent may write it. Ken adds the workflow; the worker instead makes the wire suite FAIL LOUDLY (not skip) when a production build is missing, which is the part achievable in scope.",
       "ownedPaths": [
         "web/next.config.ts",
-        "web/tests/security-headers.test.ts",
-        ".github/workflows/ci.yml"
+        "web/tests/security-headers.test.ts"
       ],
       "readOnlyPaths": [
         "web/lib/contracts.ts",
@@ -19,7 +20,7 @@
       "acceptanceCriteria": [
         "Trailing-slash requests (/sign-in/, /read/, /api/review/) carry the full security header set; today they 308 with ZERO headers, wire-verified, so the 'every route' claim is currently false.",
         "The /sw.js overlay no longer applies to case variants (/SW.js, /Sw.Js); it must match the real worker script only.",
-        "A CI workflow exists that runs typecheck, lint, build, and the full test suite so the wire suite cannot silently skip; the workflow must fail if .next/BUILD_ID is absent when the wire suite runs.",
+        "The wire suite FAILS LOUDLY when no production build is present instead of skipping silently, unless an explicit opt-out env var is set; skipping by default is what let the only real-response evidence never run.",
         "The wire suite derives its expectations from the resolved rule list rather than the exported constants, so de-registering a rule fails the wire tests and not only the unit tests.",
         "A CSP report-to or report-uri endpoint, or a Report-Only companion policy, exists so a policy mistake in the credential-gated OAuth flow surfaces as a report instead of silent breakage.",
         "Every existing security-headers test still passes unweakened, and the live Google OAuth round trip remains an explicitly open, credential-gated receipt that is NOT claimed closed."
@@ -37,6 +38,7 @@
       "title": "Eliminate the blocked-delete data-loss window with a cross-tab write lock",
       "objective": "P0UI-001 blocked at three cycles because a write made in another tab while deleteDB sits blocked is destroyed when that tab closes, and the UI then certifies the device clear. The root fix needs the writers to participate, which the prior task was not permitted to touch. Build on agent/P0UI-001-claude (2ec3457).",
       "baseBranch": "agent/P0UI-001-claude",
+      "dependsOn": [],
       "scopeChange": "web/lib/sync/store.ts moved from read-only to owned by Ken on 2026-08-13 so the writers can take the lock. This is the whole point of the successor task.",
       "ownedPaths": [
         "web/lib/sync/clear.ts",
