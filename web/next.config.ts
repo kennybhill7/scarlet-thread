@@ -67,7 +67,26 @@ export function contentSecurityPolicy(isDev: boolean): string {
 }
 
 /**
- * The seven headers below are the bounded gate: each one is verifiable from
+ * Observe-only companion to the enforced policy above: identical directives
+ * except script-src drops 'unsafe-inline'. Nothing here blocks a request —
+ * report-only violations are logged by the browser (and, once a collector
+ * exists, POSTed to a report-to/report-uri endpoint) instead of silently
+ * breaking the page. This is deliberately the one relaxation the enforced
+ * policy's own comment already tracks as temporary (the RSC flight-payload
+ * bootstrap), so every load's reports establish a baseline; a violation
+ * outside that known shape — including one on the credential-gated sign-in
+ * page — is a signal something in the CSP is wrong before it is ever
+ * mistakenly carried into the enforced policy.
+ */
+export function contentSecurityPolicyReportOnly(isDev: boolean): string {
+  return contentSecurityPolicy(isDev).replace(
+    "script-src 'self' 'unsafe-inline'",
+    "script-src 'self'",
+  );
+}
+
+/**
+ * The eight headers below are the bounded gate: each one is verifiable from
  * this repo alone, on the wire, with no external evidence required.
  *
  * Deliberately NOT included:
@@ -86,6 +105,10 @@ export function contentSecurityPolicy(isDev: boolean): string {
 export function securityHeaders(isDev: boolean): SecurityHeader[] {
   const headers: SecurityHeader[] = [
     { key: "Content-Security-Policy", value: contentSecurityPolicy(isDev) },
+    {
+      key: "Content-Security-Policy-Report-Only",
+      value: contentSecurityPolicyReportOnly(isDev),
+    },
     { key: "X-Frame-Options", value: "DENY" },
     { key: "X-Content-Type-Options", value: "nosniff" },
     { key: "Referrer-Policy", value: "same-origin" },
@@ -134,6 +157,14 @@ export const serviceWorkerHeaders: SecurityHeader[] = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  skipTrailingSlashRedirect: true,
+  experimental: {
+    // Next compiles every header/redirect/rewrite source with sensitive:false
+    // unless this is set, so "/sw.js" would otherwise also match "/SW.js" and
+    // "/Sw.Js" and hand them the worker-scoped CSP overlay meant for the real
+    // service worker script only.
+    caseSensitiveRoutes: true,
+  },
   async headers() {
     return [
       {

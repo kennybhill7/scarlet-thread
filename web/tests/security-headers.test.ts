@@ -8,16 +8,19 @@ import test, { after, before, describe } from "node:test";
 
 import nextConfig, {
   contentSecurityPolicy,
+  contentSecurityPolicyReportOnly,
   isDevEnvironment,
   securityHeaders,
   serviceWorkerHeaders,
   SECURITY_HEADER_SOURCE,
   SERVICE_WORKER_SOURCE,
+  type SecurityHeader,
 } from "../next.config";
 
 /** The bounded gate, pinned in one place and asserted both in-process and on the wire. */
 const PRODUCTION_HEADER_KEYS = [
   "Content-Security-Policy",
+  "Content-Security-Policy-Report-Only",
   "X-Frame-Options",
   "X-Content-Type-Options",
   "Referrer-Policy",
@@ -257,11 +260,48 @@ test("the production CSP is exactly the reviewed policy, token for token", () =>
   assert.equal(countOccurrences(csp, "https://"), 1, "only accounts.google.com");
 });
 
-test("the production header set is exactly the reviewed seven, in order", () => {
+test("the production header set is exactly the reviewed eight, in order", () => {
   assert.deepEqual(
     securityHeaders(false).map((header) => header.key),
     PRODUCTION_HEADER_KEYS,
     "header key set must match exactly — nothing added, nothing missing",
+  );
+});
+
+test("the Report-Only CSP mirrors the enforced policy except script-src", () => {
+  const enforced = contentSecurityPolicy(false);
+  const reportOnly = contentSecurityPolicyReportOnly(false);
+
+  assert.notEqual(reportOnly, enforced, "must diverge or it reports nothing new");
+  assert.ok(
+    reportOnly.includes("script-src 'self'") &&
+      !reportOnly.includes("script-src 'self' 'unsafe-inline'"),
+    "the report-only canary is the enforced policy without the inline-script relaxation",
+  );
+
+  // Every other directive is untouched — this is a narrow canary, not a
+  // second, independently-drifting policy.
+  const withoutScriptSrc = (csp: string) =>
+    csp
+      .split("; ")
+      .filter((directive) => !directive.startsWith("script-src "))
+      .join("; ");
+  assert.equal(withoutScriptSrc(reportOnly), withoutScriptSrc(enforced));
+});
+
+test("the Report-Only CSP is served, enforcing nothing, alongside the real CSP", async () => {
+  const byKey = await resolveHeaderMap();
+  assert.ok(byKey.has("Content-Security-Policy-Report-Only"));
+  assert.equal(
+    byKey.get("Content-Security-Policy-Report-Only"),
+    contentSecurityPolicyReportOnly(false),
+  );
+  // The two headers are genuinely different keys — a browser never conflates
+  // Content-Security-Policy with Content-Security-Policy-Report-Only, so the
+  // enforced policy is unaffected by whatever the canary reports.
+  assert.notEqual(
+    byKey.get("Content-Security-Policy"),
+    byKey.get("Content-Security-Policy-Report-Only"),
   );
 });
 
@@ -365,6 +405,27 @@ test("no header regresses the offline-first caching contract", async () => {
   }
 });
 
+test("trailing-slash requests are not allowed to fall through to an unheadered internal redirect", () => {
+  // Next always compiles an internal, higher-priority "/:path+/ -> /:path+"
+  // redirect for the default (non-trailingSlash) mode, and that redirect
+  // returns resHeaders: null — discarding every header a matching rule
+  // already set — see resolve-routes.js's "handle redirect" branch, which
+  // is unconditional and upstream of this repo. skipTrailingSlashRedirect
+  // removes that internal redirect entry from the compiled route list
+  // entirely, so a request like GET /sign-in/ is answered directly by the
+  // matching page/route (still carrying every header below) instead of
+  // 308-ing through the one code path that could never carry them.
+  assert.equal(nextConfig.skipTrailingSlashRedirect, true);
+});
+
+test("header/redirect/rewrite matching is case-sensitive", () => {
+  // Next compiles every header/redirect/rewrite source with sensitive:false
+  // unless experimental.caseSensitiveRoutes is set, so the /sw.js overlay
+  // rule would otherwise also match /SW.js and /Sw.Js and hand them the
+  // worker-scoped CSP meant only for the real service worker script.
+  assert.equal(nextConfig.experimental?.caseSensitiveRoutes, true);
+});
+
 // ---------------------------------------------------------------------------
 // Wire test — the assertions above only prove what next.config.ts *returns*.
 // This suite boots the real production server and proves what actually
@@ -382,47 +443,45 @@ const BASE_URL = `http://localhost:${WIRE_PORT}`;
 const READY_TIMEOUT_MS = 30_000;
 
 /**
- * A plain `npm test` with no build present must stay green, so the whole suite
- * skips with an explicit reason rather than failing or silently passing.
+ * The only sanctioned way to skip the wire suite. Its absence with no build
+ * present is a FAILURE, not a skip — the whole point is that the only real
+ * on-the-wire evidence must not be able to silently never run. Set this
+ * explicitly (e.g. in an environment that truly cannot produce a production
+ * build) to opt out on purpose, with the reason recorded in the skip message.
  */
-const wireSkip: string | false = existsSync(BUILD_ID_PATH)
-  ? false
-  : "no production build: .next/BUILD_ID is missing — run `npm run build` first";
+const WIRE_SKIP_ENV_VAR = "SECURITY_HEADERS_WIRE_ALLOW_SKIP";
+const buildPresent = existsSync(BUILD_ID_PATH);
+const wireSkipAllowed = process.env[WIRE_SKIP_ENV_VAR] === "1";
+const wireSkip: string | false =
+  buildPresent || !wireSkipAllowed
+    ? false
+    : `no production build: .next/BUILD_ID is missing — skipped because ` +
+      `${WIRE_SKIP_ENV_VAR}=1 was set explicitly (run \`npm run build\` to get real coverage)`;
 
 /** Wire keys are compared case-insensitively; fetch lowercases them. */
-const expectedWireHeaders: Record<string, string> = Object.fromEntries(
-  securityHeaders(false).map((header) => [
-    header.key.toLowerCase(),
-    header.value,
-  ]),
-);
-
-/** The seven global keys plus the two additive worker keys. */
-const SERVICE_WORKER_WIRE_KEYS = [
-  ...PRODUCTION_HEADER_KEYS,
-  "Content-Type",
-  "Cache-Control",
-] as const;
+function toWireMap(headers: readonly SecurityHeader[]): Record<string, string> {
+  return Object.fromEntries(
+    headers.map((header) => [header.key.toLowerCase(), header.value]),
+  );
+}
 
 /**
- * What /sw.js must actually emit: the global seven, then the overlay applied
- * last — so Content-Type and Cache-Control are added and the page CSP is
- * replaced by the worker-scoped one. Spread order mirrors the merge the router
- * performs, and the unit suite pins both halves against literals.
+ * Populated in before() from the ACTUAL resolved `next.config.ts` headers()
+ * output — not from the `securityHeaders`/`serviceWorkerHeaders` exports
+ * directly. If a rule is ever de-registered from headers() (a stray return,
+ * a dropped array entry) while the exported constants are untouched, the
+ * unit tests above would stay green — asserting only what the constants
+ * contain — while this wire suite, sourced from the resolved rule list,
+ * would see the real gap and fail.
  */
-const expectedServiceWorkerWireHeaders: Record<string, string> = {
-  ...expectedWireHeaders,
-  ...Object.fromEntries(
-    serviceWorkerHeaders.map((header) => [
-      header.key.toLowerCase(),
-      header.value,
-    ]),
-  ),
-};
+let expectedWireHeaders: Record<string, string> = {};
+let expectedServiceWorkerWireHeaders: Record<string, string> = {};
+let wireHeaderKeys: string[] = [];
+let serviceWorkerWireHeaderKeys: string[] = [];
 
 function wireHeaderMap(
   response: Response,
-  keys: readonly string[] = PRODUCTION_HEADER_KEYS,
+  keys: readonly string[] = wireHeaderKeys,
 ): Record<string, string | null> {
   return Object.fromEntries(
     keys.map((key) => [key.toLowerCase(), response.headers.get(key)]),
@@ -472,6 +531,17 @@ const WIRE_CASES = [
   { path: "/sw.js", status: 200, why: "service worker from public/" },
   { path: "/manifest.webmanifest", status: 200, why: "PWA manifest route" },
   { path: "/bible/index.json", status: 200, why: "offline corpus index from public/" },
+  // Before skipTrailingSlashRedirect, these three 308-ed through Next's
+  // internal "/:path+/ -> /:path+" redirect, which returns resHeaders: null
+  // and so answered with ZERO headers — the exact gap this task closes.
+  { path: "/sign-in/", status: 200, why: "trailing slash: served directly, no header-dropping redirect" },
+  { path: "/read/", status: 307, why: "trailing slash: proxy still redirects unauthenticated access, now with headers" },
+  { path: "/api/review/", status: 401, why: "trailing slash: route handler still runs, now with headers" },
+  // path-to-regexp compiles every header source with sensitive:false unless
+  // experimental.caseSensitiveRoutes is set, so these case variants of the
+  // real worker path must NOT be treated as the service worker.
+  { path: "/SW.js", status: 404, why: "case variant of /sw.js must not get the worker CSP overlay" },
+  { path: "/Sw.Js", status: 404, why: "case variant of /sw.js must not get the worker CSP overlay" },
 ] as const;
 
 describe(
@@ -506,12 +576,42 @@ describe(
     }
 
     before(async () => {
+      // wireSkip only ever short-circuits this whole describe block when
+      // WIRE_SKIP_ENV_VAR was set explicitly. Reaching here with no build
+      // present means that opt-out was NOT given, so the missing evidence
+      // must fail loudly rather than let a passing suite imply headers were
+      // checked on the wire when they never ran.
+      if (!buildPresent) {
+        throw new Error(
+          "no production build: .next/BUILD_ID is missing. The wire suite does " +
+            "not skip silently — run `npm run build` first, or set " +
+            `${WIRE_SKIP_ENV_VAR}=1 to explicitly accept running without this evidence.`,
+        );
+      }
+
       if (await isPortBusy(WIRE_PORT)) {
         throw new Error(
           `port ${WIRE_PORT} is already in use — stop that process and re-run; ` +
             "this test needs the port to bind its own `next start`",
         );
       }
+
+      // Sourced from the ACTUAL resolved next.config.ts headers() output —
+      // see the comment on the `let`s above for why this must not read the
+      // securityHeaders()/serviceWorkerHeaders exports directly.
+      const [globalRule, serviceWorkerRule] = await resolveHeaderRules();
+      expectedWireHeaders = toWireMap(globalRule.headers);
+      expectedServiceWorkerWireHeaders = {
+        ...expectedWireHeaders,
+        ...toWireMap(serviceWorkerRule.headers),
+      };
+      wireHeaderKeys = globalRule.headers.map((header) => header.key);
+      serviceWorkerWireHeaderKeys = [
+        ...new Set([
+          ...wireHeaderKeys,
+          ...serviceWorkerRule.headers.map((header) => header.key),
+        ]),
+      ];
 
       staticAssetPath = await findStaticAsset(STATIC_ROOT);
 
@@ -585,7 +685,7 @@ describe(
           // page CSP replaced by the worker-scoped policy. Full-value
           // deepEqual — no substrings, no partial credit.
           assert.deepEqual(
-            wireHeaderMap(response, SERVICE_WORKER_WIRE_KEYS),
+            wireHeaderMap(response, serviceWorkerWireHeaderKeys),
             expectedServiceWorkerWireHeaders,
             "/sw.js must send the global set merged with the worker overlay",
           );
