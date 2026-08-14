@@ -366,9 +366,11 @@ The workspace persists as a resumable `StudySession`.
 Every session records:
 
 - `mode`: encounter, deep, or guided;
-- `workflow_state`: active, closed, or archived;
-- `connection_state`: unexamined, provisional, linked, or no-warrant-yet;
-- current workspace step and the exact passage range.
+- `workflow_state`: active, closed, or archived — the session's own lifecycle, set directly when the learner closes or reopens it;
+- `thread_resolution`: unexamined, provisional, or linked — a **separate** concept from `workflow_state`, and **derived**, not hand-set: computed from the session's `study_thread_sightings` rows (§12.3) each time a sighting or promotion changes, never written directly by a client;
+- `current_step`, kept only so the workspace reopens on the right accordion section — no reveal gate anywhere in this section reads it, every gate reads a persisted artifact instead — and the exact passage range.
+
+`no-warrant-yet` is **not** a `thread_resolution` value. It is recorded per attempt on `comparison_attempts` (§12.3), because a single honestly unwarranted comparison must never overwrite a session that is already `linked` through an earlier, different comparison.
 
 An encounter may close after saved observation/question work. A deep session may close at any step. Teach-back is a curriculum-completion requirement only for a completed guided/deep lesson, never for an ordinary daily encounter.
 
@@ -396,7 +398,8 @@ An encounter may close after saved observation/question work. A deep session may
 - Curated and personal edges never visually merge.
 - First/second motif sightings can remain provisional.
 - Third distinct sighting prompts, but does not force, thread creation.
-- Curated suggestions stay hidden until the learner first attempts the comparison or explicitly records “I do not see a connection yet.”
+- Linking an **existing** starter or imported thread never waits for a third sighting — one sighting is enough, because that thread already carries its own reviewed or previously-established warrant. The three-distinct-sighting bar applies only to **creating a brand-new learner-promoted thread** (§12.3 `study_thread_sightings`).
+- Curated suggestions stay hidden until the learner first attempts the comparison or explicitly records “I do not see a connection yet” (persisted as a `comparison_attempts` row with `outcome = no_warrant_yet`).
 
 #### Theology
 
@@ -1020,9 +1023,11 @@ Add normalized motif candidates and sightings so observations one and two can ex
 
 #### `study_sessions`
 
-`id`, `workspace_id`, `created_by`, `mode(encounter|deep|guided)`, `workflow_state(active|closed|archived)`, `connection_state(unexamined|provisional|linked|no_warrant_yet)`, optional `passage_unit_id`, canonical range, optional `catalog_release_id`, `read_gate_at`, `current_step`, `revision`, timestamps.
+`id`, `workspace_id`, `created_by`, `mode(encounter|deep|guided)`, `workflow_state(active|closed|archived)`, `thread_resolution(unexamined|provisional|linked)`, optional `passage_unit_id`, canonical range, optional `catalog_release_id`, `read_gate_at`, `current_step`, `revision`, timestamps.
 
 Free study may have no passage unit or content release. When a unit is attached, database constraints require it to belong to the pinned catalog release. The exact canonical range remains on the session even if a curriculum is upgraded or withdrawn.
+
+`workflow_state` and `thread_resolution` are deliberately separate columns tracking separate things: a session can be `workflow_state = closed` while `thread_resolution = unexamined` (an honest encounter that closed without linking anything), and it can stay `workflow_state = active` while `thread_resolution = linked` (a deep study still open with its connection already established). `thread_resolution` is never written directly — the repository recomputes it from `study_thread_sightings` (below) on every read that needs it. `no_warrant_yet` is not a value of either column; see `comparison_attempts` below.
 
 #### `study_claims`
 
@@ -1036,11 +1041,23 @@ Curated claims live in published content blocks, coach responses in `coach_feedb
 
 #### `motif_candidates` and `motif_sightings`
 
-Candidates store `id`, `workspace_id`, learner label, normalized key, and status. Sightings reference the candidate, canonical passage-unit key, exact range, optional entry/claim, and status. Enforce one counting sighting per motif and distinct passage unit. Promotion creates the thread and links earlier sightings transactionally; dismissal never deletes the underlying observation.
+Candidates store `id`, `workspace_id`, learner label, normalized key, and status. Sightings reference the candidate, canonical passage-unit key, exact range, optional entry/claim, and status. Enforce one counting sighting per motif and distinct passage unit. Dismissal never deletes the underlying observation.
+
+#### `study_thread_sightings`
+
+`id`, `workspace_id`, `session_id`, `thread_slug` (nullable — set once the sighting resolves to an established thread), `motif_candidate_id` (nullable — set while still provisional, before any thread exists), canonical passage-unit key/range, `sighting_source(starter|imported|learner_observed)`, timestamps. This is the normalized table `study_sessions.thread_resolution` is derived from: `linked` means the session has at least one active row here with a non-null `thread_slug`; nothing stores `linked` redundantly.
+
+Threads carry a `provenance(starter|imported|learner_promoted)`. **Existing `starter`/`imported` threads may be linked on any single sighting** — that thread already carries its own reviewed or previously established warrant, so relinking it does not need to re-earn the third-sighting bar. **Only the creation of a brand-new `learner_promoted` thread** requires all three: (1) three `study_thread_sightings` rows referencing the same `motif_candidate_id`, (2) each in a distinct passage unit — three sightings inside one passage unit do not satisfy it — and (3) an explicit learner confirmation action; the system never silently promotes on hitting three. Promotion is a single atomic transaction that creates the `thread` row with `provenance = learner_promoted` and rewrites exactly those three rows' `motif_candidate_id` → `thread_slug` together, backfilling all three linked sightings or none of them.
+
+#### `comparison_attempts`
+
+`id`, `workspace_id`, `session_id`, optional `claim_id` (the `user_connections` row produced, if any), source range, destination range, `outcome(warranted|no_warrant_yet)`, `rationale`, timestamps.
+
+`no_warrant_yet` is scoped **solely** to this table — one attempt's honest outcome, never a general workflow or session state. A learner can record `no_warrant_yet` on one comparison and still have the same session already `linked` from an earlier, unrelated comparison; the two never overwrite each other. A `comparison_attempts` row with a substantive `no_warrant_yet` rationale satisfies the Connect attempt-gate (§18) exactly as a `warranted` one does — the gate checks that a genuine attempt was persisted, not that it produced a particular claim.
 
 #### `user_connections`
 
-`id`, `workspace_id`, `created_by`, source range, destination range, `edge_type`, `rationale`, `evidence_label(explicit|strong|plausible|devotional)`, `thread_slug`, `status(draft|confirmed|revisit)`, `revision`, timestamps.
+`id`, `workspace_id`, `created_by`, source range, destination range, `edge_type`, `rationale`, `evidence_label(explicit|strong|plausible|devotional)`, `thread_slug`, `status(draft|confirmed|revisited)`, `revision`, timestamps.
 
 #### `applications`
 
@@ -1127,7 +1144,7 @@ Personal overlays remain in `user_connections`; never store them as reviewed gra
 5. **Enforce tenancy.** Make workspace fields non-null, add composite foreign keys and RLS, then run hostile two-user tests.
 6. **Add formation/content/graph tables.** No destructive rewrite of current journal bodies.
 7. **Backfill claims.** Observation → observation, question → question, teaching → teaching seed. Free notes remain journal notes unless the learner promotes them.
-8. **Correct the thread invariant as a coordinated migration.** Change `syncEntrySchema`, entry create/update/sync validation, thread-existence checks, and migration `0003` deferred triggers so drafts can exist unlinked. Move the enforced rule to the study-session transition into `linked`; preserve automatic backlinks whenever a link exists. Provide a rollback and import test before accepting unthreaded records.
+8. **The thread invariant needs no migration — it stays on v1 and v2 never inherits it.** `syncEntrySchema`, entry create/update/sync validation, thread-existence checks, and migration `0003`'s deferred triggers are **unchanged**: every active v1 `Entry` still requires ≥1 active thread. The apparent conflict with the third-sighting rule only looked real because early drafts assumed v2 drafts would land in the v1 `entries` table. They do not: `study_sessions`, `study_claims`, `motif_candidates`/`motif_sightings`, and `study_thread_sightings` (§12.3) are new tables with no per-row thread requirement, so a provisional sighting or an unlinked draft claim never touches the v1 `entries`/`entry_threads` constraint at all, and nothing here weakens it. The v2-only rule (a session may not report `thread_resolution = linked` without a resolved `study_thread_sightings` row) is enforced entirely inside v2, at the session-repository read that computes `thread_resolution`. The only crossing point is the existing optional `legacy_entry_id` bridge (§12.2): a promoted v1 `Entry` already satisfies v1's own invariant before promotion, so promotion never needs to create an unthreaded `Entry`.
 9. **Namespace IndexedDB.** Migrate from the current single `bible-brain` store to account/workspace-specific storage; verify record counts and hashes before marking migration complete.
 10. **Keep recovery.** Do not delete v1 local stores until server acknowledgement and a verified export exist.
 11. **Capability bootstrap.** Advertise API version, IDB schema version, minimum supported client, active catalog release set, per-workspace sync cursor, and setup readiness.
@@ -1137,7 +1154,7 @@ Personal overlays remain in `user_connections`; never store them as reviewed gra
 
 ## 14. Sync v2
 
-The current client-clock last-write-wins model is adequate for a small single-user prototype but can silently overwrite long-form work in a multi-device public product.
+The current client-clock last-write-wins model is adequate for a small single-user prototype but can silently overwrite long-form work in a multi-device public product. `BUILD_PLAN.md` retires it in **Phase 1** (not at some later milestone) for exactly that reason — one person on a phone and a laptop is already a multi-device product — and Phase 1 is where the sync v2 substance below (revisions, `artifact_revisions`, tombstones, idempotent receipts) actually lands.
 
 ### Server records
 
@@ -1364,6 +1381,8 @@ The app must be complete and valuable without AI.
 ### Attempt gate
 
 Assistance uses stage-specific gates: context facts after observation; interpretation help after an interpretation attempt; connection help after a comparison attempt; application help after a meaning-to-practice attempt; teach-back feedback after a learner draft.
+
+Each of these is a `RevealAfter` gate (`BUILD_PLAN.md` §3.2: `read | observation | interpretation_attempt | comparison_attempt | theology_claim | application_attempt | teaching_draft`). Every gate above is computed by checking for the persisted artifact it names — a saved `study_claims` row, a `comparison_attempts` row, an `applications` draft — queried fresh each time, never derived from `current_step` or any client-only/in-memory boolean; those can desync from what actually saved across a reload, a crashed tab, or a resumed session on a second device, and would either falsely re-lock genuinely completed work or falsely unlock work that never actually persisted. A gate asks only whether a genuine attempt exists, not whether it reached a particular "correct" claim: a saved interpretation naming what is uncertain, or a `comparison_attempts` row honestly recording `no_warrant_yet` with a substantive rationale, satisfies its gate exactly as a confident claim would. Fabricating a claim to force a reveal is therefore never necessary.
 
 ### Retrieval boundary
 
@@ -1887,9 +1906,11 @@ These decisions change content or product meaning and require explicit ratificat
 
 ---
 
-## 30. Reconciliation with Claude's concurrent `BUILD_PLAN.md`
+## 30. Reconciliation with Claude's concurrent `BUILD_PLAN.md` (historical input — see DOC-002)
 
-Claude's 2026-08-12 draft is directionally strong on the formation loop, practical Gate 0 work, explicit application fields, a narrow Genesis/Matthew pilot, and delaying AI. Preserve those strengths. Do not adopt that draft as the sole executable specification until these material issues are reconciled:
+**Status note:** the numbered list below records the state of Claude's draft as of 2026-08-12, at the moment this master plan was first prepared. `BUILD_PLAN.md` has since been reconciled against it (task DOC-002): versioned v2 contract modules, the frozen canonical-range contract, session-scoped `StudySession` identity, an attempt-gated (not artifact-forced) unlock chain, partial-save applications, one authoritative catalog-release model, the controlled-invitation two-account test, motif-candidate-before-connection radar output, and account-scoped IndexedDB/RLS/sync are now all present there. Treat this section as **historical input describing what the earlier draft got wrong**, not a live critique of the current `BUILD_PLAN.md` — items 3 and 5 in particular (last-write-wins, the thread invariant vs. third-sighting rule) are addressed by the v1/v2 separation this same reconciliation introduced in `BUILD_PLAN.md` §3.3 and below.
+
+Claude's 2026-08-12 draft was directionally strong on the formation loop, practical Gate 0 work, explicit application fields, a narrow Genesis/Matthew pilot, and delaying AI. Those strengths were preserved. The issues that draft needed to reconcile were:
 
 1. It calls `lib/contracts.ts` frozen while instructing the team to add approximately ten types directly to it. Use versioned v2 contract modules.
 2. Its same-chapter `RefRange` cannot represent normal literary units such as Genesis 1:1–2:3 and is not versification-aware for SBL. Freeze the canonical range contract first.
