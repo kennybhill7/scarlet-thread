@@ -1,21 +1,21 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-14T03:52:47Z",
+  "updatedAt": "2026-08-14T04:05:00Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
-    "taskId": "SEC-002",
-    "runId": "cloud-20260814035247",
-    "takenAt": "2026-08-14T03:52:47Z",
-    "expiresAt": "2026-08-14T05:22:47Z"
+    "taskId": null,
+    "runId": null,
+    "takenAt": null,
+    "expiresAt": null
   },
   "tasks": {
     "SEC-002": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "submitted",
+      "branch": "agent/SEC-002-cloud",
+      "commitSha": "a5e2d94d0549e593017d471eea39d1a17c2e16dc",
       "attempts": 0,
       "lastRunId": "cloud-20260814035247",
-      "lastEvidence": null,
+      "lastEvidence": "typecheck exit 0; lint exit 0; build exit 0; npm test 70/70 pass, 0 fail, 0 skipped (wire suite 15/15, incl. new trailing-slash and /SW.js /Sw.Js cases). Verified skipTrailingSlashRedirect + experimental.caseSensitiveRoutes fix criteria 1-2 on the wire; wire suite fails loudly (exit 1) with no build and no SECURITY_HEADERS_WIRE_ALLOW_SKIP=1 opt-out, skips explicitly with it set (exit 0); wire expectations now sourced from awaited nextConfig.headers() in before(), not the exported constants; added Content-Security-Policy-Report-Only header (script-src minus 'unsafe-inline') for criterion 5. Criterion 6 (OAuth round trip) needs no code change and remains open/credential-gated, not claimed closed. Only web/next.config.ts and web/tests/security-headers.test.ts touched.",
       "notes": "Successor to blocked SEC-001. Base branch agent/SEC-001-claude (tip 658cc3d)."
     },
     "P0UI-002": {
