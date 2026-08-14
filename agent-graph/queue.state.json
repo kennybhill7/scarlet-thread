@@ -1,22 +1,22 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-14T06:19:35Z",
+  "updatedAt": "2026-08-14T07:05:00Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
-    "taskId": "DOC-002",
-    "runId": "cloud-20260814061935",
-    "takenAt": "2026-08-14T06:19:35Z",
-    "expiresAt": "2026-08-14T07:49:35Z"
+    "taskId": null,
+    "runId": null,
+    "takenAt": null,
+    "expiresAt": null
   },
   "tasks": {
     "DOC-002": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "submitted",
+      "branch": "agent/DOC-002-cloud",
+      "commitSha": "01659808250f561b2a71fda5cff5a5bf92958d13",
       "attempts": 0,
       "lastRunId": "cloud-20260814061935",
-      "lastEvidence": null,
-      "notes": "Taken by night queue worker; dependsOn DOC-001 which is terminally blocked, so working from master directly per QUEUE.md eligibility rules."
+      "lastEvidence": "git diff --check exit 0, no output. rg -n \"last-write-wins|revisited|study_thread_sightings|comparison_attempts|learner_promoted|RevealAfter|formation|Self-reviewed\" BUILD_PLAN.md THEOLOGY_MASTER_BUILD_PLAN.md exit 0, substantive multi-line hits for every term in both files (not just passing mentions -- new study_thread_sightings/comparison_attempts tables with real fields, RevealAfter enum, learner_promoted provenance value all defined). rg -n \"Relax the entry|relax.*v1|connection_state\" BUILD_PLAN.md THEOLOGY_MASTER_BUILD_PLAN.md exit 1, no matches, as required. Criterion 1: BUILD_PLAN.md stack line no longer calls last-write-wins both unchanged and retired; both docs agree it retires in Phase 1. Criterion 2: master plan Sec.30 heading and a new status note label the old-draft critique as historical input tied to this task, with items 3 and 5 marked resolved. Criterion 3: 'revisited' is the one spelling in both docs (fixed 'revisit' typo in master plan); Teach stays inside study/[sessionId] for V1 (removed stray standalone teach/[id] route from BUILD_PLAN's route map, added explicit route-ownership note); claim_evidence/study_claims, teaching_sections/teaching_drafts, and the new study_thread_sightings/comparison_attempts pairs each get an explicit atomic-aggregate commit rule. Criterion 4: both docs state lib/api/entries.ts, syncEntrySchema, and the 0003 triggers are unchanged; the third-sighting-vs-thread-invariant conflict is resolved architecturally (new v2 tables never write into v1 entries/entry_threads) instead of by relaxing v1 -- this is what the empty relax/connection_state grep confirms. Criteria 5-7: workflow_state and thread_resolution split into independently-varying columns, thread_resolution derived from a new normalized study_thread_sightings table and never hand-set; no_warrant_yet moved solely onto a new comparison_attempts table scoped to one attempt; starter/imported threads link on any single sighting, only a new learner_promoted thread needs three sightings across three distinct passage scopes plus explicit learner confirmation and one atomic backfill transaction; reveal gates named as RevealAfter values, specified as reading a persisted artifact fresh on every render (never currentStep or an in-memory boolean), with an honest substantive no_warrant_yet explicitly satisfying an attempt-gate like a warranted claim. Criterion 8: 'formation' added as a modern_domain value; both docs agree teach-back stays Draft complete / Rehearsed / Self-reviewed until an actual independent human review exists. Also fixed one pre-existing incorrect cross-reference (BUILD_PLAN.md cited a non-existent master-plan Sec.30.6; Sec.30 has no subsections) and one accidental whitespace misalignment in the file-tree block introduced mid-edit, caught on review before commit. Drafting done by a delegated subagent; every edit independently re-read and the three verification commands independently re-run by this run before commit -- outputs above are this run's own, not the subagent's self-report. Only BUILD_PLAN.md and THEOLOGY_MASTER_BUILD_PLAN.md touched (DOC-002's sole owned paths); THEOLOGY_PRODUCT_AUDIT.md and the four listed web/lib/db files were read-only grounding, not modified. No PR opened -- this queue's other submitted tasks coordinate via this file and branch/commit alone, per QUEUE.md, not GitHub PRs.",
+      "notes": "dependsOn DOC-001 in tasks.json, but DOC-001 is terminally blocked (3/3 attempts, 'Historical record only', leftovers already folded into DOC-002's own criteria) so it can never reach done; worked from master directly per QUEUE.md's STEP 2 eligibility rule, which does not gate on dependsOn. Awaiting independent audit, same as the other submitted tasks."
     },
     "SEC-002": {
       "status": "submitted",
