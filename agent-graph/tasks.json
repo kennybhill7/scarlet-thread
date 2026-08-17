@@ -316,6 +316,70 @@
         "cd web; npm.cmd run lint"
       ],
       "humanGates": []
+    },
+    {
+      "id": "REVIEW-001",
+      "title": "Gate 0.3: Review page must use the real DB path and fail closed on missing setup",
+      "objective": "app/(app)/review/page.tsx still calls the build-time seed bridge (lib/vault/seed.ts: getReview/getTeaching/getThreadRadar) instead of the already-existing authenticated DB path (lib/db/review.ts, already exercised by the tenant-isolation suite). This means (a) private data is compiled into the build output rather than read live per-user, and (b) a missing DATABASE_URL or empty account renders identically - an empty-looking page with no explanation, per BUILD_PLAN.md gate 0.3.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/app/(app)/review/page.tsx",
+        "web/app/(app)/review/review.module.css",
+        "web/tests/review-setup-state.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/db/review.ts",
+        "web/lib/vault/seed.ts",
+        "web/lib/auth/config.ts",
+        "web/lib/contracts.ts"
+      ],
+      "acceptanceCriteria": [
+        "ReviewPage calls the authenticated lib/db/review.ts path (or an equivalent already-existing DB-backed function) for the signed-in user, not lib/vault/seed.ts.",
+        "A missing DATABASE_URL, a DB connection failure, or any other setup error renders a distinct, clearly labeled setup-incomplete state - not an empty page and not a generic 500.",
+        "A genuinely empty account (real DB, zero entries) still renders the existing empty-state copy for each section - the setup-incomplete state must be distinguishable from a legitimately empty account, never conflated.",
+        "The page requires an authenticated session (redirects or errors otherwise) rather than rendering for an anonymous request.",
+        "Existing review.module.css classes and the existing five sections (thread strength, radar, teaching, cold threads, orphans, mirror integrity) are preserved; only the data source and the new setup-incomplete branch change.",
+        "A new test proves: (a) setup-incomplete renders when the DB call throws/is unavailable, (b) a real empty account still renders the normal empty-state copy, not the setup-incomplete state."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd test",
+        "cd web; npm.cmd run build"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "VERSEMAP-001",
+      "title": "Gate 0.5: verse-map load failure must fail closed, not silently misalign",
+      "objective": "lib/bible/versemap.ts loadVerseMap() catches every failure (network error, non-ok response, bad JSON) and resolves to {} with no distinction from a successfully-loaded map confirming no divergence. alignChapter() then falls through to identity alignment for EVERY chapter when the map is unavailable - for a genuinely divergent chapter (Romans 14 ES / Romans 16 EN today, or any future addition to versemap.json) this silently renders the WRONG verse pairing in the parallel reader with no indication anything is wrong. The map failing to load must disable/warn on the parallel pane for potentially-divergent chapters, never silently guess.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/lib/bible/versemap.ts",
+        "web/tests/versemap.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/bible/reference.ts",
+        "web/lib/contracts.ts",
+        "web/components/reader/ChapterReader.tsx"
+      ],
+      "acceptanceCriteria": [
+        "loadVerseMap (or a caller-visible wrapper) distinguishes three states: map loaded and confirms this chapter does not diverge; map loaded and confirms this chapter DOES diverge (with alignment data); map failed to load (unknown divergence status) - these must NOT collapse into the same return shape.",
+        "chapterMayDiverge and alignChapter fail closed on load failure: a chapter that might diverge is never silently treated as identity-aligned when the map could not be loaded.",
+        "A documented, explicit failure surface exists for callers (e.g. a thrown error, a distinct return variant, or an exported failure flag) so the reader component can choose to disable the parallel pane and show a notice, rather than the current silent fallback.",
+        "The 1,187 non-divergent chapters remain a cheap identity zip when the map loads successfully - no added overhead or behavior change for the common case.",
+        "Existing Romans 14/16 alignment behavior (exact verse pairing, the explicit gap row for the Spanish 16:25 slot) is unchanged when the map loads successfully.",
+        "New tests prove: a network/fetch failure produces the distinct failure state, not a silent identity fallback; a non-ok HTTP response does the same; a malformed/unparseable JSON response does the same; the existing successful-load Romans 14/16 tests still pass unchanged."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd test",
+        "cd web; npm.cmd run build"
+      ],
+      "humanGates": []
     }
   ]
 }

@@ -116,6 +116,24 @@
       "lastRunId": null,
       "lastEvidence": "HUMAN ONLY: Vercel dashboard Root Directory '.' -> 'web', redeploy afa47fe. No agent can perform or verify this.",
       "notes": "Never attempt."
+    },
+    "REVIEW-001": {
+      "status": "ready",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Seeded 2026-08-17 from a direct code read grounding the real defect (build-time seed bridge / silent versemap fail-open), not just the BUILD_PLAN.md gate description."
+    },
+    "VERSEMAP-001": {
+      "status": "ready",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Seeded 2026-08-17 from a direct code read grounding the real defect (build-time seed bridge / silent versemap fail-open), not just the BUILD_PLAN.md gate description."
     }
   }
 }
