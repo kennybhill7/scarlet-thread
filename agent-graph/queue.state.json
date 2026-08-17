@@ -82,13 +82,13 @@
       "notes": "Do not rework."
     },
     "SYNC-001": {
-      "status": "submitted",
+      "status": "done",
       "branch": "agent/SYNC-001-claude",
       "commitSha": "12f65b2a4260e2e1677c9a2ee319e915e2ef1ee2",
       "attempts": 0,
       "lastRunId": null,
-      "lastEvidence": "87/87 tests; awaiting independent audit. Do not rebuild; audit only.",
-      "notes": "Progress-sync fix."
+      "lastEvidence": "Audited PASS 3/3 (claude-audit-graph, 2026-08-17), zero findings across all lenses. Correctness lens: root cause confirmed by reading pre-fix code, fail-closed default reasoned through by hand, not trusted from docstring. Regression lens: forged-timestamp construction against all 4 other entities in one push, all rejected, none written; full P0-001 attack matrix + mutation tests M1-M5 all pass. Isolation lens: independently devised its own attack (can A overwrite Bs progress row via a crafted op) and traced it structurally impossible through the real SELECT/INSERT predicates, not just re-running S9. Scope confirmed by all three: only lib/db/sync.ts + tenant-isolation.test.ts changed, lib/api/sync.ts genuinely untouched. 87/87 tests, typecheck/lint clean in all three isolated worktrees.",
+      "notes": "Do not rework. Progress-sync fix (P0-001 finding F4)."
     },
     "DEP-001": {
       "status": "done",
