@@ -2,10 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { VersionId } from "@/lib/contracts";
+import type { RefKey, VersionId } from "@/lib/contracts";
 import { useBibleIndex } from "@/lib/bible/useBibleIndex";
 import { loadChapter, ScriptureUnavailableError } from "@/lib/bible/loader";
-import { chapterKey, nextChapter, previousChapter, parseKey, toChapterKey } from "@/lib/bible/reference";
+import { chapterKey, nextChapter, previousChapter, parseKey, toChapterKey, verseKey } from "@/lib/bible/reference";
 import { alignChapter, divergenceNote, type AlignedRow } from "@/lib/bible/versemap";
 import { getLastRead, setLastRead } from "@/lib/bible/lastRead";
 import { Sheet } from "@/components/ui/Sheet";
@@ -28,6 +28,60 @@ type Loaded<T> = { key: string; ok: true; value: T } | { key: string; ok: false;
 
 const SPANISH: VersionId = "SBL";
 
+/**
+ * Toggles verse selection. Selecting the already-selected verse again clears
+ * it -- selection is optional, chapter-level capture must remain reachable
+ * with no verse chosen. Exported so the exact function the reader's onClick
+ * invokes is what the test suite exercises, not a reimplementation of it.
+ */
+export function nextVerseSelection(current: RefKey | null, candidate: RefKey): RefKey | null {
+  return current === candidate ? null : candidate;
+}
+
+type VerseRow = { verse: number; text: string };
+
+type VerseColumnProps = {
+  book: number;
+  chapter: number;
+  rows: VerseRow[];
+  selectedVerse: RefKey | null;
+  onSelectVerse: (next: RefKey | null) => void;
+};
+
+/**
+ * Renders one column's verses as selectable controls. Each verse is a real
+ * <button>, not a hand-rolled div+role+keydown combo, so Enter/Space
+ * activation is guaranteed by the HTML platform itself -- mouse and keyboard
+ * both invoke the identical onClick, eliminating an entire class of "works
+ * with a mouse but not a keyboard" bug by construction. Selection always
+ * keys off the canonical book.chapter.verse RefKey computed from the row's
+ * own verse number, never the array position, so it stays correct even where
+ * a parallel pane's alignment diverges (this column never renders that pane).
+ */
+export function VerseColumn({ book, chapter, rows, selectedVerse, onSelectVerse }: VerseColumnProps) {
+  return (
+    <>
+      {rows.map((row) => {
+        const refKey = verseKey(book, chapter, row.verse);
+        const selected = refKey === selectedVerse;
+        return (
+          <button
+            key={row.verse}
+            type="button"
+            className={styles.verse}
+            aria-pressed={selected}
+            data-verse-key={refKey}
+            onClick={() => onSelectVerse(nextVerseSelection(selectedVerse, refKey))}
+          >
+            <sup className={styles.vnum}>{row.verse}</sup>
+            {row.text}
+          </button>
+        );
+      })}
+    </>
+  );
+}
+
 export function ChapterReader({ book, chapter }: ChapterReaderProps) {
   const router = useRouter();
   const { index } = useBibleIndex();
@@ -45,6 +99,13 @@ export function ChapterReader({ book, chapter }: ChapterReaderProps) {
   const [spanishChapters, setSpanishChapters] = useState<Record<string, Loaded<string[]>>>({});
   const [aligned, setAligned] = useState<{ key: string; rows: AlignedRow[] } | null>(null);
   const [note, setNote] = useState<{ key: string; text: string | null } | null>(null);
+  // Carries the chapter key it was picked in, same pattern as the async
+  // state above -- a verse chosen in one chapter must never leak into a
+  // capture for a different one once the reader navigates away, and
+  // deriving that at render time (rather than clearing it with a synchronous
+  // setState-in-effect) avoids the cascading-render footgun those states are
+  // already written to avoid.
+  const [verseSelection, setVerseSelection] = useState<{ key: string; verse: RefKey } | null>(null);
 
   const bookMeta = index?.books.find((b) => b.n === book) ?? null;
   const spanishName = index?.spanishNames?.[String(book)];
@@ -94,6 +155,9 @@ export function ChapterReader({ book, chapter }: ChapterReaderProps) {
   const primaryError = primary?.key === primaryKey && !primary.ok ? primary.message : null;
   const primaryLoading = primary?.key !== primaryKey;
   const noteText = note?.key === key ? note.text : null;
+  const selectedVerse = verseSelection?.key === key ? verseSelection.verse : null;
+  const selectVerse = (next: RefKey | null) =>
+    setVerseSelection(next === null ? null : { key, verse: next });
 
   useEffect(() => {
     if (!parallel || !primaryVerses) return;
@@ -174,7 +238,7 @@ export function ChapterReader({ book, chapter }: ChapterReaderProps) {
   );
 
   return (
-    <StudySession chapter={key}>
+    <StudySession chapter={key} selectedVerse={selectedVerse}>
     <div className={styles.page}>
       <header className={styles.top}>
         <button className={styles.navBtn} onClick={goPrevious} aria-label="Previous chapter">
@@ -197,12 +261,13 @@ export function ChapterReader({ book, chapter }: ChapterReaderProps) {
 
         {!parallel && primaryVerses && (
           <div lang={versionLanguage}>
-            {rows.map((row) => (
-              <p key={row.verse} className={styles.verse}>
-                <sup className={styles.vnum}>{row.verse}</sup>
-                {row.text}
-              </p>
-            ))}
+            <VerseColumn
+              book={book}
+              chapter={chapter}
+              rows={rows}
+              selectedVerse={selectedVerse}
+              onSelectVerse={selectVerse}
+            />
           </div>
         )}
 
@@ -210,12 +275,13 @@ export function ChapterReader({ book, chapter }: ChapterReaderProps) {
           <div className={styles.split}>
             <div className={styles.column} lang={versionLanguage}>
               <p className={styles.columnLabel}>{version}</p>
-              {rows.map((row) => (
-                <p key={row.verse} className={styles.verse}>
-                  <sup className={styles.vnum}>{row.verse}</sup>
-                  {row.text}
-                </p>
-              ))}
+              <VerseColumn
+                book={book}
+                chapter={chapter}
+                rows={rows}
+                selectedVerse={selectedVerse}
+                onSelectVerse={selectVerse}
+              />
             </div>
             <div className={styles.column} lang="es">
               <p className={styles.columnLabel}>{spanishName ?? "Español"}</p>
