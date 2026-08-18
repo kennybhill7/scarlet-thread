@@ -39,7 +39,14 @@ function hasCacheApi(): boolean {
   return typeof caches !== "undefined";
 }
 
-async function fetchWithCache(path: string): Promise<Response> {
+/**
+ * Exported so other Track A modules that fetch immutable files from
+ * /public/bible/* — today just lib/bible/versemap.ts, for versemap.json —
+ * share this exact cache-then-network-then-cache-put path and the same
+ * bible-brain-scripture-v1 cache, instead of a bare fetch() that leaves the
+ * file unavailable offline (VMCACHE-001).
+ */
+export async function fetchWithCache(path: string): Promise<Response> {
   if (hasCacheApi()) {
     const cache = await caches.open(CACHE_NAME);
     const cached = await cache.match(path);
@@ -137,6 +144,14 @@ export async function warmVersion(
   books: number[],
   onProgress?: (done: number, total: number) => void,
 ): Promise<void> {
+  // versemap.json isn't per-version data, but a translation downloaded for
+  // offline reading is exactly the moment the parallel Spanish pane needs to
+  // keep working offline too (VMCACHE-001) -- without this, alignChapter()
+  // fails closed on Romans 14/16 the first time the device goes offline,
+  // even though every book file downloaded fine. Best-effort: a failure here
+  // (or an already-warm cache, the common case on a second version download)
+  // must never abort the book download the user actually asked for.
+  await fetchWithCache("/bible/versemap.json").catch(() => {});
   for (let i = 0; i < books.length; i += 1) {
     await loadBook(version, books[i]);
     onProgress?.(i + 1, books.length);

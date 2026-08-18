@@ -20,6 +20,11 @@ function formatBytes(bytes: number | null): string {
  * offline-sometimes. Every chapter caches itself the moment you read it
  * (see lib/bible/loader.ts), but this screen lets Ken force the whole
  * translation down before a trip rather than discovering a gap mid-flight.
+ *
+ * warmVersion() (lib/bible/loader.ts) also prefetches /bible/versemap.json
+ * alongside the book files on every download here, so the parallel Spanish
+ * pane keeps working -- Romans 14/16 included -- once the device goes
+ * offline, not just the primary text (VMCACHE-001).
  */
 export function OfflineDownloads() {
   const { index, loading } = useBibleIndex();

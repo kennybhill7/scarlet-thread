@@ -6,7 +6,7 @@ import type { RefKey, VersionId } from "@/lib/contracts";
 import { useBibleIndex } from "@/lib/bible/useBibleIndex";
 import { loadChapter, ScriptureUnavailableError } from "@/lib/bible/loader";
 import { chapterKey, nextChapter, previousChapter, parseKey, toChapterKey, verseKey } from "@/lib/bible/reference";
-import { alignChapter, divergenceNote, type AlignedRow } from "@/lib/bible/versemap";
+import { alignChapter, divergenceNote, VerseMapUnavailableError, type AlignedRow } from "@/lib/bible/versemap";
 import { getLastRead, setLastRead } from "@/lib/bible/lastRead";
 import { Sheet } from "@/components/ui/Sheet";
 import { Chip } from "@/components/ui/Chip";
@@ -36,6 +36,39 @@ const SPANISH: VersionId = "SBL";
  */
 export function nextVerseSelection(current: RefKey | null, candidate: RefKey): RefKey | null {
   return current === candidate ? null : candidate;
+}
+
+export type AlignmentResult =
+  | { ok: true; rows: AlignedRow[] }
+  | { ok: false; message: string };
+
+/**
+ * Wraps alignChapter() so it can never reject. lib/bible/versemap.ts throws
+ * VerseMapUnavailableError on purpose (fail-closed: an identity zip here
+ * would silently mispair a genuinely divergent chapter) but ChapterReader's
+ * effect used to call alignChapter().then() with no .catch() at all, so that
+ * intentional throw became an unhandled promise rejection and the Spanish
+ * column hung on "Cargando…" forever instead of the pane being disabled
+ * with a reason (VMCACHE-001). Exported so the exact function the reader's
+ * effect awaits is what the test suite exercises, not a reimplementation of
+ * it -- same pattern as nextVerseSelection above.
+ */
+export async function resolveAlignment(
+  fromVersion: VersionId,
+  toVersion: VersionId,
+  chapterKeyValue: RefKey,
+  fromVerseCount: number,
+): Promise<AlignmentResult> {
+  try {
+    const rows = await alignChapter(fromVersion, toVersion, chapterKeyValue, fromVerseCount);
+    return { ok: true, rows };
+  } catch (error) {
+    const message =
+      error instanceof VerseMapUnavailableError
+        ? "Parallel Spanish view is unavailable right now — alignment data couldn't be loaded. Try again once you're back online."
+        : "Parallel Spanish view is unavailable right now.";
+    return { ok: false, message };
+  }
 }
 
 type VerseRow = { verse: number; text: string };
@@ -98,6 +131,11 @@ export function ChapterReader({ book, chapter }: ChapterReaderProps) {
   // chapter an aligned row's `toKey` points into gets loaded here.
   const [spanishChapters, setSpanishChapters] = useState<Record<string, Loaded<string[]>>>({});
   const [aligned, setAligned] = useState<{ key: string; rows: AlignedRow[] } | null>(null);
+  // Set only when resolveAlignment() fails closed (VerseMapUnavailableError
+  // or otherwise) -- carries the request key it resolved for, same pattern
+  // as the other async state here, so a failure from a chapter the reader
+  // has since navigated away from can never paint the wrong chapter's pane.
+  const [alignmentError, setAlignmentError] = useState<{ key: string; message: string } | null>(null);
   const [note, setNote] = useState<{ key: string; text: string | null } | null>(null);
   // Carries the chapter key it was picked in, same pattern as the async
   // state above -- a verse chosen in one chapter must never leak into a
@@ -162,15 +200,23 @@ export function ChapterReader({ book, chapter }: ChapterReaderProps) {
   useEffect(() => {
     if (!parallel || !primaryVerses) return;
     let cancelled = false;
-    alignChapter(version, SPANISH, key, primaryVerses.length).then(
-      (rows) => !cancelled && setAligned({ key: primaryKey, rows }),
-    );
+    resolveAlignment(version, SPANISH, key, primaryVerses.length).then((result) => {
+      if (cancelled) return;
+      if (result.ok) {
+        setAligned({ key: primaryKey, rows: result.rows });
+        setAlignmentError(null);
+      } else {
+        setAligned(null);
+        setAlignmentError({ key: primaryKey, message: result.message });
+      }
+    });
     return () => {
       cancelled = true;
     };
   }, [parallel, primaryVerses, version, key, primaryKey]);
 
   const alignedRows = aligned?.key === primaryKey ? aligned.rows : null;
+  const alignmentErrorText = alignmentError?.key === primaryKey ? alignmentError.message : null;
 
   // Every chapter referenced by an aligned row's toKey gets fetched -- almost
   // always just `key` itself (Spanish numbering matches English 1:1), plus
@@ -218,7 +264,11 @@ export function ChapterReader({ book, chapter }: ChapterReaderProps) {
   }
 
   const spanishNaturalChapter = spanishChapters[key];
-  const spanishLoading = parallel && (!alignedRows || !spanishNaturalChapter);
+  // alignmentErrorText excluded here on purpose: once resolveAlignment() has
+  // settled with a failure, alignedRows will never arrive for this chapter,
+  // so without this the pane would show "Cargando…" forever instead of the
+  // explicit notice below (VMCACHE-001).
+  const spanishLoading = parallel && !alignmentErrorText && (!alignedRows || !spanishNaturalChapter);
   const spanishError = spanishNaturalChapter && !spanishNaturalChapter.ok ? spanishNaturalChapter.message : null;
 
   const goNext = () => {
@@ -285,9 +335,11 @@ export function ChapterReader({ book, chapter }: ChapterReaderProps) {
             </div>
             <div className={styles.column} lang="es">
               <p className={styles.columnLabel}>{spanishName ?? "Español"}</p>
-              {spanishLoading && <p className={styles.hint}>Cargando…</p>}
-              {spanishError && <p className={styles.error}>{spanishError}</p>}
-              {!spanishLoading &&
+              {alignmentErrorText && <p className={styles.error}>{alignmentErrorText}</p>}
+              {!alignmentErrorText && spanishLoading && <p className={styles.hint}>Cargando…</p>}
+              {!alignmentErrorText && spanishError && <p className={styles.error}>{spanishError}</p>}
+              {!alignmentErrorText &&
+                !spanishLoading &&
                 !spanishError &&
                 alignedRows?.map((row, i) => {
                   const { text, error } = resolveSpanish(row.toKey);

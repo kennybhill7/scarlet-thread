@@ -41,6 +41,7 @@
 
 import type { RefKey, VersionId } from "@/lib/contracts";
 import { parseKey, verseKey } from "@/lib/bible/reference";
+import { fetchWithCache } from "@/lib/bible/loader";
 
 interface VersionVerseMap {
   comparedTo: VersionId;
@@ -174,11 +175,18 @@ function validateVerseMap(payload: unknown): VerseMapLoadResult {
 
 /**
  * Only a SUCCESSFUL load is memoized for the life of the module. A failure
- * used to be memoized too, which meant one bad fetch — an offline app start,
- * say, and /bible/versemap.json is cached by neither sw.js nor
- * lib/bible/loader.ts — disabled the Spanish pane for the whole session, with
- * no retry until a full page reload (module state survives client-side
- * navigation).
+ * used to be memoized too, which meant one bad fetch — an offline app start
+ * before the retry below ever got a chance to run, say — disabled the
+ * Spanish pane for the whole session, with no retry until a full page reload
+ * (module state survives client-side navigation).
+ *
+ * The fetch itself goes through lib/bible/loader.ts's fetchWithCache() (the
+ * same cache-then-network path index.json and book files use, cache
+ * bible-brain-scripture-v1) rather than a bare fetch(), so versemap.json is
+ * available offline once it has been fetched or prefetched once — a bare
+ * fetch() here used to mean an offline app launch lost the Spanish parallel
+ * pane for every one of the 1,189 chapters, not just Romans 14/16
+ * (VMCACHE-001).
  *
  * Failures now clear the memo so the next call re-fetches, with two brakes on
  * a hammering caller: an in-flight promise is still shared, so N concurrent
@@ -196,7 +204,7 @@ function loadVerseMap(): Promise<VerseMapLoadResult> {
     return Promise.resolve(lastFailure.result);
   }
 
-  const pending: Promise<VerseMapLoadResult> = fetch("/bible/versemap.json")
+  const pending: Promise<VerseMapLoadResult> = fetchWithCache("/bible/versemap.json")
     .then(async (response) => {
       if (!response.ok) return unavailable(`HTTP ${response.status}`);
       let payload: unknown;
