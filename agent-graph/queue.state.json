@@ -118,22 +118,22 @@
       "notes": "Never attempt."
     },
     "REVIEW-001": {
-      "status": "rework",
-      "branch": "agent/REVIEW-001-cloud",
-      "commitSha": "ee8ba6b",
+      "status": "done",
+      "branch": "agent/REVIEW-001-fix",
+      "commitSha": "a4b14b47956f054ebe74bf58462b1fad227dc0aa",
       "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": "AUDIT FAIL (claude-audit-graph, 2026-08-18). Criteria 1, 3, 4(behavior), 5 and scope hold; two real failures. | F1 CRITERION 6 FAILS - test is vacuous with respect to rendering, mutation SURVIVED. Auditor rewrote the setup-incomplete branch to render markup identical to an empty account; all 5 tests still passed. The test only exercises loadReviewViewModel (the pure discriminator) and never renders the component or asserts a user-visible string. A control mutation did fail correctly, so the boundary is exact: view-model tagging is tested, rendering is not. | F2 CRITERION 2 FAILS FOR ITS HEADLINE SCENARIO - with DATABASE_URL missing the setup-incomplete state is UNREACHABLE. auth() is called outside the try/catch and lib/auth/config.ts uses session strategy database with DrizzleAdapter, so the session lookup itself hits the DB; @auth/core returns a non-OK response, next-auth parseSessionResponse returns null, and the page redirects to /sign-in. Net effect: DB down tells the owner they are signed out - the exact mislabeling this task exists to eliminate. proxy.ts does the same one layer earlier. If auth() throws instead, it propagates to a generic 500. The branch IS correctly reached for the narrower class where auth succeeds but a review query fails. | F3 MINOR UNDISCLOSED REGRESSION - cold threads now render slugs, not titles. The seed bridge mapped t.title; lib/db/review.ts maps thread.slug. Displays covenant-faithfulness instead of Covenant Faithfulness. Fix belongs in lib/db/review.ts (outside owned paths) or a title lookup on the page using the already-fetched threads. | F4 CRITERION 4 HAS ZERO COVERAGE - auditor deleted the auth guard entirely and the full suite still passed 40/40. The guard is correct in behavior but unprotected against regression. | F5 OUT OF SCOPE BUT CONFIRMS CLIMB-001 - app/(app)/page.tsx still imports getMountain/getReview from lib/vault/seed and the build marks / as static prerendered, emitting index.html. Same two defects still live on the home page.",
-      "notes": "Rework cycle 1 of 3. Base agent/REVIEW-001-cloud @ ee8ba6b."
+      "lastEvidence": "Rework verified by Claude in a fresh isolated worktree and MERGED to master in 19e9764. Findings 1, 3, 4 closed with mutation proofs; finding 2 partially closed with the residual honestly reported. Independent verification: scope is exactly the 2 owned files; typecheck/lint/build clean; 52/52 in isolation and 195/195 merged with VERSEMAP-001. I re-ran the auth-guard mutation myself (deleted the guard line) - it now fails 2 named GUARD tests, where the original audit deleted the same guard and got 40/40 green. RESIDUAL, TRACKED AS AUTHDB-001: proxy.ts middleware still preempts the page for real browser navigations, so the headline DATABASE_URL-missing scenario still redirects to /sign-in. Builder also disclosed there is no runtime proof against a genuinely dead Postgres - the preemption claim is source plus build-output inference.",
+      "notes": "Merged. Residual gap tracked as AUTHDB-001."
     },
     "VERSEMAP-001": {
-      "status": "rework",
-      "branch": "agent/VERSEMAP-001-cloud",
-      "commitSha": "600be6a",
+      "status": "done",
+      "branch": "agent/VERSEMAP-001-fix",
+      "commitSha": "391dc0d80ab43823a3a072f5962895dc3eaa5e58",
       "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": "AUDIT FAIL (claude-audit-graph, 2026-08-18). Criteria 1, 2, 4, 5, 6 hold; scope clean; all four of the builder verification claims reproduced exactly. Two real failures. | F1 CRITERION 7 FAILS - the memoization bug is PRESERVED and was not disclosed. The audit asked about it by name. mapPromise is assigned unconditionally and the failure path RESOLVES to a cached failure object, so it is never nulled. Probe: fetch throws once, status=unknown; restore working fetch, status STILL unknown, alignChapter STILL throws, total fetch calls = 1. No retry until full page reload. The commit line Nothing left open against this task acceptance criteria is not accurate. | F2 SEVERITY AMPLIFIER - /bible/versemap.json is cached by NOTHING. public/sw.js shouldHandle() returns false for /bible/*, and lib/bible/loader.ts caches only index.json and per-book files. versemap.ts uses a bare fetch. So an offline launch of an app explicitly built for offline reading fails the map fetch, caches that failure for the session, and kills the Spanish parallel pane for all 1189 chapters until reload. | F3 SILENT MISALIGNMENT STILL CONSTRUCTIBLE - the fix validates transport (response.ok) and parseability but performs NO content validation. Probe: HTTP 200 with body {} yields ok=true, then getDivergenceStatus(45.16)=no-divergence and alignChapter returns 27 identity rows, pairing the English doxology against the blank Spanish 16:25 slot with full confidence and no warning. That is exactly the failure mode this task was filed to eliminate. Realistic trigger: a partial or stale deploy of versemap.json. | F4 FAILURE SURFACE BYPASSABLE BY MALFORMED-BUT-VALID JSON - body null throws raw TypeError, not VerseMapUnavailableError; SBL present but divergentChapters absent also throws raw TypeError. Loud, not silent, but criterion 3 contract (a caller can catch the declared variant) does not hold for these shapes. divergenceNote also throws instead of returning its warning. | F5 SCOPE-HONEST BUT CRITERION 3 ONLY HALF-REALIZED - ChapterReader.tsx calls alignChapter().then() with no .catch(), so the new throw becomes an unhandled rejection and the Spanish column hangs on Cargando forever rather than the pane being disabled. Builder disclosed this and ChapterReader was read-only, so it is honest - but the criterion outcome is not achieved end to end. | F6 LATENT - alignChapter hardcodes maps[SBL] while chapterMayDiverge scans Object.values(maps). Correct today since SBL is the only divergent version, but a second divergent version would silently misalign in both the loaded and failed-load paths. The fix propagated the existing hardcode into the new gate.",
-      "notes": "Rework cycle 1 of 3. Base agent/VERSEMAP-001-cloud @ 600be6a."
+      "lastEvidence": "Rework verified by Claude in a fresh isolated worktree and MERGED to master in 19e9764. Findings 1, 3, 4, 6 closed; findings 2 and 5 honestly reported as out of scope. Independent verification: scope is exactly the 2 owned files; typecheck/lint/build clean; 48/48 in isolation and 195/195 merged with REVIEW-001. I re-ran the load-bearing mutation myself - reverting versemap.ts alone fails exactly 6 of the 7 new tests, matching the builder claim precisely, including its honest note that the 7th (fetch-storm) passes against old code because old code cached failures. Restore confirmed clean via git status. RESIDUAL, TRACKED AS VMCACHE-001: versemap.json still has no offline cache, and ChapterReader still hangs rather than disabling the pane. Also disclosed: shape validation is structural not semantic - a well-formed but factually wrong map still misaligns; the 3s cooldown is a judgement call, not measured.",
+      "notes": "Merged. Residual gaps tracked as VMCACHE-001."
     },
     "CLIMB-001": {
       "status": "ready",
@@ -179,6 +179,24 @@
       "lastRunId": null,
       "lastEvidence": null,
       "notes": "Seeded 2026-08-18 from a direct read of the current source (not a restatement of the BUILD_PLAN gate table). Base: master @ 1beee64, which now contains all merged Phase 0 work."
+    },
+    "AUTHDB-001": {
+      "status": "ready",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Seeded 2026-08-18 from an honestly-reported out-of-scope gap in a completed rework (SCOPE-BOUNDARY-001 working as intended: the builder reported rather than smuggled the edit)."
+    },
+    "VMCACHE-001": {
+      "status": "ready",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Seeded 2026-08-18 from an honestly-reported out-of-scope gap in a completed rework (SCOPE-BOUNDARY-001 working as intended: the builder reported rather than smuggled the edit)."
     }
   }
 }

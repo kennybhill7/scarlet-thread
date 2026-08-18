@@ -544,6 +544,72 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "AUTHDB-001",
+      "title": "A dead database must not tell the owner they are signed out",
+      "objective": "REVIEW-001 fixed this at the page level, but the fix is preempted and therefore does not work for a real browser navigation. web/proxy.ts is a bare re-export of auth with a matcher covering /review, so with DATABASE_URL missing the middleware performs the same database-backed session lookup one layer earlier, gets null, and redirects to /sign-in before the page component ever runs. The page probe never executes. Verified by source reading and the build route table (Proxy Middleware live, /review dynamic) during the REVIEW-001 audit and rework - but NOT yet by an observed HTTP redirect against a genuinely dead Postgres.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/proxy.ts",
+        "web/lib/auth/config.ts",
+        "web/tests/auth-db-failure.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/app/(app)/review/page.tsx",
+        "web/lib/contracts.ts",
+        "web/lib/db/threads.ts"
+      ],
+      "acceptanceCriteria": [
+        "With the database unreachable, a browser navigation to a protected route does NOT redirect to /sign-in claiming the user is signed out. It surfaces an honest setup/unavailable state instead.",
+        "A genuinely signed-out user with a HEALTHY database still redirects to /sign-in exactly as today - the two cases must stay distinguishable, and this must be tested.",
+        "SECURITY IS NON-NEGOTIABLE: the change must not weaken the auth gate. A database failure must never be treated as authenticated, and must never expose journal content. Fail closed on identity, open only on the error message. State explicitly in the commit which direction each new branch fails.",
+        "The existing allowlist behavior (a blank user id is treated as signed out) is preserved and still tested.",
+        "Prove the middleware path specifically, not just the page path - the whole point of this task is that the page-level fix is preempted. If a true end-to-end proof against a dead Postgres is impossible in the run environment, say so plainly and state exactly what was proven instead.",
+        "REVIEW-001s page-level probe stays working; do not remove it."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "VMCACHE-001",
+      "title": "Give versemap.json an offline cache and stop the reader hanging on its failure",
+      "objective": "Two out-of-scope gaps reported honestly by the VERSEMAP-001 rework. (1) /bible/versemap.json is cached by NOTHING: public/sw.js shouldHandle() returns false for any /bible/* path, and lib/bible/loader.ts caches only index.json and per-book files, while versemap.ts uses a bare fetch. So an offline launch of an offline-first app loses the Spanish parallel pane for all 1,189 chapters - the retry added by the rework only helps once connectivity returns. (2) ChapterReader calls alignChapter().then() with no .catch(), so the fail-closed throw becomes an unhandled rejection and the Spanish column hangs on Cargando forever instead of the pane being disabled - criterion 3 of VERSEMAP-001 is only half-realized end to end.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/lib/bible/loader.ts",
+        "web/lib/bible/versemap.ts",
+        "web/components/reader/ChapterReader.tsx",
+        "web/components/settings/OfflineDownloads.tsx",
+        "web/tests/versemap-offline.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/public/sw.js",
+        "web/lib/contracts.ts",
+        "web/tests/versemap.test.ts"
+      ],
+      "acceptanceCriteria": [
+        "versemap.json is fetched through the existing cache path in lib/bible/loader.ts (the same fetchWithCache used for index.json and book files, cache bible-brain-scripture-v1) rather than a bare fetch, so it is available offline.",
+        "The Make available offline flow prefetches versemap.json alongside the book files, so a user who downloads a translation gets working parallel alignment offline.",
+        "ChapterReader catches the VerseMapUnavailableError: the parallel pane is disabled with an explicit notice rather than hanging on Cargando forever. No unhandled promise rejection remains on any parallel-view chapter.",
+        "All 48 existing versemap tests keep passing unweakened - especially the two Romans 14/16 tests and the five fail-closed tests, which are load-bearing.",
+        "A test proves the offline path: with the network unavailable but the cache warm, alignment still resolves correctly for Romans 14/16 rather than failing closed.",
+        "The cheap identity path for the 1,187 non-divergent chapters stays cheap - no added fetch or await on that path."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }
