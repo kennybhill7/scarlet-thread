@@ -106,6 +106,14 @@ export interface ReviewPageData {
   radar: RadarHit[];
   teaching: TeachingEntry[];
   orphanEntries: { id: string; label: string }[];
+  /**
+   * Reader-facing titles for `snapshot.coldThreads`. `lib/db/review.ts` puts
+   * slugs in that field ("covenant-faithfulness") where the old seed bridge
+   * put titles ("Covenant Faithfulness"). That module is not ours to change,
+   * so the slug -> title lookup happens here, off the threads we already
+   * fetched, falling back to the raw slug if no title is known.
+   */
+  coldThreads: string[];
 }
 
 export type ReviewViewModel =
@@ -157,10 +165,107 @@ export async function loadReviewViewModel(
       .filter((entry): entry is Entry => Boolean(entry))
       .map((entry) => ({ id: entry.id, label: orphanLabel(entry) }));
 
-    return { status: "ok", data: { snapshot, radar, teaching, orphanEntries } };
+    const titleBySlug = new Map<string, string>();
+    for (const thread of snapshot.threads) titleBySlug.set(thread.slug, thread.title);
+    for (const thread of threads) titleBySlug.set(thread.slug, thread.title);
+    const coldThreads = snapshot.coldThreads.map((slug) => titleBySlug.get(slug) ?? slug);
+
+    return {
+      status: "ok",
+      data: { snapshot, radar, teaching, orphanEntries, coldThreads },
+    };
   } catch {
     return { status: "setup-incomplete" };
   }
+}
+
+// ---------------------------------------------------------------------------
+// Session resolution — telling "signed out" apart from "database down".
+//
+// `auth()` uses `session: { strategy: "database" }` with the Drizzle adapter,
+// so the session lookup itself is a database read. When the database is
+// unreachable, @auth/core catches the adapter throw and next-auth's
+// parseSessionResponse turns the non-OK response into `null` — indistinguishable
+// from a real signed-out visitor. Redirecting straight to /sign-in on that null
+// tells the owner they are SIGNED OUT when in fact the database is dead, which
+// is exactly the mislabeling this page exists to eliminate.
+//
+// So before trusting a null session we probe the database directly. If the
+// probe also fails, the honest answer is "setup incomplete", not "sign in".
+//
+// SCOPE NOTE (SCOPE-BOUNDARY-001): this only helps for requests that actually
+// reach the page. `web/proxy.ts` re-exports the same `auth` as middleware with
+// a matcher that covers /review, so in a normal browser navigation the
+// middleware performs the same database-backed session lookup one layer
+// earlier and redirects to /sign-in before this component ever runs. Closing
+// that hole requires editing proxy.ts and/or lib/auth/config.ts, both of which
+// are outside this change's owned paths. See the commit message.
+// ---------------------------------------------------------------------------
+
+/**
+ * A user id that cannot exist. The probe is a normal tenant-scoped read, so it
+ * returns an empty list against a healthy database and reveals nothing; only
+ * its throw/no-throw behaviour is used.
+ */
+const PROBE_USER_ID = "00000000-0000-0000-0000-000000000000";
+
+export type SessionState =
+  | { status: "authenticated"; userId: string }
+  | { status: "signed-out" }
+  | { status: "setup-incomplete" };
+
+export type SessionDeps = {
+  getSession: () => Promise<{ user?: { id?: string | null } | null } | null>;
+  probeDatabase: () => Promise<unknown>;
+};
+
+const defaultSessionDeps: SessionDeps = {
+  getSession: auth,
+  probeDatabase: () => listThreads(PROBE_USER_ID),
+};
+
+export async function resolveSessionState(
+  deps: SessionDeps = defaultSessionDeps,
+): Promise<SessionState> {
+  let session: Awaited<ReturnType<SessionDeps["getSession"]>>;
+  try {
+    session = await deps.getSession();
+  } catch {
+    // auth() threw outright (adapter error surfaced instead of swallowed).
+    // A generic 500 would be another wrong label; name the real problem.
+    return { status: "setup-incomplete" };
+  }
+
+  const userId = session?.user?.id;
+  if (userId) return { status: "authenticated", userId };
+
+  // No session. Either genuinely signed out, or the session lookup silently
+  // failed because the database is unreachable. Ask the database directly.
+  try {
+    await deps.probeDatabase();
+  } catch {
+    return { status: "setup-incomplete" };
+  }
+
+  return { status: "signed-out" };
+}
+
+/**
+ * The one "we cannot reach your data" screen. Deliberately shares nothing with
+ * the ordinary empty-state copy below: different title, an explicit notice, and
+ * none of the review sections. If this ever renders the same words as an empty
+ * account, tests/review-setup-state.test.ts fails.
+ */
+function SetupIncomplete({ detail }: { detail: string }) {
+  return (
+    <div className={styles.wrap}>
+      <p className={styles.eyebrow}>Sunday review</p>
+      <h1 className={styles.title}>Setup incomplete</h1>
+      <p className={styles.setupNotice} data-testid="setup-notice">
+        {detail}
+      </p>
+    </div>
+  );
 }
 
 function List({ items, empty }: { items: string[]; empty: string }) {
@@ -175,25 +280,27 @@ function List({ items, empty }: { items: string[]; empty: string }) {
 }
 
 export default async function ReviewPage() {
-  const session = await auth();
-  if (!session?.user?.id) redirect("/sign-in");
+  const sessionState = await resolveSessionState();
 
-  const view = await loadReviewViewModel(session.user.id);
-
-  if (view.status === "setup-incomplete") {
+  if (sessionState.status === "setup-incomplete") {
     return (
-      <div className={styles.wrap}>
-        <p className={styles.eyebrow}>Sunday review</p>
-        <h1 className={styles.title}>Setup incomplete</h1>
-        <p className={styles.setupNotice}>
-          Review couldn&apos;t reach your data. This is a configuration problem, not an
-          empty account — check the database connection and try again.
-        </p>
-      </div>
+      <SetupIncomplete detail="Review couldn't reach the database to check your sign-in. You have not been signed out — this is a configuration problem. Check the database connection and try again." />
     );
   }
 
-  const { snapshot: review, radar, teaching, orphanEntries } = view.data;
+  // Guard: no session and the database answered fine, so this really is a
+  // signed-out visitor. Never render a word of the journal below this line.
+  if (sessionState.status !== "authenticated") redirect("/sign-in");
+
+  const view = await loadReviewViewModel(sessionState.userId);
+
+  if (view.status === "setup-incomplete") {
+    return (
+      <SetupIncomplete detail="Review couldn't reach your data. This is a configuration problem, not an empty account — check the database connection and try again." />
+    );
+  }
+
+  const { snapshot: review, radar, teaching, orphanEntries, coldThreads } = view.data;
   const topThread = review.threads[0];
 
   return (
@@ -270,7 +377,7 @@ export default async function ReviewPage() {
 
       <section className={styles.section}>
         <h2 className={styles.h2}>Threads with nothing linking in yet</h2>
-        <List items={review.coldThreads} empty="Every thread has at least one entry running into it." />
+        <List items={coldThreads} empty="Every thread has at least one entry running into it." />
       </section>
 
       <section className={styles.section}>
