@@ -55,6 +55,29 @@ interface BibleBrainDb extends DBSchema {
   };
 }
 
+/**
+ * Web Locks API name shared with lib/sync/clear.ts's exclusive hold (see that
+ * file's clearLocalStudyData()). Every mutation below takes this in SHARED
+ * mode for the duration of its write transaction, so a clear-device holding
+ * it EXCLUSIVE — which it does for the whole time a delete could still land —
+ * blocks every writer here rather than letting one slip in behind the check
+ * that decided it was safe to destroy.
+ */
+export const WRITE_LOCK_NAME = "bible-brain:write-lock";
+
+/**
+ * Guard one mutation with the shared write lock, or run it unprotected when
+ * Web Locks is unavailable (old Safari). That fallback is safe on its own:
+ * clearLocalStudyData() refuses to run AT ALL without navigator.locks (see
+ * lib/sync/clear.ts), so there is never an armed delete for an unlocked write
+ * to race here.
+ */
+async function withWriteLock<T>(run: () => Promise<T>): Promise<T> {
+  const locks = globalThis.navigator?.locks;
+  if (!locks) return run();
+  return locks.request(WRITE_LOCK_NAME, { mode: "shared" }, () => run());
+}
+
 const database = openDB<BibleBrainDb>("bible-brain", 3, {
   upgrade(db, oldVersion) {
     if (oldVersion < 1) {
@@ -104,15 +127,17 @@ export async function saveLocalEntry(entry: Entry) {
       validated.error.issues[0]?.message ?? "Invalid local entry",
     );
   }
-  const db = await database;
-  const transaction = db.transaction(["entries", "syncQueue"], "readwrite");
-  await Promise.all([
-    transaction.objectStore("entries").put(entry),
-    transaction
-      .objectStore("syncQueue")
-      .put(opFor("entry", entry.id, entry)),
-    transaction.done,
-  ]);
+  await withWriteLock(async () => {
+    const db = await database;
+    const transaction = db.transaction(["entries", "syncQueue"], "readwrite");
+    await Promise.all([
+      transaction.objectStore("entries").put(entry),
+      transaction
+        .objectStore("syncQueue")
+        .put(opFor("entry", entry.id, entry)),
+      transaction.done,
+    ]);
+  });
 }
 
 export async function saveLocalThread(thread: Thread) {
@@ -122,15 +147,17 @@ export async function saveLocalThread(thread: Thread) {
       validated.error.issues[0]?.message ?? "Invalid local thread",
     );
   }
-  const db = await database;
-  const transaction = db.transaction(["threads", "syncQueue"], "readwrite");
-  await Promise.all([
-    transaction.objectStore("threads").put(thread),
-    transaction
-      .objectStore("syncQueue")
-      .put(opFor("thread", thread.slug, thread)),
-    transaction.done,
-  ]);
+  await withWriteLock(async () => {
+    const db = await database;
+    const transaction = db.transaction(["threads", "syncQueue"], "readwrite");
+    await Promise.all([
+      transaction.objectStore("threads").put(thread),
+      transaction
+        .objectStore("syncQueue")
+        .put(opFor("thread", thread.slug, thread)),
+      transaction.done,
+    ]);
+  });
 }
 
 export async function markChapterRead(progress: ReadingProgress) {
@@ -140,21 +167,23 @@ export async function markChapterRead(progress: ReadingProgress) {
       validated.error.issues[0]?.message ?? "Invalid reading progress",
     );
   }
-  const db = await database;
-  const transaction = db.transaction(["progress", "syncQueue"], "readwrite");
-  const op: SyncOp = {
-    id: crypto.randomUUID(),
-    entity: "progress",
-    entityId: progress.chapter,
-    op: "upsert",
-    payload: progress,
-    updatedAt: progress.readAt,
-  };
-  await Promise.all([
-    transaction.objectStore("progress").put(progress),
-    transaction.objectStore("syncQueue").put(op),
-    transaction.done,
-  ]);
+  await withWriteLock(async () => {
+    const db = await database;
+    const transaction = db.transaction(["progress", "syncQueue"], "readwrite");
+    const op: SyncOp = {
+      id: crypto.randomUUID(),
+      entity: "progress",
+      entityId: progress.chapter,
+      op: "upsert",
+      payload: progress,
+      updatedAt: progress.readAt,
+    };
+    await Promise.all([
+      transaction.objectStore("progress").put(progress),
+      transaction.objectStore("syncQueue").put(op),
+      transaction.done,
+    ]);
+  });
 }
 
 export async function saveLocalLog(log: DailyLog) {
@@ -164,21 +193,23 @@ export async function saveLocalLog(log: DailyLog) {
       validated.error.issues[0]?.message ?? "Invalid daily log",
     );
   }
-  const db = await database;
-  const transaction = db.transaction(["logs", "syncQueue"], "readwrite");
-  const op: SyncOp = {
-    id: crypto.randomUUID(),
-    entity: "log",
-    entityId: log.date,
-    op: "upsert",
-    payload: log,
-    updatedAt: log.updatedAt,
-  };
-  await Promise.all([
-    transaction.objectStore("logs").put(log),
-    transaction.objectStore("syncQueue").put(op),
-    transaction.done,
-  ]);
+  await withWriteLock(async () => {
+    const db = await database;
+    const transaction = db.transaction(["logs", "syncQueue"], "readwrite");
+    const op: SyncOp = {
+      id: crypto.randomUUID(),
+      entity: "log",
+      entityId: log.date,
+      op: "upsert",
+      payload: log,
+      updatedAt: log.updatedAt,
+    };
+    await Promise.all([
+      transaction.objectStore("logs").put(log),
+      transaction.objectStore("syncQueue").put(op),
+      transaction.done,
+    ]);
+  });
 }
 
 export async function saveLocalPerson(person: Person) {
@@ -188,21 +219,23 @@ export async function saveLocalPerson(person: Person) {
       validated.error.issues[0]?.message ?? "Invalid person",
     );
   }
-  const db = await database;
-  const transaction = db.transaction(["people", "syncQueue"], "readwrite");
-  const op: SyncOp = {
-    id: crypto.randomUUID(),
-    entity: "person",
-    entityId: person.slug,
-    op: "upsert",
-    payload: person,
-    updatedAt: person.updatedAt,
-  };
-  await Promise.all([
-    transaction.objectStore("people").put(person),
-    transaction.objectStore("syncQueue").put(op),
-    transaction.done,
-  ]);
+  await withWriteLock(async () => {
+    const db = await database;
+    const transaction = db.transaction(["people", "syncQueue"], "readwrite");
+    const op: SyncOp = {
+      id: crypto.randomUUID(),
+      entity: "person",
+      entityId: person.slug,
+      op: "upsert",
+      payload: person,
+      updatedAt: person.updatedAt,
+    };
+    await Promise.all([
+      transaction.objectStore("people").put(person),
+      transaction.objectStore("syncQueue").put(op),
+      transaction.done,
+    ]);
+  });
 }
 
 export async function getLocalLog(date: string) {
@@ -239,12 +272,14 @@ export async function getPendingOps() {
 
 export async function removePendingOps(ids: string[]) {
   if (ids.length === 0) return;
-  const db = await database;
-  const transaction = db.transaction("syncQueue", "readwrite");
-  await Promise.all([
-    ...ids.map((id) => transaction.store.delete(id)),
-    transaction.done,
-  ]);
+  await withWriteLock(async () => {
+    const db = await database;
+    const transaction = db.transaction("syncQueue", "readwrite");
+    await Promise.all([
+      ...ids.map((id) => transaction.store.delete(id)),
+      transaction.done,
+    ]);
+  });
 }
 
 export async function mergeRemoteChanges(
@@ -254,57 +289,59 @@ export async function mergeRemoteChanges(
   logs: DailyLog[] = [],
   people: Person[] = [],
 ) {
-  const db = await database;
-  const transaction = db.transaction(
-    ["entries", "threads", "progress", "logs", "people"],
-    "readwrite",
-  );
+  await withWriteLock(async () => {
+    const db = await database;
+    const transaction = db.transaction(
+      ["entries", "threads", "progress", "logs", "people"],
+      "readwrite",
+    );
 
-  for (const remote of entries) {
-    const local = await transaction.objectStore("entries").get(remote.id);
-    if (
-      !local ||
-      Date.parse(remote.updatedAt) >= Date.parse(local.updatedAt)
-    ) {
-      await transaction.objectStore("entries").put(remote);
+    for (const remote of entries) {
+      const local = await transaction.objectStore("entries").get(remote.id);
+      if (
+        !local ||
+        Date.parse(remote.updatedAt) >= Date.parse(local.updatedAt)
+      ) {
+        await transaction.objectStore("entries").put(remote);
+      }
     }
-  }
-  for (const remote of threads) {
-    const local = await transaction.objectStore("threads").get(remote.slug);
-    if (
-      !local ||
-      Date.parse(remote.updatedAt) >= Date.parse(local.updatedAt)
-    ) {
-      await transaction.objectStore("threads").put(remote);
+    for (const remote of threads) {
+      const local = await transaction.objectStore("threads").get(remote.slug);
+      if (
+        !local ||
+        Date.parse(remote.updatedAt) >= Date.parse(local.updatedAt)
+      ) {
+        await transaction.objectStore("threads").put(remote);
+      }
     }
-  }
-  for (const remote of progress) {
-    const local = await transaction
-      .objectStore("progress")
-      .get(remote.chapter);
-    if (!local || Date.parse(remote.readAt) >= Date.parse(local.readAt)) {
-      await transaction.objectStore("progress").put(remote);
+    for (const remote of progress) {
+      const local = await transaction
+        .objectStore("progress")
+        .get(remote.chapter);
+      if (!local || Date.parse(remote.readAt) >= Date.parse(local.readAt)) {
+        await transaction.objectStore("progress").put(remote);
+      }
     }
-  }
-  for (const remote of logs) {
-    const local = await transaction.objectStore("logs").get(remote.date);
-    if (
-      !local ||
-      Date.parse(remote.updatedAt) >= Date.parse(local.updatedAt)
-    ) {
-      await transaction.objectStore("logs").put(remote);
+    for (const remote of logs) {
+      const local = await transaction.objectStore("logs").get(remote.date);
+      if (
+        !local ||
+        Date.parse(remote.updatedAt) >= Date.parse(local.updatedAt)
+      ) {
+        await transaction.objectStore("logs").put(remote);
+      }
     }
-  }
-  for (const remote of people) {
-    const local = await transaction.objectStore("people").get(remote.slug);
-    if (
-      !local ||
-      Date.parse(remote.updatedAt) >= Date.parse(local.updatedAt)
-    ) {
-      await transaction.objectStore("people").put(remote);
+    for (const remote of people) {
+      const local = await transaction.objectStore("people").get(remote.slug);
+      if (
+        !local ||
+        Date.parse(remote.updatedAt) >= Date.parse(local.updatedAt)
+      ) {
+        await transaction.objectStore("people").put(remote);
+      }
     }
-  }
-  await transaction.done;
+    await transaction.done;
+  });
 }
 
 export async function getLastPull() {
@@ -313,8 +350,10 @@ export async function getLastPull() {
 }
 
 export async function setLastPull(value: string) {
-  const db = await database;
-  await db.put("meta", { key: "lastPull", value });
+  await withWriteLock(async () => {
+    const db = await database;
+    await db.put("meta", { key: "lastPull", value });
+  });
 }
 
 export async function closeLocalDatabase() {

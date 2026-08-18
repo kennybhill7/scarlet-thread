@@ -20,3 +20,44 @@
   color: var(--shell-text);
   margin: 4px 0 20px;
 }
+
+.sections {
+  display: grid;
+  gap: 16px;
+  /* VaultExportButton and DeviceSessionControls are styled with the reading
+     page's --page-* tokens (white cards). Settings always renders on the dark
+     shell, so remap the tokens on this wrapper rather than editing component
+     CSS this task does not own. */
+  --page-card: var(--shell-surface-hi);
+  --page-border: var(--shell-border);
+  --page-ink: var(--shell-text);
+  --page-ink-3: var(--shell-muted-2);
+  --green: var(--gold); /* export button fill; its label is var(--page-card) */
+  --danger: #ef8a8a; /* no --danger token exists in globals.css; the
+                        component's #9b2c2c fallback is unreadable here */
+}
+
+.card {
+  display: grid;
+  gap: 0.7rem;
+  padding: 1.25rem;
+  border: 1px solid var(--shell-border);
+  border-radius: var(--r-xl);
+  background: var(--shell-surface-hi);
+}
+
+.cardEyebrow {
+  color: var(--gold);
+  font-family: var(--font-narrow);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.cardTitle {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 18px;
+  color: var(--shell-text);
+  margin: 0;
+}

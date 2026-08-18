@@ -2,26 +2,44 @@
 
 import { useState } from "react";
 
+import {
+  EXPORT_DOWNLOADED_MESSAGE,
+  ExportLateWriteError,
+  exportBlockedMessage,
+  fetchCurrentArchive,
+  flushPendingWrites,
+} from "@/lib/sync/clear";
+
 import styles from "./vault-export-button.module.css";
 
-type Status = "idle" | "exporting" | "error";
+type Status = "idle" | "syncing" | "exporting" | "error";
 
 export function VaultExportButton() {
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
+  const busy = status === "syncing" || status === "exporting";
 
   async function download() {
+    setStatus("syncing");
+    setMessage("Syncing your latest writing before the export is built…");
+    try {
+      await flushPendingWrites();
+    } catch (error) {
+      setStatus("error");
+      setMessage(exportBlockedMessage(error));
+      // The early return is the guarantee: /api/export is never called with
+      // local writing still queued, so a stale server archive can never be
+      // handed over as the current one.
+      return;
+    }
+
     setStatus("exporting");
     setMessage("Building your Markdown archive…");
     try {
-      const response = await fetch("/api/export", {
-        cache: "no-store",
-        credentials: "same-origin",
-      });
-      if (!response.ok) {
-        throw new Error(`Export failed with status ${response.status}`);
-      }
-      const blob = await response.blob();
+      // fetchCurrentArchive re-checks the queue after the response has fully
+      // arrived, so a write saved during the request cancels the download
+      // instead of being silently absent from a file the user keeps.
+      const blob = await fetchCurrentArchive();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -31,10 +49,17 @@ export function VaultExportButton() {
       link.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 0);
       setStatus("idle");
-      setMessage("Export downloaded.");
-    } catch {
+      // The wording lives in clear.ts beside the recheck that backs it, so the
+      // claim cannot outgrow the proof. See EXPORT_DOWNLOADED_MESSAGE for what
+      // this flow can and cannot establish about an archive's currency.
+      setMessage(EXPORT_DOWNLOADED_MESSAGE);
+    } catch (error) {
       setStatus("error");
-      setMessage("The export could not be downloaded. Please try again.");
+      setMessage(
+        error instanceof ExportLateWriteError
+          ? exportBlockedMessage(error)
+          : "The export could not be downloaded, so nothing was saved. Try again.",
+      );
     }
   }
 
@@ -46,12 +71,12 @@ export function VaultExportButton() {
         Download entries, threads, people, and daily logs as linked Markdown in
         a ZIP archive. Bible translation text is not duplicated.
       </p>
-      <button
-        disabled={status === "exporting"}
-        onClick={() => void download()}
-        type="button"
-      >
-        {status === "exporting" ? "Building export…" : "Download Markdown export"}
+      <button disabled={busy} onClick={() => void download()} type="button">
+        {status === "syncing"
+          ? "Syncing first…"
+          : status === "exporting"
+            ? "Building export…"
+            : "Download Markdown export"}
       </button>
       <p className={styles.status} role={status === "error" ? "alert" : "status"}>
         {message}
