@@ -13,6 +13,19 @@ BSB's 31,102. A parallel reader that assumes 1:1 alignment and is wrong shows si
 mismatched panes, which is worse than shipping no parallel view at all. This script
 locates every divergence instead of guessing.
 
+--- Fail-closed build (CODEX_AUDIT A-004 / Gate 0.6, CORPUS-001) -------------
+The archive is downloaded and parsed entirely into memory, then validated
+(build_bible.validate_version_payload, imported and reused rather than
+duplicated) BEFORE anything is written to disk. Only after validation passes
+does this script write the SBL/ directory into a staging path and swap it
+into place with build_bible.atomic_replace_dir -- the same fail-closed,
+delete-last pattern build_bible.py uses for the English tree. versemap.json
+and index.json are themselves only overwritten (via os.replace, atomic for a
+single file) once the directory swap above has already succeeded.
+A validation failure exits non-zero with a stderr report and leaves
+web/public/bible/SBL, versemap.json and index.json byte-identical to what
+they were before the run.
+
 Usage:  py tools/build_spanish.py [--force]
 Author: Kenneth Hill
 """
@@ -20,6 +33,7 @@ Author: Kenneth Hill
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 import sys
@@ -27,9 +41,18 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+from build_bible import (
+    CANON,
+    ROOT,
+    TOTAL_CHAPTERS,
+    ValidationIssue,
+    atomic_replace_dir,
+    validate_version_payload,
+)
+
 CACHE_DIR = ROOT / "tools" / ".cache"
 OUTPUT_DIR = ROOT / "web" / "public" / "bible"
+STAGING_DIR = ROOT / "web" / "public" / "bible-sbl.staging"
 REPORT_FILE = ROOT / "tools" / "versification-report.md"
 
 USER_AGENT = "bible-brain-build/1.0 (+local study app)"
@@ -48,6 +71,24 @@ VERSION_META = {
 
 # The English version the Spanish pane is aligned against.
 COMPARE_TO = "BSB"
+
+# Declared expectation this edition's total verse count must match
+# (tools/versification-report.md: 31,103 vs BSB's 31,102 -- see VERSE_MAP
+# below for the +1 explained by the Romans 14/16 doxology placement).
+DECLARED_VERSE_TOTAL = 31_103
+
+# Known textual-omission verses for this edition: an empty verse slot is only
+# tolerated at validation time if declared here (see build_bible.py's
+# DECLARED_OMISSIONS for the same fail-closed pattern applied to English).
+#
+# HONEST GAP: CODEX_AUDIT A-028 reports 5 empty numbered slots in SBL from
+# direct corpus inspection, but does not name their exact references, and
+# tools/.cache is gitignored so this checkout cannot inspect the real source
+# to confirm them. Left empty rather than guessed: a real build against the
+# live source will report each one as an "undeclared_empty_verse" failure
+# with its exact book/chapter/verse -- copy those into this dict once
+# confirmed. Do not pre-guess.
+DECLARED_OMISSIONS: dict[tuple[int, int, int], str] = {}
 
 # --- Verse map -----------------------------------------------------------------
 # 1,187 of 1,189 chapters align 1:1. The two that do not are Romans 14 and 16, and
@@ -203,6 +244,24 @@ def parse_book(text: str) -> tuple[str, str, list[list[str]]] | None:
     return code, title, chapters
 
 
+def parse_archive(archive: Path) -> tuple[dict[int, str], dict[int, list[list[str]]]]:
+    """Parse the whole USFM zip into memory. No filesystem writes to the live tree."""
+    names: dict[int, str] = {}
+    books: dict[int, list[list[str]]] = {}
+    with zipfile.ZipFile(archive) as zf:
+        for name in sorted(zf.namelist()):
+            if not name.lower().endswith(".usfm"):
+                continue
+            parsed = parse_book(zf.read(name).decode("utf-8", errors="replace"))
+            if parsed is None:
+                continue
+            code, title, chapters = parsed
+            index = USFM_TO_CANON[code]
+            names[index] = title
+            books[index] = chapters
+    return names, books
+
+
 def load_english_counts() -> dict[int, list[int]]:
     """Verse counts per chapter for the comparison version."""
     counts: dict[int, list[int]] = {}
@@ -217,46 +276,60 @@ def load_english_counts() -> dict[int, list[int]]:
     return counts
 
 
+def _report_failure_and_exit(issues: list[ValidationIssue]) -> None:
+    print(
+        f"\nCorpus validation FAILED -- {len(issues)} issue(s). "
+        "Live web/public/bible/SBL, versemap.json and index.json left untouched.",
+        file=sys.stderr,
+    )
+    for issue in issues:
+        print(f"  [{issue.kind}] {issue.detail}", file=sys.stderr)
+    sys.exit(1)
+
+
+def _atomic_write_json(payload: dict, target: Path) -> None:
+    """Write JSON to `target` via a same-directory temp file + os.replace, which
+    is atomic for a single file (even on Windows) regardless of whether the
+    destination already exists."""
+    tmp = target.with_suffix(target.suffix + ".tmp")
+    tmp.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    os.replace(tmp, target)
+
+
 def main() -> None:
     force = "--force" in sys.argv
     print(f"Building {VERSION_ID} — {VERSION_META['name']}")
 
-    archive = download(force)
-    out_dir = OUTPUT_DIR / VERSION_ID
-    if out_dir.exists():
-        shutil.rmtree(out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    spanish_names: dict[int, str] = {}
-    spanish_counts: dict[int, list[int]] = {}
-    verse_total = 0
-    chapter_total = 0
-
-    with zipfile.ZipFile(archive) as zf:
-        for name in sorted(zf.namelist()):
-            if not name.lower().endswith(".usfm"):
-                continue
-            parsed = parse_book(zf.read(name).decode("utf-8", errors="replace"))
-            if parsed is None:
-                continue
-            code, title, chapters = parsed
-            index = USFM_TO_CANON[code]
-            spanish_names[index] = title
-            spanish_counts[index] = [len(c) for c in chapters]
-            chapter_total += len(chapters)
-            verse_total += sum(len(c) for c in chapters)
-            (out_dir / f"{index}.json").write_text(
-                json.dumps({"b": title, "c": chapters}, ensure_ascii=False, separators=(",", ":")),
-                encoding="utf-8",
-            )
-
-    missing = sorted(set(USFM_TO_CANON.values()) - set(spanish_counts))
-    print(f"  {len(spanish_counts)}/66 books · {chapter_total:,} chapters · {verse_total:,} verses")
-    if missing:
-        print(f"  ! missing book indexes: {missing}")
-
-    # --- versification diff --------------------------------------------------
+    # Precondition, not a corpus-integrity gate: the diff needs a live English
+    # baseline already on disk. Already fail-closed (SystemExit -> exit 1,
+    # message to stderr) and does not touch anything before this point.
     english = load_english_counts()
+
+    archive = download(force)
+    spanish_names, spanish_books = parse_archive(archive)
+
+    issues = validate_version_payload(
+        VERSION_ID,
+        spanish_books,
+        canon=CANON,
+        total_chapters=TOTAL_CHAPTERS,
+        declared_verse_total=DECLARED_VERSE_TOTAL,
+        declared_omissions=DECLARED_OMISSIONS,
+    )
+    if issues:
+        _report_failure_and_exit(issues)
+
+    chapter_total = sum(len(c) for c in spanish_books.values())
+    verse_total = sum(len(v) for c in spanish_books.values() for v in c)
+    print(f"  {len(spanish_books)}/66 books · {chapter_total:,} chapters · {verse_total:,} verses -- OK")
+
+    # --- versification diff (informational; does not gate the build) --------
+    # The two DECLARED divergences (Romans 14/16) are expected and handled via
+    # VERSE_MAP below. Any OTHER chapter-level count mismatch against English
+    # is still written to the report for a human to see, exactly as before --
+    # it is not itself grounds to fail the build closed, because unlike an
+    # empty-verse slot it is not necessarily wrong, only different, and this
+    # script's job is to surface it, not adjudicate it.
     index_meta = json.loads((OUTPUT_DIR / "index.json").read_text(encoding="utf-8"))
     book_names = {b["n"]: b["name"] for b in index_meta["books"]}
 
@@ -264,7 +337,7 @@ def main() -> None:
     missing_chapters: list[str] = []
 
     for n in range(1, 67):
-        es = spanish_counts.get(n, [])
+        es = [len(c) for c in spanish_books.get(n, [])]
         en = english.get(n, [])
         if len(es) != len(en):
             missing_chapters.append(f"{book_names[n]}: {len(es)} chapters (ES) vs {len(en)} (EN)")
@@ -272,7 +345,7 @@ def main() -> None:
             if es[c] != en[c]:
                 chapter_diffs.append((book_names[n], c + 1, es[c], en[c]))
 
-    total_es = sum(sum(v) for v in spanish_counts.values())
+    total_es = verse_total
     total_en = sum(sum(v) for v in english.values())
 
     lines = [
@@ -323,28 +396,42 @@ def main() -> None:
         ]
         lines.append("")
 
+    # --- everything below writes to disk; everything above was validation ---
+    # or read-only. From here on, the SBL directory is built in staging and
+    # swapped in with atomic_replace_dir; versemap.json/index.json/the report
+    # are only overwritten after that swap succeeds.
+
+    if STAGING_DIR.exists():
+        shutil.rmtree(STAGING_DIR)  # leftover from an earlier interrupted run
+    STAGING_DIR.mkdir(parents=True, exist_ok=True)
+    for index, chapters in spanish_books.items():
+        title = spanish_names.get(index, book_names.get(index, ""))
+        (STAGING_DIR / f"{index}.json").write_text(
+            json.dumps({"b": title, "c": chapters}, ensure_ascii=False, separators=(",", ":")),
+            encoding="utf-8",
+        )
+
+    live_sbl_dir = OUTPUT_DIR / VERSION_ID
+    atomic_replace_dir(STAGING_DIR, live_sbl_dir)
+
     REPORT_FILE.write_text("\n".join(lines), encoding="utf-8")
 
     # The reader loads this instead of assuming 1:1 alignment.
     reverse = {v: k for k, v in VERSE_MAP.items() if v}
-    (OUTPUT_DIR / "versemap.json").write_text(
-        json.dumps(
-            {
-                VERSION_ID: {
-                    "comparedTo": COMPARE_TO,
-                    "toEnglish": VERSE_MAP,
-                    "toSpanish": reverse,
-                    "notes": VERSE_MAP_NOTES,
-                    "divergentChapters": sorted(
-                        {source.rsplit(".", 1)[0] for source in VERSE_MAP}
-                        | {target.rsplit(".", 1)[0] for target in VERSE_MAP.values() if target}
-                    ),
-                }
-            },
-            ensure_ascii=False,
-            separators=(",", ":"),
-        ),
-        encoding="utf-8",
+    _atomic_write_json(
+        {
+            VERSION_ID: {
+                "comparedTo": COMPARE_TO,
+                "toEnglish": VERSE_MAP,
+                "toSpanish": reverse,
+                "notes": VERSE_MAP_NOTES,
+                "divergentChapters": sorted(
+                    {source.rsplit(".", 1)[0] for source in VERSE_MAP}
+                    | {target.rsplit(".", 1)[0] for target in VERSE_MAP.values() if target}
+                ),
+            }
+        },
+        OUTPUT_DIR / "versemap.json",
     )
 
     # --- register the version in index.json ----------------------------------
@@ -354,9 +441,7 @@ def main() -> None:
     versions.append({k: v for k, v in VERSION_META.items() if k != "source"})
     index_meta["versions"] = versions
     index_meta["spanishNames"] = {str(k): v for k, v in sorted(spanish_names.items())}
-    (OUTPUT_DIR / "index.json").write_text(
-        json.dumps(index_meta, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
-    )
+    _atomic_write_json(index_meta, OUTPUT_DIR / "index.json")
 
     print(f"\n  Spanish {total_es:,} vs {COMPARE_TO} {total_en:,} ({total_es - total_en:+,})")
     print(f"  {len(chapter_diffs)} chapter(s) differ · report -> {REPORT_FILE.name}")
