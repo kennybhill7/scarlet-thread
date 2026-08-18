@@ -136,40 +136,40 @@
       "notes": "Merged. Residual gaps tracked as VMCACHE-001."
     },
     "CLIMB-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/CLIMB-001-local",
+      "commitSha": "4f115b4",
       "attempts": 0,
       "lastRunId": "interactive-parallel-2026-08-18",
-      "lastEvidence": null,
-      "notes": "Seeded 2026-08-18 from a direct read of the current source (not a restatement of the BUILD_PLAN gate table). Base: master @ 1beee64, which now contains all merged Phase 0 work. | Claimed 2026-08-18 13:20 by an interactive parallel build wave (6 builders at once, each in its own worktree). Not eligible for the cloud worker while building."
+      "lastEvidence": "Built in the 2026-08-18 interactive parallel wave, independently verified by Claude, MERGED to master in f2a5c7b. Combined verification of all four together: typecheck clean, lint clean, production build clean, 229/229 JS tests, 19/19 python corpus-validation tests. Merged with zero conflicts. | GATE 0.2 VERIFIED CLOSED BY ME, not just claimed: the build route table now shows / as dynamic where it was static, no .next/server/app/index.html is emitted, and only an \"import type\" remains from lib/vault/seed - so private journal data is no longer baked into build output. I also re-ran the auth-guard mutation myself: deleting the guard fails 2 named GUARD tests, restore returns green. | RESIDUAL (honestly self-reported, same shape as REVIEW-001): proxy.ts AND app/(app)/layout.tsx both call auth() above this page, so a real browser navigation during a DB outage may still redirect to /sign-in before the page probe runs. Tracked by AUTHDB-001, whose scope should be widened to include layout.tsx.",
+      "notes": "Merged. Residual auth-preemption gap tracked as AUTHDB-001."
     },
     "OFFNAV-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/OFFNAV-001-local",
+      "commitSha": "8c402eb",
       "attempts": 0,
       "lastRunId": "interactive-parallel-2026-08-18",
-      "lastEvidence": null,
-      "notes": "Seeded 2026-08-18 from a direct read of the current source (not a restatement of the BUILD_PLAN gate table). Base: master @ 1beee64, which now contains all merged Phase 0 work. | Claimed 2026-08-18 13:20 by an interactive parallel build wave (6 builders at once, each in its own worktree). Not eligible for the cloud worker while building."
+      "lastEvidence": "Built in the 2026-08-18 interactive parallel wave, independently verified by Claude, MERGED to master in f2a5c7b. Combined verification of all four together: typecheck clean, lint clean, production build clean, 229/229 JS tests, 19/19 python corpus-validation tests. Merged with zero conflicts. | RESIDUAL (self-reported): the offline fallback picks the translation version heuristically. A precise fix needs either lib/bible/lastRead.ts to persist the last-read version somewhere a service worker can read, or the client to postMessage its version to the worker - both outside owned paths, so reported rather than implemented per SCOPE-BOUNDARY-001.",
+      "notes": "Merged. Version-selection heuristic is a known limitation."
     },
     "CORPUS-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/CORPUS-001-local",
+      "commitSha": "ee10735",
       "attempts": 0,
       "lastRunId": "interactive-parallel-2026-08-18",
-      "lastEvidence": null,
-      "notes": "Seeded 2026-08-18 from a direct read of the current source (not a restatement of the BUILD_PLAN gate table). Base: master @ 1beee64, which now contains all merged Phase 0 work. | Claimed 2026-08-18 13:20 by an interactive parallel build wave (6 builders at once, each in its own worktree). Not eligible for the cloud worker while building."
+      "lastEvidence": "Built in the 2026-08-18 interactive parallel wave, independently verified by Claude, MERGED to master in f2a5c7b. Combined verification of all four together: typecheck clean, lint clean, production build clean, 229/229 JS tests, 19/19 python corpus-validation tests. Merged with zero conflicts. | Validation logic extracted into pure importable functions and covered by 19 synthetic-fixture tests (missing book, short chapter count, verse-total mismatch, undeclared empty verse), which I ran myself: 19/19 OK. The builder discovered that plain \"python\" on this machine is a Windows Store stub that errors, and that a real 3.14.0 interpreter exists at C:/Users/kenny/AppData/Local/Python/bin/python.exe - it used the real one rather than silently claiming success, and I used the same path to verify. | RESIDUAL: the DECLARED_OMISSIONS allow-list cannot be fully confirmed without the gitignored tools/.cache sources, so the omission set is partly inferred rather than discovered from a real rebuild.",
+      "notes": "Merged. Real-corpus rebuild still unverifiable without source data."
     },
     "VERSESEL-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/VERSESEL-001-local",
+      "commitSha": "4894b56feedd103a37c6b1f2e007835b1c3a5b1f",
       "attempts": 0,
       "lastRunId": "interactive-parallel-2026-08-18",
-      "lastEvidence": null,
-      "notes": "Seeded 2026-08-18 from a direct read of the current source (not a restatement of the BUILD_PLAN gate table). Base: master @ 1beee64, which now contains all merged Phase 0 work. | Claimed 2026-08-18 13:20 by an interactive parallel build wave (6 builders at once, each in its own worktree). Not eligible for the cloud worker while building."
+      "lastEvidence": "Built in the 2026-08-18 interactive parallel wave, independently verified by Claude, MERGED to master in f2a5c7b. Combined verification of all four together: typecheck clean, lint clean, production build clean, 229/229 JS tests, 19/19 python corpus-validation tests. Merged with zero conflicts. | RESIDUAL (self-reported): true DOM-level keyboard-interaction testing (a real KeyboardEvent at a real rendered button) would need jsdom + a render-testing library added to package.json, which is outside every current task scope - so keyboard behavior is proven structurally rather than by real event dispatch. The builder deliberately kept its ChapterReader.tsx edits tight and structurally separate from the parallel-alignment effect so VMCACHE-001 can add its .catch() cleanly.",
+      "notes": "Merged. VMCACHE-001 is now unblocked - ChapterReader.tsx is free."
     },
     "RANGE-001": {
       "status": "building",
@@ -196,7 +196,7 @@
       "attempts": 0,
       "lastRunId": null,
       "lastEvidence": null,
-      "notes": "Seeded 2026-08-18 from an honestly-reported out-of-scope gap in a completed rework (SCOPE-BOUNDARY-001 working as intended: the builder reported rather than smuggled the edit). | HELD OUT of the 2026-08-18 parallel wave: it owns web/components/reader/ChapterReader.tsx and so does VERSESEL-001. Run it after VERSESEL-001 lands to avoid a guaranteed conflict."
+      "notes": "Seeded 2026-08-18 from an honestly-reported out-of-scope gap in a completed rework (SCOPE-BOUNDARY-001 working as intended: the builder reported rather than smuggled the edit). | HELD OUT of the 2026-08-18 parallel wave: it owns web/components/reader/ChapterReader.tsx and so does VERSESEL-001. Run it after VERSESEL-001 lands to avoid a guaranteed conflict. | UNBLOCKED 2026-08-18: VERSESEL-001 has landed, so ChapterReader.tsx is free. Base off master f2a5c7b or later."
     }
   }
 }
