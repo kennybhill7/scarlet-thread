@@ -34,6 +34,17 @@
   border-top: 1px solid var(--shell-border);
 }
 
+.setupNotice {
+  margin-top: 16px;
+  padding: 16px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--danger, #9b2c2c);
+  background: color-mix(in srgb, var(--danger, #9b2c2c) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--danger, #9b2c2c) 30%, transparent);
+  border-radius: var(--r-md);
+}
+
 .h2 {
   font-family: var(--font-label);
   font-weight: 600;
