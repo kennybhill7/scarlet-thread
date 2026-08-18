@@ -2,98 +2,20 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth/config";
 import { listEntries } from "@/lib/db/entries";
+import { computeMotifCandidates, type RadarMotifCandidate } from "@/lib/db/radar";
 import { getReviewSnapshot } from "@/lib/db/review";
 import { listThreads } from "@/lib/db/threads";
 import type { Entry, ReviewSnapshot, Thread } from "@/lib/contracts";
 import styles from "./review.module.css";
 
 // ---------------------------------------------------------------------------
-// Thread radar — "you've noticed X in three passages, is this becoming a
-// thread?" Ported from lib/vault/seed.ts's getThreadRadar(): same algorithm,
-// now reading DB entries/threads instead of the build-time seed bridge. See
-// that file's history for why distinct-chapter counting (not entry counting)
-// is the correct sighting definition.
+// Thread radar — RADAR-001 / BUILD_PLAN.md §3.5: the radar emits MOTIF
+// CANDIDATES, never Connection rows (a theological edge exists only after
+// the learner has compared both texts and written a rationale). The lexical
+// engine itself lives in `lib/db/radar.ts` — see that file for the
+// third-sighting rule and the A-045 honest-coverage fix; this page only
+// fetches entries/threads and renders what it returns.
 // ---------------------------------------------------------------------------
-
-const STOPWORDS = new Set([
-  "the", "and", "that", "this", "with", "from", "have", "were", "they",
-  "them", "their", "what", "when", "where", "which", "while", "would",
-  "could", "should", "there", "here", "then", "than", "into", "over",
-  "under", "about", "before", "after", "again", "still", "also", "even",
-  "just", "only", "never", "always", "your", "unto", "shall", "will",
-  "upon", "hath", "thee", "thou", "thy", "his", "her", "him", "she",
-  "who", "was", "are", "for", "not", "but", "you", "all", "one", "two",
-  "out", "now", "own", "did", "yet", "every", "between", "chapter",
-  "chapters", "verse", "verses", "reads", "reading", "first", "second",
-  "third", "fourth", "fifth", "each", "some", "much", "many", "more",
-  "most", "less", "least", "such", "same", "other", "another", "these",
-  "those", "being", "been", "back", "away", "toward",
-  "through", "against", "because", "since", "until", "though", "given",
-  "everything", "great", "toward",
-]);
-
-const BOOK_NAMES = new Set([
-  "genesis", "exodus", "leviticus", "numbers", "deuteronomy", "joshua",
-  "judges", "ruth", "samuel", "kings", "chronicles", "ezra", "nehemiah",
-  "esther", "job", "psalms", "psalm", "proverbs", "ecclesiastes", "song",
-  "songs", "solomon", "isaiah", "jeremiah", "lamentations", "ezekiel",
-  "daniel", "hosea", "joel", "amos", "obadiah", "jonah", "micah", "nahum",
-  "habakkuk", "zephaniah", "haggai", "zechariah", "malachi", "matthew",
-  "mark", "luke", "john", "acts", "romans", "corinthians", "galatians",
-  "ephesians", "philippians", "colossians", "thessalonians", "timothy",
-  "titus", "philemon", "hebrews", "james", "peter", "jude", "revelation",
-]);
-
-function normaliseWord(word: string): string {
-  if (word.length > 5 && word.endsWith("ies")) return `${word.slice(0, -3)}y`;
-  if (word.length > 4 && word.endsWith("es")) return word.slice(0, -2);
-  if (word.length > 4 && word.endsWith("s") && !word.endsWith("ss")) return word.slice(0, -1);
-  return word;
-}
-
-export interface RadarHit {
-  word: string;
-  count: number;
-  chapters: string[];
-}
-
-export function computeThreadRadar(entries: Entry[], threads: Thread[]): RadarHit[] {
-  const threadTitleWords = new Set(
-    threads.flatMap((t) => t.title.toLowerCase().split(/[^a-z]+/).filter(Boolean)),
-  );
-  const threadTitleBySlug = new Map(threads.map((t) => [t.slug, t.title.toLowerCase()]));
-
-  const hits = new Map<string, Set<string>>();
-
-  entries.forEach((entry) => {
-    if (entry.kind !== "observation" && entry.kind !== "question") return;
-    const entryThreadTitleWords = new Set(
-      entry.threads
-        .map((slug) => threadTitleBySlug.get(slug))
-        .filter((title): title is string => Boolean(title)),
-    );
-
-    const words = new Set(
-      entry.body
-        .toLowerCase()
-        .split(/[^a-z]+/)
-        .filter((w) => w.length >= 5 && !STOPWORDS.has(w) && !BOOK_NAMES.has(w) && !threadTitleWords.has(w))
-        .map(normaliseWord),
-    );
-
-    for (const word of words) {
-      if (entryThreadTitleWords.has(word)) continue;
-      if (!hits.has(word)) hits.set(word, new Set());
-      hits.get(word)!.add(entry.chapter);
-    }
-  });
-
-  return Array.from(hits.entries())
-    .filter(([, chapters]) => chapters.size >= 3)
-    .map(([word, chapters]) => ({ word, count: chapters.size, chapters: Array.from(chapters) }))
-    .sort((a, b) => b.count - a.count || a.word.localeCompare(b.word))
-    .slice(0, 8);
-}
 
 export interface TeachingEntry {
   body: string;
@@ -103,7 +25,8 @@ export interface TeachingEntry {
 
 export interface ReviewPageData {
   snapshot: ReviewSnapshot;
-  radar: RadarHit[];
+  /** Motif candidates, never Connection rows — see lib/db/radar.ts. */
+  motifCandidates: RadarMotifCandidate[];
   teaching: TeachingEntry[];
   orphanEntries: { id: string; label: string }[];
   /**
@@ -159,7 +82,7 @@ export async function loadReviewViewModel(
     const teaching = entries
       .filter((entry) => entry.kind === "teaching")
       .map((entry) => ({ body: entry.body, chapter: entry.chapter, threads: entry.threads }));
-    const radar = computeThreadRadar(entries, threads);
+    const motifCandidates = computeMotifCandidates(entries, threads);
     const orphanEntries = snapshot.orphanEntries
       .map((id) => entriesById.get(id))
       .filter((entry): entry is Entry => Boolean(entry))
@@ -172,7 +95,7 @@ export async function loadReviewViewModel(
 
     return {
       status: "ok",
-      data: { snapshot, radar, teaching, orphanEntries, coldThreads },
+      data: { snapshot, motifCandidates, teaching, orphanEntries, coldThreads },
     };
   } catch {
     return { status: "setup-incomplete" };
@@ -300,7 +223,7 @@ export default async function ReviewPage() {
     );
   }
 
-  const { snapshot: review, radar, teaching, orphanEntries, coldThreads } = view.data;
+  const { snapshot: review, motifCandidates, teaching, orphanEntries, coldThreads } = view.data;
   const topThread = review.threads[0];
 
   return (
@@ -337,19 +260,22 @@ export default async function ReviewPage() {
       <section className={styles.section}>
         <h2 className={styles.h2}>Thread radar</h2>
         <p className={styles.hint}>
-          Words showing up in three or more separate passages with no thread covering them yet. Not
-          a suggestion of what they mean — just a note that you&apos;ve seen something three times.
-          The guide&apos;s own rule: make a thread on the third sighting, not the first.
+          Words showing up in three or more separate passages that don&apos;t already appear in one of
+          your thread titles. A word-frequency hint, not a check that a thread already covers the
+          idea — just a note that you&apos;ve seen something three times. The guide&apos;s own rule:
+          make a thread on the third sighting, not the first. These are candidates, not connections —
+          comparing the passages side by side and writing why is still your work.
         </p>
-        {radar.length === 0 ? (
+        {motifCandidates.length === 0 ? (
           <p className={styles.ok}>Nothing repeating outside your existing threads right now.</p>
         ) : (
           <div className={styles.radar}>
-            {radar.map((hit) => (
-              <div key={hit.word} className={styles.radarHit}>
-                <span className={styles.radarWord}>{hit.word}</span>
+            {motifCandidates.map((candidate) => (
+              <div key={candidate.normalizedKey} className={styles.radarHit}>
+                <span className={styles.radarWord}>{candidate.label}</span>
                 <span className={styles.radarCount}>
-                  in {hit.count} passages · {hit.chapters.join(", ")}
+                  {candidate.status} · in {candidate.passages.length} passages ·{" "}
+                  {candidate.passages.join(", ")}
                 </span>
               </div>
             ))}
