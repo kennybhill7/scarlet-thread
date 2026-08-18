@@ -172,22 +172,22 @@
       "notes": "Merged. VMCACHE-001 is now unblocked - ChapterReader.tsx is free."
     },
     "RANGE-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/RANGE-001-local",
+      "commitSha": "51c45197433fbf3a2a356b05f0a0c00e15209c02",
       "attempts": 0,
       "lastRunId": "interactive-parallel-2026-08-18",
-      "lastEvidence": null,
-      "notes": "Seeded 2026-08-18 from a direct read of the current source (not a restatement of the BUILD_PLAN gate table). Base: master @ 1beee64, which now contains all merged Phase 0 work. | Claimed 2026-08-18 13:20 by an interactive parallel build wave (6 builders at once, each in its own worktree). Not eligible for the cloud worker while building."
+      "lastEvidence": "Built on sonnet after opus returned 529 twice. Independently verified by Claude and MERGED to master in 355ca1a. Combined verification of both together on top of the four-task wave: typecheck clean, lint clean, production build clean, 283/283 tests - arithmetic consistent (229 on master + 38 RANGE + 16 AUTHDB). | The Phase 1 canonical range contract is frozen: CanonicalRangeV1 + DisplayReferenceV1 in a new versioned module, with pure parse/validate/format/containment/overlap functions. lib/contracts.ts stays byte-stable. Notable finding of its own: lib/bible/reference.ts parseKey uses Number.parseInt and would wrongly accept \"1.1.1abc\", so the builder wrote a stricter regex parser and documented why in-module. Its canon bounds are built from the REAL shipped corpus (index.json + BSB files - Genesis 50 chapters, Romans 16 = 27 verses, Psalm 119 = 176) rather than fabricated fixtures, and canon data is injected via a CanonTable interface so the module stays pure. Six mutation proofs including the Romans 16 to Spanish 14 mapping and fail-closed propagation of VerseMapUnavailableError. | HONEST GAP the builder chose not to paper over: UnmappableDisplayReferenceError is implemented but deliberately untested, because given versemap.ts current invariants it is provably unreachable through the public API - it exists only because AlignedRow.toKey is typed RefKey|null. The builder said writing a test for it would require violating versemap.ts own contract and would be dishonest coverage. Documented in code comments instead.",
+      "notes": "Merged. Phase 1 contract frozen - v2 tables can now be built against a stable range shape."
     },
     "AUTHDB-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/AUTHDB-001-local",
+      "commitSha": "a85a147",
       "attempts": 0,
       "lastRunId": "interactive-parallel-2026-08-18",
-      "lastEvidence": null,
-      "notes": "Seeded 2026-08-18 from an honestly-reported out-of-scope gap in a completed rework (SCOPE-BOUNDARY-001 working as intended: the builder reported rather than smuggled the edit). | Claimed 2026-08-18 13:20 by an interactive parallel build wave (6 builders at once, each in its own worktree). Not eligible for the cloud worker while building."
+      "lastEvidence": "Built on sonnet after opus returned 529 twice. Independently verified by Claude and MERGED to master in 355ca1a. Combined verification of both together on top of the four-task wave: typecheck clean, lint clean, production build clean, 283/283 tests - arithmetic consistent (229 on master + 38 RANGE + 16 AUTHDB). | THIS CLOSES THE GAP TWO PRIOR TASKS COULD ONLY REPORT. REVIEW-001 and CLIMB-001 both correctly reported that their page-level DB probes are preempted by middleware; this fixes it at the right seam - next-auth authorized callback in lib/auth/config.ts, which is the MIDDLEWARE-ONLY hook - leaving proxy.ts unedited. Four branches: authenticated+allowlisted -> allow; no session cookie -> redirect with ZERO database access (preserves the existing no-DB fast path); cookie present + DB unreachable -> 503 setup-incomplete, honest text, no journal content; cookie present + DB healthy + no valid session -> redirect (genuinely signed out, unchanged). | I VERIFIED THE CRUCIAL CLAIM MYSELF: reintroduced the exact original bug (dead-DB branch returns false), rebuilt, and the wire suite caught it - including tests named \"wire: the middleware path against a genuinely unreachable database\" and \"the same dead-database request against /review ALSO fails at the middleware, before the page probe runs\". Restored, rebuilt, 283/283 green. The suite boots a real next start against a genuinely unreachable DATABASE_URL rather than stubbing it. | Security direction confirmed: every non-authenticated branch fails CLOSED on identity; only the error message differs between signed-out and setup-incomplete.",
+      "notes": "Merged. The auth-preemption gap reported by REVIEW-001 and CLIMB-001 is now genuinely closed at the middleware."
     },
     "VMCACHE-001": {
       "status": "ready",
