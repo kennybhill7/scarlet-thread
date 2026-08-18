@@ -5,6 +5,7 @@ import { useState, type ReactNode } from "react";
 import { DailyLoop } from "@/components/notes/DailyLoop";
 import { EntryList } from "@/components/notes/EntryList";
 import { NoteComposer } from "@/components/notes/NoteComposer";
+import type { RefKey } from "@/lib/contracts";
 import { syncNow } from "@/lib/sync/client";
 import { markChapterRead } from "@/lib/sync/store";
 
@@ -12,8 +13,29 @@ import styles from "./study-session.module.css";
 
 type StudySessionProps = {
   chapter: string;
+  /** A verse picked in the reader, if any. Optional -- chapter-level capture
+   *  must keep working with no verse selected. */
+  selectedVerse?: RefKey | null;
   children: ReactNode;
 };
+
+/**
+ * Decides whether the capture composer is visible and, if so, exactly what
+ * it receives. Pulled out as a pure function -- rather than left inline in
+ * the render body -- so the read-before-write gate (readComplete) and the
+ * verse-threading (selectedVerse -> verse) are each independently testable
+ * without needing to drive the "I'm finished reading" click through a DOM
+ * that this repo's test runner does not have. This is the exact function the
+ * render body below calls, not a parallel reimplementation of its logic.
+ */
+export function composerRenderState(
+  readComplete: boolean,
+  chapter: RefKey,
+  selectedVerse: RefKey | null | undefined,
+): { visible: false } | { visible: true; chapter: RefKey; verse: RefKey | undefined } {
+  if (!readComplete) return { visible: false };
+  return { visible: true, chapter, verse: selectedVerse ?? undefined };
+}
 
 function localDate() {
   const date = new Date();
@@ -23,11 +45,12 @@ function localDate() {
   return `${year}-${month}-${day}`;
 }
 
-function StudySessionState({ chapter, children }: StudySessionProps) {
+function StudySessionState({ chapter, selectedVerse, children }: StudySessionProps) {
   const [readComplete, setReadComplete] = useState(false);
   const [marking, setMarking] = useState(false);
   const [markError, setMarkError] = useState("");
   const [entryRevision, setEntryRevision] = useState(0);
+  const composer = composerRenderState(readComplete, chapter, selectedVerse);
 
   async function finishReading() {
     setMarking(true);
@@ -85,10 +108,11 @@ function StudySessionState({ chapter, children }: StudySessionProps) {
       </section>
 
       <div className={styles.writing} data-open={readComplete || undefined}>
-        {readComplete ? (
+        {composer.visible ? (
           <>
             <NoteComposer
-              chapter={chapter}
+              chapter={composer.chapter}
+              verse={composer.verse}
               onSaved={() => setEntryRevision((value) => value + 1)}
               readComplete
             />

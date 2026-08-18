@@ -78,11 +78,23 @@
 }
 
 .verse {
+  display: block;
+  width: 100%;
+  text-align: left;
   font-family: var(--font-read);
   font-size: 17px;
   line-height: 1.65;
   color: var(--page-ink-2);
   margin-bottom: 2px;
+  padding: 2px 4px;
+  border-radius: var(--r-sm);
+}
+
+/* Visible selected state -- keyed off the same aria-pressed the toggle
+   button pattern already sets, not a second, independently-toggled class
+   that could drift from it. */
+.verse[aria-pressed="true"] {
+  background: var(--gold-dim-bg);
 }
 
 .vnum {
