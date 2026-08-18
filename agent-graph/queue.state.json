@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-18T04:24:03.000Z",
+  "updatedAt": "2026-08-18T05:09:14.000Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
-    "taskId": null,
-    "runId": null,
-    "takenAt": null,
-    "expiresAt": null
+    "taskId": "VERSEMAP-001",
+    "runId": "cloud-20260818050914",
+    "takenAt": "2026-08-18T05:09:14.000Z",
+    "expiresAt": "2026-08-18T06:39:14.000Z"
   },
   "tasks": {
     "DOC-002": {
@@ -127,11 +127,11 @@
       "notes": "Seeded 2026-08-17 from a direct code read grounding the real defect (build-time seed bridge / silent versemap fail-open), not just the BUILD_PLAN.md gate description. Awaiting independent audit, same as other submitted tasks."
     },
     "VERSEMAP-001": {
-      "status": "ready",
+      "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": null,
+      "lastRunId": "cloud-20260818050914",
       "lastEvidence": null,
       "notes": "Seeded 2026-08-17 from a direct code read grounding the real defect (build-time seed bridge / silent versemap fail-open), not just the BUILD_PLAN.md gate description."
     }
