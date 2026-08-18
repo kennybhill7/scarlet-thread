@@ -12,6 +12,22 @@ Output shape:  web/public/bible/<VERSION>/<bookNumber>.json  ->  {"b": name, "c"
 Splitting per book keeps the service worker able to cache what you actually read
 instead of forcing a 20 MB download before the first verse appears.
 
+--- Fail-closed build (CODEX_AUDIT A-027 / Gate 0.6, CORPUS-001) --------------
+Every translation is downloaded and parsed into memory, then validated
+(validate_version_payload) BEFORE anything is written to disk. Only if every
+translation in VERSIONS passes validation does the script write a full new
+tree into a staging directory and swap it into place with atomic_replace_dir.
+A validation failure exits non-zero with a stderr report and leaves the live
+corpus at web/public/bible byte-identical to what it was before the run --
+nothing is deleted, nothing is partially overwritten.
+
+validate_version_payload and atomic_replace_dir are plain functions with no
+filesystem/network side effects of their own (validate_version_payload takes
+already-parsed data; atomic_replace_dir takes two paths) specifically so
+tools/test_corpus_validation.py can exercise them with synthetic fixtures --
+the real translation sources in tools/.cache are gitignored and will not
+exist in a clean checkout.
+
 Usage:  py tools/build_bible.py [--force]
 Author: Kenneth Hill
 """
@@ -19,6 +35,7 @@ Author: Kenneth Hill
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import sys
 import urllib.request
@@ -28,6 +45,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 CACHE_DIR = ROOT / "tools" / ".cache"
 OUTPUT_DIR = ROOT / "web" / "public" / "bible"
+STAGING_DIR = ROOT / "web" / "public" / "bible.staging"
 SOURCE = "https://raw.githubusercontent.com/scrollmapper/bible_databases/master/formats/json/{file}"
 
 # A plain urllib request gets a 403 from raw.githubusercontent -- it wants a UA.
@@ -132,6 +150,177 @@ ALIASES: dict[str, str] = {
 }
 
 TOTAL_CHAPTERS = sum(chapters for _, _, chapters in CANON)
+TOTAL_BOOKS = len(CANON)
+
+# Every English version handled by this script shares one textual tradition's
+# verse numbering (CODEX_AUDIT A-027: "never asserts the claimed 31,102 verses
+# per version"). SBL (Spanish) is handled by build_spanish.py against its own
+# declared total -- it is NOT one of these four.
+DECLARED_VERSE_TOTAL = 31_102
+
+# Known textual-omission verses per version: an empty verse slot is only
+# tolerated at validation time if its exact (book index, chapter, verse) is
+# declared here. Anything else empty is treated as a partial-download or
+# parser regression and fails the build closed (CODEX_AUDIT A-028).
+#
+# HONEST GAP: A-028 reports 16 empty slots in BSB and 16 in ASV from direct
+# corpus inspection; only the two most famous, independently-verifiable
+# disputed-verse references (Matthew 17:21, Acts 8:37 -- both long-documented
+# textual variants, not something that requires re-downloading the corpus to
+# know) are declared below. Running a real build against the live source will
+# report the exact refs for any *other* empty slot as an "undeclared_empty_
+# verse" validation failure -- copy those refs in here once confirmed against
+# the actual source text. Do not pre-guess the remaining ~14 per version; a
+# wrong guess would silently wave through a real omission that isn't one.
+DECLARED_OMISSIONS: dict[str, dict[tuple[int, int, int], str]] = {
+    "BSB": {
+        (40, 17, 21): "Matthew 17:21 -- absent from the earliest manuscripts.",
+        (44, 8, 37): "Acts 8:37 -- absent from the earliest manuscripts.",
+    },
+    "KJV": {},
+    "ASV": {
+        (40, 17, 21): "Matthew 17:21 -- footnoted omission in the ASV source text.",
+        (44, 8, 37): "Acts 8:37 -- footnoted omission in the ASV source text.",
+    },
+    "YLT": {},
+}
+
+
+@dataclass(frozen=True)
+class ValidationIssue:
+    """One fail-closed corpus validation problem."""
+
+    kind: str  # "missing_book" | "chapter_count" | "total_chapters" | "verse_total" | "undeclared_empty_verse"
+    detail: str
+
+
+class CorpusValidationError(RuntimeError):
+    """Raised (and always caught by main()) when a built version fails validation."""
+
+    def __init__(self, issues: list[ValidationIssue]):
+        self.issues = issues
+        super().__init__(f"{len(issues)} corpus validation issue(s)")
+
+
+def validate_version_payload(
+    version_id: str,
+    books: dict[int, list[list[str]]],
+    *,
+    canon: list[tuple[str, str, int]] = CANON,
+    total_chapters: int = TOTAL_CHAPTERS,
+    declared_verse_total: int | None = DECLARED_VERSE_TOTAL,
+    declared_omissions: dict[tuple[int, int, int], str] | None = None,
+) -> list[ValidationIssue]:
+    """Fail-closed structural check for one already-parsed translation.
+
+    Pure function over in-memory data -- no filesystem, no network -- so it
+    can be exercised with SYNTHETIC fixtures independent of the real corpus
+    (tools/.cache is gitignored and will not exist in a clean checkout).
+
+    `books` maps 1-indexed canon book number -> list of chapters -> list of
+    verse text strings, i.e. exactly the shape parse_version() produces.
+
+    Checks, all of which must pass for an empty issue list:
+      - all 66 canon books present (missing_book)
+      - each book's chapter count matches the canon (chapter_count)
+      - total chapters across the version equals 1189 (total_chapters)
+      - total verses across the version equals declared_verse_total, if given
+        (verse_total)
+      - every empty verse slot is a declared omission, if declared_omissions
+        is given (undeclared_empty_verse) -- an empty dict means "no omissions
+        are tolerated", not "omissions are unchecked"
+    """
+    declared_omissions = declared_omissions or {}
+    issues: list[ValidationIssue] = []
+    verse_total = 0
+    chapter_total = 0
+
+    for index, (name, _abbr, expected_chapters) in enumerate(canon, start=1):
+        chapters = books.get(index)
+        if chapters is None:
+            issues.append(
+                ValidationIssue(
+                    "missing_book", f"{version_id}: missing book '{name}' (index {index})"
+                )
+            )
+            continue
+
+        if len(chapters) != expected_chapters:
+            issues.append(
+                ValidationIssue(
+                    "chapter_count",
+                    f"{version_id}: {name} has {len(chapters)} chapters, expected {expected_chapters}",
+                )
+            )
+
+        chapter_total += len(chapters)
+        for chapter_num, verses in enumerate(chapters, start=1):
+            verse_total += len(verses)
+            for verse_num, text in enumerate(verses, start=1):
+                if text.strip() == "" and (index, chapter_num, verse_num) not in declared_omissions:
+                    issues.append(
+                        ValidationIssue(
+                            "undeclared_empty_verse",
+                            f"{version_id}: {name} {chapter_num}:{verse_num} is empty "
+                            "and is not a declared omission",
+                        )
+                    )
+
+    if chapter_total != total_chapters:
+        issues.append(
+            ValidationIssue(
+                "total_chapters",
+                f"{version_id}: {chapter_total} total chapters, expected {total_chapters}",
+            )
+        )
+
+    if declared_verse_total is not None and verse_total != declared_verse_total:
+        issues.append(
+            ValidationIssue(
+                "verse_total",
+                f"{version_id}: {verse_total} total verses, expected {declared_verse_total}",
+            )
+        )
+
+    return issues
+
+
+def atomic_replace_dir(staged: Path, live: Path) -> None:
+    """Swap `staged` into `live`'s place, deleting the prior contents of
+    `live` only AFTER the swap into place has succeeded -- never before.
+
+    This is two renames rather than one atomic filesystem call (Windows has
+    no single syscall that atomically replaces a non-empty directory), which
+    is "as close to atomic as the platform allows": the window between the
+    two renames is a single OS rename call, and if the process dies inside
+    that window, the next call to this function detects the half-swapped
+    state (backup present, `live` missing) and restores the last known-good
+    corpus before attempting anything else.
+    """
+    backup = live.parent / f"{live.name}.prior"
+
+    if backup.exists() and not live.exists():
+        # A previous swap crashed between the two renames below. Recover the
+        # last known-good corpus before doing anything else.
+        os.rename(backup, live)
+
+    if backup.exists():
+        shutil.rmtree(backup)
+
+    moved_old = False
+    if live.exists():
+        os.rename(live, backup)
+        moved_old = True
+
+    try:
+        os.rename(staged, live)
+    except Exception:
+        if moved_old:
+            os.rename(backup, live)
+        raise
+    else:
+        if moved_old and backup.exists():
+            shutil.rmtree(backup)
 
 
 def download(version: Version, force: bool = False) -> Path:
@@ -155,62 +344,87 @@ def normalise(name: str) -> str:
     return ALIASES.get(cleaned, cleaned)
 
 
-def convert(version: Version, source: Path) -> tuple[int, int, list[str]]:
+def parse_version(source: Path) -> dict[int, list[list[str]]]:
+    """Parse a downloaded scrollmapper JSON file into canon-indexed chapters.
+
+    No filesystem writes. Missing books are simply absent from the returned
+    dict -- validate_version_payload() is what turns that into a hard failure.
+    """
     data = json.loads(source.read_text(encoding="utf-8"))
     by_name: dict[str, list[dict]] = {}
     for book in data.get("books", []):
         by_name[normalise(book.get("name", ""))] = book.get("chapters", [])
 
-    out_dir = OUTPUT_DIR / version.id
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    warnings: list[str] = []
-    verse_total = 0
-    chapter_total = 0
-
-    for index, (name, _abbr, expected_chapters) in enumerate(CANON, start=1):
+    books: dict[int, list[list[str]]] = {}
+    for index, (name, _abbr, _expected_chapters) in enumerate(CANON, start=1):
         chapters = by_name.get(name)
         if chapters is None:
-            warnings.append(f"{version.id}: missing book '{name}'")
             continue
-        if len(chapters) != expected_chapters:
-            warnings.append(
-                f"{version.id}: {name} has {len(chapters)} chapters, expected {expected_chapters}"
-            )
-
         payload: list[list[str]] = []
         for chapter in chapters:
             verses = [str(v.get("text", "")).strip() for v in chapter.get("verses", [])]
             payload.append(verses)
-            verse_total += len(verses)
-        chapter_total += len(payload)
+        books[index] = payload
+    return books
 
+
+def write_version(version: Version, books: dict[int, list[list[str]]], into_dir: Path) -> tuple[int, int]:
+    """Write one already-validated version's per-book JSON into into_dir/<id>/."""
+    out_dir = into_dir / version.id
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    verse_total = 0
+    chapter_total = 0
+    for index, (name, _abbr, _expected) in enumerate(CANON, start=1):
+        chapters = books.get(index, [])
+        chapter_total += len(chapters)
+        verse_total += sum(len(verses) for verses in chapters)
         (out_dir / f"{index}.json").write_text(
-            json.dumps({"b": name, "c": payload}, ensure_ascii=False, separators=(",", ":")),
+            json.dumps({"b": name, "c": chapters}, ensure_ascii=False, separators=(",", ":")),
             encoding="utf-8",
         )
+    return chapter_total, verse_total
 
-    return chapter_total, verse_total, warnings
+
+def _report_failure_and_exit(issues: list[ValidationIssue]) -> None:
+    print(
+        f"\nCorpus validation FAILED -- {len(issues)} issue(s). "
+        "Live corpus at web/public/bible left untouched.",
+        file=sys.stderr,
+    )
+    for issue in issues:
+        print(f"  [{issue.kind}] {issue.detail}", file=sys.stderr)
+    sys.exit(1)
 
 
 def main() -> None:
     force = "--force" in sys.argv
 
-    if OUTPUT_DIR.exists():
-        shutil.rmtree(OUTPUT_DIR)
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    if STAGING_DIR.exists():
+        shutil.rmtree(STAGING_DIR)  # leftover from an earlier interrupted run -- staging only, never the live tree
+    STAGING_DIR.mkdir(parents=True, exist_ok=True)
 
-    print(f"Building {len(VERSIONS)} translations -> {OUTPUT_DIR.relative_to(ROOT)}")
-    all_warnings: list[str] = []
+    print(f"Building {len(VERSIONS)} translations -> staging ({STAGING_DIR.relative_to(ROOT)})")
+    all_issues: list[ValidationIssue] = []
     built: list[Version] = []
 
     for version in VERSIONS:
         source = download(version, force)
-        chapters, verses, warnings = convert(version, source)
-        all_warnings.extend(warnings)
+        books = parse_version(source)
+        issues = validate_version_payload(
+            version.id, books, declared_omissions=DECLARED_OMISSIONS.get(version.id, {})
+        )
+        if issues:
+            print(f"  {version.id}: FAILED validation ({len(issues)} issue(s))")
+            all_issues.extend(issues)
+            continue
+        chapters, verses = write_version(version, books, STAGING_DIR)
         built.append(version)
-        flag = "" if chapters == TOTAL_CHAPTERS else f"  <-- expected {TOTAL_CHAPTERS}"
-        print(f"  {version.id}: {chapters:,} chapters · {verses:,} verses{flag}")
+        print(f"  {version.id}: {chapters:,} chapters * {verses:,} verses -- OK")
+
+    if all_issues:
+        shutil.rmtree(STAGING_DIR, ignore_errors=True)
+        _report_failure_and_exit(all_issues)
 
     index = {
         "versions": [
@@ -221,6 +435,7 @@ def main() -> None:
                 "year": v.year,
                 "licence": v.licence,
                 "note": v.note,
+                "language": "en",
             }
             for v in built
         ],
@@ -237,19 +452,20 @@ def main() -> None:
             for index_, (name, abbr, chapters) in enumerate(CANON, start=1)
         ],
     }
-    (OUTPUT_DIR / "index.json").write_text(
+    (STAGING_DIR / "index.json").write_text(
         json.dumps(index, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
     )
 
-    size = sum(f.stat().st_size for f in OUTPUT_DIR.rglob("*.json"))
-    print(f"\nWrote {len(list(OUTPUT_DIR.rglob('*.json')))} files · {size / 1_048_576:.1f} MB total")
+    size = sum(f.stat().st_size for f in STAGING_DIR.rglob("*.json"))
+    file_count = len(list(STAGING_DIR.rglob("*.json")))
+    print(f"\nAll {len(VERSIONS)} translations passed validation. {file_count} files * {size / 1_048_576:.1f} MB.")
 
-    if all_warnings:
-        print(f"\n{len(all_warnings)} warning(s):")
-        for warning in all_warnings[:25]:
-            print(f"  ! {warning}")
-    else:
-        print("All translations match the 66-book canon exactly.")
+    atomic_replace_dir(STAGING_DIR, OUTPUT_DIR)
+    print(f"Live corpus updated at {OUTPUT_DIR.relative_to(ROOT)}.")
+    print(
+        "Note: this replaces the ENTIRE bible/ tree, including any Spanish "
+        "output -- re-run tools/build_spanish.py afterward."
+    )
 
 
 if __name__ == "__main__":
