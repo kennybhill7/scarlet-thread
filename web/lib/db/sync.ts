@@ -64,10 +64,29 @@ async function recordReceipt(
   await receiptInsert(userId, op);
 }
 
+/**
+ * Validates an operation against its own payload before anything is written.
+ *
+ * `timestampFromPayload` names the payload field carrying the client timestamp
+ * that `op.updatedAt` must equal. It defaults to `updatedAt`, which every sync
+ * payload schema declares except `progress`: `ReadingProgress` is a frozen v1
+ * contract of exactly `{ chapter, readAt }` (`lib/contracts.ts:162-165`) and
+ * `syncProgressSchema` also types the pull response, so an `updatedAt` field
+ * cannot be added to the wire payload without changing the stored contract.
+ * For progress, `readAt` IS the update timestamp, so `applyProgress` passes it
+ * here. The cross-check therefore stays enforced for every entity instead of
+ * being waived for one, and last-write-wins is unchanged for entries, threads,
+ * people, and logs.
+ *
+ * The default is fail-closed: a payload carrying neither field yields
+ * `undefined !== op.updatedAt` and the operation is rejected.
+ */
 function parsePayload<T>(
   schema: ZodType<T>,
   op: SyncOp,
   idFromPayload: (payload: T) => string,
+  timestampFromPayload: (payload: T) => string | undefined = (payload) =>
+    (payload as { updatedAt?: string }).updatedAt,
 ) {
   const parsed = schema.safeParse(op.payload);
   if (!parsed.success) {
@@ -76,7 +95,7 @@ function parsePayload<T>(
   if (idFromPayload(parsed.data) !== op.entityId) {
     throw new Error("Operation entityId does not match its payload");
   }
-  if ((parsed.data as { updatedAt: string }).updatedAt !== op.updatedAt) {
+  if (timestampFromPayload(parsed.data) !== op.updatedAt) {
     throw new Error("Operation timestamp does not match its payload");
   }
   return parsed.data;
@@ -247,10 +266,15 @@ async function applyProgress(userId: string, op: SyncOp) {
   if (op.op === "delete") {
     throw new Error("Reading progress is monotonic and cannot be deleted");
   }
-  const payload = parsePayload(syncProgressSchema, op, (progress) => progress.chapter);
-  if (payload.readAt !== op.updatedAt) {
-    throw new Error("Progress timestamp does not match readAt");
-  }
+  const payload = parsePayload(
+    syncProgressSchema,
+    op,
+    (progress) => progress.chapter,
+    // `readAt` is this entity's update timestamp; see parsePayload. Passing it
+    // keeps the op/payload timestamp cross-check enforced for progress, which
+    // the removed local copy of this check could never reach.
+    (progress) => progress.readAt,
+  );
   const [current] = await db
     .select()
     .from(readingProgress)
