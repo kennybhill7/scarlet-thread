@@ -136,58 +136,58 @@
       "notes": "Merged. Residual gaps tracked as VMCACHE-001."
     },
     "CLIMB-001": {
-      "status": "ready",
+      "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": null,
+      "lastRunId": "interactive-parallel-2026-08-18",
       "lastEvidence": null,
-      "notes": "Seeded 2026-08-18 from a direct read of the current source (not a restatement of the BUILD_PLAN gate table). Base: master @ 1beee64, which now contains all merged Phase 0 work."
+      "notes": "Seeded 2026-08-18 from a direct read of the current source (not a restatement of the BUILD_PLAN gate table). Base: master @ 1beee64, which now contains all merged Phase 0 work. | Claimed 2026-08-18 13:20 by an interactive parallel build wave (6 builders at once, each in its own worktree). Not eligible for the cloud worker while building."
     },
     "OFFNAV-001": {
-      "status": "ready",
+      "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": null,
+      "lastRunId": "interactive-parallel-2026-08-18",
       "lastEvidence": null,
-      "notes": "Seeded 2026-08-18 from a direct read of the current source (not a restatement of the BUILD_PLAN gate table). Base: master @ 1beee64, which now contains all merged Phase 0 work."
+      "notes": "Seeded 2026-08-18 from a direct read of the current source (not a restatement of the BUILD_PLAN gate table). Base: master @ 1beee64, which now contains all merged Phase 0 work. | Claimed 2026-08-18 13:20 by an interactive parallel build wave (6 builders at once, each in its own worktree). Not eligible for the cloud worker while building."
     },
     "CORPUS-001": {
-      "status": "ready",
+      "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": null,
+      "lastRunId": "interactive-parallel-2026-08-18",
       "lastEvidence": null,
-      "notes": "Seeded 2026-08-18 from a direct read of the current source (not a restatement of the BUILD_PLAN gate table). Base: master @ 1beee64, which now contains all merged Phase 0 work."
+      "notes": "Seeded 2026-08-18 from a direct read of the current source (not a restatement of the BUILD_PLAN gate table). Base: master @ 1beee64, which now contains all merged Phase 0 work. | Claimed 2026-08-18 13:20 by an interactive parallel build wave (6 builders at once, each in its own worktree). Not eligible for the cloud worker while building."
     },
     "VERSESEL-001": {
-      "status": "ready",
+      "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": null,
+      "lastRunId": "interactive-parallel-2026-08-18",
       "lastEvidence": null,
-      "notes": "Seeded 2026-08-18 from a direct read of the current source (not a restatement of the BUILD_PLAN gate table). Base: master @ 1beee64, which now contains all merged Phase 0 work."
+      "notes": "Seeded 2026-08-18 from a direct read of the current source (not a restatement of the BUILD_PLAN gate table). Base: master @ 1beee64, which now contains all merged Phase 0 work. | Claimed 2026-08-18 13:20 by an interactive parallel build wave (6 builders at once, each in its own worktree). Not eligible for the cloud worker while building."
     },
     "RANGE-001": {
-      "status": "ready",
+      "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": null,
+      "lastRunId": "interactive-parallel-2026-08-18",
       "lastEvidence": null,
-      "notes": "Seeded 2026-08-18 from a direct read of the current source (not a restatement of the BUILD_PLAN gate table). Base: master @ 1beee64, which now contains all merged Phase 0 work."
+      "notes": "Seeded 2026-08-18 from a direct read of the current source (not a restatement of the BUILD_PLAN gate table). Base: master @ 1beee64, which now contains all merged Phase 0 work. | Claimed 2026-08-18 13:20 by an interactive parallel build wave (6 builders at once, each in its own worktree). Not eligible for the cloud worker while building."
     },
     "AUTHDB-001": {
-      "status": "ready",
+      "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": null,
+      "lastRunId": "interactive-parallel-2026-08-18",
       "lastEvidence": null,
-      "notes": "Seeded 2026-08-18 from an honestly-reported out-of-scope gap in a completed rework (SCOPE-BOUNDARY-001 working as intended: the builder reported rather than smuggled the edit)."
+      "notes": "Seeded 2026-08-18 from an honestly-reported out-of-scope gap in a completed rework (SCOPE-BOUNDARY-001 working as intended: the builder reported rather than smuggled the edit). | Claimed 2026-08-18 13:20 by an interactive parallel build wave (6 builders at once, each in its own worktree). Not eligible for the cloud worker while building."
     },
     "VMCACHE-001": {
       "status": "ready",
@@ -196,7 +196,7 @@
       "attempts": 0,
       "lastRunId": null,
       "lastEvidence": null,
-      "notes": "Seeded 2026-08-18 from an honestly-reported out-of-scope gap in a completed rework (SCOPE-BOUNDARY-001 working as intended: the builder reported rather than smuggled the edit)."
+      "notes": "Seeded 2026-08-18 from an honestly-reported out-of-scope gap in a completed rework (SCOPE-BOUNDARY-001 working as intended: the builder reported rather than smuggled the edit). | HELD OUT of the 2026-08-18 parallel wave: it owns web/components/reader/ChapterReader.tsx and so does VERSESEL-001. Run it after VERSESEL-001 lands to avoid a guaranteed conflict."
     }
   }
 }
