@@ -208,22 +208,22 @@
       "notes": "Merged. The v2 vocabulary is now the single source for the schema layer."
     },
     "SCHEMAV2-001": {
-      "status": "ready",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/SCHEMAV2-001-local",
+      "commitSha": "4d627c965ad9633c9d5d28266443da9a850f1049",
       "attempts": 0,
-      "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Seeded 2026-08-18 for Phase 1, grounded in BUILD_PLAN sections 3.2, 3.3 and 3.5 plus the current schema (12 v1 tables, migrations 0000-0005) and the now-merged RANGE-001 contract."
+      "lastRunId": "interactive-2026-08-18-phase1",
+      "lastEvidence": "Verified and MERGED to master in c13c7a8. Eight v2 learner tables plus drizzle-generated migration 0006; 350/350 tests with RADAR-001 and the integration fixes; drizzle-kit check fine. Strictly additive - the six pre-existing migration SQL files are byte-identical, only the journal gained an entry, and migration 0003 triggers are untouched. Enum columns import the contract const arrays rather than retyping strings. Four mutation proofs. The same-row personal_resonance/devotional rule is a real CHECK; the cross-table rule is deferred to the repository layer WITH a test locking in the reason (claim_evidence has no column naming which connection it cites, so a trigger has no join path) - the criterion own stated alternative, not a dodge.",
+      "notes": "Merged. Four follow-ups reported: workspaces table + FK, claim_evidence.connectionId then the cross-table trigger, teaching_sections + artifact_revisions."
     },
     "RADAR-001": {
-      "status": "ready",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/RADAR-001-local",
+      "commitSha": "af28ee261ffad220f3184b3b0de645fb67dbab4f",
       "attempts": 0,
-      "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Seeded 2026-08-18 for Phase 1, grounded in BUILD_PLAN sections 3.2, 3.3 and 3.5 plus the current schema (12 v1 tables, migrations 0000-0005) and the now-merged RANGE-001 contract."
+      "lastRunId": "interactive-2026-08-18-phase1",
+      "lastEvidence": "Verified and MERGED to master in c13c7a8. Radar now emits motif candidates, never Connection rows; third-sighting rule preserved (distinct passages, >=3) with STOPWORDS/BOOK_NAMES/normaliseWord verified as a byte-level match to the audited original. First dedicated radar tests ever (12), closing the test half of CODEX_AUDIT A-045. Threshold and multi-word-title fixes both mutation-proved. | It reported checksPassed:false HONESTLY: its mandated change broke 3 tests in review-setup-state.test.ts, a file outside its scope. It refused to edit out of scope and reported instead - correct behavior. I fixed those tests during integration. | DEEPER FINDING than A-045 recorded: it proved by direct execution that the old per-entry title-match check was unreachable dead code for ANY input, because candidate words are already filtered against the global title blocklist one line earlier. So it deleted the dead branch and relabelled the UI honestly as a word-frequency hint rather than pretending to fix a coverage claim that never worked.",
+      "notes": "Merged. Persistence and dedup against dismissed candidates deferred until the motif tables are wired up."
     }
   }
 }
