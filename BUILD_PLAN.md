@@ -3,7 +3,7 @@
 **Date:** 2026-08-12 (revised same date after reconciliation)
 **Input:** `THEOLOGY_PRODUCT_AUDIT.md` (the "why").
 **Authority:** `THEOLOGY_MASTER_BUILD_PLAN.md` is the authoritative product/architecture spec; this file is the shorter execution checklist, reconciled to its §30 findings. Where the two disagree, the master plan wins.
-**Goal:** Turn Scarlet Thread from a Scripture reader + connection journal into a **formation system**: Read → Observe → Context → Interpret → Connect → Theology → Conviction → Practice → Teach.
+**Goal:** Turn Scarlet Thread from a Scripture reader + connection journal into a **teaching system** — an app that teaches a repeatable study *method* and makes the learner do the interpretive work, rather than one that asserts doctrinal conclusions. The loop is unchanged: Read → Observe → Context → Interpret → Connect → Theology → Conviction → Practice → Teach. The Theology step is the *learner* forming and warranting a claim; the app never supplies the verdict (see §5.0).
 **Stack (unchanged):** Next.js 16.2 / React 19.2, Drizzle + Neon Postgres, NextAuth v5 (Google), IndexedDB offline vault with last-write-wins sync, Node test runner (35 tests today).
 
 ---
@@ -180,32 +180,55 @@ Also in Phase 2:
 
 ---
 
-## 5. Phase 3 — Pilot curriculum: Genesis 1–12 + Matthew 1–7 (~4–6 weeks, content-bound)
+## 5. Phase 3 — Method curriculum: Genesis 1–12 + Matthew 1–7 (~3–4 weeks)
 
-The mountain's 11 stages each hold one anchor chapter today (audit gap #4). Fix by depth in a bounded pilot, not shallow breadth across 66. Scope (per master plan §8): **15 Genesis 1–12 units and 15 Matthew 1–7 units** — full Matthew, the larger Modern Life Lab library, and further books come only after learners demonstrate the method works.
+**Repositioned 2026-08-18 (see `docs/decisions/2026-08-18-teaching-not-theology.md`).** This phase previously required a qualified pastor to certify doctrinal conclusions — a dependency the project cannot supply, which made it the schedule's hard wall. It is now scoped to what the app should have been asserting all along: **the method, not the verdict.**
 
-### 5.1 Content pipeline and release machinery (this is executable work, not an assertion)
+### 5.0 The assertion line — what curriculum content may and may not claim
 
-- Author lessons as MDX in `content/curriculum/<track>/<nn-slug>.mdx` with zod-validated frontmatter: `passage`, `stage`, `bigIdea`, `contextId`, `connectionIds[]`, `doctrineSlugs[]`, `sources[]`, `author`, `status: draft | in_review | published`. Review decisions are **not** frontmatter self-attestation: they are structured `content_reviews` records (master plan §12.4 — concrete node/release FK, reviewer, discipline, decision, notes, timestamp), and `publish.ts` enforces author ≠ reviewer plus discipline-specific approvals from those records.
-- Build the compiler in `web/scripts/content/`: `validate.ts` (schema + ref resolution), `build.ts` (emits the bundle), `publish.ts` (writes a **signed, checksummed catalog-release manifest** to durable append-only storage that does not depend on any single Vercel deployment), `verify-release.ts` (download + checksum verification, used by the app and the offline downloader). Corrections and withdrawals ship as a new release plus a signed revocation record; rollback and reconstruction of an old study against its pinned release are tested, not assumed. This machinery is a **prerequisite of first publication**, not post-launch hardening.
-- CI rules in `validate.ts`: every published lesson must have ≥1 source, all cited refs resolvable against the corpus, a teach-back prompt set, and a reviewer who is **not the author**. Connections are validated when present but **never required** — a lesson may honestly teach a passage with no warranted canonical connection (`no_warrant_yet` is a valid outcome, for lessons as for learners). Worked application examples must follow the Practice Bridge shape, but not every lesson must contain one.
-- Lesson counts: Genesis 1–12 = 15 units (creation, fall, Cain, flood, Babel, call of Abram — the existing Bible-Brain vault notes are the raw material); Matthew 1–7 = 15 units through the Sermon on the Mount.
+This is the governing rule for every lesson, and it is enforced in CI, not promised in prose.
+
+**MAY assert (all three are checkable without doctrinal authority):**
+
+1. **Method** — how to bound a literary unit, what distinguishes an observation from an inference, what evidence each connection type requires, how the Practice Bridge works. This is pedagogy. The project owns it.
+2. **Cited fact** — genre, author/audience, historical setting, cultural background, what a word carried in its own language, textual-variant facts. Every such claim carries a `sourceId` resolving to a real published work, and the claim must be what that source actually says. Verifying this is a *factual* check (does the source say it?), not an *authority* check (is it doctrinally correct?).
+3. **Named positions, reported descriptively** — "Reformed confessions hold X, citing these texts; Wesleyan holds Y, citing these." Sourced to each tradition's own published statements, presented without adjudication.
+
+**MUST NOT assert:**
+
+4. **Adjudicated doctrine** — "this passage means X," "position Y is the correct one," "the doctrine of Z is true." That is the learner's work. This is the category that required a pastor, and removing it is what unblocks the phase.
+
+The learner still does theology — the workspace's Theology step is unchanged and central. The shift is that the learner forms the conclusion and labels its warrant, while the app teaches the method, supplies sourced facts, and shows what faithful interpreters have concluded and why. That is closer to design tenet 1 (*read before you write; no curated conclusion before the learner's own attempt*) than the previous doctrinal-authority framing ever was.
+
+### 5.1 Content pipeline and release machinery (executable work, not an assertion)
+
+- Author lessons as MDX in `content/curriculum/<track>/<nn-slug>.mdx` with zod-validated frontmatter: `passage`, `stage`, `methodFocus`, `contextId`, `connectionIds[]`, `positionIds[]`, `sources[]`, `author`, `status: draft | in_review | published`.
+- Build the compiler in `web/scripts/content/`: `validate.ts` (schema + ref resolution + the assertion-line rules below), `build.ts`, `publish.ts` (signed, checksummed catalog-release manifest to durable append-only storage, independent of any single Vercel deployment), `verify-release.ts`. Corrections ship as a new release plus a signed revocation record; rollback and reconstruction of an old study against its pinned release are tested, not assumed. Prerequisite of first publication, not post-launch hardening.
+- **CI rules in `validate.ts` (the assertion line, mechanized):** every factual claim block carries a resolvable `sourceId`; every `positions` block names ≥2 traditions each with their own source; all cited refs resolve against the corpus; a teach-back prompt set exists. Connections are validated when present but **never required** — `no_warrant_yet` is a valid lesson outcome exactly as it is a valid learner outcome. Worked Practice Bridge examples must follow the bridge shape but are not required in every lesson.
+- **Lint the verdict language.** `validate.ts` flags declarative doctrinal assertions in lesson prose (`this passage teaches that…`, `the correct view is…`, `this proves…`) outside a `positions` block or a quoted, attributed source. Imperfect by nature — it is a review aid, not a proof — so it fails the build loudly and is silenced only by an explicit, reviewed `assertionReviewed: <reason>` frontmatter key, never silently.
+- Lesson counts: Genesis 1–12 = 15 units; Matthew 1–7 = 15 units through the Sermon on the Mount. The existing Bible-Brain vault notes are raw material for the *method* examples, not for conclusions to publish.
 
 ### 5.2 Each lesson ships
 
-Context (curated `passage_contexts` row) · literary design notes · **0–5 curated typed connections — only where warranted; a lesson with none records a reasoned no-warrant note instead** · doctrine touchpoints · a guarded application worked example · a teach-back prompt set (explain w/o notes, 5-minute outline, likely objection, one thing this passage does **not** teach, and "defend one connection **or give a reasoned `no_warrant_yet`**").
+Method focus (the study skill this unit teaches) · sourced context · literary design notes · **0–5 typed connections, only where warranted, each with both passages and its evidence label; a lesson with none records a reasoned no-warrant note** · named positions where interpreters differ, each sourced · a worked Practice Bridge example · a teach-back prompt set (explain without notes, five-minute outline, likely objection, one thing this passage does **not** establish, and "defend one connection **or** give a reasoned `no_warrant_yet`").
 
-### 5.3 Governance (decide before the first lesson is written)
+### 5.3 Review that the project can actually perform
 
-Write `content/GOVERNANCE.md`: statement of faith + interpretive method; single-tradition vs comparative stance (recommendation: teach one evangelical-protestant baseline, *show* named alternative positions on secondary/open-hand doctrines); doctrine-tier assignments; review roles (a qualified pastor/elder — the one dependency Ken cannot self-supply — and the reviewer must be **independent of the author**, with disputed views represented by someone competent in them, not merely named); correction/errata process that is *exercised* before launch, not just documented; source licensing rules; pastoral-safety boundaries (mental health, abuse, medical, legal, financial → resource referral, never counsel).
+`content/GOVERNANCE.md` records three checks, all of which are within reach without ordination:
 
-Teaching influences (Mitchell: sustained exposition, gospel center, discipleship; Daniels: Understand → Interpret → Apply → Explain; BibleProject: literary design + unified story) inform the *method*. No living teacher's voice, persona, or material is reproduced.
+1. **Source fidelity** — every factual claim cites a real, licensed, published source, and the source says what the lesson says it says. Spot-checkable by anyone who can read the source.
+2. **Assertion-line compliance** — no lesson adjudicates doctrine (§5.0 rule 4). Partly mechanized by the verdict-language lint, finished by human review.
+3. **Position fairness** — where traditions differ, each named position is stated from its own published sources, with its strongest texts, not a strawman. Checkable against those sources.
+
+Also recorded: source licensing rules; the correction/errata process, *exercised* once before launch rather than only documented; and pastoral-safety boundaries (mental health, abuse, medical, legal, financial → resource referral, never counsel) — unchanged and non-negotiable.
+
+**Optional, not blocking.** If a qualified reviewer becomes available later, their sign-off is added as an additional `content_reviews` discipline and raises confidence. Publication no longer waits on it. If the product later wants to assert doctrine, that is a deliberate repositioning that reinstates the pastoral gate — it is not something that should drift back in lesson by lesson.
 
 ---
 
 ## 6. Phase 4 — Doctrine and teaching surfaces (~3–4 weeks)
 
-- **Doctrine Library** (`app/(app)/doctrines/`): renders curated `doctrines`; each shows its DoctrineStatus badge (core | conviction | open | disputed | wisdom), whole-Bible development mapped onto the 11 stages, named positions where traditions differ with their strongest biblical arguments, and "your claims touching this doctrine" from the user's StudyClaims.
+- **Positions Library** (`app/(app)/doctrines/`) — renamed in intent from "Doctrine Library" per the §5.0 assertion line: it *reports* rather than *adjudicates*. Each entry shows how the question is framed, the passages most often brought to it, its whole-Bible development mapped onto the 11 stages, and **named traditions with their strongest texts, each sourced to that tradition's own published statements**. The DoctrineStatus badge (core | conviction | open | disputed | wisdom) now describes **how widely held** a position is, not which is correct. Every entry ends with the learner's own "your claims touching this question" from their StudyClaims — the app supplies the map, the learner reaches the verdict.
 - **Modern Life Lab — explicitly NOT built in this phase.** Per master plan §8.5 it is six labs built **after** the Phase 4.5 founding cohort validates the core method (post-cohort backlog). The design is recorded here only so it isn't reinvented: curated case studies in `content/life-labs/` asking the learner to supply principle → context → competing wisdom → faithful action → possible misuse, answers saving as Applications at `app/(app)/life/`.
 - **Teach-back Mode** (`app/(app)/teach/`): builds on TeachingDrafts. Four exercises per passage: blind explain (textarea, no notes visible), 5-minute lesson builder (outline points must cite refs), objection drill, negative-claim ("what this passage does not justify"). Completion feeds a **retrieval review** queue — extend `/api/review` with spaced re-teach prompts (7/30/90-day), measured by completed explanations, never streaks.
 - **Review page** goes fully live-data (audit gap #6 closed in Phase 0/1; here it gains claim-kind breakdowns and teach-back coverage per stage).
@@ -243,7 +266,7 @@ Constraints before capability: retrieval **only** over the curated content + lic
 | 0 Foundation | 1–2 wks | Two-account isolation test green on Vercel; gates 0.1–0.12 closed (0.12: migrate-on-build hook removed) |
 | 1 Evidence model | 4–6 wks | ~60 tests green; teaching entries creatable; radar emits motif candidates; workspace_id + revision + RLS + account-scoped IndexedDB + conflict-preserving sync live |
 | 2 Passage Workspace | 3–4 wks | Genesis 3 vertical slice passes end-to-end (incl. sync-conflict, export, reload, release-pipeline publish + rollback); Playwright full-loop e2e green |
-| 3 Pilot curriculum | 4–6 wks (content-bound) | 15 Genesis + 15 Matthew 1–7 units published through the release pipeline with independent reviewer sign-off; correction/withdrawal exercised once |
+| 3 Method curriculum | 3–4 wks | 15 Genesis + 15 Matthew 1–7 units published through the release pipeline, each passing the three §5.3 checks (source fidelity, assertion-line compliance, position fairness) and the verdict-language lint; correction/withdrawal exercised once |
 | 4 Doctrine/Life/Teach | 3–4 wks | Audit rubric demonstrable end-to-end on Genesis 3 and Matthew 5 |
 | 4.5 Founding cohort | 4+ wks (calendar, external) | A free external cohort runs the Genesis pilot; cohort learners pass the unfamiliar-passage transfer test; their feedback triages into fixes before hardening |
 | 5 Public release readiness | 3–4 wks | Deletion/recovery/restore/rollback drills pass; accessibility verified; legal + disclosure pages live; monitoring carries no study content; conviction-exclusion tests green on all five surfaces |
@@ -253,4 +276,4 @@ Total for Phases 0–5: roughly 5–7 months part-time, with Phase 3 the least c
 
 **What defers and what does not.** Correctly deferred past public V1: cohorts, public sharing, editorial dashboards, coaching roles, AI, and the Modern Life Labs. **Not deferrable:** application-level isolation predicates (Phase 0 — what the two-account test proves), transaction-scoped RLS + account-scoped local storage (Phase 1 — the hostile defense-in-depth re-proof, per §3.3), conflict-preserving sync (one person on phone + laptop is already multi-device), and immutable catalog releases (a prerequisite of publishing the first lesson, not a scale feature).
 
-**Risk register:** (1) reviewer availability and independence is the critical external dependency — recruit before Phase 3 starts; (2) KJV licensing may force a geo-restriction — decide in Phase 0, not after launch; (3) scope creep toward a commentary feed — tenet 1 and the attempt-gates are the defense; (4) curated/user blending — enforced by separate tables (`user_connections` vs `graph_edges`) and visual provenance, test it; (5) gold-plating the deferrable list above before the method is validated — the "not deferrable" boundary is the discipline in both directions.
+**Risk register:** (1) **assertion-line drift** — an author sliding from "traditions hold X" into "X is true" lesson by lesson; the verdict-language lint plus §5.3 review are the defense, and the lint is a review aid, not a proof (this replaces the former reviewer-availability risk, retired by the 2026-08-18 repositioning); (2) KJV licensing may force a geo-restriction — decide in Phase 0, not after launch; (3) scope creep toward a commentary feed — tenet 1 and the attempt-gates are the defense; (4) curated/user blending — enforced by separate tables (`user_connections` vs `graph_edges`) and visual provenance, test it; (5) gold-plating the deferrable list above before the method is validated — the "not deferrable" boundary is the discipline in both directions.
