@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "1970-01-01T00:00:00.000Z",
+  "updatedAt": "2026-08-18T04:10:02.000Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
-    "taskId": null,
-    "runId": null,
-    "takenAt": null,
-    "expiresAt": null
+    "taskId": "REVIEW-001",
+    "runId": "cloud-20260818041002",
+    "takenAt": "2026-08-18T04:10:02.000Z",
+    "expiresAt": "2026-08-18T05:40:02.000Z"
   },
   "tasks": {
     "DOC-002": {
@@ -118,11 +118,11 @@
       "notes": "Never attempt."
     },
     "REVIEW-001": {
-      "status": "ready",
+      "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": null,
+      "lastRunId": "cloud-20260818041002",
       "lastEvidence": null,
       "notes": "Seeded 2026-08-17 from a direct code read grounding the real defect (build-time seed bridge / silent versemap fail-open), not just the BUILD_PLAN.md gate description."
     },
