@@ -43,6 +43,13 @@
       "when": 1785305478855,
       "tag": "0005_tenant_scope_sync_receipts",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1787081886525,
+      "tag": "0006_typical_turbo",
+      "breakpoints": true
     }
   ]
 }
