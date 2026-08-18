@@ -380,6 +380,170 @@
         "cd web; npm.cmd run build"
       ],
       "humanGates": []
+    },
+    {
+      "id": "CLIMB-001",
+      "title": "Gate 0.2: Climb home off the build-time seed bridge",
+      "objective": "app/(app)/page.tsx still imports getMountain/getReview from lib/vault/seed, which reads web/data/seed/*.json from disk via process.cwd(). That is the last remaining VALUE consumer of the private seed bridge once REVIEW-001 lands (Mountain.tsx imports only a TYPE, which is fine and must stay). Gate 0.2 requires private seed content out of the build path entirely.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/app/(app)/page.tsx",
+        "web/tests/climb-setup-state.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/db/review.ts",
+        "web/lib/vault/seed.ts",
+        "web/lib/auth/config.ts",
+        "web/components/climb/Mountain.tsx",
+        "web/lib/contracts.ts"
+      ],
+      "acceptanceCriteria": [
+        "app/(app)/page.tsx no longer imports any VALUE from lib/vault/seed (a type-only import, if genuinely needed, is acceptable and must be marked \"import type\").",
+        "Mountain data and review counts come from the authenticated DB path for the signed-in user.",
+        "A missing DATABASE_URL or DB failure renders a distinct, clearly labeled setup-incomplete state - never an empty page and never a generic 500.",
+        "A genuinely empty account still renders normal empty-state copy and is DISTINGUISHABLE from the setup-incomplete state. These must never be conflated.",
+        "The page requires an authenticated session rather than rendering anonymously.",
+        "The eleven-stage mountain still renders with its existing visual structure; Mountain.tsx is not modified.",
+        "A new test proves both the setup-incomplete branch AND the empty-account branch, and is non-vacuous: mutating the setup-error branch to render the empty state must make a named test fail."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "OFFNAV-001",
+      "title": "Gate 0.4: offline navigation to unvisited chapters",
+      "objective": "public/sw.js returns Response.error() when a navigation request misses the cache, so going offline and navigating to a chapter never visited before hard-fails even when that book Bible JSON is already cached. CODEX_AUDIT A-013. Offline reading is the core value of this app on a plane; it must either work or say plainly why it cannot.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/public/sw.js",
+        "web/tests/offline-nav.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/bible/loader.ts",
+        "web/app/(app)/read/[book]/[chapter]/page.tsx",
+        "web/lib/contracts.ts",
+        "web/next.config.ts"
+      ],
+      "acceptanceCriteria": [
+        "An offline navigation to a never-visited chapter route, in a book whose Bible JSON IS cached, renders readable Scripture rather than a hard error - OR renders an explicit, honest offline notice naming what is missing. Silent failure is unacceptable; pick one and make it true.",
+        "If the approach is an app-shell fallback, the shell resolves the chapter from the URL and loads book data from the existing cache rather than refetching.",
+        "An offline navigation to a book whose data is NOT cached shows an explicit offline notice, never a blank page or a browser error page.",
+        "Online navigation behavior is completely unchanged - no added latency, no extra fetches, no cache-first staleness for HTML.",
+        "The service worker must NOT begin caching authenticated document/RSC responses as a side effect. CODEX_AUDIT A-014 stays open and must not be claimed closed here.",
+        "Tests prove the offline-unvisited-chapter path and the offline-uncached-book path distinctly, driving the real sw.js fetch handler logic rather than a reimplementation of it."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "CORPUS-001",
+      "title": "Gate 0.6: corpus builders must validate before destroying",
+      "objective": "tools/build_bible.py and tools/build_spanish.py both call shutil.rmtree on the live output directory BEFORE parsing and validating the new corpus, and warn rather than exiting non-zero. A partial download or parser regression therefore replaces a known-good Bible with an incomplete one. CODEX_AUDIT A-004/A-027.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "tools/build_bible.py",
+        "tools/build_spanish.py",
+        "tools/test_corpus_validation.py"
+      ],
+      "readOnlyPaths": [
+        "web/lib/contracts.ts",
+        "tools/versification-report.md"
+      ],
+      "acceptanceCriteria": [
+        "Neither builder deletes or overwrites the live corpus until the new corpus is fully built AND validated in a staging directory; the swap is atomic (or as close as the platform allows) and is the LAST step.",
+        "Validation is fail-closed and exits non-zero: 66 books, 1189 chapters, and the per-version verse count must match the declared expectation, with declared-omission exceptions listed explicitly rather than silently tolerated.",
+        "On any validation failure the live corpus is left byte-identical to its prior state, with a stderr report and a non-zero exit code.",
+        "VERIFIABILITY WITHOUT THE SOURCE CORPUS: the raw translation sources (tools/.cache) are gitignored and will NOT exist in a clean checkout. Extract validation into importable, testable functions and add tools/test_corpus_validation.py exercising them with SYNTHETIC fixtures (good corpus; short-by-one-chapter; missing book; undeclared empty verse). Do not require a real corpus rebuild to prove the fix.",
+        "Run the new test file and paste real output. If python is unavailable in the run environment, say so plainly and do NOT claim the tests passed."
+      ],
+      "verification": [
+        "python tools/test_corpus_validation.py",
+        "git diff --check"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "VERSESEL-001",
+      "title": "Gate 0.7: verse selection end-to-end",
+      "objective": "ChapterReader renders verses as plain paragraphs with no selection affordance and passes only a chapter key to StudySession, so every captured entry is chapter-level. Entry.verse already exists in the frozen v1 contract and NoteComposer already accepts a verse prop - the wiring is simply absent, making the advertised verse-anchored note workflow unreachable. CODEX_AUDIT A-018.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/components/reader/ChapterReader.tsx",
+        "web/components/reader/chapter-reader.module.css",
+        "web/components/notes/StudySession.tsx",
+        "web/tests/verse-selection.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/contracts.ts",
+        "web/components/notes/NoteComposer.tsx",
+        "web/lib/bible/reference.ts",
+        "web/lib/sync/store.ts"
+      ],
+      "acceptanceCriteria": [
+        "A verse can be selected by mouse AND keyboard, with a visible selected state and correct ARIA semantics. Selection is optional - chapter-level capture must still work exactly as today.",
+        "The selected verse flows to NoteComposer as a canonical book.chapter.verse RefKey and persists on Entry.verse.",
+        "The read-before-write gate is preserved: selection must not bypass the requirement that the chapter rendered successfully before capture opens.",
+        "A verse reference survives capture -> local store -> sync payload -> export, verified end-to-end rather than asserted.",
+        "The parallel Spanish pane and the Romans 14/16 alignment path still render correctly with selection active; selection keys off the canonical reference, never the loop index.",
+        "lib/contracts.ts is NOT modified - Entry.verse already exists and the v1 contract stays byte-stable.",
+        "Tests prove keyboard selection, the RefKey round-trip through to export, and that chapter-level capture without a selection still works."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "RANGE-001",
+      "title": "Phase 1: canonical passage-range contract (freeze before any v2 table)",
+      "objective": "BUILD_PLAN Phase 1 requires a versification-aware canonical range type frozen BEFORE any v2 schema work, because every v2 table stores ranges and changing it later would be a destructive migration. Today only single-verse RefKey exists, which cannot express a literary unit like Genesis 1:1-2:3. This task builds ONLY the contract plus parsing/validation/formatting and tests - no tables, no API, no UI.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/lib/contracts/range-v1.ts",
+        "web/lib/bible/range.ts",
+        "web/tests/range-v1.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/contracts.ts",
+        "web/lib/bible/reference.ts",
+        "web/lib/bible/versemap.ts",
+        "tools/versification-report.md",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "CanonicalRangeV1 { versificationId: \"eng-protestant-66-31102-v1\"; start: RefKey; end: RefKey } and DisplayReferenceV1 { canonicalRange; translationId; corpusReleaseId; mappedStart; mappedEnd } are defined verbatim per BUILD_PLAN 3.1, in a NEW versioned module. web/lib/contracts.ts must stay byte-stable.",
+        "Cross-chapter ranges within one book are supported (Genesis 1:1-2:3 round-trips). Cross-BOOK ranges are rejected.",
+        "Parsing/formatting round-trips exactly. Validation rejects reversed ranges, out-of-bounds chapters/verses checked against the real canon table, malformed keys with prefix/suffix junk, and cross-book ranges.",
+        "A single-verse range is representable and round-trips (start equals end).",
+        "Containment and overlap helpers exist and are tested, since the v2 evidence model will need them.",
+        "The SBL Romans 14/16 divergence is acknowledged: document in-module how a canonical range maps to a display reference through the versioned verse map, and test at least the Romans 16:25-27 to Spanish 14:24-26 mapping shape. Do NOT reimplement versemap.ts - import or reference it.",
+        "No database, no API route, no UI, no v2 tables. Contract and pure functions only."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }
