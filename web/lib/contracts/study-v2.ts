@@ -225,7 +225,7 @@ export function isStudySessionWorkflowState(value: string): value is StudySessio
 }
 
 /** BUILD_PLAN §3.3 inline list for `study_claims.status` (gap #1 above: master plan adds a fourth `revisited` value this module does not include). */
-export const STUDY_CLAIM_STATUSES = ["draft", "confirmed", "needs_revision"] as const;
+export const STUDY_CLAIM_STATUSES = ["draft", "revisited", "confirmed", "needs_revision"] as const;
 export type StudyClaimStatus = (typeof STUDY_CLAIM_STATUSES)[number];
 export function isStudyClaimStatus(value: string): value is StudyClaimStatus {
   return (STUDY_CLAIM_STATUSES as readonly string[]).includes(value);

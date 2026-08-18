@@ -130,10 +130,9 @@ const pageModule = nodeRequire("@/app/(app)/review/page.tsx") as {
   default: typeof import("../app/(app)/review/page").default;
   loadReviewViewModel: typeof import("../app/(app)/review/page").loadReviewViewModel;
   resolveSessionState: typeof import("../app/(app)/review/page").resolveSessionState;
-  computeThreadRadar: typeof import("../app/(app)/review/page").computeThreadRadar;
 };
 
-const { loadReviewViewModel, resolveSessionState, computeThreadRadar } = pageModule;
+const { loadReviewViewModel, resolveSessionState } = pageModule;
 const ReviewPage = pageModule.default;
 
 /** Renders the real page component to HTML, or reports the redirect it threw. */
@@ -457,7 +456,7 @@ test("a genuinely empty account is NOT setup-incomplete: it renders the ordinary
   assert.equal(view.status, "ok");
   if (view.status !== "ok") return;
   assert.deepEqual(view.data.snapshot, emptySnapshot);
-  assert.deepEqual(view.data.radar, []);
+  assert.deepEqual(view.data.motifCandidates, []);
   assert.deepEqual(view.data.teaching, []);
   assert.deepEqual(view.data.orphanEntries, []);
   assert.deepEqual(view.data.coldThreads, []);
@@ -531,24 +530,8 @@ test("a populated account composes teaching, radar, and orphan labels from the r
   assert.ok(view.data.orphanEntries[0].label.startsWith("1.3 — "));
   assert.ok(view.data.orphanEntries[0].label.endsWith("…"));
 
-  assert.equal(view.data.radar.length, 1);
-  assert.equal(view.data.radar[0].word, "covenant");
-  assert.equal(view.data.radar[0].count, 3);
+  assert.equal(view.data.motifCandidates.length, 1);
+  assert.equal(view.data.motifCandidates[0].label, "covenant");
+  assert.equal(view.data.motifCandidates[0].passages.length, 3);
 });
 
-test("computeThreadRadar requires three distinct chapters, not three mentions in one chapter", () => {
-  const entries: Entry[] = [
-    {
-      id: "1",
-      kind: "observation" as const,
-      body: "wilderness wilderness wilderness wilderness",
-      chapter: "1.1",
-      threads: [],
-      createdAt: "2026-01-01T00:00:00.000Z",
-      updatedAt: "2026-01-01T00:00:00.000Z",
-    },
-  ];
-
-  const hits = computeThreadRadar(entries, []);
-  assert.deepEqual(hits, []);
-});

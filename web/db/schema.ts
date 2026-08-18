@@ -29,6 +29,7 @@ import {
   STUDY_SESSION_CONNECTION_STATES,
   STUDY_SESSION_MODES,
   STUDY_SESSION_WORKFLOW_STATES,
+  STUDY_CLAIM_STATUSES,
   USER_CONNECTION_STATUSES,
 } from "@/lib/contracts/study-v2";
 
@@ -329,25 +330,15 @@ export const modernDomainEnum = pgEnum("modern_domain", MODERN_DOMAINS);
 export const responseTypeEnum = pgEnum("response_type", RESPONSE_TYPES);
 
 /**
- * `lib/contracts/study-v2.ts`'s own `STUDY_CLAIM_STATUSES` export is
- * documented, in that file's header (gap #1) and again inline at its
- * definition, as STILL three values ("draft" | "confirmed" |
- * "needs_revision") even though commit `ff7e81c` ("Reconcile the
- * study_claims status enum before it becomes a migration") already corrected
- * `BUILD_PLAN.md` §3.3 to the master plan's four ("draft" | "revisited" |
- * "confirmed" | "needs_revision") — it corrected the doc but not the
- * contract module in the same commit, and study-v2.ts is a readOnlyPath this
- * task cannot edit. Importing the stale three-value array here would freeze
- * the wrong vocabulary into the migration this task exists to generate, which
- * this project's own SCHEMAV2-001 brief calls "expensive to undo" — so the
- * four BUILD_PLAN-canonical values are declared directly, deliberately
- * diverging from the (known-stale) contract export rather than propagating
- * its bug. Reported gap: `lib/contracts/study-v2.ts`'s `STUDY_CLAIM_STATUSES`
- * needs the same `revisited` fix `BUILD_PLAN.md` already got, so the contract
- * and this column stop disagreeing.
+ * Imported from the contract module like every other v2 enum. The contract's
+ * STUDY_CLAIM_STATUSES was briefly stale at three values while BUILD_PLAN.md
+ * had already been corrected to the master plan's four; SCHEMAV2-001 caught
+ * the disagreement and transcribed the correct four locally rather than
+ * freeze the wrong vocabulary into this migration. The contract has since
+ * been fixed, so the local transcription is gone and there is one source of
+ * truth again.
  */
-const STUDY_CLAIM_STATUS_VALUES = ["draft", "revisited", "confirmed", "needs_revision"] as const;
-export const studyClaimStatusEnum = pgEnum("study_claim_status", STUDY_CLAIM_STATUS_VALUES);
+export const studyClaimStatusEnum = pgEnum("study_claim_status", STUDY_CLAIM_STATUSES);
 
 export const studySessions = pgTable(
   "study_sessions",

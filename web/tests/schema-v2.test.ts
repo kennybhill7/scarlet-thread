@@ -253,17 +253,15 @@ test("study_claims.status uses the BUILD_PLAN-corrected four-value list (draft|r
   assert.deepEqual(columnsOf(schema.studyClaims).status.enumValues, EXPECTED_STUDY_CLAIM_STATUSES);
 });
 
-test("study_claims.status deliberately diverges from study-v2.ts's still-stale STUDY_CLAIM_STATUSES export", async () => {
+test("study_claims.status now agrees with study-v2.ts STUDY_CLAIM_STATUSES (one source of truth)", async () => {
+  // This replaces a deliberate-divergence tripwire written by SCHEMAV2-001 while
+  // the contract module was briefly stale at three values. That test fired on
+  // 2026-08-18 the moment the contract was corrected, exactly as its own comment
+  // instructed, and is now inverted: the schema imports the contract array, so the
+  // two can no longer drift apart silently.
   const { STUDY_CLAIM_STATUSES } = await import("@/lib/contracts/study-v2");
-  // If this ever fails because STUDY_CLAIM_STATUSES grew a fourth value, that
-  // means the contract module's gap #1 was finally fixed — this schema test
-  // should then be updated to import STUDY_CLAIM_STATUSES directly instead of
-  // hand-transcribing EXPECTED_STUDY_CLAIM_STATUSES above.
-  assert.notDeepEqual(
-    [...STUDY_CLAIM_STATUSES],
-    EXPECTED_STUDY_CLAIM_STATUSES,
-    "lib/contracts/study-v2.ts's STUDY_CLAIM_STATUSES appears to have been fixed to 4 values — update this test to import it directly instead of hand-transcribing",
-  );
+  assert.deepEqual([...STUDY_CLAIM_STATUSES], EXPECTED_STUDY_CLAIM_STATUSES);
+  assert.deepEqual(columnsOf(schema.studyClaims).status.enumValues, [...STUDY_CLAIM_STATUSES]);
 });
 
 // ---------------------------------------------------------------------------
