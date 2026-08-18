@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-18T05:09:14.000Z",
+  "updatedAt": "2026-08-18T05:45:00.000Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
-    "taskId": "VERSEMAP-001",
-    "runId": "cloud-20260818050914",
-    "takenAt": "2026-08-18T05:09:14.000Z",
-    "expiresAt": "2026-08-18T06:39:14.000Z"
+    "taskId": null,
+    "runId": null,
+    "takenAt": null,
+    "expiresAt": null
   },
   "tasks": {
     "DOC-002": {
@@ -127,13 +127,13 @@
       "notes": "Seeded 2026-08-17 from a direct code read grounding the real defect (build-time seed bridge / silent versemap fail-open), not just the BUILD_PLAN.md gate description. Awaiting independent audit, same as other submitted tasks."
     },
     "VERSEMAP-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "submitted",
+      "branch": "agent/VERSEMAP-001-cloud",
+      "commitSha": "600be6a2e9adb527bc7c0cf997879a44c9c17867",
       "attempts": 0,
       "lastRunId": "cloud-20260818050914",
-      "lastEvidence": null,
-      "notes": "Seeded 2026-08-17 from a direct code read grounding the real defect (build-time seed bridge / silent versemap fail-open), not just the BUILD_PLAN.md gate description."
+      "lastEvidence": "npm run typecheck: exit 0, no output. npm run lint: exit 0, no output. npm test: tests 40, pass 40, fail 0, cancelled 0, skipped 0 (35 pre-existing + 5 new required fail-closed tests in tests/versemap.test.ts, plus 2 more supporting regression tests in the same file, for 7 new total). DATABASE_URL='postgresql://u:p@localhost:5432/db' npm run build: 'Compiled successfully', 16/16 pages generated, no db:migrate invoked. Fail-before/pass-after independently confirmed by hand: git-stashed versemap.ts alone, reran tests -- 5 of 7 new tests failed with 'is not a function' (new exports did not exist yet), the 2 pre-existing Romans tests were unaffected; restored, all 7 passed. Criterion 1: new exported getDivergenceStatus(chapterKey) returns 'no-divergence'|'diverges'|'unknown', never collapsed -- loadVerseMap() internally now returns {ok, maps} instead of swallowing every failure into an empty maps object. Criterion 2: chapterMayDiverge() returns true (fail closed) when the map failed to load, proven by a dedicated test; alignChapter() throws the new exported VerseMapUnavailableError instead of returning an identity zip when the pair involves the Spanish version (the only known divergence source) and the map failed to load, proven by assert.rejects. A pair that never involves a version with recorded divergence (e.g. two English versions) still resolves to identity regardless of load status, since no known divergence source could apply either way -- proven by a dedicated test, and this is the one deliberate exception to fail-closed, documented in the function's JSDoc and the commit message. Criterion 3: VerseMapUnavailableError is the exported, documented thrown-error failure surface; divergenceNote() also now returns a generic non-null warning instead of null on load failure, which the existing ChapterReader.tsx note UI already renders whenever the parallel pane is on with zero changes to that read-only file -- proven by a dedicated test. Criterion 4: the 1,187-chapter identity-zip path for a successfully-loaded map is unchanged (same single memoized loadVerseMap() call, same algorithm), proven by a dedicated regression test. Criterion 5: the Romans 14/16 alignment algorithm is untouched when the map loads successfully -- both pre-existing tests pass unmodified. Criterion 6: three dedicated tests cover network/fetch failure, non-ok HTTP response, and malformed/unparseable JSON, each asserting the same three-fold fail-closed behavior (status='unknown', chapterMayDiverge()=true, alignChapter() rejects with VerseMapUnavailableError, divergenceNote() non-null); the two pre-existing successful-load Romans tests are unmodified and still pass. Added __resetVerseMapCacheForTests() (test-only export) because this project's tsx path-alias resolver was verified empirically (in a throwaway experiment, deleted before commit) to collapse query-string-cache-busted dynamic imports of the '@/...' alias back to the same module instance, so per-scenario module state needed an explicit reset hook instead of relying on fresh imports. Only web/lib/bible/versemap.ts and web/tests/versemap.test.ts touched (its sole owned paths); web/lib/bible/reference.ts, web/lib/contracts.ts, and web/components/reader/ChapterReader.tsx were read-only grounding, not modified -- confirmed ChapterReader.tsx's existing usage of alignChapter()/divergenceNote() still type-checks and needs no changes, since both functions keep their original resolved-value shapes (Promise<AlignedRow[]> and Promise<string|null> respectively) and only add a new rejection/warning path. No PR opened, per this queue's established convention (prior submitted tasks -- DOC-002, SEC-002, P0UI-002, P0-002, REVIEW-001 -- coordinate via this file and branch/commit alone, not GitHub PRs, and QUEUE.md's own worker protocol never mentions PR creation).",
+      "notes": "Seeded 2026-08-17 from a direct code read grounding the real defect (build-time seed bridge / silent versemap fail-open), not just the BUILD_PLAN.md gate description. Awaiting independent audit, same as the other submitted tasks. Lessons protocol note: agent-graph/LESSONS.md was not written to, following the same precedent REVIEW-001 already established -- QUEUE.md's Lessons protocol instructs appending a retro there, but agent-graph/ is a protected path with no worker-write exception besides queue.state.json itself (graph.config.json protectedPaths), so the ABSOLUTE LIMITS section takes precedence. The cross-project ledger at C:\\Users\\kenny\\.claude\\lessons\\GENERAL_LEDGER.md is a Windows-local path and does not exist on this Linux cloud runner (confirmed: file and directory both absent), consistent with QUEUE.md describing it as machine-local and reconciled by a human or the interactive session, not reachable from a cloud run."
     }
   }
 }
