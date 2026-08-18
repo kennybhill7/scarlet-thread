@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-18T04:10:02.000Z",
+  "updatedAt": "2026-08-18T04:24:03.000Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
-    "taskId": "REVIEW-001",
-    "runId": "cloud-20260818041002",
-    "takenAt": "2026-08-18T04:10:02.000Z",
-    "expiresAt": "2026-08-18T05:40:02.000Z"
+    "taskId": null,
+    "runId": null,
+    "takenAt": null,
+    "expiresAt": null
   },
   "tasks": {
     "DOC-002": {
@@ -118,13 +118,13 @@
       "notes": "Never attempt."
     },
     "REVIEW-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "submitted",
+      "branch": "agent/REVIEW-001-cloud",
+      "commitSha": "ee8ba6bbf9f5a6e1f73d2da70ecbead5f6eeedaa",
       "attempts": 0,
       "lastRunId": "cloud-20260818041002",
-      "lastEvidence": null,
-      "notes": "Seeded 2026-08-17 from a direct code read grounding the real defect (build-time seed bridge / silent versemap fail-open), not just the BUILD_PLAN.md gate description."
+      "lastEvidence": "typecheck exit 0, no output. lint exit 0, no output. npm test: tests 40, pass 40, fail 0, skipped 0 (35 pre-existing + 5 new in tests/review-setup-state.test.ts). DATABASE_URL='postgresql://u:p@localhost:5432/db' npm run build: 'Compiled successfully', 16/16 static pages generated, no db:migrate invoked; /review is route type f (dynamic, server-rendered per request) rather than statically prerendered, direct proof the build-time-private-data defect is closed, not just relocated. Fail-before/pass-after independently confirmed: stashed the page.tsx+css fix, ran the new test file against the original seed-bridge page.tsx -- all 5 new tests failed with 'loadReviewViewModel/computeThreadRadar is not a function'; restored the fix, all 5 passed. Criterion 1: ReviewPage no longer imports lib/vault/seed.ts; sources thread strength/cold threads/orphans/mirror integrity from lib/db/review.ts's getReviewSnapshot (already wired to app/api/review/route.ts), and Worth Teaching + Thread Radar from lib/db/entries.ts's listEntries + lib/db/threads.ts's listThreads (both already-existing DB-backed functions; the radar word-frequency algorithm is ported verbatim from seed.ts's getThreadRadar, now run over DB rows). Criteria 2-3: loadReviewViewModel collapses ANY dependency throw into status:'setup-incomplete', rendered with distinct copy and a new .setupNotice CSS class; a successful call with all-empty results returns status:'ok' and renders through the same unchanged per-section empty copy as before -- proven distinguishable by test. Criterion 4: page now calls auth() itself and redirects to /sign-in if unauthenticated, in addition to the existing proxy.ts gate. Criterion 5: all six original sections and every existing review.module.css class are untouched; only the new setup-incomplete branch and one new class were added. One deliberate, documented exception: Orphans now lists orphan ENTRIES (getReviewSnapshot's orphanEntries, cross-referenced against fetched entries for a readable chapter+snippet label) instead of orphan PEOPLE -- lib/db/review.ts is read-only for this task and has no people-based orphan concept; orphanEntries is the closest already-existing DB-backed equivalent. Criterion 6: 5 new tests -- DB-throw -> setup-incomplete (x2, different dependency), genuinely-empty -> ok with empty-state data, a populated-account composition test (teaching/radar/orphan-label correctness against realistic DB Entry shapes), and a radar unit test proving three DISTINCT chapters are required (not three mentions in one chapter). Only web/app/(app)/review/page.tsx, web/app/(app)/review/review.module.css, web/tests/review-setup-state.test.ts touched (sole owned paths); lib/db/review.ts, lib/vault/seed.ts, lib/auth/config.ts, lib/contracts.ts read-only, not modified. No PR opened, per this queue's established convention (prior submitted tasks coordinate via this file and branch/commit alone). PROCESS NOTE for human review: QUEUE.md's own Lessons protocol instructs the worker to append a retro to agent-graph/LESSONS.md after reaching submitted/blocked, but agent-graph/ is a protected path with no worker-write exception besides this file -- that instruction conflicts with the ABSOLUTE LIMITS section of the same document. Followed the hard limit and did not write LESSONS.md; the retro content lives in this evidence field and in the branch's commit message instead. Candidate lesson (not yet written to LESSONS.md by this run): 'server-only'-guarded modules AND CSS Modules imports both break plain node:test require() of a Next.js file with no useful error -- server-only throws unconditionally outside a bundler, and a *.module.css sibling gets require()'d as raw JS and fails on its own first '.' selector ('Unexpected token .', easily mistaken for a syntax bug in the target file itself). Both need require.cache seeding (mirroring tests/tenant-isolation.test.ts's existing technique) before requiring any React Server Component file that imports either.",
+      "notes": "Seeded 2026-08-17 from a direct code read grounding the real defect (build-time seed bridge / silent versemap fail-open), not just the BUILD_PLAN.md gate description. Awaiting independent audit, same as other submitted tasks."
     },
     "VERSEMAP-001": {
       "status": "ready",
