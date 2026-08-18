@@ -610,6 +610,113 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "STUDYV2-001",
+      "title": "Phase 1: v2 study contracts module (enums + record shapes)",
+      "objective": "RANGE-001 froze the canonical range shape (web/lib/contracts/range-v1.ts, web/lib/bible/range.ts, both now on master). Next, Phase 1 needs the v2 vocabulary itself as a versioned contracts module: the claim/connection/evidence enums and the record interfaces every v2 table will store. BUILD_PLAN section 3.2 fixes the canonical snake_case serialized values and states they are the ONE vocabulary for tables, payloads and docs - no variant spellings anywhere. Types and pure helpers only: no tables, no migration, no API, no UI in this task.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/lib/contracts/study-v2.ts",
+        "web/tests/study-v2.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/contracts.ts",
+        "web/lib/contracts/range-v1.ts",
+        "web/lib/bible/range.ts",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "Every enum from BUILD_PLAN section 3.2 is defined with its exact snake_case serialized values: ClaimKind, EpistemicBasis, ClaimConfidence, ClaimProvenance, ConnectionType, EvidenceLabel, DoctrineStatus. Read BUILD_PLAN section 3.2 and match it verbatim - if you find any discrepancy between the doc and what is achievable, report it rather than silently choosing.",
+        "Record interfaces are defined for the v2 entities named in BUILD_PLAN section 3.3 (study_sessions, study_claims, claim_evidence, motif_candidates, motif_sightings, user_connections, applications, teaching_drafts), each carrying workspaceId and revision, and using CanonicalRangeV1 for passage ranges rather than a bare string.",
+        "The two enforced constraints from section 3.2 are expressed as checkable predicates in this module (exported functions with tests), not merely as comments: personal_resonance connections require evidence_label devotional; and a devotional-labeled connection may never be cited as evidence for a theology claim.",
+        "web/lib/contracts.ts stays byte-stable - this is a NEW versioned module, additive only.",
+        "A runtime-checkable list or set is exported for each enum so database and zod layers can be generated from one source rather than re-typing the values (which is how vocabularies drift).",
+        "Tests prove: every enum value round-trips, the two constraint predicates reject what they should (with a mutation proof that weakening a predicate fails a named test), and no enum contains a value absent from BUILD_PLAN section 3.2."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "SCHEMAV2-001",
+      "title": "Phase 1: v2 learner tables (schema + migration, additive)",
+      "objective": "With the range contract (RANGE-001, merged) and the v2 vocabulary (STUDYV2-001) in place, add the learner-owned v2 tables from BUILD_PLAN section 3.3 to web/db/schema.ts plus a generated migration. Every table carries workspace_id and an integer revision from day one - BUILD_PLAN is explicit that both are cheap now and brutal to retrofit. This task is schema only: no API routes, no UI, no sync wiring.",
+      "baseBranch": null,
+      "dependsOn": [
+        "STUDYV2-001"
+      ],
+      "ownedPaths": [
+        "web/db/schema.ts",
+        "web/db/migrations/",
+        "web/tests/schema-v2.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/contracts.ts",
+        "web/lib/contracts/study-v2.ts",
+        "web/lib/contracts/range-v1.ts",
+        "BUILD_PLAN.md",
+        "web/drizzle.config.ts"
+      ],
+      "acceptanceCriteria": [
+        "Tables added per BUILD_PLAN section 3.3 learner-owned list: study_sessions, study_claims, claim_evidence, motif_candidates, motif_sightings, user_connections, applications, teaching_drafts. Enum columns use the exact snake_case values exported by lib/contracts/study-v2.ts - import them, do not retype the strings.",
+        "Every one of these tables has workspace_id and an integer revision column, plus created/updated timestamps and soft-delete where the existing v1 tables use one.",
+        "STRICTLY ADDITIVE: no existing v1 table (entries, threads, entry_threads, people, reading_progress, daily_logs, stages, sync_receipts) is altered or dropped, and the deferred one-thread invariant in migration 0003 is left exactly as it is. Confirm with a diff that no existing migration file is modified.",
+        "The migration is generated with drizzle-kit generate (not hand-written) so schema.ts and the SQL cannot drift, and it applies cleanly in order after 0005.",
+        "The personal_resonance / devotional constraint is enforced at the database level where a same-row CHECK can do it. The cross-table rule (a devotional connection may not back a theology claim) CANNOT be a plain CHECK - BUILD_PLAN says so explicitly - so either implement it as a deferrable constraint trigger or state plainly in the commit that it is deferred to the repository layer, and say which.",
+        "A test proves the schema shape: every new table has workspace_id and revision, enum columns match the study-v2 exports exactly, and no v1 table was altered. It must fail if a table is added without workspace_id.",
+        "No database connection is required to run the tests - assert against the schema definition and generated SQL, not a live database."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test",
+        "cd web; npm.cmd exec drizzle-kit check"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "RADAR-001",
+      "title": "Phase 1: radar emits motif candidates, never connections",
+      "objective": "BUILD_PLAN section 3.5: the thread radar keeps its lexical engine but its OUTPUT changes shape - it must emit motif candidates, never Connection rows, because a theological edge should exist only after the learner has compared both texts and written a rationale. Today getThreadRadar in lib/vault/seed.ts returns word/count/chapters tuples straight to the review UI. The radar also still has no dedicated tests, which CODEX_AUDIT A-045 flagged.",
+      "baseBranch": null,
+      "dependsOn": [
+        "SCHEMAV2-001"
+      ],
+      "ownedPaths": [
+        "web/lib/db/radar.ts",
+        "web/app/(app)/review/page.tsx",
+        "web/tests/radar.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/vault/seed.ts",
+        "web/lib/contracts/study-v2.ts",
+        "web/db/schema.ts",
+        "web/lib/db/entries.ts",
+        "web/lib/db/threads.ts",
+        "CODEX_AUDIT.md"
+      ],
+      "acceptanceCriteria": [
+        "Radar output is motif candidates, not connections: a candidate carries the learner-facing label, a normalized key, the distinct passage scopes it was seen in, and a status - it never asserts a typed relationship between two passages.",
+        "The third-sighting rule is preserved exactly as A-045 requires: count DISTINCT passages, require at least three. Port the existing STOPWORDS, BOOK_NAMES and normalisation from lib/vault/seed.ts faithfully - a diff-level match, since that logic was already audited once.",
+        "The honest-coverage fix from A-045 lands too: the UI must not claim no thread covers a word when the check is only literal token matching against thread titles. Either implement real coverage checking or label it accurately as a word-frequency hint. State which you chose and why.",
+        "Dedicated radar tests exist for the first time: repeated words within ONE passage do not reach three sightings, three distinct passages do, multi-word thread titles are handled, plural/case normalisation works, and the exact threshold boundary (2 vs 3) is pinned.",
+        "The review page renders candidates through the new path with no visual regression to the radar section, and no import of getThreadRadar from lib/vault/seed.ts remains.",
+        "Mutation-prove the threshold: changing >= 3 to >= 2 must fail a named test."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }

@@ -190,13 +190,40 @@
       "notes": "Merged. The auth-preemption gap reported by REVIEW-001 and CLIMB-001 is now genuinely closed at the middleware."
     },
     "VMCACHE-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-18-phase1",
+      "lastEvidence": null,
+      "notes": "Seeded 2026-08-18 from an honestly-reported out-of-scope gap in a completed rework (SCOPE-BOUNDARY-001 working as intended: the builder reported rather than smuggled the edit). | HELD OUT of the 2026-08-18 parallel wave: it owns web/components/reader/ChapterReader.tsx and so does VERSESEL-001. Run it after VERSESEL-001 lands to avoid a guaranteed conflict. | UNBLOCKED 2026-08-18: VERSESEL-001 has landed, so ChapterReader.tsx is free. Base off master f2a5c7b or later."
+    },
+    "STUDYV2-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-18-phase1",
+      "lastEvidence": null,
+      "notes": "Seeded 2026-08-18 for Phase 1, grounded in BUILD_PLAN sections 3.2, 3.3 and 3.5 plus the current schema (12 v1 tables, migrations 0000-0005) and the now-merged RANGE-001 contract."
+    },
+    "SCHEMAV2-001": {
       "status": "ready",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
       "lastRunId": null,
       "lastEvidence": null,
-      "notes": "Seeded 2026-08-18 from an honestly-reported out-of-scope gap in a completed rework (SCOPE-BOUNDARY-001 working as intended: the builder reported rather than smuggled the edit). | HELD OUT of the 2026-08-18 parallel wave: it owns web/components/reader/ChapterReader.tsx and so does VERSESEL-001. Run it after VERSESEL-001 lands to avoid a guaranteed conflict. | UNBLOCKED 2026-08-18: VERSESEL-001 has landed, so ChapterReader.tsx is free. Base off master f2a5c7b or later."
+      "notes": "Seeded 2026-08-18 for Phase 1, grounded in BUILD_PLAN sections 3.2, 3.3 and 3.5 plus the current schema (12 v1 tables, migrations 0000-0005) and the now-merged RANGE-001 contract."
+    },
+    "RADAR-001": {
+      "status": "ready",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Seeded 2026-08-18 for Phase 1, grounded in BUILD_PLAN sections 3.2, 3.3 and 3.5 plus the current schema (12 v1 tables, migrations 0000-0005) and the now-merged RANGE-001 contract."
     }
   }
 }
