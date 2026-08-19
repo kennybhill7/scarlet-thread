@@ -284,7 +284,8 @@ export const syncReceipts = pgTable(
 
 // ---------------------------------------------------------------------------
 // v2 learner tables — SCHEMAV2-001, Phase 1 (BUILD_PLAN.md §3.3, "User-owned
-// (synced)" list). Strictly additive: nothing above this comment is touched.
+// (synced)" list), extended by SCHEMAFU-001 (see below). Strictly additive:
+// nothing above this comment is touched.
 //
 // Every table here carries workspaceId + an integer revision from day one
 // (§3.3: "cheap now and brutal to retrofit") plus the same created/updated/
@@ -293,20 +294,65 @@ export const syncReceipts = pgTable(
 // so all eight use the shared `timestamps` spread below, unlike readingProgress/
 // dailyLogs/stages/syncReceipts above which never soft-delete.
 //
-// `workspace_id` is NOT foreign-keyed to `users.id` here. BUILD_PLAN §3.3 says
-// only "one personal workspace per user, backfilled" — it never defines a
-// `workspaces` table, and none exists in this schema. Inventing an FK to
-// `users` would silently assert workspace_id === user_id forever, which is
-// exactly the kind of guess this task was told to avoid making. Reported gap:
-// a future task must either add a `workspaces` table (and FK these columns to
-// it) or explicitly confirm the 1:1 user mapping and FK to `users.id`.
+// SCHEMAFU-001 (gap a): `workspace_id` IS now foreign-keyed, to the
+// `workspaces` table defined just below this comment (master plan §12.1: id,
+// kind(personal), name, created_by, created_at, deleted_at — one personal
+// workspace per user, created/backfilled by a separate data-migration task,
+// not this schema task). SCHEMAV2-001 had deliberately left this column bare
+// because no `workspaces` table existed yet; it now does.
 //
 // Tenant-safety pattern reused from `entries`/`entryThreads` above: parent
 // tables a child must stay inside the same workspace for (studySessions,
-// studyClaims, motifCandidates) expose a composite UNIQUE(id, workspace_id)
-// index, and every child FKs against that composite pair — not just the bare
-// id — so a row can never reference a same-id-different-workspace parent.
+// studyClaims, motifCandidates, and — new in SCHEMAFU-001 — userConnections
+// and teachingDrafts) expose a composite UNIQUE(id, workspace_id) index, and
+// every child FKs against that composite pair — not just the bare id — so a
+// row can never reference a same-id-different-workspace parent.
+//
+// SCHEMAFU-001 (gap b/c) adds `claimEvidence.connectionId` (nullable FK into
+// `userConnections`), `teachingSections`, and `artifactRevisions` — see each
+// table's own comment below for what it resolves and what it still leaves
+// open.
 // ---------------------------------------------------------------------------
+
+/**
+ * SCHEMAFU-001 gap (a). Master plan §12.1 columns verbatim: `id`,
+ * `kind(personal)`, `name`, `created_by`, `created_at`, `deleted_at` — no
+ * `updated_at` is listed there, so unlike every v2 table below this does NOT
+ * reuse the shared `timestamps` spread; it has exactly the four
+ * timestamp-adjacent columns the plan states, nothing invented on top.
+ *
+ * Only `"personal"` is enumerated: §12.1 states plainly that
+ * cohort/church workspaces, mentor roles, and sharing are deferred until
+ * invite-only coaching is authorized, and `workspace_memberships`
+ * (role/status) is separately-scoped, deferred territory the plan itself
+ * calls out — neither is part of this task's four listed gaps, so neither is
+ * added here.
+ *
+ * "Every user gets exactly one personal workspace conceptually" (this task's
+ * acceptance criterion) is a data/backfill guarantee, not a schema-enforceable
+ * one — a UNIQUE(created_by) index would wrongly forbid a future second
+ * (e.g. cohort) workspace per user, which §12.1 explicitly anticipates. Left
+ * unconstrained here; enforcing "exactly one personal workspace right now"
+ * belongs to the bootstrap/backfill code path, not this table's shape.
+ */
+export const workspaceKindEnum = pgEnum("workspace_kind", ["personal"]);
+
+export const workspaces = pgTable(
+  "workspaces",
+  {
+    id: text("id").primaryKey(),
+    kind: workspaceKindEnum("kind").notNull(),
+    name: text("name").notNull(),
+    createdBy: text("created_by")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true, mode: "string" }),
+  },
+  (table) => [index("workspaces_created_by_idx").on(table.createdBy)],
+);
 
 export const claimKindEnum = pgEnum("claim_kind", CLAIM_KINDS);
 export const epistemicBasisEnum = pgEnum("epistemic_basis", EPISTEMIC_BASES);
@@ -344,7 +390,9 @@ export const studySessions = pgTable(
   "study_sessions",
   {
     id: text("id").primaryKey(),
-    workspaceId: text("workspace_id").notNull(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
     range: jsonb("range").$type<CanonicalRangeV1>().notNull(),
     mode: studySessionModeEnum("mode").notNull(),
     workflowState: studySessionWorkflowStateEnum("workflow_state").notNull(),
@@ -362,11 +410,71 @@ export const studySessions = pgTable(
   ],
 );
 
+// userConnections is defined here, ahead of studyClaims/claimEvidence below,
+// solely so claimEvidence's connectionId FK (SCHEMAFU-001 gap b) can reference
+// it — drizzle-orm's `foreignKey()` needs the real column objects at call
+// time, not a lazy callback, so the referenced table must already be a
+// defined `const` by that point in this file. No other ordering reason.
+export const userConnections = pgTable(
+  "user_connections",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    fromRange: jsonb("from_range").$type<CanonicalRangeV1>().notNull(),
+    toRange: jsonb("to_range").$type<CanonicalRangeV1>().notNull(),
+    type: connectionTypeEnum("type").notNull(),
+    evidenceLabel: evidenceLabelEnum("evidence_label").notNull(),
+    /** Required, minimum 20 characters (BUILD_PLAN §3.3) — enforced by repository-layer validation, not this column. */
+    rationale: text("rationale").notNull(),
+    threadSlug: text("thread_slug"),
+    status: userConnectionStatusEnum("status").notNull(),
+    revision: integer("revision").notNull().default(1),
+    ...timestamps,
+  },
+  (table) => [
+    uniqueIndex("user_connections_workspace_range_type_idx").on(
+      table.workspaceId,
+      table.fromRange,
+      table.toRange,
+      table.type,
+    ),
+    index("user_connections_workspace_idx").on(table.workspaceId),
+    // SCHEMAFU-001: composite UNIQUE(id, workspace_id), the same tenant-safety
+    // pattern studySessions/studyClaims/motifCandidates already use, so
+    // claimEvidence.connectionId (below) can FK against this pair instead of
+    // a bare id — a claim can never cite a connection from another workspace.
+    uniqueIndex("user_connections_id_workspace_idx").on(table.id, table.workspaceId),
+    // §3.2's first enforced constraint (same-row, so a plain CHECK suffices):
+    // "personal_resonance connections require evidence_label = 'devotional'".
+    // Mirrors lib/contracts/study-v2.ts's isPersonalResonanceEvidenceLabelValid
+    // predicate exactly.
+    //
+    // The second §3.2 constraint — devotional-labeled evidence can never back
+    // a theology claim — is cross-table (user_connections x claim_evidence x
+    // study_claims). SCHEMAV2-001 could not implement it as a deferrable
+    // constraint trigger (migration 0003's pattern) because claim_evidence had
+    // no column identifying which user_connections row a "connection"-typed
+    // evidence row cites, so a trigger had no join path; it deferred the rule
+    // to the repository layer instead. SCHEMAFU-001 adds that column
+    // (claimEvidence.connectionId, above/below) and implements the trigger in
+    // migration 0007 — see that migration file and
+    // tests/schema-followups.test.ts for the enforcement and its proof.
+    check(
+      "user_connections_personal_resonance_devotional_check",
+      sql`${table.type} <> 'personal_resonance' OR ${table.evidenceLabel} = 'devotional'`,
+    ),
+  ],
+);
+
 export const studyClaims = pgTable(
   "study_claims",
   {
     id: text("id").primaryKey(),
-    workspaceId: text("workspace_id").notNull(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
     sessionId: text("session_id").notNull(),
     kind: claimKindEnum("kind").notNull(),
     epistemicBasis: epistemicBasisEnum("epistemic_basis").notNull(),
@@ -398,7 +506,9 @@ export const claimEvidence = pgTable(
   "claim_evidence",
   {
     id: text("id").primaryKey(),
-    workspaceId: text("workspace_id").notNull(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
     claimId: text("claim_id").notNull(),
     evidenceType: claimEvidenceTypeEnum("evidence_type").notNull(),
     /** Present when evidenceType anchors to a passage (passage | context | connection). */
@@ -407,6 +517,25 @@ export const claimEvidence = pgTable(
     contentBlockId: text("content_block_id"),
     /** First-class citation id into the sources/citations model (not built yet — no FK target exists in this task's scope). */
     citationId: text("citation_id"),
+    /**
+     * SCHEMAFU-001 gap (b). Names WHICH `userConnections` row an
+     * evidenceType:"connection" row cites — the column SCHEMAV2-001 reported
+     * as missing (lib/contracts/study-v2.ts header, gap #5) and the reason
+     * the §3.2 cross-table devotional/theology rule had no join path and was
+     * deferred to the repository layer. Nullable because passage/context/
+     * source evidence rows never use it. Composite-FK'd against
+     * `(userConnections.id, userConnections.workspaceId)` — not a bare
+     * single-column FK to `userConnections.id` — so a claim can never cite a
+     * connection that lives in a different workspace; that would otherwise be
+     * a tenant-isolation hole this repo's own tests (`tenant-isolation.test.ts`)
+     * exist to catch. onDelete is CASCADE, not SET NULL, for the same reason
+     * `motifSightings.claimId`'s FK below is CASCADE: this column is nullable
+     * but the FK's other member, `workspaceId`, is NOT NULL on this table —
+     * SET NULL on a multi-column FK nulls every column in that FK, which
+     * would violate `workspace_id`'s own NOT NULL constraint the moment a
+     * cited connection is deleted.
+     */
+    connectionId: text("connection_id"),
     note: text("note").notNull(),
     revision: integer("revision").notNull().default(1),
     ...timestamps,
@@ -414,10 +543,16 @@ export const claimEvidence = pgTable(
   (table) => [
     index("claim_evidence_workspace_idx").on(table.workspaceId),
     index("claim_evidence_claim_idx").on(table.workspaceId, table.claimId),
+    index("claim_evidence_connection_idx").on(table.workspaceId, table.connectionId),
     foreignKey({
       columns: [table.claimId, table.workspaceId],
       foreignColumns: [studyClaims.id, studyClaims.workspaceId],
       name: "claim_evidence_claim_workspace_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [table.connectionId, table.workspaceId],
+      foreignColumns: [userConnections.id, userConnections.workspaceId],
+      name: "claim_evidence_connection_workspace_fk",
     }).onDelete("cascade"),
   ],
 );
@@ -426,7 +561,9 @@ export const motifCandidates = pgTable(
   "motif_candidates",
   {
     id: text("id").primaryKey(),
-    workspaceId: text("workspace_id").notNull(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
     label: text("label").notNull(),
     normalizedKey: text("normalized_key").notNull(),
     /** No enumerated values in either source doc (BUILD_PLAN §3.3 warning block) — plain text, not a guessed enum. */
@@ -445,7 +582,9 @@ export const motifSightings = pgTable(
   "motif_sightings",
   {
     id: text("id").primaryKey(),
-    workspaceId: text("workspace_id").notNull(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
     candidateId: text("candidate_id").notNull(),
     /** Stable key of the curated passage_unit this sighting falls in. */
     passageUnitKey: text("passage_unit_key").notNull(),
@@ -479,65 +618,13 @@ export const motifSightings = pgTable(
   ],
 );
 
-export const userConnections = pgTable(
-  "user_connections",
-  {
-    id: text("id").primaryKey(),
-    workspaceId: text("workspace_id").notNull(),
-    fromRange: jsonb("from_range").$type<CanonicalRangeV1>().notNull(),
-    toRange: jsonb("to_range").$type<CanonicalRangeV1>().notNull(),
-    type: connectionTypeEnum("type").notNull(),
-    evidenceLabel: evidenceLabelEnum("evidence_label").notNull(),
-    /** Required, minimum 20 characters (BUILD_PLAN §3.3) — enforced by repository-layer validation, not this column. */
-    rationale: text("rationale").notNull(),
-    threadSlug: text("thread_slug"),
-    status: userConnectionStatusEnum("status").notNull(),
-    revision: integer("revision").notNull().default(1),
-    ...timestamps,
-  },
-  (table) => [
-    uniqueIndex("user_connections_workspace_range_type_idx").on(
-      table.workspaceId,
-      table.fromRange,
-      table.toRange,
-      table.type,
-    ),
-    index("user_connections_workspace_idx").on(table.workspaceId),
-    // §3.2's first enforced constraint (same-row, so a plain CHECK suffices):
-    // "personal_resonance connections require evidence_label = 'devotional'".
-    // Mirrors lib/contracts/study-v2.ts's isPersonalResonanceEvidenceLabelValid
-    // predicate exactly.
-    //
-    // The second §3.2 constraint — devotional-labeled evidence can never back
-    // a theology claim — is cross-table (user_connections x claim_evidence x
-    // study_claims) and is DELIBERATELY NOT implemented as a deferrable
-    // constraint trigger here, unlike migration 0003's entry/thread triggers.
-    // A trigger needs a join path from claim_evidence to the specific
-    // user_connections row a "connection"-typed evidence row cites, and no
-    // such column exists: lib/contracts/study-v2.ts's own header (gap #5)
-    // documents that neither BUILD_PLAN.md nor THEOLOGY_MASTER_BUILD_PLAN.md
-    // ever defines a connectionId (or similar) field on claim_evidence.
-    // Inventing one here would be exactly the kind of undocumented, guessed
-    // schema addition this task was told to avoid. DECISION: this rule is
-    // deferred to the repository layer (BUILD_PLAN §3.2 already requires
-    // repository-layer validation as one of the three layers regardless);
-    // tests/schema-v2.test.ts locks in the missing-column fact so this
-    // decision gets revisited, not silently stale, the moment the column
-    // exists. Follow-up: once claim_evidence names that column, add the
-    // deferrable constraint trigger (see migration 0003's pattern) in the
-    // task that adds it.
-    check(
-      "user_connections_personal_resonance_devotional_check",
-      sql`${table.type} <> 'personal_resonance' OR ${table.evidenceLabel} = 'devotional'`,
-    ),
-  ],
-);
-
 export const applications = pgTable(
   "applications",
   {
     id: text("id").primaryKey(),
-    workspaceId: text("workspace_id").notNull(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
     sessionId: text("session_id").notNull(),
     sourceClaimId: text("source_claim_id").notNull(),
     originalAudienceMeaning: text("original_audience_meaning").notNull(),
@@ -578,7 +665,9 @@ export const teachingDrafts = pgTable(
   "teaching_drafts",
   {
     id: text("id").primaryKey(),
-    workspaceId: text("workspace_id").notNull(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
     sessionId: text("session_id").notNull(),
     title: text("title").notNull(),
     bigIdea: text("big_idea").notNull(),
@@ -593,10 +682,145 @@ export const teachingDrafts = pgTable(
   },
   (table) => [
     index("teaching_drafts_workspace_idx").on(table.workspaceId),
+    // SCHEMAFU-001: composite UNIQUE(id, workspace_id) so teachingSections
+    // (below) can FK its draftId against this pair, same tenant-safety
+    // pattern as userConnections above.
+    uniqueIndex("teaching_drafts_id_workspace_idx").on(table.id, table.workspaceId),
     foreignKey({
       columns: [table.sessionId, table.workspaceId],
       foreignColumns: [studySessions.id, studySessions.workspaceId],
       name: "teaching_drafts_session_workspace_fk",
     }).onDelete("cascade"),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// SCHEMAFU-001 gaps (c) and (d) — teaching_sections and artifact_revisions
+// were named in BUILD_PLAN.md §3.3 prose but were outside SCHEMAV2-001's own
+// acceptance list, so neither table exists until here.
+// ---------------------------------------------------------------------------
+
+/**
+ * SCHEMAFU-001 gap (c). BUILD_PLAN.md §3.3 ("`teaching_drafts` +
+ * `teaching_sections`") and THEOLOGY_MASTER_BUILD_PLAN.md §12.3
+ * (`teaching_sections`) both give the SAME kind vocabulary verbatim — no
+ * conflict to report between the two docs here, unlike gap #1 in
+ * lib/contracts/study-v2.ts's header.
+ *
+ * Every other vocabulary in this file is imported from
+ * `lib/contracts/study-v2.ts`, never retyped — this one is the deliberate
+ * exception, and it's an exception this task cannot close: that contract
+ * module does not export a teaching-section-kind vocabulary at all (it only
+ * covers §3.2's canonical list plus a handful of §3.3 field vocabularies that
+ * predate teaching_sections), and `lib/contracts/study-v2.ts` is a
+ * *readOnlyPath* for this task — it may be read, never written. Adding the
+ * missing export there is out of this task's scope by construction, not an
+ * oversight. Transcribed by hand here instead, the same way SCHEMAV2-001
+ * transcribed `study_claims.status` by hand while its contract source was
+ * briefly stale (see the comment on `studyClaimStatusEnum` above) — except
+ * this transcription cannot later collapse into an import the way that one
+ * did, until a *future* task (outside SCHEMAFU-001's ownedPaths) adds the
+ * export. Recommended follow-up, reported rather than smuggled per
+ * SCOPE-BOUNDARY-001: add `TEACHING_SECTION_KINDS` to
+ * lib/contracts/study-v2.ts and switch this line to import it.
+ */
+const TEACHING_SECTION_KINDS = [
+  "outline",
+  "context",
+  "connection",
+  "theology",
+  "illustration",
+  "objection",
+  "application",
+  "not_justified",
+  "discussion",
+  "prayer",
+] as const;
+
+export const teachingSectionKindEnum = pgEnum("teaching_section_kind", TEACHING_SECTION_KINDS);
+
+export const teachingSections = pgTable(
+  "teaching_sections",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    draftId: text("draft_id").notNull(),
+    kind: teachingSectionKindEnum("kind").notNull(),
+    sortOrder: integer("sort_order").notNull(),
+    body: text("body").notNull(),
+    revision: integer("revision").notNull().default(1),
+    ...timestamps,
+  },
+  (table) => [
+    index("teaching_sections_workspace_idx").on(table.workspaceId),
+    index("teaching_sections_draft_idx").on(table.workspaceId, table.draftId),
+    // A section always belongs to a draft (BUILD_PLAN §3.3 lists draftId as a
+    // required FK, not nullable), so this can cascade without the
+    // nullable-column/NOT-NULL-workspace_id trap claimEvidence.connectionId
+    // and motifSightings.claimId (above) both have to work around.
+    foreignKey({
+      columns: [table.draftId, table.workspaceId],
+      foreignColumns: [teachingDrafts.id, teachingDrafts.workspaceId],
+      name: "teaching_sections_draft_workspace_fk",
+    }).onDelete("cascade"),
+  ],
+);
+
+/**
+ * SCHEMAFU-001 gap (d). BUILD_PLAN.md line 126: the learner's first
+ * observation is preserved permanently "via append-only `artifact_revisions`
+ * rows — an integer revision counter alone is not the guarantee; every edit
+ * inserts the prior body as an immutable row." THEOLOGY_MASTER_BUILD_PLAN.md
+ * §14 lists it among the sync-v2 server records: "`artifact_revisions`:
+ * immutable prior versions for prose conflicts and recovery."
+ *
+ * Neither document gives this table a column list the way §12.3 does for
+ * every other table in this file — both mention it in prose only. The columns
+ * below are this task's own inference of the minimum needed to satisfy
+ * "append-only prior-version store" as a generic mechanism usable by more
+ * than one revisioned entity (studyClaims, teachingDrafts, etc. all carry
+ * their own `revision` counter and could each be the "prior body" being
+ * preserved): `entityTable`/`entityId` name which row is being preserved,
+ * `revision` records which revision of THAT row this snapshot represents
+ * (deliberately NOT defaulted — the caller must always state it explicitly,
+ * unlike every other `revision` column in this file), and `snapshot` holds
+ * the prior row's full content as jsonb rather than a plain `body` text
+ * column, because not every revisioned entity has a field literally named
+ * `body` (TeachingDraft does not; StudyClaim does). This is a disclosed
+ * inference, not a transcription — flagging for review rather than presenting
+ * it as verified BUILD_PLAN text.
+ *
+ * Deliberately has NO `updatedAt`/`deletedAt`: nothing should ever update or
+ * soft-delete a preserved revision — that would defeat the exact guarantee
+ * this table exists to provide. `createdAt` alone records when the snapshot
+ * was captured. Because of this it does not reuse the shared `timestamps`
+ * spread (same reasoning as `workspaces` above), and it is deliberately
+ * exempted from two of `tests/schema-v2.test.ts`'s generic v2-table sweep
+ * assertions (revision-has-a-default, and the full created/updated/deleted
+ * timestamp triple) — see that file for the explicit exemption and why.
+ */
+export const artifactRevisions = pgTable(
+  "artifact_revisions",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    /** Which table this snapshot preserves a prior version of, e.g. "study_claims". Polymorphic by design (no FK target — see motifCandidates.status above for the same "no enumerated values stated" reasoning applied to a table-name column instead of a status column). */
+    entityTable: text("entity_table").notNull(),
+    entityId: text("entity_id").notNull(),
+    /** Which revision of the parent entity this snapshot captured — not this row's own identity, and intentionally has no default. */
+    revision: integer("revision").notNull(),
+    /** Full prior row content. jsonb, not text, because not every revisioned entity has a field literally called "body". */
+    snapshot: jsonb("snapshot").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("artifact_revisions_workspace_idx").on(table.workspaceId),
+    index("artifact_revisions_entity_idx").on(table.workspaceId, table.entityTable, table.entityId),
   ],
 );
