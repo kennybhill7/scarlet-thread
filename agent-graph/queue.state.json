@@ -226,20 +226,38 @@
       "notes": "Merged. Persistence and dedup against dismissed candidates deferred until the motif tables are wired up."
     },
     "SCHEMAFU-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/SCHEMAFU-001-local",
+      "commitSha": "ff20cdf02e42129e93d9c32174ad0b5b9eb4c1b2",
       "attempts": 0,
       "lastRunId": "interactive-2026-08-19",
-      "notes": "Seeded 2026-08-19. SCHEMAFU-001 closes the four gaps SCHEMAV2-001 reported honestly rather than smuggling; SYNCV2-001 opens BUILD_PLAN section 3.4 with contracts only, persistence deferred so the two land reviewably."
+      "lastEvidence": "Verified and MERGED to master in b9ca740. 424/424 combined with SYNCV2-001; typecheck/lint/build clean; drizzle-kit check fine. All four reported gaps closed in ONE migration (0007): workspaces table with every v2 table FK-ing workspace_id to it; claim_evidence.connection_id COMPOSITE-FK to (user_connections.id, workspace_id) so a claim cannot cite a cross-workspace connection; teaching_sections; artifact_revisions. | THE HEADLINE: the cross-table devotional/theology rule is finally a real deferrable constraint trigger following migration 0003 pattern, with THREE entry points rather than one - evidence insert/update, connection relabel, and claim retype - because checking only at attach time would let either side be edited out from under the rule afterwards. That bidirectional reasoning mirrors what 0003 already does for the entry/thread invariant. | It inverted the SCHEMAV2-001 tripwire that locked in the absent column, exactly the intended lifecycle. Five mutation proofs. | I FOUND AND FIXED A REAL PORTABILITY BUG it could not have seen: its new multi-line regexes against migration 0007 pass in the builder worktree but fail on any fresh checkout, because git autocrlf gives the file CRLF while the regexes expect LF. Fixed at the single reader rather than per-assertion (b9ca740).",
+      "notes": "Merged. Trigger proven by SQL-text assertion + JS truth table, NOT against a live Postgres - follow-up TRIGGER-001 queued."
     },
     "SYNCV2-001": {
-      "status": "building",
+      "status": "done",
+      "branch": "agent/SYNCV2-001-local",
+      "commitSha": "cd168231a87db64a6e61e6500047f0accf7dc4ea",
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-19",
+      "lastEvidence": "Verified and MERGED to master in b9ca740. 41 new tests. Six v2 sync entities as a runtime const array; a Zod payload schema per entity built from study-v2 exported enum arrays rather than retyped literals; the full ten-field master-plan section 14 envelope with one test per required field; dangling dependsOn rejected; one-write-path expressed as an enforceable predicate (assertReadOnlyV2ResourceRequest) rather than prose. v1 SyncEntity untouched and tested as untouched. | It correctly inherited SYNC-001 accessor pattern for the payload/envelope timestamp cross-check instead of hardcoding a field name - the exact bug that silently rejected every progress op. | Persistence deliberately deferred and stated plainly, so this is not mistaken for working end-to-end sync. | DOC GAP SURFACED, not silently resolved: master plan section 14 prose names evidence and MotifSighting in its related-creation grouping example, but BUILD_PLAN literal six-entity list omits both - so neither has a sync entity yet. Queued as SYNCGAP-001.",
+      "notes": "Merged. Persistence wiring and the two possibly-missing sync entities are follow-ups."
+    },
+    "TRIGGER-001": {
+      "status": "ready",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": "interactive-2026-08-19",
-      "notes": "Seeded 2026-08-19. SCHEMAFU-001 closes the four gaps SCHEMAV2-001 reported honestly rather than smuggling; SYNCV2-001 opens BUILD_PLAN section 3.4 with contracts only, persistence deferred so the two land reviewably."
+      "lastRunId": null,
+      "notes": "Seeded 2026-08-19 from a gap the builder reported honestly rather than papering over."
+    },
+    "SYNCGAP-001": {
+      "status": "ready",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "notes": "Seeded 2026-08-19 from a gap the builder reported honestly rather than papering over."
     }
   }
 }

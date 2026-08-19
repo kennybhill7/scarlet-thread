@@ -794,6 +794,64 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "TRIGGER-001",
+      "title": "Prove the devotional/theology trigger against a real Postgres engine",
+      "objective": "SCHEMAFU-001 implemented the cross-table devotional/theology rule as a deferrable constraint trigger in migration 0007, but proved it only by asserting on generated SQL text plus a pure-JS truth table over the extracted guard condition. That is honest and it is not nothing - but it does not prove Postgres actually rejects the violating write. This repo already has the right harness for that: web/tests/db-invariants.sql proves migration 0003 own triggers with real fixtures against a disposable database. Extend it.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/tests/db-invariants.sql",
+        "web/tests/README-db-invariants.md"
+      ],
+      "readOnlyPaths": [
+        "web/db/migrations/",
+        "web/db/schema.ts",
+        "web/tests/schema-followups.test.ts"
+      ],
+      "acceptanceCriteria": [
+        "db-invariants.sql gains fixtures proving all THREE new constraint triggers reject their violating write at the engine level: citing a devotional connection as evidence for a theology claim; relabeling an already-cited connection to devotional under a theology claim; retyping a claim to theology while it already cites devotional evidence.",
+        "Each fixture also proves the ALLOWED cases still pass - a devotional connection cited for a NON-theology claim, and a non-devotional connection cited for a theology claim - so the trigger is shown to be discriminating rather than blanket-rejecting.",
+        "The deferrable behaviour is exercised: a single transaction that temporarily violates the invariant mid-way but satisfies it by COMMIT must succeed, since that is the entire reason the trigger is DEFERRABLE INITIALLY DEFERRED rather than immediate.",
+        "Follow the file existing style and structure for migration 0003 fixtures exactly; do not restructure what is already there.",
+        "If no Postgres is reachable in the run environment, DO NOT fake it or claim it passed - state plainly that the SQL is written but unexecuted, and say exactly how a human would run it (the command and what a pass looks like)."
+      ],
+      "verification": [
+        "git diff --check"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "SYNCGAP-001",
+      "title": "Resolve whether claim_evidence and motif_sightings need sync entities",
+      "objective": "SYNCV2-001 surfaced a genuine documentation gap instead of silently choosing. THEOLOGY_MASTER_BUILD_PLAN section 14 prose describes related-creation groups covering session, claim, EVIDENCE, motif and connection - and BUILD_PLAN section 3.4 literal list names only six entities (session, claim, motif, connection, application, teachingDraft), omitting claim_evidence and motif_sightings. Both omitted things are real tables with real rows that a second device would need. Either they sync as their own entities, or they sync as part of a parent aggregate - but the docs must say which, because the wire format is being frozen right now.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "BUILD_PLAN.md",
+        "THEOLOGY_MASTER_BUILD_PLAN.md",
+        "web/lib/contracts/sync-v2.ts",
+        "web/lib/api/sync-v2.ts",
+        "web/tests/sync-v2.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/db/schema.ts",
+        "web/lib/contracts/study-v2.ts"
+      ],
+      "acceptanceCriteria": [
+        "Both documents state explicitly and identically whether claim_evidence and motif_sightings are (a) their own sync entities, or (b) carried as ordered children inside a parent aggregate push. No ambiguity, no silence.",
+        "Whichever is chosen, the contract and Zod schemas in sync-v2 match it, and a test proves a payload of the NOT-chosen shape is rejected - so the decision is enforced rather than merely documented.",
+        "If the aggregate option is chosen, the atomicity rule is explicit: a parent and its children commit together or not at all, and a test covers a child arriving without its parent.",
+        "Recommend the option you believe is right and say why in the commit, but implement whichever the reconciled documents end up stating - do not let the code and the docs disagree, which is the exact failure this task exists to prevent."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }
