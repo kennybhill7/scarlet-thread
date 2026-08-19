@@ -420,7 +420,13 @@ test("drizzle-kit generated exactly one new migration after 0006 (SCHEMAFU-001's
 function migrationSqlByTagPrefix(prefix: string): string {
   const file = fs.readdirSync(migrationsDir).find((f) => f.startsWith(prefix) && f.endsWith(".sql"));
   assert.ok(file, `could not find a migration SQL file starting with "${prefix}"`);
-  return fs.readFileSync(path.join(migrationsDir, file as string), "utf8");
+  // Normalize CRLF: git autocrlf rewrites line endings on checkout, so a
+  // fresh clone on Windows would otherwise fail every multi-line regex below
+  // even though the committed SQL is byte-correct. The sibling hash test
+  // normalizes for the same reason.
+  return fs
+    .readFileSync(path.join(migrationsDir, file as string), "utf8")
+    .replace(/\r\n/g, "\n");
 }
 
 function newMigrationSql(): string {
