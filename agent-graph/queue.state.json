@@ -224,6 +224,22 @@
       "lastRunId": "interactive-2026-08-18-phase1",
       "lastEvidence": "Verified and MERGED to master in c13c7a8. Radar now emits motif candidates, never Connection rows; third-sighting rule preserved (distinct passages, >=3) with STOPWORDS/BOOK_NAMES/normaliseWord verified as a byte-level match to the audited original. First dedicated radar tests ever (12), closing the test half of CODEX_AUDIT A-045. Threshold and multi-word-title fixes both mutation-proved. | It reported checksPassed:false HONESTLY: its mandated change broke 3 tests in review-setup-state.test.ts, a file outside its scope. It refused to edit out of scope and reported instead - correct behavior. I fixed those tests during integration. | DEEPER FINDING than A-045 recorded: it proved by direct execution that the old per-entry title-match check was unreachable dead code for ANY input, because candidate words are already filtered against the global title blocklist one line earlier. So it deleted the dead branch and relabelled the UI honestly as a word-frequency hint rather than pretending to fix a coverage claim that never worked.",
       "notes": "Merged. Persistence and dedup against dismissed candidates deferred until the motif tables are wired up."
+    },
+    "SCHEMAFU-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-19",
+      "notes": "Seeded 2026-08-19. SCHEMAFU-001 closes the four gaps SCHEMAV2-001 reported honestly rather than smuggling; SYNCV2-001 opens BUILD_PLAN section 3.4 with contracts only, persistence deferred so the two land reviewably."
+    },
+    "SYNCV2-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-19",
+      "notes": "Seeded 2026-08-19. SCHEMAFU-001 closes the four gaps SCHEMAV2-001 reported honestly rather than smuggling; SYNCV2-001 opens BUILD_PLAN section 3.4 with contracts only, persistence deferred so the two land reviewably."
     }
   }
 }
