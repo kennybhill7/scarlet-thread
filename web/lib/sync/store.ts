@@ -570,6 +570,98 @@ export async function removePendingV2Ops(opIds: string[]): Promise<void> {
   });
 }
 
+/**
+ * The shape a pulled `/api/sync/v2/pull` snapshot arrives in: one array per
+ * v2 entity (a `SyncResponseV2` from lib/sync/client.ts, minus its
+ * `serverTime`/`rejected` fields, which mergeRemoteChangesV2 has no use for
+ * and simply ignores if present — structurally, the whole response object
+ * satisfies this type, so callers pass it straight through). Each entity's
+ * array is `unknown[]`, not the entity's own record interface, on purpose:
+ * lib/api/sync-v2.ts's Zod-inferred response type already validated the
+ * wire payload before this ever runs (mirroring `saveLocalV2Entity`'s own
+ * `record: unknown` input below, which validates against `v2PayloadSchemas`
+ * rather than trusting a caller-supplied type), and a second, independently
+ * hand-maintained type here would just be another place for the two to
+ * drift — see e.g. `ClaimEvidence.canonicalReference`, which is optional in
+ * study-v2.ts but nullable over the wire. `Partial` because a test or a
+ * future caller may legitimately supply only some entities.
+ */
+export type SyncSnapshotV2 = { [K in SyncEntityV2]: unknown[] };
+
+/**
+ * SYNCV2MERGE-001 — the v2 analogue of `mergeRemoteChanges` above, and the
+ * other half of the v2 vault's write surface alongside `saveLocalV2Entity`.
+ * Where `saveLocalV2EntityByName` is for a LOCALLY-authored edit and always
+ * enqueues a fresh `syncQueueV2` op, this is for a SERVER-authored pull and
+ * NEVER enqueues one — reusing the local writer for a pull would re-enqueue
+ * every pulled row as a "local change" one revision behind what the server
+ * just returned, which the server would then reject as a revision conflict
+ * forever (see lib/sync/client.ts's `runSyncV2`, and SYNCV2ROUTE-001's own
+ * note explaining why it stopped short of calling this). Proven by
+ * tests/vault-v2-merge.test.ts: the outbox is asserted byte-identical
+ * (deep-equal, in `getPendingV2Ops()` order) before and after a merge.
+ *
+ * Conflict rule (BUILD_PLAN.md tenet 4: "Client-clock last-write-wins is
+ * retired in Phase 1 ... long-form prose (teaching drafts) must never be
+ * silently overwritten"): this deliberately does NOT compare `updatedAt` or
+ * `revision` clocks the way v1's `mergeRemoteChanges` above compares
+ * `updatedAt` — a clock comparison is exactly the mechanism tenet 4 retires,
+ * and a server clock racing ahead of an unsynced local edit is the case that
+ * would silently destroy prose. Instead: an entity whose `syncQueueV2`
+ * outbox still holds a PENDING op for that same entity+id is a local edit
+ * this device has not yet gotten the server to acknowledge — the pulled row
+ * for that id is skipped entirely and the local copy (and its queued op)
+ * are left untouched, so the next push still carries it. An entity with NO
+ * pending op has nothing of this device's own the server does not already
+ * know about, so the pulled row is written. This is a strict membership
+ * test against the outbox, not a heuristic: it never inspects a timestamp,
+ * so a pulled row can never win a race against unsynced local prose no
+ * matter how new the server's copy claims to be.
+ *
+ * Runs under the same `WRITE_LOCK_NAME` every other writer in this module
+ * takes (shared mode), and every entity `put` plus the outbox `getAll` read
+ * that decides which rows to skip happen inside ONE IndexedDB transaction
+ * spanning all eight entity stores and `syncQueueV2` — if any `put` fails,
+ * the whole transaction (and therefore the whole merge) rolls back, so a
+ * partial merge can never be observed as committed.
+ */
+export async function mergeRemoteChangesV2(
+  snapshot: Partial<SyncSnapshotV2>,
+): Promise<void> {
+  await withWriteLock(async () => {
+    const db = await database;
+    const transaction = db.transaction(
+      [...SYNC_ENTITIES_V2, "syncQueueV2"],
+      "readwrite",
+    );
+    // Same reasoning as saveLocalV2Entity's own no-op catches below: if a
+    // later put in this loop aborts the transaction, this rejects too, but
+    // whichever caller awaits mergeRemoteChangesV2() only ever observes the
+    // rejection from the `put` call that actually threw — give this its own
+    // handler now so that rejection is never reported as an unhandled one.
+    transaction.done.catch(() => {});
+    // Read-only against syncQueueV2 within this same transaction: decides
+    // which pulled rows to skip, never writes here. That absence of any
+    // `put`/`delete` against "syncQueueV2" in this function is the whole
+    // proof obligation tests/vault-v2-merge.test.ts's outbox-byte-identical
+    // assertion exists to pin down.
+    const pendingOps = await transaction.objectStore("syncQueueV2").getAll();
+    const pendingKeys = new Set(
+      pendingOps.map((op) => `${op.entity}:${op.entityId}`),
+    );
+    for (const entity of SYNC_ENTITIES_V2) {
+      const rows = (snapshot[entity] ?? []) as V2SyncableEntity[];
+      if (rows.length === 0) continue;
+      const store = transaction.objectStore(entity);
+      for (const row of rows) {
+        if (pendingKeys.has(`${entity}:${row.id}`)) continue;
+        await store.put(row as never);
+      }
+    }
+    await transaction.done;
+  });
+}
+
 export async function getLocalLog(date: string) {
   const db = await database;
   return db.get("logs", date);

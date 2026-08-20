@@ -20,6 +20,7 @@ import {
   getPendingOps,
   getPendingV2Ops,
   mergeRemoteChanges,
+  mergeRemoteChangesV2,
   removePendingOps,
   removePendingV2Ops,
   setLastPull,
@@ -264,19 +265,21 @@ async function readResponseV2(response: Response): Promise<SyncResponseV2> {
  * exact path) stays queued and is surfaced via `SyncRejectedErrorV2` rather
  * than silently dropped or silently retried forever.
  *
- * Pull-side scope note (SCOPE-BOUNDARY-001): `/api/sync/v2/pull` is called
- * and its snapshot is returned to the caller, proving the route is live and
- * reachable end to end. It is deliberately NOT written into the local v2
- * entity object stores here. `lib/sync/store.ts`'s only v2 write path,
- * `saveLocalV2EntityByName`, always enqueues a fresh outbound op for
- * whatever it writes (by design, for locally-authored edits) — reusing it
- * for a server-authored pull would re-enqueue every pulled row as a new
- * "local change" on a `baseRevision` one behind what the server just
- * returned, which the server would then permanently re-reject as a revision
- * conflict on every subsequent sync. Closing this needs a merge function in
- * `lib/sync/store.ts` (read-only for this task) that writes an entity
- * WITHOUT enqueueing an outbox op — the v2 analogue of `mergeRemoteChanges`.
- * A future task should add it and call it from here.
+ * Pull-side (SYNCV2MERGE-001, closing the gap SYNCV2ROUTE-001 flagged above
+ * its original scope): `/api/sync/v2/pull` is called and its snapshot is
+ * applied to the local v2 entity object stores through
+ * `mergeRemoteChangesV2` — the v2 analogue of `mergeRemoteChanges`, which
+ * writes each pulled row WITHOUT enqueueing a fresh `syncQueueV2` op. Reusing
+ * `saveLocalV2EntityByName` (the local-write path) here would have
+ * re-enqueued every pulled row as a new "local change" on a `baseRevision`
+ * one behind what the server just returned, which the server would then
+ * permanently re-reject as a revision conflict on every subsequent sync —
+ * see `mergeRemoteChangesV2`'s own header in `lib/sync/store.ts` for the
+ * full conflict rule (an entity with a still-pending outbox op is left
+ * untouched by the pull; BUILD_PLAN.md tenet 4 forbids silently overwriting
+ * unsynced long-form prose with a clock comparison). This makes v2 sync
+ * two-way end to end: a second device's pushed change now lands here on the
+ * next pull.
  */
 async function runSyncV2() {
   const pending = await getPendingV2Ops();
@@ -303,6 +306,7 @@ async function runSyncV2() {
   }
 
   const pulled = await readResponseV2(await fetch("/api/sync/v2/pull"));
+  await mergeRemoteChangesV2(pulled);
 
   if (rejected.length > 0) {
     throw new SyncRejectedErrorV2(rejected);
