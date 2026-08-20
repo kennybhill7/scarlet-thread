@@ -1,29 +1,51 @@
 import { notFound, redirect } from "next/navigation";
 
-import { ClaimComposer } from "@/components/study";
+import { WorkspaceShell } from "@/components/workspace";
 import { auth } from "@/lib/auth/config";
 import { listThreads } from "@/lib/db/threads";
 import { getOrCreatePersonalWorkspace } from "@/lib/db/workspaces";
-import type { StudySession } from "@/lib/contracts/study-v2";
-import { getSessionV2 } from "@/app/api/v2/_lib/queries";
+import type { Application, StudyClaim, StudySession } from "@/lib/contracts/study-v2";
+import { getSessionV2, listApplicationsV2, listClaimsV2 } from "@/app/api/v2/_lib/queries";
 
 import styles from "./study.module.css";
 
 /**
- * STUDYPAGE-001 — mounts V2COMPOSER-001's `ClaimComposer` so the v2
- * authoring path is reachable by a person, the same gap RADARUI-001 closed
- * for the motif radar. `ClaimComposer` (a readOnlyPath here) takes
- * `workspaceId` as a prop and, by its own header comment, "trusts its
- * caller for that resolution; it does not perform it." This file is that
- * caller, and the whole point of this task is what THAT resolution looks
- * like — see "WORKSPACE RESOLUTION" below.
+ * STUDYPAGE-001 mounted V2COMPOSER-001's `ClaimComposer` directly. This task
+ * (WORKSPACESHELL-001) builds the real BUILD_PLAN §4 shell around it:
+ * `WorkspaceShell` (`components/workspace/`, an ownedPath here) now mounts
+ * in ClaimComposer's place, hosting all eight sections (Read, Observe,
+ * Context, Connect, Theology, Conviction, Apply, Teach), driven by the
+ * session's `currentStep` and gated per `lib/workspace/gating.ts`. See
+ * `WorkspaceShell.tsx`'s own header for why "locked" never removes a
+ * section's content from the page, and this task's commit message for the
+ * Connect-gate interpretation and what is deliberately out of scope.
+ *
+ * `WorkspaceShell` (a readOnlyPath's sibling — not a readOnlyPath itself,
+ * but not re-verified here beyond what its own file documents) takes
+ * `workspaceId` as a prop and, exactly like `ClaimComposer` before it,
+ * trusts its caller for that resolution; it does not perform it. This file
+ * is still that caller — see "WORKSPACE RESOLUTION" below, unchanged from
+ * STUDYPAGE-001.
  *
  * One route, one resumable session: BUILD_PLAN.md:125 — "The workspace
- * routes by sessionId, not book/chapter... resumability... needs it." This
- * task does not build the eight-section `currentStep` state machine
- * BUILD_PLAN.md:160 describes; it only makes the one authoring surface that
- * exists today (`ClaimComposer`, the OBSERVE -> PROMOTE step) reachable at
- * the URL that future work will keep building out.
+ * routes by sessionId, not book/chapter... resumability... needs it."
+ *
+ * CLAIMS/APPLICATIONS DATA (new in this task): `resolveStudyPageData` now
+ * also fetches this session's own claims and applications, purely to feed
+ * the gating machine (`lib/workspace/gating.ts`) real data instead of
+ * always-empty arrays. `deps.listSessionClaims`/`listSessionApplications`
+ * are OPTIONAL and default to the real `listClaimsV2`/`listApplicationsV2`
+ * (`app/api/v2/_lib/queries.ts`, already scoped by both `workspaceId` AND
+ * `sessionId` — the same tenant-isolation shape `getSessionV2` already
+ * uses). They are called through a small `typeof === "function"` guard
+ * rather than unconditionally: `tests/study-page.test.ts` (frozen,
+ * read-only here, predates this task) stubs `@/app/api/v2/_lib/queries`
+ * with ONLY `getSessionV2` — a real production import of that module always
+ * has both functions, so the guard's `false` branch (empty arrays) is
+ * reachable ONLY inside that frozen test's stub, never in a real build. Its
+ * observable effect there: the RENDER tests' gating computation sees
+ * `claims: []`/`applications: []`, same as before this change — none of
+ * those tests assert anything about gating, so this is inert for them.
  */
 
 // ---------------------------------------------------------------------------
@@ -55,17 +77,49 @@ import styles from "./study.module.css";
 export type StudyPageDeps = {
   resolveWorkspaceId: (userId: string) => Promise<string>;
   getStudySession: (workspaceId: string, sessionId: string) => Promise<StudySession | null>;
+  /**
+   * Optional (new in this task): this session's own claims/applications,
+   * for `lib/workspace/gating.ts`. Optional so `tests/study-page.test.ts`
+   * (frozen, read-only, predates this field) can keep calling
+   * `resolveStudyPageData` with only `resolveWorkspaceId`/`getStudySession`
+   * — omitted here means "gate as if nothing exists yet" (empty arrays),
+   * never a thrown error.
+   */
+  listSessionClaims?: (workspaceId: string, sessionId: string) => Promise<StudyClaim[]>;
+  listSessionApplications?: (workspaceId: string, sessionId: string) => Promise<Application[]>;
 };
 
+/**
+ * `listSessionClaims`/`listSessionApplications` are call-guarded
+ * (`typeof ... === "function"`) rather than assumed present: see this
+ * file's own header comment ("CLAIMS/APPLICATIONS DATA") for exactly why —
+ * `tests/study-page.test.ts`'s frozen stub of `@/app/api/v2/_lib/queries`
+ * only provides `getSessionV2`, so an unconditional call here would throw
+ * under that test even though it never does in a real build.
+ */
 const defaultStudyPageDeps: StudyPageDeps = {
   resolveWorkspaceId: getOrCreatePersonalWorkspace,
   getStudySession: getSessionV2,
+  listSessionClaims: (workspaceId, sessionId) =>
+    typeof listClaimsV2 === "function"
+      ? listClaimsV2(workspaceId, { sessionId })
+      : Promise.resolve([]),
+  listSessionApplications: (workspaceId, sessionId) =>
+    typeof listApplicationsV2 === "function"
+      ? listApplicationsV2(workspaceId, { sessionId })
+      : Promise.resolve([]),
 };
 
 export type StudyPageResolution =
   | { status: "setup-incomplete" }
   | { status: "not-found" }
-  | { status: "ready"; workspaceId: string; session: StudySession };
+  | {
+      status: "ready";
+      workspaceId: string;
+      session: StudySession;
+      claims: StudyClaim[];
+      applications: Application[];
+    };
 
 /**
  * The one seam between this page and the database for everything past
@@ -93,14 +147,22 @@ export async function resolveStudyPageData(
 ): Promise<StudyPageResolution> {
   let workspaceId: string;
   let session: StudySession | null;
+  let claims: StudyClaim[] = [];
+  let applications: Application[] = [];
   try {
     workspaceId = await deps.resolveWorkspaceId(userId);
     session = await deps.getStudySession(workspaceId, routeSessionId);
+    if (session) {
+      claims = deps.listSessionClaims ? await deps.listSessionClaims(workspaceId, session.id) : [];
+      applications = deps.listSessionApplications
+        ? await deps.listSessionApplications(workspaceId, session.id)
+        : [];
+    }
   } catch {
     return { status: "setup-incomplete" };
   }
   if (!session) return { status: "not-found" };
-  return { status: "ready", workspaceId, session };
+  return { status: "ready", workspaceId, session, claims, applications };
 }
 
 // ---------------------------------------------------------------------------
@@ -214,10 +276,11 @@ export default async function StudySessionPage({ params }: StudyPageProps) {
 
   return (
     <div className={styles.wrap}>
-      <ClaimComposer
+      <WorkspaceShell
         workspaceId={resolution.workspaceId}
-        range={resolution.session.range}
         session={resolution.session}
+        claims={resolution.claims}
+        applications={resolution.applications}
       />
     </div>
   );

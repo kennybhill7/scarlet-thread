@@ -235,6 +235,39 @@ export function isStudySessionWorkflowState(value: string): value is StudySessio
   return (STUDY_SESSION_WORKFLOW_STATES as readonly string[]).includes(value);
 }
 
+/**
+ * BUILD_PLAN §4's own eight-section table, in its own row order (Read,
+ * Observe, Context, Connect, Theology, Conviction, Apply, Teach) —
+ * WORKSPACESHELL-001. This is a REVIEWED, DOCUMENTED vocabulary already,
+ * not a guess: it is BUILD_PLAN §4's table header column, transcribed
+ * verbatim. Additive only, matching this file's own established pattern
+ * (see `MOTIF_CANDIDATE_STATUSES` above for the precedent of enumerating a
+ * value set for a column that stays plain `text` in the database):
+ * `StudySession.currentStep` below stays `string`, unchanged, and
+ * `db/schema.ts` (a readOnlyPath's sibling concern — not touched by this
+ * task) keeps `current_step` as a plain text column, never a Postgres enum.
+ * `"observe"` is already the literal value
+ * `components/reader/StudyEntry.tsx` (readOnlyPath here) writes into that
+ * column the moment it creates a session — confirmed by reading that file,
+ * not assumed — so it must, and does, remain a valid member of this array;
+ * nothing about `currentStep`'s accepted values changes for any existing
+ * caller.
+ */
+export const STUDY_SESSION_STEPS = [
+  "read",
+  "observe",
+  "context",
+  "connect",
+  "theology",
+  "conviction",
+  "apply",
+  "teach",
+] as const;
+export type StudySessionStep = (typeof STUDY_SESSION_STEPS)[number];
+export function isStudySessionStep(value: string): value is StudySessionStep {
+  return (STUDY_SESSION_STEPS as readonly string[]).includes(value);
+}
+
 /** BUILD_PLAN §3.3 inline list for `study_claims.status` (gap #1 above: master plan adds a fourth `revisited` value this module does not include). */
 export const STUDY_CLAIM_STATUSES = ["draft", "revisited", "confirmed", "needs_revision"] as const;
 export type StudyClaimStatus = (typeof STUDY_CLAIM_STATUSES)[number];
