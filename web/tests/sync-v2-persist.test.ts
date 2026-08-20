@@ -15,7 +15,9 @@
  */
 
 import assert from "node:assert/strict";
-import { createRequire } from "node:module";
+import { createHash } from "node:crypto";
+import fs from "node:fs";
+import Module, { createRequire } from "node:module";
 import path from "node:path";
 import test from "node:test";
 
@@ -972,4 +974,124 @@ test("cross-tenant: a probe against another workspace's promoted candidate gets 
   const [row] = rowsOf("motif_candidates");
   assert.equal(row.status, "promoted", "the victim row itself must be completely untouched");
   assert.equal(row.revision, 5);
+});
+
+// ---------------------------------------------------------------------------
+// 7. SYNCDEDUP-001 mutation proof.
+//
+// SYNCDEDUP-001 deleted `lib/db/sync-v2.ts`'s inline `resolveWorkspaceOwnership`
+// (a second copy of the workspace-ownership predicate) and replaced its call
+// sites with `ownsWorkspace`, a thin adapter that performs no query of its
+// own and delegates entirely to `assertWorkspaceOwnership`
+// (`lib/db/workspaces.ts`). Every cross-tenant test above already proves the
+// SURVIVING check rejects a hostile cross-workspace op under normal load;
+// this proves it the other way -- that if that surviving check is ever
+// bypassed at its call site, `pushSyncOpsV2` (the PLANNER, called directly,
+// not through the HTTP route `tests/sync-v2-route.test.ts` covers
+// separately) stops refusing the leak. `tests/sync-v2-route.test.ts`'s own
+// MUTPROVE-1 targets the same call site's PRE-SYNCDEDUP-001 compiled shape
+// (`resolveWorkspaceOwnership`, not `ownsWorkspace`) and is read-only here --
+// see this task's completion notes for why that pattern needed updating and
+// could not be fixed in place.
+//
+// Uses the in-memory `Module.prototype._compile` hook `tests/motif-ui.test.ts`,
+// `tests/v2-api.test.ts` and `tests/sync-v2-route.test.ts` already use:
+// patches the module source as `lib/db/sync-v2.ts` is (re-)required, never
+// writes to disk, and reasserts the file's hash and mtime are unchanged
+// afterward. `hits > 0` is asserted so a mutation whose pattern stops
+// matching a future edit fails loudly instead of silently proving nothing.
+// ---------------------------------------------------------------------------
+
+let mutation: { file: string; pattern: RegExp; replacement: string; hits: number } | null = null;
+
+const originalCompile = (Module as any).prototype._compile;
+(Module as any).prototype._compile = function patchedCompile(
+  content: string,
+  filename: string,
+  ...rest: unknown[]
+) {
+  let source = content;
+  if (mutation && path.resolve(filename) === mutation.file) {
+    const hits = source.match(mutation.pattern)?.length ?? 0;
+    mutation.hits += hits;
+    source = source.replace(mutation.pattern, mutation.replacement);
+  }
+  return originalCompile.call(this, source, filename, ...rest);
+};
+
+const SYNC_V2_FILE = nodeRequire.resolve("@/lib/db/sync-v2.ts");
+
+/** Deliberately surgical, matching `tests/sync-v2-route.test.ts`'s own
+ *  `reloadRoutes`: only `lib/db/sync-v2.ts` itself is dropped from the
+ *  require cache and re-read from disk. Its dependencies (`@/lib/db`,
+ *  `@/db/schema`, `@/lib/db/workspaces`) stay cached exactly as this file's
+ *  bootstrap section originally loaded them -- re-requiring `@/db/schema`
+ *  would mint new `Table` object references this harness's `metaByTable`
+ *  map keys on, and `@/lib/db` must stay bound to this file's `pocketPg`
+ *  fake, not a real client. */
+function reloadSyncV2(): typeof import("@/lib/db/sync-v2") {
+  delete (nodeRequire.cache as any)[SYNC_V2_FILE];
+  return nodeRequire("@/lib/db/sync-v2.ts") as typeof import("@/lib/db/sync-v2");
+}
+
+async function withSyncV2Mutation(
+  pattern: RegExp,
+  replacement: string,
+  body: (mutated: typeof import("@/lib/db/sync-v2")) => Promise<void>,
+) {
+  const beforeHash = createHash("sha256").update(fs.readFileSync(SYNC_V2_FILE)).digest("hex");
+  const beforeMtime = fs.statSync(SYNC_V2_FILE).mtimeMs;
+
+  mutation = { file: SYNC_V2_FILE, pattern, replacement, hits: 0 };
+  const mutated = reloadSyncV2();
+  try {
+    assert.ok(
+      mutation.hits > 0,
+      "mutation matched nothing in lib/db/sync-v2.ts -- the compiled shape changed; update the pattern",
+    );
+    await body(mutated);
+  } finally {
+    mutation = null;
+    reloadSyncV2(); // re-prime the cache with the real, unmutated module
+    assert.equal(
+      createHash("sha256").update(fs.readFileSync(SYNC_V2_FILE)).digest("hex"),
+      beforeHash,
+      "lib/db/sync-v2.ts was modified on disk",
+    );
+    assert.equal(
+      fs.statSync(SYNC_V2_FILE).mtimeMs,
+      beforeMtime,
+      "lib/db/sync-v2.ts mtime changed on disk",
+    );
+  }
+}
+
+test("MUTPROVE-DEDUP-1 removing the surviving ownsWorkspace check lets a hostile cross-workspace push through pushSyncOpsV2 directly", async () => {
+  await withSyncV2Mutation(
+    /const owns=await ownsWorkspace\(userId,workspaceId\);/,
+    "const owns=true;",
+    async (mutated) => {
+      const hostileOp = makeOp("session", {
+        payload: validSessionPayload({ workspaceId: "workspace-b" }),
+      });
+      const rejected = await mutated.pushSyncOpsV2("user-a", [hostileOp]);
+      assert.deepEqual(
+        rejected,
+        [],
+        "MUTPROVE-DEDUP-1: with the tenant check gone, user-a's op naming " +
+          "workspace-b must be ACCEPTED -- that acceptance is the leak this " +
+          "guard prevents",
+      );
+    },
+  );
+});
+
+test("after MUTPROVE-DEDUP-1, a hostile cross-workspace push is refused again through pushSyncOpsV2 (harness hygiene)", async () => {
+  const hostileOp = makeOp("session", {
+    payload: validSessionPayload({ workspaceId: "workspace-b" }),
+  });
+  const rejected = await pushSyncOpsV2("user-a", [hostileOp]);
+  assert.equal(rejected.length, 1, "the real guard must still refuse it");
+  assert.match(rejected[0].reason, /Workspace does not belong to the acting user/);
+  assert.equal(rowsOf("study_sessions").length, 0);
 });
