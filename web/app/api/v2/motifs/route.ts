@@ -1,32 +1,24 @@
-import { z } from "zod";
-
 import { invalidRequest, privateJson } from "@/lib/api/response";
 
 import { limitQuerySchema } from "../_lib/pagination";
 import { rejectMutation, withReadOnlyV2Workspace } from "../_lib/guard";
-import { listClaimsV2 } from "../_lib/queries";
-
-const listClaimsQuerySchema = z
-  .object({
-    sessionId: z.string().min(1).max(200).optional(),
-  })
-  .extend(limitQuerySchema.shape);
+import { listMotifCandidatesV2 } from "../_lib/queries";
 
 /**
- * GET /api/v2/claims — every non-deleted study claim in the acting user's
- * workspace, optionally narrowed to one session via `?sessionId=`, bounded
- * by `?limit=` (default 50, max 200 — see `_lib/pagination.ts`).
+ * GET /api/v2/motifs — every non-deleted motif candidate in the acting
+ * user's workspace, newest first, bounded by `?limit=` (default 50, max
+ * 200 — see `_lib/pagination.ts`). V2API-002: one of the five entities
+ * V2API-001 reported as missing a read route.
  */
 export async function GET(request: Request) {
   return withReadOnlyV2Workspace(request, async (workspaceId) => {
     const url = new URL(request.url);
-    const parsed = listClaimsQuerySchema.safeParse({
-      sessionId: url.searchParams.get("sessionId") ?? undefined,
+    const parsed = limitQuerySchema.safeParse({
       limit: url.searchParams.get("limit") ?? undefined,
     });
     if (!parsed.success) return invalidRequest(parsed.error);
 
-    const data = await listClaimsV2(workspaceId, parsed.data);
+    const data = await listMotifCandidatesV2(workspaceId, { limit: parsed.data.limit });
     return privateJson({ data });
   });
 }

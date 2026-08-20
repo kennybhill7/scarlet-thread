@@ -1,17 +1,19 @@
 /**
- * V2API-001 — hostile two-account proof for the v2 read-only resource
- * routes (`app/api/v2/**`), in the style of `tests/tenant-isolation.test.ts`
- * and `tests/sync-v2-persist.test.ts`: the real route handlers and the real
- * drizzle query builders in `app/api/v2/_lib/queries.ts` run against a
- * small in-memory "PocketPg-lite" store, compiled through the genuine
- * `PgDialect` — nothing under `app/` or `lib/` is hand-reimplemented. The
- * only two seams replaced in `require.cache` are the identity boundary
- * (`@/lib/auth/config`) and the database client (`@/lib/db`), exactly as
- * `tenant-isolation.test.ts`'s header explains for the same reason: that is
- * what makes the mutation proof (criterion 6) below meaningful rather than
- * decorative — deleting a `workspaceId` predicate from
- * `app/api/v2/_lib/queries.ts` changes what this harness sees, byte for
- * byte, because the WHERE clause it evaluates is the real compiled SQL text.
+ * V2API-001/V2API-002 — hostile two-account proof for the v2 read-only
+ * resource routes (`app/api/v2/**`), in the style of
+ * `tests/tenant-isolation.test.ts` and `tests/sync-v2-persist.test.ts`: the
+ * real route handlers and the real drizzle query builders in
+ * `app/api/v2/_lib/queries.ts` run against a small in-memory "PocketPg-lite"
+ * store, compiled through the genuine `PgDialect` — nothing under `app/` or
+ * `lib/` is hand-reimplemented. The only two seams replaced in
+ * `require.cache` are the identity boundary (`@/lib/auth/config`) and the
+ * database client (`@/lib/db`), exactly as `tenant-isolation.test.ts`'s
+ * header explains for the same reason: that is what makes the mutation
+ * proof (criterion 5 of V2API-002 / criterion 6 of V2API-001) below
+ * meaningful rather than decorative — deleting a `workspaceId` predicate
+ * from `app/api/v2/_lib/queries.ts` changes what this harness sees, byte
+ * for byte, because the WHERE clause it evaluates is the real compiled SQL
+ * text.
  *
  * `lib/db/workspaces.ts` (a readOnlyPath for this task) is NOT stubbed —
  * `getOrCreatePersonalWorkspace` runs for real against the fake `@/lib/db`
@@ -20,6 +22,18 @@
  * row and returns before ever reaching its `db.execute(sql...)` insert path
  * — this harness only implements `select()`, not `execute()`, by design;
  * see the stub's own comment.
+ *
+ * V2API-002 adds, on top of V2API-001's sessions/claims/evidence coverage:
+ *   - read routes for the five remaining v2 entities (motif candidates and
+ *     their sightings, connections, applications, teaching drafts);
+ *   - a soft-delete filter (`deletedAt`) on every list/get query, following
+ *     `lib/db/entries.ts`'s `includeDeleted` convention (section 13 below —
+ *     this is the gap that mattered most: a learner who deletes a claim
+ *     must stop seeing it in a v2 list response);
+ *   - a bounded `?limit=` on every list route (section 14 below);
+ *   - the ORDER BY support PocketPg-lite needed to make the pagination
+ *     tests test real `desc(createdAt)` behavior rather than an accident of
+ *     fixture insertion order (section 3).
  */
 
 import assert from "node:assert/strict";
@@ -65,7 +79,8 @@ function seedModule(specifier: string, exports: Record<string, unknown>) {
 const SERVER_ONLY_PATH = seedModule("server-only", {});
 
 // ---------------------------------------------------------------------------
-// 1. Schema registry — only the tables the v2 read routes actually touch.
+// 1. Schema registry — every table the v2 read routes touch, including
+//    V2API-002's five new entities.
 // ---------------------------------------------------------------------------
 
 type Row = Record<string, unknown>;
@@ -85,6 +100,11 @@ const MODELLED_TABLES: Table[] = [
   schema.studySessions,
   schema.studyClaims,
   schema.claimEvidence,
+  schema.motifCandidates,
+  schema.motifSightings,
+  schema.userConnections,
+  schema.applications,
+  schema.teachingDrafts,
 ];
 
 const metaByTable = new Map<Table, TableMeta>();
@@ -192,6 +212,43 @@ function evaluatePredicate(predicate: Predicate, row: Row, sqlName: string): boo
 }
 
 // ---------------------------------------------------------------------------
+// 2b. ORDER BY evaluator — V2API-002 addition. `_lib/queries.ts` now sorts
+//     every list query `desc(<table>.createdAt)` (and `lib/db/workspaces.ts`
+//     already sorted `asc(createdAt), asc(id)`) so that a bounded `?limit=`
+//     truncates the OLDEST rows, not an arbitrary subset. Real sorting here
+//     (rather than the no-op the original harness used, back when nothing
+//     under test ever called `.orderBy()` meaningfully) is what makes the
+//     pagination tests in section 14 test production behavior instead of an
+//     accident of fixture insertion order.
+// ---------------------------------------------------------------------------
+
+type OrderSpec = { prop: string; direction: "asc" | "desc" };
+
+function compileOrderBy(clause: SQL, meta: TableMeta): OrderSpec {
+  const query = dialect.sqlToQuery(clause);
+  const match = /^"([a-z0-9_]+)"\."([a-z0-9_]+)" (asc|desc)$/.exec(query.sql);
+  if (!match) {
+    throw new Error(`PocketPg-lite (v2-api) cannot evaluate ORDER BY: ${query.sql}`);
+  }
+  const [, tableName, columnName, direction] = match;
+  if (tableName !== meta.sqlName) {
+    throw new Error(`PocketPg-lite (v2-api): unexpected table "${tableName}" in ORDER BY on "${meta.sqlName}"`);
+  }
+  const prop = meta.propByColumn.get(columnName);
+  if (!prop) throw new Error(`PocketPg-lite (v2-api): unknown ORDER BY column "${tableName}"."${columnName}"`);
+  return { prop, direction: direction as "asc" | "desc" };
+}
+
+function compareOrderable(a: unknown, b: unknown): number {
+  if (a === b) return 0;
+  if (a === null || a === undefined) return -1;
+  if (b === null || b === undefined) return 1;
+  if (a < b) return -1;
+  if (a > b) return 1;
+  return 0;
+}
+
+// ---------------------------------------------------------------------------
 // 3. PocketPg-lite — select().from().where().orderBy().limit() only. No
 //    insert/update/delete/execute: every route this task owns is GET-only,
 //    so the production code under test never issues a write. `execute`
@@ -221,6 +278,7 @@ function compile(condition: SQL | undefined): Predicate | null {
 function makeSelect(fields: Record<string, unknown> | null) {
   let from: TableMeta | null = null;
   let where: Predicate | null = null;
+  let orderSpecs: OrderSpec[] = [];
   let limitCount: number | null = null;
   const builder: any = {
     from(table: Table) {
@@ -231,10 +289,9 @@ function makeSelect(fields: Record<string, unknown> | null) {
       where = compile(condition);
       return builder;
     },
-    orderBy() {
-      // Only ever one workspace row per user in these fixtures — ordering
-      // is a no-op for this harness's purposes (see lib/db/workspaces.ts's
-      // findPersonalWorkspaceId, the one production caller that orders).
+    orderBy(...clauses: SQL[]) {
+      if (!from) throw new Error("PocketPg-lite (v2-api) received orderBy() before from()");
+      orderSpecs = clauses.map((clause) => compileOrderBy(clause, from as TableMeta));
       return builder;
     },
     limit(count: number) {
@@ -250,6 +307,16 @@ function makeSelect(fields: Record<string, unknown> | null) {
           if (where) {
             const predicate = where;
             rows = rows.filter((row) => evaluatePredicate(predicate, row, meta.sqlName));
+          }
+          if (orderSpecs.length > 0) {
+            const specs = orderSpecs;
+            rows = [...rows].sort((a, b) => {
+              for (const spec of specs) {
+                const cmp = compareOrderable(a[spec.prop], b[spec.prop]);
+                if (cmp !== 0) return spec.direction === "desc" ? -cmp : cmp;
+              }
+              return 0;
+            });
           }
           if (limitCount !== null) rows = rows.slice(0, limitCount);
           return rows.map((row) => {
@@ -335,15 +402,20 @@ http.request = () => blocked("http.request");
 https.request = () => blocked("https.request");
 
 // ---------------------------------------------------------------------------
-// 6. Compile recorder / mutator — criterion 6 (mutation-prove the tenant
-//    predicate). Rewrites `eq(<table>.workspaceId, workspaceId)` into
+// 6. Compile recorder / mutator — mutation-prove the tenant predicate.
+//    Rewrites `eq(<table>.workspaceId, workspaceId)` into
 //    `eq(<table>.workspaceId, <table>.workspaceId)` in the *transpiled*
 //    source of app/api/v2/_lib/queries.ts, in memory, while it is required.
 //    A self-comparison against a NOT NULL column is always true, so the
 //    result is a well-formed tautology: the statement stays valid but the
 //    workspace scope is gone. Identical technique to
 //    tenant-isolation.test.ts's MUTATION_PATTERN, generalized from
-//    `.userId` to `.workspaceId`.
+//    `.userId` to `.workspaceId`. Because this rewrites the WHOLE file's
+//    compiled source and every V2API-002 query function (new entities
+//    included) uses the identical `eq(<table>.workspaceId, workspaceId)`
+//    call shape, the mutation defeats the new queries' tenant scoping too
+//    without any change to this pattern — see section 12's M1 test, which
+//    now asserts that.
 // ---------------------------------------------------------------------------
 
 const MUTATION_PATTERN =
@@ -395,6 +467,15 @@ type Routes = {
   claims: RouteModule;
   claimId: RouteModule;
   claimEvidence: RouteModule;
+  motifs: RouteModule;
+  motifId: RouteModule;
+  motifSightings: RouteModule;
+  connections: RouteModule;
+  connectionId: RouteModule;
+  applications: RouteModule;
+  applicationId: RouteModule;
+  teachingDrafts: RouteModule;
+  teachingDraftId: RouteModule;
 };
 
 function loadRoutes(): Routes {
@@ -404,6 +485,15 @@ function loadRoutes(): Routes {
     claims: nodeRequire("@/app/api/v2/claims/route.ts"),
     claimId: nodeRequire("@/app/api/v2/claims/[id]/route.ts"),
     claimEvidence: nodeRequire("@/app/api/v2/claims/[id]/evidence/route.ts"),
+    motifs: nodeRequire("@/app/api/v2/motifs/route.ts"),
+    motifId: nodeRequire("@/app/api/v2/motifs/[id]/route.ts"),
+    motifSightings: nodeRequire("@/app/api/v2/motifs/[id]/sightings/route.ts"),
+    connections: nodeRequire("@/app/api/v2/connections/route.ts"),
+    connectionId: nodeRequire("@/app/api/v2/connections/[id]/route.ts"),
+    applications: nodeRequire("@/app/api/v2/applications/route.ts"),
+    applicationId: nodeRequire("@/app/api/v2/applications/[id]/route.ts"),
+    teachingDrafts: nodeRequire("@/app/api/v2/teaching-drafts/route.ts"),
+    teachingDraftId: nodeRequire("@/app/api/v2/teaching-drafts/[id]/route.ts"),
   };
 }
 
@@ -417,8 +507,21 @@ const api = {
   getSession: (id: string) => routes.sessionId.GET(req(`/api/v2/sessions/${id}`), withParams(id)),
   listClaims: (query = "") => routes.claims.GET(req(`/api/v2/claims${query}`)),
   getClaim: (id: string) => routes.claimId.GET(req(`/api/v2/claims/${id}`), withParams(id)),
-  listClaimEvidence: (id: string) =>
-    routes.claimEvidence.GET(req(`/api/v2/claims/${id}/evidence`), withParams(id)),
+  listClaimEvidence: (id: string, query = "") =>
+    routes.claimEvidence.GET(req(`/api/v2/claims/${id}/evidence${query}`), withParams(id)),
+  listMotifs: (query = "") => routes.motifs.GET(req(`/api/v2/motifs${query}`)),
+  getMotif: (id: string) => routes.motifId.GET(req(`/api/v2/motifs/${id}`), withParams(id)),
+  listMotifSightings: (id: string, query = "") =>
+    routes.motifSightings.GET(req(`/api/v2/motifs/${id}/sightings${query}`), withParams(id)),
+  listConnections: (query = "") => routes.connections.GET(req(`/api/v2/connections${query}`)),
+  getConnection: (id: string) =>
+    routes.connectionId.GET(req(`/api/v2/connections/${id}`), withParams(id)),
+  listApplications: (query = "") => routes.applications.GET(req(`/api/v2/applications${query}`)),
+  getApplication: (id: string) =>
+    routes.applicationId.GET(req(`/api/v2/applications/${id}`), withParams(id)),
+  listTeachingDrafts: (query = "") => routes.teachingDrafts.GET(req(`/api/v2/teaching-drafts${query}`)),
+  getTeachingDraft: (id: string) =>
+    routes.teachingDraftId.GET(req(`/api/v2/teaching-drafts/${id}`), withParams(id)),
 };
 
 // ---------------------------------------------------------------------------
@@ -510,6 +613,113 @@ function seedEvidence(overrides: Row = {}) {
   return row;
 }
 
+function seedMotifCandidate(overrides: Row = {}) {
+  const row = {
+    id: "motif-x",
+    workspaceId: WORKSPACE_A,
+    label: "Seed and offspring",
+    normalizedKey: "seed-and-offspring",
+    status: "candidate",
+    revision: 1,
+    createdAt: TS,
+    updatedAt: TS,
+    deletedAt: null,
+    ...overrides,
+  };
+  rowsOf("motif_candidates").push(row);
+  return row;
+}
+
+function seedMotifSighting(overrides: Row = {}) {
+  const row = {
+    id: "sighting-x",
+    workspaceId: WORKSPACE_A,
+    candidateId: "motif-x",
+    passageUnitKey: "gen.3.15",
+    exactRange: range("1.3.15", "1.3.15"),
+    entryId: null,
+    claimId: null,
+    status: "candidate",
+    revision: 1,
+    createdAt: TS,
+    updatedAt: TS,
+    deletedAt: null,
+    ...overrides,
+  };
+  rowsOf("motif_sightings").push(row);
+  return row;
+}
+
+function seedConnection(overrides: Row = {}) {
+  const row = {
+    id: "connection-x",
+    workspaceId: WORKSPACE_A,
+    fromRange: range("1.3.15", "1.3.15"),
+    toRange: range("43.1.29", "43.1.29"),
+    type: "type_antitype",
+    evidenceLabel: "explicit",
+    rationale: "The seed of the woman anticipates the Lamb of God who takes away sin.",
+    threadSlug: null,
+    status: "draft",
+    revision: 1,
+    createdAt: TS,
+    updatedAt: TS,
+    deletedAt: null,
+    ...overrides,
+  };
+  rowsOf("user_connections").push(row);
+  return row;
+}
+
+function seedApplication(overrides: Row = {}) {
+  const row = {
+    id: "application-x",
+    workspaceId: WORKSPACE_A,
+    sessionId: "session-x",
+    sourceClaimId: "claim-x",
+    originalAudienceMeaning: "The first hearers heard a promise of ultimate victory over the serpent.",
+    enduringPrinciple: "God defeats evil through a chosen offspring.",
+    canonicalBridge: "The pattern culminates in Christ's victory at the cross.",
+    applicationClass: "hope",
+    promiseScope: "corporate",
+    modernDomain: "work",
+    situation: "Facing opposition that feels overwhelming.",
+    responseType: "belief",
+    faithfulResponse: "Trust God's promised victory rather than despair.",
+    cautions: "Avoid claiming a specific timeline the text does not give.",
+    availableAfter: null,
+    status: "draft",
+    revision: 1,
+    createdAt: TS,
+    updatedAt: TS,
+    deletedAt: null,
+    ...overrides,
+  };
+  rowsOf("applications").push(row);
+  return row;
+}
+
+function seedTeachingDraft(overrides: Row = {}) {
+  const row = {
+    id: "draft-x",
+    workspaceId: WORKSPACE_A,
+    sessionId: "session-x",
+    title: "The Protoevangelium",
+    bigIdea: "God promises victory over evil through a coming offspring.",
+    audience: "Adult small group",
+    durationMinutes: 15,
+    gospelConnection: "Fulfilled in Christ's triumph over sin and death.",
+    status: "draft",
+    revision: 1,
+    createdAt: TS,
+    updatedAt: TS,
+    deletedAt: null,
+    ...overrides,
+  };
+  rowsOf("teaching_drafts").push(row);
+  return row;
+}
+
 /** The full two-account fixture every hostile test in section 9 shares. */
 function seedTwoAccounts() {
   seedWorkspace(WORKSPACE_A, USER_A);
@@ -523,6 +733,31 @@ function seedTwoAccounts() {
 
   seedEvidence({ id: "evidence-a1", workspaceId: WORKSPACE_A, claimId: "claim-a1" });
   seedEvidence({ id: "evidence-b1", workspaceId: WORKSPACE_B, claimId: "claim-b1" });
+
+  seedMotifCandidate({ id: "motif-a1", workspaceId: WORKSPACE_A });
+  seedMotifCandidate({ id: "motif-b1", workspaceId: WORKSPACE_B });
+
+  seedMotifSighting({ id: "sighting-a1", workspaceId: WORKSPACE_A, candidateId: "motif-a1" });
+  seedMotifSighting({ id: "sighting-b1", workspaceId: WORKSPACE_B, candidateId: "motif-b1" });
+
+  seedConnection({ id: "connection-a1", workspaceId: WORKSPACE_A });
+  seedConnection({ id: "connection-b1", workspaceId: WORKSPACE_B });
+
+  seedApplication({
+    id: "application-a1",
+    workspaceId: WORKSPACE_A,
+    sessionId: "session-a1",
+    sourceClaimId: "claim-a1",
+  });
+  seedApplication({
+    id: "application-b1",
+    workspaceId: WORKSPACE_B,
+    sessionId: "session-b1",
+    sourceClaimId: "claim-b1",
+  });
+
+  seedTeachingDraft({ id: "draft-a1", workspaceId: WORKSPACE_A, sessionId: "session-a1" });
+  seedTeachingDraft({ id: "draft-b1", workspaceId: WORKSPACE_B, sessionId: "session-b1" });
 }
 
 test.beforeEach(() => {
@@ -603,11 +838,127 @@ test("R8 a caller-supplied workspaceId query parameter is silently ignored, not 
   assert.deepEqual(body.data.map((row) => row.id), ["session-a1"]);
 });
 
-test("symmetric: B cannot read A's rows either (getClaim, getSession, evidence)", async () => {
+// ---------------------------------------------------------------------------
+// 9b. V2API-002 — the same hostile treatment applied to the five new
+//     entities. Numbering continues R9+ so every hostile test in this file
+//     stays uniquely addressable.
+// ---------------------------------------------------------------------------
+
+test("R9 listMotifs as A never includes B's motif candidate", async () => {
+  seedTwoAccounts();
+  const response = await asUser(SESSION_A, () => api.listMotifs());
+  assert.equal(response.status, 200);
+  const body = (await response.json()) as { data: Array<{ id: string }> };
+  const ids = body.data.map((row) => row.id);
+  assert.deepEqual(ids, ["motif-a1"]);
+  assert.ok(!ids.includes("motif-b1"), "R9: B's motif candidate leaked into A's list");
+});
+
+test("R10 getMotif as A on B's candidate id resolves 404, not B's data", async () => {
+  seedTwoAccounts();
+  const response = await asUser(SESSION_A, () => api.getMotif("motif-b1"));
+  assert.equal(response.status, 404, "R10: A must not be able to fetch B's motif candidate by id");
+});
+
+test("R11 listMotifSightings as A on B's candidate id resolves 404, never revealing B's sightings", async () => {
+  seedTwoAccounts();
+  const response = await asUser(SESSION_A, () => api.listMotifSightings("motif-b1"));
+  assert.equal(response.status, 404, "R11: A must not be able to list sightings under B's candidate id");
+});
+
+test("R12 listMotifSightings as A on A's own candidate returns only A's sightings", async () => {
+  seedTwoAccounts();
+  const response = await asUser(SESSION_A, () => api.listMotifSightings("motif-a1"));
+  assert.equal(response.status, 200);
+  const body = (await response.json()) as { data: Array<{ id: string }> };
+  assert.deepEqual(
+    body.data.map((row) => row.id),
+    ["sighting-a1"],
+  );
+});
+
+test("R13 listConnections as A never includes B's connection", async () => {
+  seedTwoAccounts();
+  const response = await asUser(SESSION_A, () => api.listConnections());
+  assert.equal(response.status, 200);
+  const body = (await response.json()) as { data: Array<{ id: string }> };
+  const ids = body.data.map((row) => row.id);
+  assert.deepEqual(ids, ["connection-a1"]);
+  assert.ok(!ids.includes("connection-b1"), "R13: B's connection leaked into A's list");
+});
+
+test("R14 getConnection as A on B's connection id resolves 404, not B's data", async () => {
+  seedTwoAccounts();
+  const response = await asUser(SESSION_A, () => api.getConnection("connection-b1"));
+  assert.equal(response.status, 404, "R14: A must not be able to fetch B's connection by id");
+});
+
+test("R15 listApplications as A never includes B's application", async () => {
+  seedTwoAccounts();
+  const response = await asUser(SESSION_A, () => api.listApplications());
+  assert.equal(response.status, 200);
+  const body = (await response.json()) as { data: Array<{ id: string }> };
+  const ids = body.data.map((row) => row.id);
+  assert.deepEqual(ids, ["application-a1"]);
+  assert.ok(!ids.includes("application-b1"), "R15: B's application leaked into A's list");
+});
+
+test("R16 getApplication as A on B's application id resolves 404, not B's data", async () => {
+  seedTwoAccounts();
+  const response = await asUser(SESSION_A, () => api.getApplication("application-b1"));
+  assert.equal(response.status, 404, "R16: A must not be able to fetch B's application by id");
+});
+
+test("R17 listTeachingDrafts as A never includes B's teaching draft", async () => {
+  seedTwoAccounts();
+  const response = await asUser(SESSION_A, () => api.listTeachingDrafts());
+  assert.equal(response.status, 200);
+  const body = (await response.json()) as { data: Array<{ id: string }> };
+  const ids = body.data.map((row) => row.id);
+  assert.deepEqual(ids, ["draft-a1"]);
+  assert.ok(!ids.includes("draft-b1"), "R17: B's teaching draft leaked into A's list");
+});
+
+test("R18 getTeachingDraft as A on B's draft id resolves 404, not B's data", async () => {
+  seedTwoAccounts();
+  const response = await asUser(SESSION_A, () => api.getTeachingDraft("draft-b1"));
+  assert.equal(response.status, 404, "R18: A must not be able to fetch B's teaching draft by id");
+});
+
+test("R19 listApplications?sessionId=<B's session> as A returns empty, not B's application", async () => {
+  seedTwoAccounts();
+  const response = await asUser(SESSION_A, () => api.listApplications("?sessionId=session-b1"));
+  assert.equal(response.status, 200);
+  const body = (await response.json()) as { data: unknown[] };
+  assert.deepEqual(
+    body.data,
+    [],
+    "R19: filtering applications by another workspace's sessionId must not smuggle its application",
+  );
+});
+
+test("R20 listTeachingDrafts?sessionId=<B's session> as A returns empty, not B's draft", async () => {
+  seedTwoAccounts();
+  const response = await asUser(SESSION_A, () => api.listTeachingDrafts("?sessionId=session-b1"));
+  assert.equal(response.status, 200);
+  const body = (await response.json()) as { data: unknown[] };
+  assert.deepEqual(
+    body.data,
+    [],
+    "R20: filtering teaching drafts by another workspace's sessionId must not smuggle its draft",
+  );
+});
+
+test("symmetric: B cannot read A's rows either, across every v2 route", async () => {
   seedTwoAccounts();
   assert.equal((await asUser(SESSION_B, () => api.getSession("session-a1"))).status, 404);
   assert.equal((await asUser(SESSION_B, () => api.getClaim("claim-a1"))).status, 404);
   assert.equal((await asUser(SESSION_B, () => api.listClaimEvidence("claim-a1"))).status, 404);
+  assert.equal((await asUser(SESSION_B, () => api.getMotif("motif-a1"))).status, 404);
+  assert.equal((await asUser(SESSION_B, () => api.listMotifSightings("motif-a1"))).status, 404);
+  assert.equal((await asUser(SESSION_B, () => api.getConnection("connection-a1"))).status, 404);
+  assert.equal((await asUser(SESSION_B, () => api.getApplication("application-a1"))).status, 404);
+  assert.equal((await asUser(SESSION_B, () => api.getTeachingDraft("draft-a1"))).status, 404);
 });
 
 // ---------------------------------------------------------------------------
@@ -622,6 +973,15 @@ test("every v2 route requires an authenticated session (401, no data)", async ()
   assert.equal((await api.listClaims()).status, 401);
   assert.equal((await api.getClaim("claim-a1")).status, 401);
   assert.equal((await api.listClaimEvidence("claim-a1")).status, 401);
+  assert.equal((await api.listMotifs()).status, 401);
+  assert.equal((await api.getMotif("motif-a1")).status, 401);
+  assert.equal((await api.listMotifSightings("motif-a1")).status, 401);
+  assert.equal((await api.listConnections()).status, 401);
+  assert.equal((await api.getConnection("connection-a1")).status, 401);
+  assert.equal((await api.listApplications()).status, 401);
+  assert.equal((await api.getApplication("application-a1")).status, 401);
+  assert.equal((await api.listTeachingDrafts()).status, 401);
+  assert.equal((await api.getTeachingDraft("draft-a1")).status, 401);
 });
 
 test("responses carry the private/no-store cache policy from lib/api/response.ts", async () => {
@@ -631,10 +991,11 @@ test("responses carry the private/no-store cache policy from lib/api/response.ts
 });
 
 // ---------------------------------------------------------------------------
-// 11. Criterion 3 — every non-GET verb is refused via the SYNCV2-001
-//     predicate (`assertReadOnlyV2ResourceRequest` /
-//     `V2ResourceRouteMutationRejected`), the SAME implementation imported
-//     from `lib/api/sync-v2.ts` rather than a second hand-rolled check.
+// 11. Every non-GET verb is refused via the SYNCV2-001 predicate
+//     (`assertReadOnlyV2ResourceRequest` / `V2ResourceRouteMutationRejected`),
+//     the SAME implementation imported from `lib/api/sync-v2.ts` rather than
+//     a second hand-rolled check — including on all nine new route files
+//     V2API-002 adds.
 // ---------------------------------------------------------------------------
 
 const MUTATING_METHODS = ["POST", "PUT", "PATCH", "DELETE"] as const;
@@ -650,6 +1011,31 @@ test("every non-GET verb on every v2 route is rejected via V2ResourceRouteMutati
       name: "claims/[id]/evidence",
       route: () => routes.claimEvidence,
       url: "/api/v2/claims/claim-a1/evidence",
+    },
+    { name: "motifs", route: () => routes.motifs, url: "/api/v2/motifs" },
+    { name: "motifs/[id]", route: () => routes.motifId, url: "/api/v2/motifs/motif-a1" },
+    {
+      name: "motifs/[id]/sightings",
+      route: () => routes.motifSightings,
+      url: "/api/v2/motifs/motif-a1/sightings",
+    },
+    { name: "connections", route: () => routes.connections, url: "/api/v2/connections" },
+    {
+      name: "connections/[id]",
+      route: () => routes.connectionId,
+      url: "/api/v2/connections/connection-a1",
+    },
+    { name: "applications", route: () => routes.applications, url: "/api/v2/applications" },
+    {
+      name: "applications/[id]",
+      route: () => routes.applicationId,
+      url: "/api/v2/applications/application-a1",
+    },
+    { name: "teaching-drafts", route: () => routes.teachingDrafts, url: "/api/v2/teaching-drafts" },
+    {
+      name: "teaching-drafts/[id]",
+      route: () => routes.teachingDraftId,
+      url: "/api/v2/teaching-drafts/draft-a1",
     },
   ];
 
@@ -679,7 +1065,8 @@ test("every non-GET verb on every v2 route is rejected via V2ResourceRouteMutati
 });
 
 // ---------------------------------------------------------------------------
-// 12. Criterion 6 — mutation-prove the tenant predicate.
+// 12. Mutation-prove the tenant predicate — extended (V2API-002) to cover
+//     the five new entities' queries, not only the original three.
 //     No file is written; the on-disk hash and mtime are re-verified after
 //     the cycle, same discipline as tenant-isolation.test.ts's withMutation.
 // ---------------------------------------------------------------------------
@@ -709,10 +1096,12 @@ async function withMutation(relativeFile: string, body: () => Promise<void>) {
   }
 }
 
-test("M1 removing the workspaceId predicate from app/api/v2/_lib/queries.ts breaks R1/R2/R3/R5/R6", async () => {
+test("M1 removing the workspaceId predicate from app/api/v2/_lib/queries.ts breaks tenant isolation for every v2 query, original five and the five new entities alike", async () => {
   seedTwoAccounts();
 
   await withMutation(path.join("app", "api", "v2", "_lib", "queries.ts"), async () => {
+    // --- original five (V2API-001) --------------------------------------
+
     // R1 (list leak): A's session list now includes B's session too.
     const sessionsResponse = await asUser(SESSION_A, () => api.listSessions());
     assert.equal(sessionsResponse.status, 200);
@@ -759,10 +1148,82 @@ test("M1 removing the workspaceId predicate from app/api/v2/_lib/queries.ts brea
       evidenceBody.data.map((row) => row.id).includes("evidence-b1"),
       "R6 must now leak evidence-b1 with the workspace predicate removed",
     );
+
+    // --- five new entities (V2API-002) -----------------------------------
+
+    // R9/R10: motif candidates.
+    const motifsResponse = await asUser(SESSION_A, () => api.listMotifs());
+    const motifsBody = (await motifsResponse.json()) as { data: Array<{ id: string }> };
+    assert.ok(
+      motifsBody.data.map((row) => row.id).includes("motif-b1"),
+      "R9 must now leak motif-b1 with the workspace predicate removed",
+    );
+    const getMotifResponse = await asUser(SESSION_A, () => api.getMotif("motif-b1"));
+    assert.equal(
+      getMotifResponse.status,
+      200,
+      "R10 must now return 200 for B's motif candidate with the workspace predicate removed",
+    );
+
+    // R11: motif sightings, nested under B's candidate — leaks because the
+    // parent-candidate lookup (getMotifCandidateV2) is mutated too.
+    const sightingsResponse = await asUser(SESSION_A, () => api.listMotifSightings("motif-b1"));
+    assert.equal(
+      sightingsResponse.status,
+      200,
+      "R11 must now return 200 for sightings under B's candidate id with the workspace predicate removed",
+    );
+    const sightingsBody = (await sightingsResponse.json()) as { data: Array<{ id: string }> };
+    assert.ok(
+      sightingsBody.data.map((row) => row.id).includes("sighting-b1"),
+      "R11 must now leak sighting-b1 with the workspace predicate removed",
+    );
+
+    // R13/R14: connections.
+    const connectionsResponse = await asUser(SESSION_A, () => api.listConnections());
+    const connectionsBody = (await connectionsResponse.json()) as { data: Array<{ id: string }> };
+    assert.ok(
+      connectionsBody.data.map((row) => row.id).includes("connection-b1"),
+      "R13 must now leak connection-b1 with the workspace predicate removed",
+    );
+    const getConnectionResponse = await asUser(SESSION_A, () => api.getConnection("connection-b1"));
+    assert.equal(
+      getConnectionResponse.status,
+      200,
+      "R14 must now return 200 for B's connection with the workspace predicate removed",
+    );
+
+    // R15/R16: applications.
+    const applicationsResponse = await asUser(SESSION_A, () => api.listApplications());
+    const applicationsBody = (await applicationsResponse.json()) as { data: Array<{ id: string }> };
+    assert.ok(
+      applicationsBody.data.map((row) => row.id).includes("application-b1"),
+      "R15 must now leak application-b1 with the workspace predicate removed",
+    );
+    const getApplicationResponse = await asUser(SESSION_A, () => api.getApplication("application-b1"));
+    assert.equal(
+      getApplicationResponse.status,
+      200,
+      "R16 must now return 200 for B's application with the workspace predicate removed",
+    );
+
+    // R17/R18: teaching drafts.
+    const draftsResponse = await asUser(SESSION_A, () => api.listTeachingDrafts());
+    const draftsBody = (await draftsResponse.json()) as { data: Array<{ id: string }> };
+    assert.ok(
+      draftsBody.data.map((row) => row.id).includes("draft-b1"),
+      "R17 must now leak draft-b1 with the workspace predicate removed",
+    );
+    const getDraftResponse = await asUser(SESSION_A, () => api.getTeachingDraft("draft-b1"));
+    assert.equal(
+      getDraftResponse.status,
+      200,
+      "R18 must now return 200 for B's teaching draft with the workspace predicate removed",
+    );
   });
 });
 
-test("after the mutation cycle, R1/R2/R3/R5/R6 all pass again (harness hygiene)", async () => {
+test("after the mutation cycle, tenant isolation is restored for every v2 query (harness hygiene)", async () => {
   seedTwoAccounts();
   assert.deepEqual(
     (
@@ -775,4 +1236,259 @@ test("after the mutation cycle, R1/R2/R3/R5/R6 all pass again (harness hygiene)"
   assert.equal((await asUser(SESSION_A, () => api.getSession("session-b1"))).status, 404);
   assert.equal((await asUser(SESSION_A, () => api.getClaim("claim-b1"))).status, 404);
   assert.equal((await asUser(SESSION_A, () => api.listClaimEvidence("claim-b1"))).status, 404);
+  assert.equal((await asUser(SESSION_A, () => api.getMotif("motif-b1"))).status, 404);
+  assert.equal((await asUser(SESSION_A, () => api.listMotifSightings("motif-b1"))).status, 404);
+  assert.equal((await asUser(SESSION_A, () => api.getConnection("connection-b1"))).status, 404);
+  assert.equal((await asUser(SESSION_A, () => api.getApplication("application-b1"))).status, 404);
+  assert.equal((await asUser(SESSION_A, () => api.getTeachingDraft("draft-b1"))).status, 404);
+});
+
+// ---------------------------------------------------------------------------
+// 13. V2API-002 criterion 1 — soft-delete filtering. This is "the one that
+//     matters most": before this task, a learner who deleted a claim (or
+//     any other v2 entity) still saw it in a v2 list response, and could
+//     still fetch it directly by id. `_lib/queries.ts` now excludes any row
+//     with a non-null `deletedAt` from every list/get query by default,
+//     following `lib/db/entries.ts`'s `includeDeleted` convention. These
+//     tests seed a row with `deletedAt` set directly (bypassing any write
+//     path, since this task owns no write path) and prove the read surface
+//     treats it as gone.
+// ---------------------------------------------------------------------------
+
+const DELETED_AT = "2026-01-02T00:00:00Z";
+
+test("S1 a soft-deleted claim is excluded from listClaims and 404s on getClaim", async () => {
+  seedTwoAccounts();
+  seedClaim({
+    id: "claim-a2",
+    workspaceId: WORKSPACE_A,
+    sessionId: "session-a1",
+    deletedAt: DELETED_AT,
+  });
+
+  const listResponse = await asUser(SESSION_A, () => api.listClaims());
+  const listBody = (await listResponse.json()) as { data: Array<{ id: string }> };
+  assert.deepEqual(
+    listBody.data.map((row) => row.id),
+    ["claim-a1"],
+    "S1: a soft-deleted claim must not appear in the list — a learner who deletes a claim must stop seeing it",
+  );
+
+  const getResponse = await asUser(SESSION_A, () => api.getClaim("claim-a2"));
+  assert.equal(getResponse.status, 404, "S1: a soft-deleted claim must 404 on direct fetch");
+});
+
+test("S2 a soft-deleted session is excluded from listSessions and 404s on getSession", async () => {
+  seedTwoAccounts();
+  seedSession({ id: "session-a2", workspaceId: WORKSPACE_A, deletedAt: DELETED_AT });
+
+  const listResponse = await asUser(SESSION_A, () => api.listSessions());
+  const listBody = (await listResponse.json()) as { data: Array<{ id: string }> };
+  assert.deepEqual(
+    listBody.data.map((row) => row.id),
+    ["session-a1"],
+    "S2: a soft-deleted session must not appear in the list",
+  );
+
+  const getResponse = await asUser(SESSION_A, () => api.getSession("session-a2"));
+  assert.equal(getResponse.status, 404, "S2: a soft-deleted session must 404 on direct fetch");
+});
+
+test("S3 evidence under A's own claim excludes a soft-deleted evidence row", async () => {
+  seedTwoAccounts();
+  seedEvidence({
+    id: "evidence-a2",
+    workspaceId: WORKSPACE_A,
+    claimId: "claim-a1",
+    deletedAt: DELETED_AT,
+  });
+
+  const response = await asUser(SESSION_A, () => api.listClaimEvidence("claim-a1"));
+  const body = (await response.json()) as { data: Array<{ id: string }> };
+  assert.deepEqual(
+    body.data.map((row) => row.id),
+    ["evidence-a1"],
+    "S3: a soft-deleted evidence row must not appear under its (non-deleted) parent claim",
+  );
+});
+
+test("S4 evidence under a claim A has soft-deleted 404s, not an empty list", async () => {
+  seedTwoAccounts();
+  seedClaim({
+    id: "claim-a2",
+    workspaceId: WORKSPACE_A,
+    sessionId: "session-a1",
+    deletedAt: DELETED_AT,
+  });
+  seedEvidence({ id: "evidence-a2", workspaceId: WORKSPACE_A, claimId: "claim-a2" });
+
+  const response = await asUser(SESSION_A, () => api.listClaimEvidence("claim-a2"));
+  assert.equal(
+    response.status,
+    404,
+    "S4: evidence nested under a claim the caller has since deleted must 404, exactly like a claim id that never existed — not a 200 with an empty or leaked list",
+  );
+});
+
+test("S5 a soft-deleted motif candidate is excluded from listMotifs and 404s on getMotif, and its nested sightings 404 too", async () => {
+  seedTwoAccounts();
+  seedMotifCandidate({ id: "motif-a2", workspaceId: WORKSPACE_A, deletedAt: DELETED_AT });
+  seedMotifSighting({ id: "sighting-a2", workspaceId: WORKSPACE_A, candidateId: "motif-a2" });
+
+  const listResponse = await asUser(SESSION_A, () => api.listMotifs());
+  const listBody = (await listResponse.json()) as { data: Array<{ id: string }> };
+  assert.deepEqual(
+    listBody.data.map((row) => row.id),
+    ["motif-a1"],
+    "S5: a soft-deleted motif candidate must not appear in the list",
+  );
+
+  assert.equal(
+    (await asUser(SESSION_A, () => api.getMotif("motif-a2"))).status,
+    404,
+    "S5: a soft-deleted motif candidate must 404 on direct fetch",
+  );
+  assert.equal(
+    (await asUser(SESSION_A, () => api.listMotifSightings("motif-a2"))).status,
+    404,
+    "S5: sightings nested under a soft-deleted candidate must 404, not leak via the nested route",
+  );
+});
+
+test("S6 a soft-deleted connection, application, and teaching draft are each excluded from their list and 404 on get", async () => {
+  seedTwoAccounts();
+  seedConnection({ id: "connection-a2", workspaceId: WORKSPACE_A, deletedAt: DELETED_AT });
+  seedApplication({
+    id: "application-a2",
+    workspaceId: WORKSPACE_A,
+    sessionId: "session-a1",
+    sourceClaimId: "claim-a1",
+    deletedAt: DELETED_AT,
+  });
+  seedTeachingDraft({
+    id: "draft-a2",
+    workspaceId: WORKSPACE_A,
+    sessionId: "session-a1",
+    deletedAt: DELETED_AT,
+  });
+
+  const connectionsBody = (await (await asUser(SESSION_A, () => api.listConnections())).json()) as {
+    data: Array<{ id: string }>;
+  };
+  assert.deepEqual(connectionsBody.data.map((row) => row.id), ["connection-a1"]);
+  assert.equal((await asUser(SESSION_A, () => api.getConnection("connection-a2"))).status, 404);
+
+  const applicationsBody = (await (await asUser(SESSION_A, () => api.listApplications())).json()) as {
+    data: Array<{ id: string }>;
+  };
+  assert.deepEqual(applicationsBody.data.map((row) => row.id), ["application-a1"]);
+  assert.equal((await asUser(SESSION_A, () => api.getApplication("application-a2"))).status, 404);
+
+  const draftsBody = (await (await asUser(SESSION_A, () => api.listTeachingDrafts())).json()) as {
+    data: Array<{ id: string }>;
+  };
+  assert.deepEqual(draftsBody.data.map((row) => row.id), ["draft-a1"]);
+  assert.equal((await asUser(SESSION_A, () => api.getTeachingDraft("draft-a2"))).status, 404);
+});
+
+// ---------------------------------------------------------------------------
+// 14. V2API-002 criterion 4 — bounded page size. Chosen bound: default 50
+//     rows, maximum 200 rows per response (`_lib/queries.ts`'s
+//     `V2_LIST_DEFAULT_LIMIT` / `V2_LIST_MAX_LIMIT`). These expected numbers
+//     are hardcoded literals here, not imported from the module under test
+//     — deriving an expected value from the same source as the
+//     implementation would make this test unable to catch the bound
+//     silently drifting.
+//
+//     `seedManySessions` gives each row a distinct, strictly increasing
+//     `createdAt` so the newest-first ordering these tests assert on is
+//     real (`desc(createdAt)`, evaluated by section 2b/3's real ORDER BY
+//     support), not an accident of fixture insertion order.
+// ---------------------------------------------------------------------------
+
+function seedManySessions(workspaceId: string, count: number): string[] {
+  const ids: string[] = [];
+  for (let i = 0; i < count; i += 1) {
+    const id = `session-p${i}`;
+    const createdAt = new Date(Date.parse(TS) + i * 1000).toISOString();
+    seedSession({ id, workspaceId, createdAt, updatedAt: createdAt });
+    ids.push(id);
+  }
+  return ids;
+}
+
+test("P1 listSessions with no ?limit= defaults to 50 rows, newest first", async () => {
+  seedWorkspace(WORKSPACE_A, USER_A);
+  const ids = seedManySessions(WORKSPACE_A, 55);
+  const expectedNewestFirst50 = [...ids].reverse().slice(0, 50);
+
+  const response = await asUser(SESSION_A, () => api.listSessions());
+  assert.equal(response.status, 200);
+  const body = (await response.json()) as { data: Array<{ id: string }> };
+  assert.equal(body.data.length, 50, "P1: default page size must be exactly 50 when 55 rows exist");
+  assert.deepEqual(
+    body.data.map((row) => row.id),
+    expectedNewestFirst50,
+    "P1: the default page must be the 50 NEWEST rows, not an arbitrary 50",
+  );
+});
+
+test("P2 listSessions?limit=5 returns exactly the 5 newest rows", async () => {
+  seedWorkspace(WORKSPACE_A, USER_A);
+  const ids = seedManySessions(WORKSPACE_A, 55);
+  const expectedNewestFirst5 = [...ids].reverse().slice(0, 5);
+
+  const response = await asUser(SESSION_A, () => api.listSessions("?limit=5"));
+  assert.equal(response.status, 200);
+  const body = (await response.json()) as { data: Array<{ id: string }> };
+  assert.deepEqual(body.data.map((row) => row.id), expectedNewestFirst5);
+});
+
+test("P3 listSessions?limit=200 (the maximum) returns all rows when fewer than 200 exist", async () => {
+  seedWorkspace(WORKSPACE_A, USER_A);
+  seedManySessions(WORKSPACE_A, 55);
+
+  const response = await asUser(SESSION_A, () => api.listSessions("?limit=200"));
+  assert.equal(response.status, 200);
+  const body = (await response.json()) as { data: unknown[] };
+  assert.equal(body.data.length, 55);
+});
+
+test("P4 listSessions?limit=201 (over the maximum) is rejected with 400, not silently clamped", async () => {
+  seedWorkspace(WORKSPACE_A, USER_A);
+  seedManySessions(WORKSPACE_A, 5);
+
+  const response = await asUser(SESSION_A, () => api.listSessions("?limit=201"));
+  assert.equal(response.status, 400, "P4: a limit above the stated maximum (200) must 400");
+});
+
+test("P5 listSessions?limit=0 and ?limit=abc are both rejected with 400", async () => {
+  seedWorkspace(WORKSPACE_A, USER_A);
+  seedManySessions(WORKSPACE_A, 5);
+
+  assert.equal((await asUser(SESSION_A, () => api.listSessions("?limit=0"))).status, 400);
+  assert.equal((await asUser(SESSION_A, () => api.listSessions("?limit=abc"))).status, 400);
+});
+
+test("P6 every new V2API-002 list route also honors a bounded ?limit=", async () => {
+  seedTwoAccounts();
+  // Not a volume test (that's P1-P5, against sessions) — this proves the
+  // SAME `_lib/pagination.ts` schema is wired into every new route file,
+  // so an out-of-range limit 400s uniformly rather than only on some routes.
+  assert.equal((await asUser(SESSION_A, () => api.listMotifs("?limit=0"))).status, 400);
+  assert.equal(
+    (await asUser(SESSION_A, () => api.listMotifSightings("motif-a1", "?limit=0"))).status,
+    400,
+  );
+  assert.equal((await asUser(SESSION_A, () => api.listConnections("?limit=0"))).status, 400);
+  assert.equal((await asUser(SESSION_A, () => api.listApplications("?limit=0"))).status, 400);
+  assert.equal((await asUser(SESSION_A, () => api.listTeachingDrafts("?limit=0"))).status, 400);
+
+  // And a valid, in-range limit is honored (single seeded row each, so
+  // ?limit=1 still returns it — proves the param is accepted, not just
+  // rejected at the boundary).
+  const motifs = (await (await asUser(SESSION_A, () => api.listMotifs("?limit=1"))).json()) as {
+    data: unknown[];
+  };
+  assert.equal(motifs.data.length, 1);
 });
