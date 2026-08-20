@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-20T06:21:48.000Z",
+  "updatedAt": "2026-08-20T09:10:45.000Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
-    "taskId": null,
-    "runId": null,
-    "takenAt": null,
-    "expiresAt": null
+    "taskId": "SYNCPERSIST-001",
+    "runId": "cloud-20260820091045",
+    "takenAt": "2026-08-20T09:10:45.000Z",
+    "expiresAt": "2026-08-20T10:40:45.000Z"
   },
   "tasks": {
     "DOC-002": {
@@ -271,12 +271,12 @@
       "notes": "Seeded 2026-08-20 00:35 for the overnight run. Phase 1 continuation: the missing links between an authenticated session and a usable v2 data layer. Unblocks V2API-001 and RADARPERSIST-001 (both dependsOn WORKSPACE-001). A schema follow-up is recommended: a partial unique index on workspaces(created_by) WHERE kind='personal' AND deleted_at IS NULL, to close the concurrency gap this task could only narrow, not eliminate, from its read-only db/schema.ts. Awaiting independent audit, same as this queue's other submitted tasks."
     },
     "SYNCPERSIST-001": {
-      "status": "ready",
+      "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": null,
-      "notes": "Seeded 2026-08-20 00:35 for the overnight run. Phase 1 continuation: the missing links between an authenticated session and a usable v2 data layer."
+      "lastRunId": "cloud-20260820091045",
+      "notes": "Seeded 2026-08-20 00:35 for the overnight run. Phase 1 continuation: the missing links between an authenticated session and a usable v2 data layer. Taken by cloud-20260820091045. NOTE: dependsOn SYNCGAP-001, which is status 'submitted' (unmerged) on master as of this run -- per QUEUE.md/DOC-002 precedent, eligibility does not gate on dependsOn, so this is being worked from master, which currently has only the 6-entity sync-v2 contract (no evidence/motifSighting). Will report this gap honestly rather than papering over it."
     },
     "V2API-001": {
       "status": "ready",
