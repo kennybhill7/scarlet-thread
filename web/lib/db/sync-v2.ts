@@ -5,6 +5,8 @@ import type { BatchItem } from "drizzle-orm/batch";
 
 import {
   applications,
+  claimEvidence,
+  motifSightings,
   studyClaims,
   studySessions,
   syncReceipts,
@@ -16,6 +18,8 @@ import {
 import { groupOpsByMutationGroupId, parseSyncOpV2Payload } from "@/lib/api/sync-v2";
 import type { SyncOpV2 } from "@/lib/contracts/sync-v2";
 import type {
+  ClaimEvidence,
+  MotifSighting,
   Application,
   MotifCandidate,
   StudyClaim,
@@ -39,7 +43,7 @@ import { db } from "@/lib/db";
  * still carries only SYNCV2-001's original six-entity `SYNC_ENTITIES_V2`
  * (`session | claim | motif | connection | application | teachingDraft`) —
  * NOT SYNCGAP-001's proposed `evidence` / `motifSighting` additions. This file
- * therefore persists exactly those six; `claimEvidence` and `motifSightings`
+ * therefore persists all eight; `claimEvidence` and `motifSightings`
  * (both already present in `db/schema.ts` via SCHEMAFU-001/SCHEMAV2-001) have
  * no sync entity to receive ops for yet and are untouched here. Once
  * SYNCGAP-001 (or its reconciled successor) lands on master, extending the
@@ -492,6 +496,92 @@ async function planTeachingDraftOp(userId: string, op: SyncOpV2): Promise<PlanOu
   return planWrite(userId, payload.workspaceId, current, op.baseRevision, write);
 }
 
+/**
+ * SYNCGAP-001 resolved the doc conflict in favour of claim_evidence and
+ * motif_sightings each being their OWN sync entity that names its parent by id,
+ * rather than riding along as a nested aggregate child array. SYNCPERSIST-001
+ * was built in parallel against the older six-entity list, so these two
+ * handlers were the integration gap between the two branches — surfaced
+ * immediately because the persist test iterates SYNC_ENTITIES_V2 rather than a
+ * hand-listed set, so growing the contract demanded a handler instead of
+ * silently passing.
+ */
+async function planEvidenceOp(userId: string, op: SyncOpV2): Promise<PlanOutcome> {
+  let payload: ClaimEvidence;
+  try {
+    payload = parseSyncOpV2Payload<ClaimEvidence>(op);
+  } catch (error) {
+    return { ok: false, reason: messageOf(error) };
+  }
+  const [current] = await db
+    .select({ workspaceId: claimEvidence.workspaceId, revision: claimEvidence.revision })
+    .from(claimEvidence)
+    .where(eq(claimEvidence.id, op.entityId))
+    .limit(1);
+  const deletedAt = resolveDeletedAt(op, payload.deletedAt);
+  const values = {
+    claimId: payload.claimId,
+    evidenceType: payload.evidenceType,
+    canonicalReference: payload.canonicalReference ?? null,
+    displayReference: payload.displayReference ?? null,
+    contentBlockId: payload.contentBlockId ?? null,
+    citationId: payload.citationId ?? null,
+    connectionId: payload.connectionId ?? null,
+    note: payload.note,
+    revision: payload.revision,
+    updatedAt: payload.updatedAt,
+    deletedAt,
+  };
+  const write = () =>
+    db
+      .insert(claimEvidence)
+      .values({
+        id: payload.id,
+        workspaceId: payload.workspaceId,
+        createdAt: payload.createdAt,
+        ...values,
+      })
+      .onConflictDoUpdate({ target: claimEvidence.id, set: values });
+  return planWrite(userId, payload.workspaceId, current, op.baseRevision, write);
+}
+
+async function planMotifSightingOp(userId: string, op: SyncOpV2): Promise<PlanOutcome> {
+  let payload: MotifSighting;
+  try {
+    payload = parseSyncOpV2Payload<MotifSighting>(op);
+  } catch (error) {
+    return { ok: false, reason: messageOf(error) };
+  }
+  const [current] = await db
+    .select({ workspaceId: motifSightings.workspaceId, revision: motifSightings.revision })
+    .from(motifSightings)
+    .where(eq(motifSightings.id, op.entityId))
+    .limit(1);
+  const deletedAt = resolveDeletedAt(op, payload.deletedAt);
+  const values = {
+    candidateId: payload.candidateId,
+    passageUnitKey: payload.passageUnitKey,
+    exactRange: payload.exactRange,
+    entryId: payload.entryId ?? null,
+    claimId: payload.claimId ?? null,
+    status: payload.status,
+    revision: payload.revision,
+    updatedAt: payload.updatedAt,
+    deletedAt,
+  };
+  const write = () =>
+    db
+      .insert(motifSightings)
+      .values({
+        id: payload.id,
+        workspaceId: payload.workspaceId,
+        createdAt: payload.createdAt,
+        ...values,
+      })
+      .onConflictDoUpdate({ target: motifSightings.id, set: values });
+  return planWrite(userId, payload.workspaceId, current, op.baseRevision, write);
+}
+
 async function planOp(userId: string, op: SyncOpV2): Promise<PlanOutcome> {
   switch (op.entity) {
     case "session":
@@ -506,6 +596,10 @@ async function planOp(userId: string, op: SyncOpV2): Promise<PlanOutcome> {
       return planApplicationOp(userId, op);
     case "teachingDraft":
       return planTeachingDraftOp(userId, op);
+    case "evidence":
+      return planEvidenceOp(userId, op);
+    case "motifSighting":
+      return planMotifSightingOp(userId, op);
     default: {
       const exhaustive: never = op.entity;
       return { ok: false, reason: `${String(exhaustive)} sync is not implemented yet` };

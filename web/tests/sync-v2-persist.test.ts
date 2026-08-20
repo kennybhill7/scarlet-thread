@@ -88,6 +88,8 @@ const PRIMARY_KEYS: Record<string, string[]> = {
   user_connections: ["id"],
   applications: ["id"],
   teaching_drafts: ["id"],
+  claim_evidence: ["id"],
+  motif_sightings: ["id"],
   sync_receipts: ["userId", "opId"],
 };
 
@@ -99,6 +101,8 @@ const MODELLED_TABLES: Table[] = [
   schema.userConnections,
   schema.applications,
   schema.teachingDrafts,
+  schema.claimEvidence,
+  schema.motifSightings,
   schema.syncReceipts,
 ];
 
@@ -549,11 +553,54 @@ function validTeachingDraftPayload(overrides: Row = {}) {
   };
 }
 
+
+/**
+ * SYNCGAP-001 made claim_evidence and motif_sightings their own sync entities,
+ * each naming its parent by id rather than nesting as an aggregate child. These
+ * two fixtures are the integration piece: this table is keyed by SyncEntityV2,
+ * so growing the contract to eight made the type error demand them rather than
+ * letting the suite pass six-of-eight silently.
+ */
+function validEvidencePayload(overrides: Row = {}) {
+  return {
+    id: "evidence-1",
+    workspaceId: "workspace-a",
+    claimId: "claim-1",
+    evidenceType: "passage",
+    note: "Genesis 3:15 names the seed.",
+    revision: 1,
+    createdAt: TS,
+    updatedAt: TS,
+    deletedAt: null,
+    ...overrides,
+  };
+}
+
+function validMotifSightingPayload(overrides: Row = {}) {
+  return {
+    id: "sighting-1",
+    workspaceId: "workspace-a",
+    candidateId: "motif-1",
+    passageUnitKey: "gen-3",
+    exactRange: { versificationId: "eng-protestant-66-31102-v1", start: "1.3.15", end: "1.3.15" },
+    entryId: null,
+    claimId: null,
+    status: "counting",
+    revision: 1,
+    createdAt: TS,
+    updatedAt: TS,
+    deletedAt: null,
+    ...overrides,
+  };
+}
+
 const validPayloadByEntity: Record<SyncEntityV2, (overrides?: Row) => Row> = {
   session: validSessionPayload,
   claim: validClaimPayload,
   motif: validMotifPayload,
   connection: validConnectionPayload,
+  evidence: validEvidencePayload,
+  motifSighting: validMotifSightingPayload,
   application: validApplicationPayload,
   teachingDraft: validTeachingDraftPayload,
 };

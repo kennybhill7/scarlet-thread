@@ -330,6 +330,14 @@ export interface ClaimEvidence {
   contentBlockId?: string | null;
   /** First-class citation id into the sources/citations model — never a pasted string (BUILD_PLAN §3.3). */
   citationId?: string | null;
+  /**
+   * The user_connections row this evidence cites, when evidenceType is
+   * "connection". Added to the schema by SCHEMAFU-001 (migration 0007) to give
+   * the cross-table devotional/theology constraint trigger a join path; the
+   * contract could not be updated in that task because it was a readOnlyPath
+   * there, so this closes the drift.
+   */
+  connectionId?: string | null;
   note: string;
   revision: number;
   createdAt: string;
