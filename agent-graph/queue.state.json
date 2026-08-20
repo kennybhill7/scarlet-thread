@@ -42,7 +42,7 @@
       "commitSha": "c2324d2197037a8a4918f473cc8fb6183cf9179b",
       "attempts": 0,
       "lastRunId": "cloud-20260814051329",
-      "lastEvidence": "typecheck exit 0 (no output); lint exit 0 (no output); npm test -> tests 93, pass 93, fail 0, cancelled 0, skipped 0 (tenant-isolation.test.ts alone: 55 tests all passing, incl. the 6 new: C2b, S10, S11, S12, S13, EVAL1); DATABASE_URL='postgresql://u:p@localhost:5432/db' npm run build -> exit 0, 'Compiled successfully', no db:migrate invoked. Criterion 1: PocketPg's <> evaluator now implements Postgres three-valued NULL logic (left!==null && right!==null && left!==right) instead of the old !equal(left,right)&&left!==null, which returned true whenever the right operand was NULL regardless of the left side; grep confirmed no production code calls ne()/<> today, so this closes a latent gap, proven directly by new test EVAL1 against evaluatePredicate. Criterion 2: new attack S10 mixes a B-targeted entry upsert with a valid A log upsert in one push batch; asserts exactly one rejection, the A op's write+receipt land, the rejected op has no receipt, B's entry and every other B row unchanged. Criterion 3: new attack S11 pushes two ops sharing one id in the same batch; asserts the second is silently deduped (not applied, not rejected) and exactly one receipt exists. Criterion 4: new attacks S12 (person slug collision) and S13 (daily-log date collision) mirror S4's existing thread-slug pattern, each creating A's own row under the composite primary key without touching B's. Criterion 5: new attack C2b mirrors C2 (id-squat on B's active entry) against B's soft-deleted entry, proving the same fail-closed 500 (finding F2) holds for a deleted row in the same global entries.id namespace. Criterion 6: every new attack calls assertBUntouched; S10-S13 also added to S8's snapshot-survives-every-attack sweep. Only web/tests/tenant-isolation.test.ts touched (its sole owned path); no production code changed. No PR opened \u2014 this queue's prior submitted tasks (SEC-002, P0UI-002) coordinate via this file and branch/commit alone, per QUEUE.md, not GitHub PRs. | FORMALIZED DONE 2026-08-17: independently re-verified by Claude in a fresh worktree - typecheck/lint/test all real (93/93 matching claim), then went further than reading: hand-reverted the <>/NULL fix to its old buggy form, confirmed exactly one test (EVAL1) fails with the precise Postgres three-valued-logic error message, restored, reconfirmed 93/93 - proof the test has real teeth, not a self-fulfilling assertion.",
+      "lastEvidence": "typecheck exit 0 (no output); lint exit 0 (no output); npm test -> tests 93, pass 93, fail 0, cancelled 0, skipped 0 (tenant-isolation.test.ts alone: 55 tests all passing, incl. the 6 new: C2b, S10, S11, S12, S13, EVAL1); DATABASE_URL='postgresql://u:p@localhost:5432/db' npm run build -> exit 0, 'Compiled successfully', no db:migrate invoked. Criterion 1: PocketPg's <> evaluator now implements Postgres three-valued NULL logic (left!==null && right!==null && left!==right) instead of the old !equal(left,right)&&left!==null, which returned true whenever the right operand was NULL regardless of the left side; grep confirmed no production code calls ne()/<> today, so this closes a latent gap, proven directly by new test EVAL1 against evaluatePredicate. Criterion 2: new attack S10 mixes a B-targeted entry upsert with a valid A log upsert in one push batch; asserts exactly one rejection, the A op's write+receipt land, the rejected op has no receipt, B's entry and every other B row unchanged. Criterion 3: new attack S11 pushes two ops sharing one id in the same batch; asserts the second is silently deduped (not applied, not rejected) and exactly one receipt exists. Criterion 4: new attacks S12 (person slug collision) and S13 (daily-log date collision) mirror S4's existing thread-slug pattern, each creating A's own row under the composite primary key without touching B's. Criterion 5: new attack C2b mirrors C2 (id-squat on B's active entry) against B's soft-deleted entry, proving the same fail-closed 500 (finding F2) holds for a deleted row in the same global entries.id namespace. Criterion 6: every new attack calls assertBUntouched; S10-S13 also added to S8's snapshot-survives-every-attack sweep. Only web/tests/tenant-isolation.test.ts touched (its sole owned path); no production code changed. No PR opened — this queue's prior submitted tasks (SEC-002, P0UI-002) coordinate via this file and branch/commit alone, per QUEUE.md, not GitHub PRs. | FORMALIZED DONE 2026-08-17: independently re-verified by Claude in a fresh worktree - typecheck/lint/test all real (93/93 matching claim), then went further than reading: hand-reverted the <>/NULL fix to its old buggy form, confirmed exactly one test (EVAL1) fails with the precise Postgres three-valued-logic error message, restored, reconfirmed 93/93 - proof the test has real teeth, not a self-fulfilling assertion.",
       "notes": "Base branch agent/SYNC-001-claude (tip 12f65b2), which contains the isolation suite plus the sync fix. Awaiting independent audit, same as SYNC-001 itself. | MERGED TO MASTER 2026-08-18 in 5eb1b34 (integration/verified-2026-08-18): all five code branches merged together, then verified AS A COMBINED WHOLE - typecheck clean, lint clean, 165/165 tests, production build clean. Individually-verified is not the same as integrated-verified; this checked the latter."
     },
     "SEC-001": {
@@ -388,28 +388,47 @@
       "notes": "Merged. Not mounted on any page yet - queued as STUDYPAGE-001."
     },
     "SYNCV2MERGE-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/SYNCV2MERGE-001-local",
+      "commitSha": "11b1594",
       "attempts": 0,
       "lastRunId": "interactive-2026-08-20-wave11",
-      "notes": "Seeded 2026-08-20 from wave 10."
+      "lastEvidence": "MERGED to master in cfb70f0 after independent verification. Combined suite 638/638, 0 skipped; typecheck/lint/build clean. | v2 sync is TWO-WAY for the first time. A pulled snapshot merges into the local vault without enqueueing an outbox op, closing the exact regression it was filed to avoid: every synced device would otherwise fall into a permanent revision-conflict loop. Conflict rule taken straight from BUILD_PLAN tenet 4: an unsynced local edit wins outright and the pulled row is skipped even when its clock is newer - no last-write-wins comparison at all. | VERIFIED INDEPENDENTLY: I added a re-enqueue to the merge loop and four tests failed, including the central one - \"the outbox must be byte-identical before and after a merge.\" Restored byte-identical, green. My own first attempt used the wrong index field on the synthetic op and the test missed it silently - a reminder that a mutation only proves something if it exercises the real mechanism the code depends on, not a plausible-looking stand-in.",
+      "notes": "Merged. v2 sync is now genuinely bidirectional end to end."
     },
     "STUDYPAGE-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/STUDYPAGE-001-local",
+      "commitSha": "0991783",
       "attempts": 0,
       "lastRunId": "interactive-2026-08-20-wave11",
-      "notes": "Seeded 2026-08-20 from wave 10."
+      "lastEvidence": "MERGED to master in cfb70f0 after independent verification. Combined suite 638/638, 0 skipped; typecheck/lint/build clean. | A learner can reach the composer for the first time. Workspace resolved server-side from the session only - resolveStudyPageData structurally has no parameter a caller-supplied id could occupy. | VERIFIED INDEPENDENTLY: I replicated the builder own documented mutation (threading params.workspaceId through as a fallback) and the hostile smuggling test failed by name. Restored byte-identical, green. | It flagged the SAME database-outage-vs-signed-out gap that review/page.tsx and app/(app)/page.tsx already carry - layout.tsx and proxy.ts sit above this page without the disambiguation probe. Third time this exact gap has been reported by three separate tasks. Promoted to its own task.",
+      "notes": "Merged. No entry point into a NEW session exists yet - only reaching an existing session id works."
     },
     "SYNCDEDUP-001": {
+      "status": "done",
+      "branch": "agent/SYNCDEDUP-001-local",
+      "commitSha": "4520fa6",
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-20-wave11",
+      "lastEvidence": "MERGED to master in cfb70f0 after independent verification. Combined suite 638/638, 0 skipped; typecheck/lint/build clean. | The single most security-relevant check in the codebase existed as two implementations since SYNCPERSIST-001s deliberate stand-in. Deleted the duplicate; the survivor is a thin adapter over lib/db/workspaces.ts real assertWorkspaceOwnership. Compared line by line before deleting - same predicate, same columns, same limit(1), no case treated differently. | It reported the one collateral cost rather than hiding it: renaming the function broke a read-only test file mutation pattern targeting the old name. That failure was the harness working as designed - loud, not silent - and the task named the exact one-line fix rather than attempting an out-of-scope edit.",
+      "notes": "Merged. Integration applied the one-line fix it reported; all 4 sync-v2-route mutation proofs pass again."
+    },
+    "AUTHDISAMBIG-001": {
       "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": "interactive-2026-08-20-wave11",
-      "notes": "Seeded 2026-08-20 from wave 10."
+      "lastRunId": "interactive-2026-08-20-wave12",
+      "notes": "Seeded 2026-08-20 from wave 11. AUTHDISAMBIG-001 closes a gap reported independently by three separate tasks."
+    },
+    "STUDYENTRY-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-20-wave12",
+      "notes": "Seeded 2026-08-20 from wave 11. AUTHDISAMBIG-001 closes a gap reported independently by three separate tasks."
     }
   }
 }

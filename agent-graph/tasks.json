@@ -1459,6 +1459,75 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "AUTHDISAMBIG-001",
+      "title": "Close the database-outage-vs-signed-out gap at the layout/middleware level",
+      "objective": "Three separate tasks now (the original review/page.tsx work, app/(app)/page.tsx, and STUDYPAGE-001) have each independently built their own page-level disambiguation between \"genuinely signed out\" and \"the database is unreachable so we cannot tell\" - and each has independently flagged that app/(app)/layout.tsx and web/proxy.ts (middleware) sit ABOVE all of them, call auth() without that same probe, and could redirect a real user to /sign-in during a database outage before any page-level guard ever runs. Getting this wrong misreports an infrastructure failure as a security event and could make a learner think their account was compromised or deleted. Three independent reports of the same gap is enough - fix it once, at the layer above every page, so no fourth page has to reinvent it.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/proxy.ts",
+        "web/app/(app)/layout.tsx",
+        "web/lib/auth/config.ts",
+        "web/tests/auth-disambiguation.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/app/(app)/review/page.tsx",
+        "web/app/(app)/page.tsx",
+        "web/app/(app)/study/[sessionId]/page.tsx",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "Read all three existing page-level disambiguation implementations (review/page.tsx, app/(app)/page.tsx, study/[sessionId]/page.tsx) before writing anything - they already solved this problem three times; find the common shape rather than inventing a fourth.",
+        "The middleware/layout layer distinguishes a database-unreachable condition from a genuinely absent session, and a database outage never silently redirects to /sign-in disguised as an ordinary auth failure.",
+        "Once this lands, decide and state whether the three existing page-level probes become redundant and can simplify, or whether they remain necessary defense in depth - do not leave three copies of a solved problem lying around without saying why.",
+        "A test proves the disambiguation at this layer specifically, not by re-running the existing page-level tests, which will pass regardless of whether this task does anything.",
+        "The existing sign-in flow and every existing page under app/(app)/ keep working exactly as before for the ordinary signed-in and genuinely-signed-out cases - prove it, do not just assert it did not change.",
+        "Mutation-prove: making a simulated database outage register as \"signed out\" instead of \"setup incomplete\" must fail a NAMED test."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "STUDYENTRY-001",
+      "title": "Build the entry point into a new study session",
+      "objective": "STUDYPAGE-001 made an EXISTING session reachable at /study/[sessionId], but nothing creates a new one - there is no \"start a study\" affordance anywhere in the app, so a learner can never actually arrive at that route in the first place except by a session id already existing in their workspace. The whole v2 authoring path this graph has spent several waves building (composer, vault writers, sync, export) is complete and still practically unreachable from a cold start.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/app/(app)/read/[book]/[chapter]/page.tsx",
+        "web/components/reader/",
+        "web/tests/study-entry.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/app/(app)/study/[sessionId]/page.tsx",
+        "web/lib/db/workspaces.ts",
+        "web/lib/sync/store.ts",
+        "web/components/study/",
+        "web/components/shell/TabBar.tsx",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "A learner reading a chapter can start a study session anchored to the range they were reading, and land on /study/[sessionId] for the session that was actually created for them - not a hardcoded or guessed id.",
+        "The session is created through the existing vault writers (V2VAULT-001), not a new write path - no direct IndexedDB access of its own.",
+        "Starting a study twice for the same reading position does not silently create duplicate sessions - decide the dedup rule and say why.",
+        "The affordance is discoverable without needing prior knowledge of the feature - test that a learner reaches it through ordinary reading, not only through a direct URL.",
+        "Follows the existing reader component conventions rather than inventing a new interaction pattern for this one entry point.",
+        "Mutation-prove the session-creation path: making it silently swallow a write failure and navigate anyway must fail a NAMED test."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }
