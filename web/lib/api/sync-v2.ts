@@ -20,6 +20,7 @@ import {
   EPISTEMIC_BASES,
   EVIDENCE_LABELS,
   MODERN_DOMAINS,
+  MOTIF_CANDIDATE_STATUSES,
   RESPONSE_TYPES,
   STUDY_CLAIM_STATUSES,
   STUDY_SESSION_CONNECTION_STATES,
@@ -174,9 +175,20 @@ export const syncClaimEvidenceV2Schema = z
 
 /**
  * entity: "motif" — `MotifCandidate` (`lib/contracts/study-v2.ts`).
- * `status` is typed as plain text, not a guessed enum, per
- * `lib/contracts/study-v2.ts`'s documented gap #3 (neither source doc
- * enumerates its values).
+ *
+ * MOTIFSTATUS-001: `status` now validates against `MOTIF_CANDIDATE_STATUSES`
+ * (`"candidate" | "dismissed" | "promoted"`, read from `lib/db/radar.ts`'s
+ * three write sites, not guessed) instead of accepting arbitrary text — this
+ * closes the hole this task was filed to close: previously `z.string()`
+ * accepted ANY status a caller supplied, meaning a live sync push route
+ * could have set a candidate directly to `"promoted"` bypassing both
+ * guarantees `promoteMotifCandidate` exists to hold (a database-re-derived
+ * sighting count, and an explicit `learnerConfirmed: true`). Enum
+ * restriction alone is NOT sufficient — `"promoted"` is a legitimately
+ * enumerated value, just not one a sync op may ever WRITE — so
+ * `lib/db/sync-v2.ts`'s `planMotifOp` layers a second, planner-level refusal
+ * on top of this schema check for exactly that transition. See that
+ * function's own header for the full two-layer decision.
  */
 export const syncMotifCandidateV2Schema = z
   .object({
@@ -184,7 +196,7 @@ export const syncMotifCandidateV2Schema = z
     workspaceId: z.string().min(1).max(200),
     label: z.string().trim().min(1).max(500),
     normalizedKey: z.string().trim().min(1).max(500),
-    status: z.string().trim().min(1).max(200),
+    status: z.enum(MOTIF_CANDIDATE_STATUSES),
     revision: z.number().int().nonnegative(),
     createdAt: timestampSchema,
     updatedAt: timestampSchema,

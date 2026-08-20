@@ -35,9 +35,20 @@
  *    named as columns in both docs, but neither document enumerates their
  *    allowed values anywhere. Typed as `string` here (not a closed union)
  *    rather than inventing a vocabulary neither doc states.
- * 3. `applications.status`, `teaching_drafts.status`, `motif_candidates.status`,
- *    `motif_sightings.status` — named as columns in both docs; no document
- *    enumerates their allowed values. Typed as `string` for the same reason.
+ * 3. `applications.status`, `teaching_drafts.status`, `motif_sightings.status`
+ *    — named as columns in both docs; no document enumerates their allowed
+ *    values. Typed as `string` for the same reason.
+ *
+ *    RESOLVED for `motif_candidates.status` (MOTIFSTATUS-001): still no
+ *    enumeration in either planning document, but the value IS enumerated in
+ *    practice — `lib/db/radar.ts` (read + confirmed, not guessed) writes
+ *    exactly three literal values to this column across its three write
+ *    sites (`persistMotifCandidates`, `dismissMotifCandidate`,
+ *    `promoteMotifCandidate`): `"candidate"`, `"dismissed"`, `"promoted"`.
+ *    `MOTIF_CANDIDATE_STATUSES` below is that vocabulary, sourced from those
+ *    three call sites rather than invented. See that constant's own comment
+ *    for why `MotifCandidate.status` itself stays `string` rather than being
+ *    narrowed to the derived union type.
  * 4. `study_sessions.mode` / `.workflowState`, and `user_connections.status` —
  *    BUILD_PLAN §3.3 names the field but does not spell out its values;
  *    THEOLOGY_MASTER_BUILD_PLAN.md §12.3 does (`mode(encounter|deep|guided)`,
@@ -238,6 +249,44 @@ export function isUserConnectionStatus(value: string): value is UserConnectionSt
   return (USER_CONNECTION_STATUSES as readonly string[]).includes(value);
 }
 
+/**
+ * `motif_candidates.status` (MOTIFSTATUS-001, resolving gap #3's
+ * `motif_candidates` half above). Neither planning document enumerates this
+ * field, so — unlike every other enum in this file — these three values are
+ * NOT transcribed from BUILD_PLAN/THEOLOGY_MASTER_BUILD_PLAN prose. They are
+ * read directly from `lib/db/radar.ts`'s own three exported constants
+ * (`MOTIF_CANDIDATE_PENDING_STATUS`, `MOTIF_CANDIDATE_DISMISSED_STATUS`,
+ * `MOTIF_CANDIDATE_PROMOTED_STATUS` = `"candidate"` / `"dismissed"` /
+ * `"promoted"`), the only three literal values written to this column
+ * anywhere in the codebase (`persistMotifCandidates`, `dismissMotifCandidate`,
+ * `promoteMotifCandidate` — grep-confirmed, not guessed). `lib/db/radar.ts`
+ * types its three constants against this array so the two can never drift.
+ *
+ * `MotifCandidate.status` below is deliberately left `string`, NOT narrowed
+ * to `MotifCandidateStatus`, even though this array now exists: unlike
+ * `study_claims.status`/`user_connections.status` (backed by a real
+ * Postgres `pgEnum` column in `db/schema.ts`, built from `STUDY_CLAIM_
+ * STATUSES`/`USER_CONNECTION_STATUSES`), `db/schema.ts`'s `motif_candidates.
+ * status` column is plain `text` — `db/schema.ts` is read-only for this
+ * task, so it cannot be upgraded to a matching `pgEnum` here. Narrowing only
+ * the TypeScript field while the column stays unconstrained would be
+ * cosmetic, and would break `app/api/v2/_lib/queries.ts`'s
+ * `serializeMotifCandidate` (a file outside this task's owned/read-only
+ * paths, so unfixable from here), which assigns the column's DB-inferred
+ * `string` straight into this field. Real enforcement of this vocabulary
+ * instead lives where a value actually enters the system from a client:
+ * `lib/api/sync-v2.ts`'s `syncMotifCandidateV2Schema` (`z.enum(...)` against
+ * this array) plus `lib/db/sync-v2.ts`'s `planMotifOp`, which additionally
+ * refuses any sync op that would move a candidate INTO — or mutate one
+ * already IN — the `"promoted"` status, since promotion is the privileged
+ * SERVER transition `app/api/motifs/[id]/route.ts`'s header documents.
+ */
+export const MOTIF_CANDIDATE_STATUSES = ["candidate", "dismissed", "promoted"] as const;
+export type MotifCandidateStatus = (typeof MOTIF_CANDIDATE_STATUSES)[number];
+export function isMotifCandidateStatus(value: string): value is MotifCandidateStatus {
+  return (MOTIF_CANDIDATE_STATUSES as readonly string[]).includes(value);
+}
+
 /** BUILD_PLAN §3.3 inline list for `applications.modern_domain`. */
 export const MODERN_DOMAINS = [
   "work",
@@ -350,7 +399,11 @@ export interface MotifCandidate {
   workspaceId: string;
   label: string;
   normalizedKey: string;
-  /** No enumerated values in either source doc — see gap #3 above. */
+  /**
+   * Enumerated as of MOTIFSTATUS-001: `MOTIF_CANDIDATE_STATUSES` above.
+   * Stays `string` here rather than the narrower `MotifCandidateStatus` —
+   * see that constant's own comment for why.
+   */
   status: string;
   revision: number;
   createdAt: string;

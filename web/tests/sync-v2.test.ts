@@ -324,6 +324,27 @@ test("motif payload schema rejects a nested aggregate sightings array (the NOT-c
   assert.equal(syncMotifCandidateV2Schema.safeParse(aggregateShaped).success, false);
 });
 
+// MOTIFSTATUS-001, acceptance criterion 2: status is no longer arbitrary
+// text. This is the schema half of the fix; tests/sync-v2-persist.test.ts
+// covers the planner-level refusal of the one enumerated value ("promoted")
+// that IS valid shape but must still never be reachable via sync push.
+test("motif payload schema accepts every enumerated status value", () => {
+  for (const status of ["candidate", "dismissed", "promoted"]) {
+    const payload = { ...validMotifPayload(), status };
+    assert.equal(
+      syncMotifCandidateV2Schema.safeParse(payload).success,
+      true,
+      `expected status "${status}" to be a valid shape`,
+    );
+  }
+});
+
+test("motif payload schema rejects an off-enum status", () => {
+  const payload = { ...validMotifPayload(), status: "archived" };
+  const result = syncMotifCandidateV2Schema.safeParse(payload);
+  assert.equal(result.success, false, "an off-enum status must not validate");
+});
+
 test("evidence payload schema validates standalone, naming its parent claim via claimId", () => {
   const payload = validEvidencePayload();
   const result = syncClaimEvidenceV2Schema.safeParse(payload);

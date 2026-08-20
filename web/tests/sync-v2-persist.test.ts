@@ -633,6 +633,34 @@ function seedWorkspace(id: string, createdBy: string) {
   });
 }
 
+/**
+ * MOTIFSTATUS-001 — seeds a `motif_candidates` row DIRECTLY into the world,
+ * bypassing `pushSyncOpsV2` entirely. Necessary specifically because an
+ * already-promoted candidate is exactly the state this task makes
+ * unreachable *through* sync push (that is the bug being fixed) — the only
+ * way to set up "a candidate that is already promoted" for a test is to
+ * plant it, the same way a real promoted candidate would only ever get
+ * there via `promoteMotifCandidate` (`lib/db/radar.ts`), never via this
+ * module.
+ */
+function seedMotifCandidate(overrides: Row = {}): Row {
+  const row: Row = {
+    id: "motif-1",
+    workspaceId: "workspace-a",
+    label: "Seed of the woman",
+    normalizedKey: "seed-of-the-woman",
+    status: "candidate",
+    threadSlug: null,
+    revision: 1,
+    createdAt: TS,
+    updatedAt: TS,
+    deletedAt: null,
+    ...overrides,
+  };
+  rowsOf("motif_candidates").push(row);
+  return row;
+}
+
 // ---------------------------------------------------------------------------
 // 6. Tests
 // ---------------------------------------------------------------------------
@@ -834,4 +862,114 @@ test("delete mutation soft-deletes via deletedAt, falling back to clientTime whe
   const [row] = rowsOf("motif_candidates");
   assert.equal(row.deletedAt, TS2);
   assert.equal(row.revision, 2);
+});
+
+// ---------------------------------------------------------------------------
+// MOTIFSTATUS-001, acceptance criterion 3 — the sync planner cannot perform
+// a motif candidate promotion by the back door.
+// ---------------------------------------------------------------------------
+
+test("a sync op creating a motif candidate directly as \"promoted\" is refused, and no row is created", async () => {
+  const op = makeOp("motif", { payload: validMotifPayload({ status: "promoted" }) });
+  const rejected = await pushSyncOpsV2("user-a", [op]);
+  assert.equal(rejected.length, 1);
+  assert.match(rejected[0].reason, /privileged server transition/);
+  assert.match(rejected[0].reason, /cannot be performed via sync push/);
+  assert.equal(rowsOf("motif_candidates").length, 0, "no row may be created by a refused op");
+});
+
+test("a sync op moving an existing pending motif candidate to \"promoted\" is refused, and the stored row is unchanged", async () => {
+  const create = makeOp("motif", { opId: uuid(1) }); // status: "candidate" (validMotifPayload's default)
+  assert.deepEqual(await pushSyncOpsV2("user-a", [create]), []);
+
+  const promoteAttempt = makeOp("motif", {
+    opId: uuid(2),
+    baseRevision: 1,
+    payload: validMotifPayload({ status: "promoted", revision: 2, updatedAt: TS2 }),
+    clientTime: TS2,
+  });
+  const rejected = await pushSyncOpsV2("user-a", [promoteAttempt]);
+  assert.equal(rejected.length, 1);
+  assert.match(rejected[0].reason, /privileged server transition/);
+
+  const [row] = rowsOf("motif_candidates");
+  assert.equal(row.status, "candidate", "the candidate must stay unpromoted");
+  assert.equal(row.revision, 1, "a refused op must not advance the stored revision");
+});
+
+test("a sync op against an already-promoted motif candidate is refused outright, even one that never touches status", async () => {
+  seedMotifCandidate({ status: "promoted", threadSlug: "seed-of-the-woman", revision: 3 });
+
+  // This op does not even try to change `status` -- it re-sends "promoted"
+  // unchanged and only edits `label`. Immutability is total, not merely a
+  // block on the specific field.
+  const relabelAttempt = makeOp("motif", {
+    baseRevision: 3,
+    payload: validMotifPayload({ status: "promoted", label: "A different label", revision: 4, updatedAt: TS2 }),
+    clientTime: TS2,
+  });
+  const rejected = await pushSyncOpsV2("user-a", [relabelAttempt]);
+  assert.equal(rejected.length, 1);
+  assert.match(rejected[0].reason, /already promoted/);
+  assert.match(rejected[0].reason, /immutable via sync push/);
+
+  const [row] = rowsOf("motif_candidates");
+  assert.equal(row.label, "Seed of the woman", "the row must be completely unchanged, not just status");
+  assert.equal(row.revision, 3);
+});
+
+test("a sync op cannot launder a downgrade: an already-promoted candidate cannot be pushed back to \"dismissed\"", async () => {
+  seedMotifCandidate({ status: "promoted", threadSlug: "seed-of-the-woman", revision: 2 });
+
+  const downgradeAttempt = makeOp("motif", {
+    baseRevision: 2,
+    payload: validMotifPayload({ status: "dismissed", revision: 3, updatedAt: TS2 }),
+    clientTime: TS2,
+  });
+  const rejected = await pushSyncOpsV2("user-a", [downgradeAttempt]);
+  assert.equal(rejected.length, 1);
+  assert.match(rejected[0].reason, /already promoted/);
+
+  const [row] = rowsOf("motif_candidates");
+  assert.equal(row.status, "promoted", "a promoted candidate must never be downgraded via sync push");
+});
+
+test("candidate -> dismissed remains a legitimate client-drivable transition (only \"promoted\" is server-owned)", async () => {
+  const create = makeOp("motif", { opId: uuid(1) }); // status: "candidate"
+  assert.deepEqual(await pushSyncOpsV2("user-a", [create]), []);
+
+  const dismiss = makeOp("motif", {
+    opId: uuid(2),
+    baseRevision: 1,
+    payload: validMotifPayload({ status: "dismissed", revision: 2, updatedAt: TS2 }),
+    clientTime: TS2,
+  });
+  assert.deepEqual(await pushSyncOpsV2("user-a", [dismiss]), []);
+
+  const [row] = rowsOf("motif_candidates");
+  assert.equal(row.status, "dismissed");
+  assert.equal(row.revision, 2);
+});
+
+test("cross-tenant: a probe against another workspace's promoted candidate gets the ordinary cross-tenant rejection, never a status-revealing one", async () => {
+  // workspace-a's candidate is already promoted -- real state user-b must
+  // never be able to learn anything about.
+  seedMotifCandidate({ id: "victim-motif", workspaceId: "workspace-a", status: "promoted", revision: 5 });
+
+  // user-b legitimately owns workspace-b, and claims workspace-b as the
+  // op's workspaceId (so the FIRST ownership gate passes) -- but names the
+  // victim's entityId, which actually belongs to workspace-a.
+  const probe = makeOp("motif", {
+    entityId: "victim-motif",
+    baseRevision: null,
+    payload: validMotifPayload({ id: "victim-motif", workspaceId: "workspace-b" }),
+  });
+  const rejected = await pushSyncOpsV2("user-b", [probe]);
+  assert.equal(rejected.length, 1);
+  assert.match(rejected[0].reason, /Entity ID belongs to another workspace/);
+  assert.doesNotMatch(rejected[0].reason, /promoted/, "the rejection must not leak the victim row's real status");
+
+  const [row] = rowsOf("motif_candidates");
+  assert.equal(row.status, "promoted", "the victim row itself must be completely untouched");
+  assert.equal(row.revision, 5);
 });
