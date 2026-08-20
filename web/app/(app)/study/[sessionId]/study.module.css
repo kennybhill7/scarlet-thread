@@ -1,0 +1,32 @@
+.wrap {
+  padding: calc(20px + var(--safe-top)) var(--pad-page) 24px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.eyebrow {
+  font-family: var(--font-label);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--gold);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 24px;
+  color: var(--shell-text);
+  margin: 4px 0 6px;
+}
+
+.setupNotice {
+  margin-top: 16px;
+  padding: 16px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--shell-muted-2);
+  border: 1px solid var(--shell-border);
+  border-radius: 8px;
+}
