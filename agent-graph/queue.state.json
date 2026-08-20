@@ -280,28 +280,55 @@
       "notes": "Merged. Handlers for the two new entities added during integration."
     },
     "V2API-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/V2API-001-local",
+      "commitSha": "2d87d10",
       "attempts": 0,
       "lastRunId": "interactive-2026-08-20-am",
-      "notes": "Seeded 2026-08-20 00:35 for the overnight run. Phase 1 continuation: the missing links between an authenticated session and a usable v2 data layer."
+      "lastEvidence": "MERGED to master in 4beb280 after independent verification. Combined suite 481/481, 0 skipped; typecheck/lint/build clean; drizzle-kit check fine. | Five GET-only routes: sessions, sessions/[id], claims, claims/[id], claims/[id]/evidence. Every route resolves the workspace from the SESSION and never from the caller - a query-param workspace-smuggling attempt is one of the hostile tests. Non-GET verbs across all five routes are refused through the SYNCV2-001 imported predicate rather than a second hand-rolled check, so the one-write-path rule keeps ONE implementation and cannot drift. | VERIFIED INDEPENDENTLY: I removed the workspace predicate from the claim lookup and four named cross-tenant tests failed, including the symmetric B-cannot-read-A case; restored byte-identical, green. | Honest residual it reported itself: list routes do not yet filter soft-deleted rows, and only 3 of the 8 v2 entities have read routes. Queued as V2API-002.",
+      "notes": "Merged. Phase 2 UI now has something to read."
     },
     "RADARPERSIST-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/RADARPERSIST-001-local",
+      "commitSha": "0f37f6c",
       "attempts": 0,
       "lastRunId": "interactive-2026-08-20-am",
-      "notes": "Seeded 2026-08-20 00:35 for the overnight run. Phase 1 continuation: the missing links between an authenticated session and a usable v2 data layer."
+      "lastEvidence": "MERGED to master in 4beb280 after independent verification. Combined suite 481/481, 0 skipped; typecheck/lint/build clean; drizzle-kit check fine. | Motif candidates and sightings persist; promotion is ONE batched transaction that creates the thread and rewrites all three sightings together or does nothing, proven by forcing a collision on the last batch item and asserting the world is byte-identical to its pre-attempt snapshot. | The product rule holds: three sightings only OFFER promotion. VERIFIED INDEPENDENTLY: I disabled the learnerConfirmed guard and \"promotion without an explicit learner confirmation is refused and changes nothing\" failed ALONE; restored, green. All 12 original radar tests pass unedited - it extended computeMotifCandidates rather than replacing it. | REPORTED, NOT SMUGGLED (SCOPE-BOUNDARY-001): motif_candidates has no column for the thread a promoted candidate became, so the thread slug is derived deterministically from the normalized key. Queued as MOTIFTHREAD-001.",
+      "notes": "Merged. The learner-facing confirm/dismiss UI and its route are still unbuilt - queued as RADARUI-001."
     },
     "MIGORDER-001": {
-      "status": "building",
+      "status": "done",
+      "branch": "agent/MIGORDER-001-local",
+      "commitSha": "d451f28",
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-20-am",
+      "lastEvidence": "MERGED to master in 4beb280 after independent verification. Combined suite 481/481, 0 skipped; typecheck/lint/build clean; drizzle-kit check fine. | THE DEPLOY BLOCKER IS CLOSED. It reproduced the failure against a real disposable Postgres first, then reordered the FK statements in place inside 0006/0007. | I asked for a forward migration instead of in-place edits and it argued back CORRECTLY: a later-numbered file cannot fix an ordering bug inside an earlier file that aborts before the later file is ever read. Each migration applies in one transaction, so a database that hit the error rolled the file back and never wrote its journal row - no database can be holding the old bytes. That argument only holds while no migration has ever been applied anywhere, which is true today (no credentials, no successful deploy). If that changes, the altered file hashes need a human look. | VERIFIED INDEPENDENTLY, not taken on report: I reverted 0006/0007 to their pre-fix bytes and tests/migration-order.test.ts failed by name, then passed again once restored byte-identical. The checker also refuses a PARTIAL unique index as backing an FK, which Postgres would reject too. | Also closes the race WORKSPACE-001 honestly reported it could not: workspaces.created_by gains a partial unique index (0008) scoped to personal AND not-deleted, so a soft-deleted workspace does not permanently block a replacement, and getOrCreatePersonalWorkspace now uses a real ON CONFLICT against it.",
+      "notes": "Merged. Deployment is no longer blocked by migrations; the remaining blocker is credentials plus the Vercel root directory (OPS-001)."
+    },
+    "MOTIFTHREAD-001": {
+      "status": "ready",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": "interactive-2026-08-20-am",
-      "notes": "Seeded 2026-08-20 from a REAL deploy blocker TRIGGER-001 found by running an actual Postgres, plus the race-proofing WORKSPACE-001 honestly reported it could not do."
+      "lastRunId": null,
+      "notes": "Seeded 2026-08-20 from wave 7. Each came from a gap a builder reported honestly rather than papering over."
+    },
+    "V2API-002": {
+      "status": "ready",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "notes": "Seeded 2026-08-20 from wave 7. Each came from a gap a builder reported honestly rather than papering over."
+    },
+    "RADARUI-001": {
+      "status": "ready",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "notes": "Seeded 2026-08-20 from wave 7. Each came from a gap a builder reported honestly rather than papering over."
     }
   }
 }

@@ -1034,6 +1034,110 @@
         "cd web; npm.cmd exec drizzle-kit check"
       ],
       "humanGates": []
+    },
+    {
+      "id": "MOTIFTHREAD-001",
+      "title": "Store the thread a promoted motif became, instead of deriving it from the slug",
+      "objective": "RADARPERSIST-001 reported honestly that neither motif_candidates nor motif_sightings has a column recording which threads row a promoted candidate became - unlike user_connections, which has threadSlug. It worked around this in scope by making the created thread slug deterministic (equal to the candidate normalized key) and raising MotifThreadSlugCollisionError when that slug is already taken. That is a real workaround, not a fix: it couples the thread identity to a derived string, and a learner who already has a thread by that name hits an error instead of a promotion.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/db/schema.ts",
+        "web/db/migrations/",
+        "web/lib/db/radar.ts",
+        "web/tests/radar-persist.test.ts",
+        "web/tests/schema-followups.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/db/threads.ts",
+        "web/lib/contracts/study-v2.ts",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "An ADDITIVE, NULLABLE thread_slug (or thread_id) column on motif_candidates, in a NEW forward migration - do not edit an applied migration. Nullable because an unpromoted candidate has no thread.",
+        "promoteMotifCandidate writes that column inside the SAME batch as the rest of the promotion, so a promoted candidate can never exist without its thread reference. Test that partial state is impossible.",
+        "The deterministic-slug coupling is removed: the thread slug no longer has to equal the normalized key, and a learner whose existing thread happens to share that name can still promote. Keep or delete MotifThreadSlugCollisionError as the new design dictates and say which.",
+        "The new migration passes tests/migration-order.test.ts (MIGORDER-001 built it) - no FK before its backing unique index.",
+        "All existing radar and radar-persist tests keep passing unweakened; where one asserts the derived-slug behavior this task deliberately removes, update it explicitly and say so."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test",
+        "cd web; npm.cmd exec drizzle-kit check"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "V2API-002",
+      "title": "Complete the v2 read surface: remaining entities, soft-delete filtering, pagination",
+      "objective": "V2API-001 built the acceptance-criteria minimum (sessions, claims, claim evidence) and reported three honest gaps: five of the eight v2 sync entities have no read route; list routes return soft-deleted rows because they do not filter deletedAt, unlike lib/db/entries.ts which has an includeDeleted pattern; and list endpoints have no pagination. The soft-delete gap is the one that matters most - a learner who deletes a claim would still see it in a v2 list response.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/app/api/v2/",
+        "web/tests/v2-api.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/api/response.ts",
+        "web/lib/api/sync-v2.ts",
+        "web/lib/db/workspaces.ts",
+        "web/lib/db/entries.ts",
+        "web/db/schema.ts",
+        "web/lib/contracts/sync-v2.ts"
+      ],
+      "acceptanceCriteria": [
+        "Soft-deleted rows are excluded from every v2 list and get response by default, following the includeDeleted convention lib/db/entries.ts already established rather than inventing a second one. A test proves a soft-deleted row is absent from a list and 404s on a get.",
+        "Read routes exist for the remaining v2 entities a workspace UI needs - motif candidates and their sightings, connections, applications, teaching drafts - GET only, same guard, same imported one-write-path predicate. No second hand-rolled check.",
+        "Every new route gets the same hostile two-account treatment V2API-001 applied: account A cannot read account B rows through any of them, proven per route, and the workspace is never taken from the caller.",
+        "List endpoints get a bounded page size with a stated default and maximum, so a large workspace cannot return an unbounded response. Say what you chose.",
+        "Extend the existing M1 mutation-prove test so it covers the NEW queries too - a tautology substitution must make the new cross-tenant tests leak, not just the original five.",
+        "All 14 existing v2-api tests keep passing unweakened."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "RADARUI-001",
+      "title": "Wire the motif radar to the learner: offer, confirm, dismiss",
+      "objective": "RADARPERSIST-001 built persistMotifCandidates, dismissMotifCandidate and promoteMotifCandidate but nothing calls them - promotion requires learnerConfirmed true and no UI supplies it, so the whole third-sighting mechanic is currently unreachable. This is the seam between the radar and the person using it, and it is the first place the teaching-app pivot becomes visible: the app OFFERS a pattern it noticed and the learner decides, rather than the app asserting a connection.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/app/api/motifs/",
+        "web/app/review/page.tsx",
+        "web/components/motif-radar.tsx",
+        "web/tests/motif-ui.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/db/radar.ts",
+        "web/lib/api/response.ts",
+        "web/app/api/v2/_lib/guard.ts",
+        "web/lib/db/workspaces.ts",
+        "BUILD_PLAN.md",
+        "docs/decisions/2026-08-18-teaching-not-theology.md"
+      ],
+      "acceptanceCriteria": [
+        "A route exposes the offered candidates for the acting workspace and accepts exactly two learner actions: confirm promotion, and dismiss. It supplies learnerConfirmed true ONLY from an explicit learner action, never as a default or a convenience.",
+        "This is a MUTATION path, so it must respect BUILD_PLAN tenet 7 - decide and state plainly whether these actions go through sync push like every other write, or whether promotion is a genuine exception, and make the code match the decision. Do not leave the docs and the code disagreeing.",
+        "The UI wording OFFERS rather than asserts, per the teaching-not-theology decision record: it says what pattern was noticed and asks the learner, and never tells the learner what the pattern means. Quote your chosen wording in the commit.",
+        "Dismissing is visibly non-destructive to the learner - the underlying entries and sightings survive and the UI says so, since a learner who fears losing work will not use the feature.",
+        "Hostile test: a confirm or dismiss naming another workspace candidate id is refused.",
+        "Mutation-prove the confirmation path: making the route pass learnerConfirmed unconditionally must fail a named test."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }
