@@ -259,6 +259,25 @@ export function promoteReadiness(
 // reject.
 // ---------------------------------------------------------------------------
 
+/**
+ * Field-for-field identical to `components/reader/StudyEntry.tsx`'s own
+ * `buildNewStudySession` (an ownedPath here as of READGATE-001, previously
+ * readOnly) — same seven fixed fields, same values, deliberately a SEPARATE,
+ * LOCAL copy rather than a shared import (see that file's own comment for
+ * why: importing this component's `Button`/`Field` UI dependencies into
+ * `ChapterReader.tsx`'s module graph would break two of that file's own
+ * unrelated existing tests). `tests/study-entry.test.ts` asserts the two
+ * builders' `currentStep` values stay identical to each other (READGATE-001
+ * acceptance criterion 1), so a future edit to one that forgets the other
+ * fails loudly there.
+ *
+ * READGATE-001 (2026-08-20): `currentStep` changed from `"observe"` to
+ * `"read"` — a freshly-started session must land on Read, never skip
+ * straight to Observe, so the passage-read gate (`lib/workspace/
+ * renderState.ts`'s `isPassageMarkedRead`) is enforced in UI state rather
+ * than relying on the learner having already read before tapping "start a
+ * study" (BUILD_PLAN tenet 1).
+ */
 export function buildStudySessionDraft(params: {
   id: string;
   workspaceId: string;
@@ -274,7 +293,7 @@ export function buildStudySessionDraft(params: {
     connectionState: "unexamined",
     catalogReleaseId: null,
     readGateAt: null,
-    currentStep: "observe",
+    currentStep: "read",
     revision: 1,
     createdAt: params.now,
     updatedAt: params.now,

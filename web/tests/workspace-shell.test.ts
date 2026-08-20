@@ -369,20 +369,43 @@ test("isPassageMarkedRead is false for null/undefined readGateAt, true once set"
   assert.equal(isPassageMarkedRead({ readGateAt: "2026-01-01T00:00:00.000Z" }), true);
 });
 
-test("buildReadGateUpdate sets readGateAt, bumps revision, updates updatedAt, and does NOT touch currentStep", () => {
+test("buildReadGateUpdate sets readGateAt, bumps revision, updates updatedAt, and leaves an already-advanced currentStep untouched", () => {
   const session = sampleSession({ readGateAt: null, revision: 1, currentStep: "observe" });
   const updated = buildReadGateUpdate(session, "2026-02-01T00:00:00.000Z");
   assert.equal(updated.readGateAt, "2026-02-01T00:00:00.000Z");
   assert.equal(updated.revision, 2);
   assert.equal(updated.updatedAt, "2026-02-01T00:00:00.000Z");
-  assert.equal(updated.currentStep, "observe", "marking read must not silently change currentStep");
+  assert.equal(
+    updated.currentStep,
+    "observe",
+    "a session already past the read step must not be moved by marking read again",
+  );
+});
+
+// READGATE-001 acceptance criterion 3 — marking read also advances
+// currentStep from "read" to "observe" in the SAME write, scoped to ONLY
+// that one transition.
+test("buildReadGateUpdate: a session sitting on 'read' advances to 'observe' in the same write that sets readGateAt", () => {
+  const session = sampleSession({ readGateAt: null, revision: 1, currentStep: "read" });
+  const updated = buildReadGateUpdate(session, "2026-02-01T00:00:00.000Z");
+  assert.equal(updated.readGateAt, "2026-02-01T00:00:00.000Z");
+  assert.equal(updated.currentStep, "observe", "marking read must advance a fresh session off the Read step");
+});
+
+test("buildReadGateUpdate: currentStep values other than 'read' are never touched by this transition (scoped to read->observe only)", () => {
+  for (const currentStep of ["context", "connect", "theology", "conviction", "apply", "teach"] as const) {
+    const session = sampleSession({ readGateAt: null, revision: 1, currentStep });
+    const updated = buildReadGateUpdate(session, "2026-02-01T00:00:00.000Z");
+    assert.equal(updated.currentStep, currentStep, `currentStep "${currentStep}" must not be reassigned`);
+  }
 });
 
 test("buildReadGateUpdate is idempotent: a second call keeps the ORIGINAL readGateAt, still bumps revision", () => {
-  const first = buildReadGateUpdate(sampleSession({ readGateAt: null, revision: 1 }), "2026-02-01T00:00:00.000Z");
+  const first = buildReadGateUpdate(sampleSession({ readGateAt: null, revision: 1, currentStep: "read" }), "2026-02-01T00:00:00.000Z");
   const second = buildReadGateUpdate(first, "2026-02-02T00:00:00.000Z");
   assert.equal(second.readGateAt, "2026-02-01T00:00:00.000Z", "readGateAt must not be overwritten by a later mark-as-read");
   assert.equal(second.revision, 3);
+  assert.equal(second.currentStep, "observe", "the first call's read->observe advance must not be reverted by the second call");
 });
 
 // ===========================================================================
@@ -402,17 +425,44 @@ test("RENDER: all eight sections appear, each naming both its plain label and it
   }
 });
 
-test("RENDER: the real ClaimComposer mounts unmodified in Observe, headline and range both present", () => {
-  const html = render({ session: sampleSession({ currentStep: "observe", readGateAt: null }) });
+test("RENDER: the real ClaimComposer mounts unmodified in Observe once the passage is marked read, headline and range both present", () => {
+  const html = render({
+    session: sampleSession({ currentStep: "observe", readGateAt: "2026-01-01T06:00:00.000Z" }),
+  });
   assert.ok(html.includes("What did you notice in the text?"), "ClaimComposer headline missing");
   assert.ok(html.includes("1.3.1"), "range did not reach the composer");
 });
 
-test("RENDER: Observe's ClaimComposer mounts even when the read gate is NOT set (production reality + frozen test fixture)", () => {
-  const html = render({ session: sampleSession({ currentStep: "observe", readGateAt: null }) });
-  assert.ok(html.includes("What did you notice in the text?"));
-  // The section is honestly marked locked at the same time — nothing hides that fact.
-  assert.ok(html.includes(">Locked<"), "locked badge should still show for an ungated Observe section");
+// READGATE-001, acceptance criteria 2 and 4 — the actual regression this
+// task exists to fix, at the component level (see tests/study-page.test.ts's
+// own "READGATE" section for the same proof through the full page
+// pipeline). This DELIBERATELY REVERSES what this exact test used to assert
+// before this task (Observe's ClaimComposer mounting regardless of the read
+// gate) — see this file's own header and lib/workspace/renderState.ts's for
+// why that reversal is safe now that StudyEntry.tsx/ClaimComposer.tsx no
+// longer mint fresh sessions already sitting on Observe.
+test("RENDER: Observe's ClaimComposer does NOT mount while the read gate is NOT set -- the honest why-locked notice shows instead", () => {
+  const html = render({ session: sampleSession({ currentStep: "read", readGateAt: null }) });
+  assert.ok(
+    !html.includes("What did you notice in the text?"),
+    "the real composer must not render before the passage is marked read",
+  );
+  assert.ok(html.includes(">Locked<"), "the locked badge should still show for a gated Observe section");
+  assert.ok(
+    html.includes('data-testid="observe-locked"'),
+    "Observe should show its own why-locked notice, not a bare disabled control with no explanation",
+  );
+});
+
+test("RENDER: Observe's why-locked notice disappears and the real composer appears in the SAME render once readGateAt is set", () => {
+  const locked = render({ session: sampleSession({ currentStep: "read", readGateAt: null }) });
+  const unlocked = render({
+    session: sampleSession({ currentStep: "observe", readGateAt: "2026-01-01T06:00:00.000Z" }),
+  });
+  assert.ok(locked.includes('data-testid="observe-locked"'));
+  assert.ok(!locked.includes("What did you notice in the text?"));
+  assert.ok(!unlocked.includes('data-testid="observe-locked"'));
+  assert.ok(unlocked.includes("What did you notice in the text?"));
 });
 
 test("RENDER: a locked section shows its own named 'why locked' explanation text", () => {

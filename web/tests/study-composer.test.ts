@@ -525,7 +525,7 @@ test("promoteReadiness: a non-theology claim is never blocked by doctrineStatus"
 // 6. Record builders
 // ===========================================================================
 
-test("buildStudySessionDraft: structural defaults, exact shape", () => {
+test("buildStudySessionDraft: structural defaults, exact shape (READGATE-001: currentStep is now 'read', not 'observe')", () => {
   const range = sampleRange();
   const session = buildStudySessionDraft({ id: "session-1", workspaceId: "ws-1", range, now: "2026-08-20T00:00:00.000Z" });
   assert.deepEqual(session, {
@@ -537,7 +537,7 @@ test("buildStudySessionDraft: structural defaults, exact shape", () => {
     connectionState: "unexamined",
     catalogReleaseId: null,
     readGateAt: null,
-    currentStep: "observe",
+    currentStep: "read",
     revision: 1,
     createdAt: "2026-08-20T00:00:00.000Z",
     updatedAt: "2026-08-20T00:00:00.000Z",

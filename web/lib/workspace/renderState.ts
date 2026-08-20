@@ -7,45 +7,59 @@
  * never a parallel test-only reimplementation.
  *
  * ---------------------------------------------------------------------------
- * WHY "LOCKED" NEVER REMOVES CONTENT FROM THE DOM HERE (read before changing
- * `computeWorkspaceSections`):
+ * WHY "LOCKED" GENERALLY DOES NOT REMOVE CONTENT FROM THE DOM HERE — EXCEPT
+ * OBSERVE, AS OF READGATE-001 (read before changing `computeWorkspaceSections`
+ * or `WorkspaceShell.tsx`'s Observe branch):
  *
  * `lib/workspace/gating.ts` answers "has this section's curated help been
- * earned yet?" truthfully. This module deliberately does NOT use that
- * answer to decide whether a section's real content (the Read
- * mark-as-read control, the mounted `ClaimComposer`) appears in the page at
- * all — only whether a "why this is locked" explanation is ALSO shown
- * alongside it. Three independent reasons, all binding:
+ * earned yet?" truthfully. For six of the eight sections (Context, Connect,
+ * Theology, Conviction, Apply, Teach — the placeholders) and for Read, this
+ * module still does NOT use that answer to decide whether a section's real
+ * content appears in the page at all — only whether a "why this is locked"
+ * explanation is ALSO shown alongside it (accessible-accordion practice:
+ * keeping every panel's real content in the DOM, toggling only visibility/
+ * expansion, is the standard pattern for a JS-optional, screen-reader-
+ * friendly disclosure widget).
  *
- *   1. Production reality: `components/reader/StudyEntry.tsx` (readOnlyPath
- *      here) creates every new v2 session with `currentStep: "observe"` and
- *      `readGateAt: null` in the SAME object literal — a freshly started
- *      session is, by the app's own existing behavior, already sitting on
- *      the Observe step before the read gate is set. A shell that hard-hid
- *      `ClaimComposer` whenever `readGateAt` is null would strand the
- *      learner at the very first screen this repo's own code puts them on,
- *      for a step this task does not own the fix to (StudyEntry.tsx is
- *      read-only here).
- *   2. `tests/study-page.test.ts` (frozen, read-only, must keep passing
- *      unweakened per this task's acceptance criteria) exercises exactly
- *      that fixture — `sampleSession()`'s `readGateAt: null`,
- *      `currentStep: "observe"` — and asserts the real `ClaimComposer`
- *      renders (`COMPOSER_HEADLINE` in the HTML). There is no way to
- *      satisfy that frozen assertion AND hard-gate Observe's content on
- *      `readGateAt` at the same time.
- *   3. Accessible-accordion practice: keeping every panel's real content in
- *      the DOM (toggling only visibility/expansion) rather than
- *      conditionally unmounting it is the standard pattern for a
- *      JS-optional, screen-reader-friendly disclosure widget, and matches
- *      criterion 3's own instruction — "never a bare disabled control with
- *      NO EXPLANATION" implies the explanation is additive, not a
- *      replacement for content.
+ * OBSERVE IS THE ONE DELIBERATE EXCEPTION (READGATE-001, 2026-08-20): Ken
+ * decided, in response to WORKSPACESHELL-001 explicitly surfacing this as an
+ * open product question rather than resolving it silently, that BUILD_PLAN
+ * tenet 1 ("read before you write... enforced in UI state, not honor
+ * system") must be honored for real. The reasoning WORKSPACESHELL-001
+ * recorded here for leaving Observe's content unconditional no longer holds,
+ * and is corrected rather than left standing:
  *
- * The `contentMode` a section renders is therefore a plain function of WHICH
- * step it is, never of `unlocked`. `unlocked` (and its `explanation`) drives
- * two things only: whether the "locked" notice is shown, and which section
- * is expanded by default (the session's own `currentStep` — see
- * `computeWorkspaceSections` below).
+ *   1. Production reality has changed: `components/reader/StudyEntry.tsx`
+ *      and `components/study/ClaimComposer.tsx`'s own `buildNewStudySession`/
+ *      `buildStudySessionDraft` now create every new v2 session with
+ *      `currentStep: "read"` (not `"observe"`), so a freshly started session
+ *      no longer starts sitting on Observe before the read gate is set —
+ *      there is no longer a production session this reversal could strand.
+ *   2. `tests/study-page.test.ts` and `tests/study-composer.test.ts` are no
+ *      longer frozen against the old `readGateAt: null` -> composer-renders
+ *      fixture — READGATE-001 explicitly authorizes and requires updating
+ *      that exact assumption in both files.
+ *   3. Accessible-accordion practice does not require every section's LIVE,
+ *      WRITE-CAPABLE surface to be reachable before its own stated
+ *      prerequisite is met — it requires the reader not be lied to. Observe
+ *      still shows its lock notice (same as every other locked section) when
+ *      not yet unlocked; what changes is that the real `ClaimComposer` no
+ *      longer mounts alongside that notice while the passage has not been
+ *      marked read (`isPassageMarkedRead(session)`, below) — an honor-system
+ *      gate on the app's very first authoring surface undercuts the app's
+ *      central premise, and BUILD_PLAN tenet 1 is fixed for every phase, not
+ *      a detail this shell gets to relax.
+ *
+ * Concretely: `computeWorkspaceSections`'s `contentMode` for Observe stays
+ * `"observe"` regardless of lock state (it still describes WHICH kind of
+ * real surface this section HAS, independent of visibility — the six
+ * placeholder sections are unaffected by any of this, and Read remains
+ * always-open and ungated exactly as before). `WorkspaceShell.tsx` is the
+ * layer that now additionally checks `isPassageMarkedRead(session)` before
+ * mounting the real `ClaimComposer` inside a `contentMode === "observe"`
+ * section, and renders the same kind of honest "why locked" treatment the
+ * placeholder sections already use otherwise — see that file's own header
+ * comment for the render-side half of this.
  * ---------------------------------------------------------------------------
  */
 
@@ -166,15 +180,27 @@ export function readLinkParams(range: CanonicalRangeV1): { book: number; chapter
 /**
  * The updated `StudySession` record "mark as read" writes. Idempotent by
  * design (`readGateAt ?? now`): a second click after the gate is already set
- * does not overwrite the original timestamp. Only `readGateAt`, `revision`,
- * and `updatedAt` change — `currentStep` is left exactly as it was; this
- * task does not add a currentStep auto-advance behavior (out of scope —
- * see this task's commit message and WorkspaceShell.tsx's own header).
+ * does not overwrite the original timestamp.
+ *
+ * READGATE-001 (2026-08-20), acceptance criterion 3: this write ALSO
+ * advances `currentStep` from `"read"` to `"observe"` in the same update —
+ * ONLY that one transition. A session already sitting on any step other
+ * than `"read"` (the learner has already moved on, e.g. by using an
+ * accordion section directly) keeps its own `currentStep` untouched; this
+ * function never moves a session backward, and never invents auto-advance
+ * behavior for any of the other six steps — that is separate, harder,
+ * future work this task deliberately does not improvise (see
+ * `WorkspaceShell.tsx`'s own header and this task's commit message). The
+ * idempotent-timestamp behavior above is unchanged: a second click after the
+ * gate is already set still only bumps `revision`/`updatedAt`, and by then
+ * `currentStep` has typically already moved past `"read"` so the `=== "read"`
+ * check below is simply false on that second call — not a special case.
  */
 export function buildReadGateUpdate(session: StudySession, now: string): StudySession {
   return {
     ...session,
     readGateAt: session.readGateAt ?? now,
+    currentStep: session.currentStep === "read" ? "observe" : session.currentStep,
     revision: session.revision + 1,
     updatedAt: now,
   };

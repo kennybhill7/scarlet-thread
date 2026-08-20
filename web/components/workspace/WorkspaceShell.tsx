@@ -39,16 +39,23 @@ import {
  * shell's visual polish, not an oversight.
  *
  * GATING VS. CONTENT — see `lib/workspace/renderState.ts`'s own header
- * comment for the full reasoning: `unlocked` drives ONLY the "why locked"
- * notice and which section starts expanded. It never removes a section's
- * real content from the page. Concretely, that means:
+ * comment for the full reasoning, including why Observe is now a deliberate
+ * exception (READGATE-001, 2026-08-20). `unlocked` still drives ONLY the
+ * "why locked" notice and which section starts expanded for seven of the
+ * eight sections. Concretely:
  *   - Read is always open (never gated).
- *   - Observe ALWAYS mounts the real, unmodified `ClaimComposer` — gating it
- *     on `readGateAt` would strand every session `StudyEntry.tsx` creates
- *     today (`currentStep: "observe"`, `readGateAt: null`, in the same
- *     object literal) at the very first screen, and would break
- *     `tests/study-page.test.ts`'s frozen happy-path assertion that the
- *     real composer renders for exactly that fixture.
+ *   - Observe mounts the real, unmodified `ClaimComposer` ONLY once
+ *     `isPassageMarkedRead(session)` is true. Before that, it renders the
+ *     same kind of honest "why locked" treatment the placeholder sections
+ *     use — never a bare disabled control with no explanation, and never
+ *     the live composer either. This is a REVERSAL of WORKSPACESHELL-001's
+ *     original "unlocked never removes content" decision for this one
+ *     section: that decision existed because every session StudyEntry.tsx
+ *     created back then already started on Observe with `readGateAt: null`
+ *     in the same object literal, so gating Observe's content would have
+ *     stranded the learner at the very first screen. READGATE-001 fixed the
+ *     root cause instead (new sessions now start on `currentStep: "read"`),
+ *     which is what makes gating Observe's content safe.
  *   - Context/Connect/Theology/Conviction/Apply/Teach ALWAYS render an
  *     honest "not built yet" placeholder (acceptance criterion 6) — that is
  *     the entirety of their content in this task, locked or not. Building
@@ -176,6 +183,22 @@ function PlaceholderSection({ section }: { section: SectionRenderState }) {
   );
 }
 
+/**
+ * READGATE-001 — Observe's own "why locked" treatment, shown in place of the
+ * real `ClaimComposer` while `isPassageMarkedRead(session)` is false. Same
+ * honest-placeholder style as `PlaceholderSection` above, but distinct copy:
+ * Observe IS built (unlike the six placeholder sections), so this must not
+ * claim otherwise — it explains a gate, not an absence of the feature.
+ */
+function ObserveLocked() {
+  return (
+    <p style={placeholderStyle} data-testid="observe-locked">
+      Locked until you mark this passage as read. Read comes first — use the
+      Read section above, then this composer opens.
+    </p>
+  );
+}
+
 export function WorkspaceShell({
   workspaceId,
   session: initialSession,
@@ -211,12 +234,16 @@ export function WorkspaceShell({
           ) : null}
           {section.contentMode === "observe" ? (
             <div style={bodyStyle}>
-              <ClaimComposer
-                workspaceId={workspaceId}
-                range={session.range}
-                session={session}
-                onSaved={handleClaimSaved}
-              />
+              {isPassageMarkedRead(session) ? (
+                <ClaimComposer
+                  workspaceId={workspaceId}
+                  range={session.range}
+                  session={session}
+                  onSaved={handleClaimSaved}
+                />
+              ) : (
+                <ObserveLocked />
+              )}
             </div>
           ) : null}
           {section.contentMode === "placeholder" ? <PlaceholderSection section={section} /> : null}

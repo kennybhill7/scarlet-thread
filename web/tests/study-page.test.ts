@@ -78,6 +78,24 @@ class NotFoundSignal extends Error {
 
 type SessionLike = { user?: { id?: string | null } | null } | null;
 
+/**
+ * READGATE-001 (2026-08-20): this fixture's `readGateAt` changed from `null`
+ * to an already-set timestamp. Before this task, `WorkspaceShell` mounted
+ * the real `ClaimComposer` in Observe unconditionally, so a fresh
+ * `readGateAt: null` session was a valid stand-in for "the composer is
+ * reachable" in every test below that isn't specifically about the read
+ * gate. Now Observe's real content is conditioned on
+ * `isPassageMarkedRead(session)` (`lib/workspace/renderState.ts`), so a
+ * `readGateAt: null` fixture would make every one of those tests fail for
+ * an unrelated reason (the gate, not whatever the test actually exercises —
+ * auth, workspace isolation, not-found handling). This fixture now models a
+ * session that has ALREADY passed the read gate — the ordinary "resumed
+ * study" case — so every test below keeps testing what it always tested.
+ * The one test that specifically needs `readGateAt: null` (the actual
+ * regression this task exists to fix) builds its own session below rather
+ * than relying on this shared default — see "READGATE" section near the
+ * end of this file.
+ */
 function sampleSession(overrides: Partial<StudySession> = {}): StudySession {
   return {
     id: "session-legit",
@@ -87,7 +105,7 @@ function sampleSession(overrides: Partial<StudySession> = {}): StudySession {
     workflowState: "active",
     connectionState: "unexamined",
     catalogReleaseId: null,
-    readGateAt: null,
+    readGateAt: "2026-01-01T06:00:00.000Z",
     currentStep: "observe",
     revision: 1,
     createdAt: "2026-01-01T00:00:00.000Z",
@@ -419,6 +437,54 @@ test("resolveStudyPageData has no parameter through which a caller-supplied work
   });
   assert.deepEqual(resolution, { status: "not-found" });
   assert.deepEqual(seenGetStudySessionArgs, [["workspace-legit", "workspace-attacker"]]);
+});
+
+// ===========================================================================
+// READGATE (READGATE-001 acceptance criterion 4) — THE regression test this
+// task exists to fix. A freshly created session (currentStep: "read",
+// readGateAt: null -- exactly what StudyEntry.tsx's buildNewStudySession and
+// ClaimComposer.tsx's buildStudySessionDraft now mint) must not render the
+// real ClaimComposer through the full page pipeline. Only once readGateAt is
+// set does it appear. This did not exist before this task -- the old
+// `sampleSession()` default (readGateAt: null) was asserted to render the
+// composer directly (see the HAPPY PATH test above, before this task
+// updated the fixture) precisely because the old WorkspaceShell never
+// gated Observe's content at all.
+// ===========================================================================
+
+test("READGATE: a freshly created session (currentStep: read, readGateAt: null) does NOT render the real ClaimComposer", async () => {
+  resetStubs();
+  const freshSession = sampleSession({ currentStep: "read", readGateAt: null });
+  stubs.getSessionV2 = async (workspaceId, sessionId) =>
+    workspaceId === "workspace-legit" && sessionId === "session-legit" ? freshSession : null;
+
+  const html = await renderHtml({ sessionId: "session-legit" });
+
+  assert.ok(
+    !html.includes(COMPOSER_HEADLINE),
+    `a fresh, unread session must not render the real composer:\n${html}`,
+  );
+  // Not merely absent -- honestly explained, same as every other locked
+  // section (WorkspaceShell.tsx's own "why locked" treatment).
+  assert.ok(
+    html.includes("Locked until you mark this passage as read."),
+    "Observe should show its own why-locked notice in place of the composer",
+  );
+});
+
+test("READGATE: once readGateAt is set, the same session's Observe section renders the real ClaimComposer", async () => {
+  resetStubs();
+  const readSession = sampleSession({
+    currentStep: "observe",
+    readGateAt: "2026-01-01T06:00:00.000Z",
+  });
+  stubs.getSessionV2 = async (workspaceId, sessionId) =>
+    workspaceId === "workspace-legit" && sessionId === "session-legit" ? readSession : null;
+
+  const html = await renderHtml({ sessionId: "session-legit" });
+
+  assert.ok(html.includes(COMPOSER_HEADLINE), `the composer should render once the passage is marked read:\n${html}`);
+  assert.ok(!html.includes("Locked until you mark this passage as read."));
 });
 
 // ===========================================================================
