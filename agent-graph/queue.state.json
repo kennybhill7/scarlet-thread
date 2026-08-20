@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-20T04:18:52Z",
+  "updatedAt": "1970-01-01T00:00:00.000Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -259,6 +259,38 @@
       "attempts": 0,
       "lastRunId": null,
       "notes": "Seeded 2026-08-19 from a gap the builder reported honestly rather than papering over."
+    },
+    "WORKSPACE-001": {
+      "status": "ready",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "notes": "Seeded 2026-08-20 00:35 for the overnight run. Phase 1 continuation: the missing links between an authenticated session and a usable v2 data layer."
+    },
+    "SYNCPERSIST-001": {
+      "status": "ready",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "notes": "Seeded 2026-08-20 00:35 for the overnight run. Phase 1 continuation: the missing links between an authenticated session and a usable v2 data layer."
+    },
+    "V2API-001": {
+      "status": "ready",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "notes": "Seeded 2026-08-20 00:35 for the overnight run. Phase 1 continuation: the missing links between an authenticated session and a usable v2 data layer."
+    },
+    "RADARPERSIST-001": {
+      "status": "ready",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "notes": "Seeded 2026-08-20 00:35 for the overnight run. Phase 1 continuation: the missing links between an authenticated session and a usable v2 data layer."
     }
   }
 }

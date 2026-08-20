@@ -852,6 +852,150 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "WORKSPACE-001",
+      "title": "Phase 1: workspace provisioning and repository-layer scoping",
+      "objective": "SCHEMAFU-001 added the workspaces table and FK-ed every v2 table to it, but nothing CREATES a workspace, and no repository helper resolves the acting user to one. Until that exists every v2 table is unreachable in practice. BUILD_PLAN section 3.3 says every user gets exactly one personal workspace. This is the missing link between an authenticated session and any v2 row.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/lib/db/workspaces.ts",
+        "web/tests/workspaces.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/db/schema.ts",
+        "web/lib/db/index.ts",
+        "web/lib/db/entries.ts",
+        "web/lib/auth/config.ts",
+        "web/lib/contracts/study-v2.ts",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "A function resolves an authenticated user id to their personal workspace id, creating it exactly once if absent (idempotent - calling it twice returns the same id and does not create a second row).",
+        "Concurrency is considered: two simultaneous first-time calls for the same user must not create two workspaces. Use a unique constraint or ON CONFLICT rather than a check-then-insert race, and say in the commit which you chose and why.",
+        "Every helper here takes the acting user id and scopes by it - no function may accept a workspace id from a caller without verifying it belongs to that user, since that would be a tenant-isolation hole of exactly the kind P0-001 exists to prevent.",
+        "Follow the existing lib/db/*.ts conventions (see entries.ts and threads.ts) rather than inventing a new style.",
+        "Tests prove: creation is idempotent; a second user gets a DIFFERENT workspace; a caller cannot obtain a workspace id belonging to another user; and the no-live-database harness pattern already used by tenant-isolation.test.ts is followed so no real Postgres is needed.",
+        "Mutation-prove the isolation check: removing the ownership verification must fail a named test."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "SYNCPERSIST-001",
+      "title": "Phase 1: persist v2 sync ops (the half SYNCV2-001 deliberately deferred)",
+      "objective": "SYNCV2-001 built the v2 sync contract, validation and the one-write-path predicate, and deliberately stopped short of persistence so the wire format could be reviewed alone. This is that follow-up: apply a validated v2 op to the database. It must reuse the v1 machinery patterns already proven here - idempotent receipts, the revision cross-check accessor from SYNC-001, and tenant scoping - rather than inventing a parallel path.",
+      "baseBranch": null,
+      "dependsOn": [
+        "SYNCGAP-001"
+      ],
+      "ownedPaths": [
+        "web/lib/db/sync-v2.ts",
+        "web/tests/sync-v2-persist.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/db/sync.ts",
+        "web/lib/api/sync-v2.ts",
+        "web/lib/contracts/sync-v2.ts",
+        "web/lib/contracts/study-v2.ts",
+        "web/db/schema.ts",
+        "web/lib/db/workspaces.ts"
+      ],
+      "acceptanceCriteria": [
+        "A validated v2 op applies to its table, scoped to the acting workspace. A new file (lib/db/sync-v2.ts) rather than editing lib/db/sync.ts, so the v1 path stays byte-stable and independently reviewable.",
+        "Idempotency: replaying the same opId is accepted and applied exactly once, following the receipt pattern lib/db/sync.ts already uses.",
+        "The revision cross-check uses the ACCESSOR pattern SYNC-001 introduced - no hardcoded field name - and stays fail-closed for an entity carrying neither field.",
+        "baseRevision conflict handling is explicit: an op whose baseRevision does not match the stored revision is REJECTED with a distinguishable reason rather than silently overwriting. Long-form prose must never be silently lost - that is BUILD_PLAN tenet 4.",
+        "A mutationGroupId group applies atomically: all ops in the group commit together or none do. Test a group where one member is invalid and prove nothing from that group landed.",
+        "Cross-tenant safety: an op naming another workspace id is rejected, proven by a test in the hostile style of tenant-isolation.test.ts.",
+        "No live database: use the same in-memory harness pattern tenant-isolation.test.ts established (real query builders, recording client), not a mock that could pass while production leaks."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "V2API-001",
+      "title": "Phase 1: read-only v2 resource routes",
+      "objective": "BUILD_PLAN tenet 7 and section 3.4: v2 resource routes are READ-ONLY; every mutation goes through sync push. SYNCV2-001 made that rule an enforceable predicate but no v2 routes exist yet to apply it to. This adds them, so the workspace UI (Phase 2) has something to read.",
+      "baseBranch": null,
+      "dependsOn": [
+        "WORKSPACE-001"
+      ],
+      "ownedPaths": [
+        "web/app/api/v2/",
+        "web/tests/v2-api.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/api/response.ts",
+        "web/lib/api/sync-v2.ts",
+        "web/lib/db/workspaces.ts",
+        "web/lib/auth/config.ts",
+        "web/db/schema.ts",
+        "web/app/api/entries/route.ts"
+      ],
+      "acceptanceCriteria": [
+        "Read-only routes exist for the v2 entities a workspace UI needs (sessions, claims and their evidence at minimum). GET only.",
+        "Every route requires an authenticated session and scopes every query to the acting user workspace - never to a workspace id supplied by the caller.",
+        "Any non-GET method against these routes is rejected using the predicate SYNCV2-001 already exported, not a new hand-rolled check - the rule must have ONE implementation.",
+        "Responses use the existing lib/api/response.ts helpers so the private/no-store cache policy is inherited rather than re-specified.",
+        "Hostile tests in the style of tenant-isolation.test.ts prove account A cannot read account B rows through any new route, and that a POST/PUT/PATCH/DELETE is refused.",
+        "Mutation-prove the tenant predicate: removing it must fail a named cross-tenant test."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "RADARPERSIST-001",
+      "title": "Phase 1: persist motif candidates and the third-sighting promotion",
+      "objective": "RADAR-001 made the radar emit motif candidates as pure values and deliberately left persistence out, because the motif tables were being built in parallel. They exist now (motif_candidates, motif_sightings, both workspace-scoped). This wires them up, including the promotion transaction BUILD_PLAN section 3.5 describes: on the third genuine sighting the learner CONFIRMS, and promotion creates the thread and backfills the earlier sightings atomically.",
+      "baseBranch": null,
+      "dependsOn": [
+        "WORKSPACE-001"
+      ],
+      "ownedPaths": [
+        "web/lib/db/radar.ts",
+        "web/tests/radar-persist.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/db/schema.ts",
+        "web/lib/contracts/study-v2.ts",
+        "web/lib/db/threads.ts",
+        "web/lib/db/workspaces.ts",
+        "web/tests/radar.test.ts",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "Computed candidates persist as motif_candidates rows with their sightings, workspace-scoped, without losing the pure computeMotifCandidates function RADAR-001 built and tested - extend, do not replace.",
+        "The system NEVER auto-promotes. Promotion requires an explicit learner confirmation; reaching three sightings only makes promotion OFFERED. Test that three sightings alone create no thread.",
+        "Promotion is ONE atomic transaction: it creates the thread and rewrites all three sightings to reference it, or it does nothing. Test a mid-transaction failure and prove no partial state remains.",
+        "Dismissing a candidate never deletes the underlying observations - it marks the candidate, nothing more. Test that the entries survive.",
+        "Re-running the radar does not duplicate an existing candidate for the same normalized key in the same workspace.",
+        "All 12 existing radar tests keep passing unweakened.",
+        "No live database: follow the in-memory harness pattern from tenant-isolation.test.ts."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }
