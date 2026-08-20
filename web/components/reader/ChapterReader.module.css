@@ -160,6 +160,28 @@
   gap: 8px;
 }
 
+/* StudyEntry.tsx (STUDYENTRY-001) — its own "Study" Chip and error message,
+   styled here rather than from a CSS Module of its own; see that file's
+   import comment for why. */
+.entry {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.entryError {
+  max-width: 220px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--page-ink-3);
+  background: var(--page-card);
+  border: 1px solid var(--page-border);
+  border-radius: var(--r-sm);
+  padding: 8px 10px;
+  text-align: right;
+}
+
 .versionList {
   display: flex;
   flex-direction: column;
