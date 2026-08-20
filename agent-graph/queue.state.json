@@ -451,12 +451,13 @@
       "notes": "Merged. Phase 2 is started. The read-gate/tenet-1 question above is a genuine human decision, not a bug an agent should silently fix."
     },
     "READGATE-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/READGATE-001-local",
+      "commitSha": "5ee51a3",
       "attempts": 0,
       "lastRunId": "interactive-2026-08-20-wave15",
-      "notes": "Seeded 2026-08-20: Ken's explicit decision on the product question WORKSPACESHELL-001 surfaced rather than silently resolved. Honor tenet 1 for real -- close the gap, do not carve out an exception."
+      "lastEvidence": "MERGED to master in 4173420 after independent verification. 713/713, 0 skipped; typecheck/lint/build clean. | Implements Kens direct decision on the tenet-1 question WORKSPACESHELL-001 surfaced. A fresh session now starts on Read, not Observe (both duplicated session-builders changed together); Observe genuinely gates on the passage being marked read; marking it read auto-advances currentStep to Observe in the same write. | VERIFIED INDEPENDENTLY: I forced Observe to render unconditionally and THREE named tests failed - the page-level regression test plus both component-level render tests (locked before, unlocked after). Restored byte-identical, green. | The IDENTITY test guarding the two duplicated session builders is pinned independently to \"read\", not merely asserting the two agree with each other - has teeth even if both drifted to the same wrong value together. | The one frozen fixture that changed (readGateAt default) is handled correctly: explained inline, and the null case gets its own dedicated test rather than riding the shared default, so every other test keeps testing what it always tested.",
+      "notes": "Merged. Tenet 1 is now enforced in UI state at the guided flows entry point, as BUILD_PLAN requires."
     }
   }
 }
