@@ -389,6 +389,16 @@ test("entries.kind and stages.side (the two pre-existing enums) are unchanged", 
 //    tests that used to resolve dynamically are now PINNED to tag prefix
 //    "0006_" explicitly (migrationSqlByTagPrefix), preserving their original
 //    coverage of 0006 unchanged; new tests below cover what 0007 adds.
+//
+//    MIGORDER-001 note: for the same reason, the tests just below that used
+//    to resolve "the newest migration" dynamically to reach 0007 (added by
+//    SCHEMAFU-001) are now PINNED to tag prefix "0007_" explicitly, same as
+//    0006's tests already were — 0007 is no longer the newest either, now
+//    that 0008 (MIGORDER-001's own — see tests/workspaces.test.ts) exists on
+//    top of it. This is not a weakening: every original assertion about
+//    0007's content is unchanged, only how the file is LOCATED changed, from
+//    "last journal entry" (which silently drifts as new migrations land) to
+//    "the file whose name starts with 0007_" (which does not).
 // ---------------------------------------------------------------------------
 
 function readJournal(): { idx: number; tag: string }[] {
@@ -396,7 +406,7 @@ function readJournal(): { idx: number; tag: string }[] {
   return JSON.parse(raw).entries;
 }
 
-test("drizzle-kit generated exactly one new migration after 0006 (SCHEMAFU-001's own), and 0000-0006 are untouched, in order", () => {
+test("drizzle-kit generated exactly two new migrations after 0006 (0007 SCHEMAFU-001, 0008 MIGORDER-001), and 0000-0006 are untouched, in order", () => {
   const entries = readJournal();
   const preExisting = entries.filter((e) => e.idx <= 6);
   assert.deepEqual(
@@ -413,8 +423,15 @@ test("drizzle-kit generated exactly one new migration after 0006 (SCHEMAFU-001's
     "the pre-existing journal entries 0-6 must be untouched, in order (0006 is SCHEMAV2-001's migration, landed before this task started)",
   );
   const newEntries = entries.filter((e) => e.idx > 6);
-  assert.equal(newEntries.length, 1, "expected exactly one new migration after 0006");
-  assert.equal(newEntries[0].idx, 7);
+  assert.deepEqual(
+    newEntries.map((e) => e.tag),
+    ["0007_silly_madame_masque", "0008_workspaces_created_by_personal_live_unique"],
+    "expected exactly 0007 (SCHEMAFU-001) then 0008 (MIGORDER-001) after 0006, in order",
+  );
+  assert.deepEqual(
+    newEntries.map((e) => e.idx),
+    [7, 8],
+  );
 });
 
 function migrationSqlByTagPrefix(prefix: string): string {
@@ -427,12 +444,6 @@ function migrationSqlByTagPrefix(prefix: string): string {
   return fs
     .readFileSync(path.join(migrationsDir, file as string), "utf8")
     .replace(/\r\n/g, "\n");
-}
-
-function newMigrationSql(): string {
-  const entries = readJournal();
-  const newest = entries[entries.length - 1];
-  return migrationSqlByTagPrefix(newest.tag);
 }
 
 test("migration 0006 (SCHEMAV2-001, pinned by tag) CREATEs all eight v2 tables and touches no v1 table", () => {
@@ -498,8 +509,8 @@ test("migration files 0000-0006 contain none of SCHEMAFU-001's new table/column/
   }
 });
 
-test("the newest migration (0007, SCHEMAFU-001's own) CREATEs workspaces/teaching_sections/artifact_revisions, and re-CREATEs, DROPs, or re-defines none of the eight v2 tables or any v1 table", () => {
-  const sql = newMigrationSql();
+test("migration 0007 (SCHEMAFU-001's own, pinned by tag) CREATEs workspaces/teaching_sections/artifact_revisions, and re-CREATEs, DROPs, or re-defines none of the eight v2 tables or any v1 table", () => {
+  const sql = migrationSqlByTagPrefix("0007_");
   for (const name of SCHEMAFU_NEW_TABLE_NAMES) {
     assert.match(sql, new RegExp(`CREATE TABLE "${name}"`), `migration 0007 should CREATE TABLE "${name}"`);
   }
@@ -519,15 +530,15 @@ test("the newest migration (0007, SCHEMAFU-001's own) CREATEs workspaces/teachin
   }
 });
 
-test("the newest migration (0007) only ever ADDs — no DROP COLUMN, DROP TABLE, or ALTER COLUMN ... SET NOT NULL/TYPE appears anywhere", () => {
-  const sql = newMigrationSql();
+test("migration 0007 (pinned by tag) only ever ADDs — no DROP COLUMN, DROP TABLE, or ALTER COLUMN ... SET NOT NULL/TYPE appears anywhere", () => {
+  const sql = migrationSqlByTagPrefix("0007_");
   assert.doesNotMatch(sql, /DROP TABLE/i, "0007 must not drop any table");
   assert.doesNotMatch(sql, /DROP COLUMN/i, "0007 must not drop any column");
   assert.doesNotMatch(sql, /ALTER COLUMN/i, "0007 must not alter an existing column's type or nullability");
 });
 
-test("the newest migration (0007) adds claim_evidence.connection_id as a nullable column (ADD COLUMN, no NOT NULL)", () => {
-  const sql = newMigrationSql();
+test("migration 0007 (pinned by tag) adds claim_evidence.connection_id as a nullable column (ADD COLUMN, no NOT NULL)", () => {
+  const sql = migrationSqlByTagPrefix("0007_");
   assert.match(
     sql,
     /ALTER TABLE "claim_evidence" ADD COLUMN "connection_id" text;/,
@@ -535,13 +546,55 @@ test("the newest migration (0007) adds claim_evidence.connection_id as a nullabl
   );
 });
 
-test("the newest migration (0007) FKs every one of the eight v2 tables' workspace_id to workspaces(id)", () => {
-  const sql = newMigrationSql();
+test("migration 0007 (pinned by tag) FKs every one of the eight v2 tables' workspace_id to workspaces(id)", () => {
+  const sql = migrationSqlByTagPrefix("0007_");
   for (const name of Object.keys(V2_TABLES)) {
     assert.match(
       sql,
       new RegExp(`ALTER TABLE "${name}" ADD CONSTRAINT "[^"]+" FOREIGN KEY \\("workspace_id"\\) REFERENCES "public"\\."workspaces"\\("id"\\)`),
       `expected ${name}.workspace_id to gain a FOREIGN KEY to workspaces(id)`,
+    );
+  }
+});
+
+// ---------------------------------------------------------------------------
+// 5b. Migration 0008 (MIGORDER-001's own) — the WORKSPACE-001 follow-up: a
+//     single, additive, partial unique index. Mirrors the "pinned by tag,
+//     additive only, touches nothing else" discipline the 0006/0007 tests
+//     above already establish.
+// ---------------------------------------------------------------------------
+
+test("migration 0008 (MIGORDER-001, pinned by tag) is exactly one statement: a partial unique index on workspaces(created_by)", () => {
+  const sql = migrationSqlByTagPrefix("0008_");
+  const statements = sql
+    .split("--> statement-breakpoint")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+  assert.equal(statements.length, 1, "expected migration 0008 to be exactly one statement");
+  assert.match(
+    statements[0]!,
+    /^CREATE UNIQUE INDEX "workspaces_created_by_personal_live_idx" ON "workspaces" USING btree \("created_by"\) WHERE "workspaces"\."kind" = 'personal' AND "workspaces"\."deleted_at" IS NULL;$/,
+  );
+});
+
+test("migration 0008 only ever ADDs and touches only workspaces — no DROP/ALTER/CREATE TABLE, no other table named", () => {
+  const sql = migrationSqlByTagPrefix("0008_");
+  assert.doesNotMatch(sql, /DROP TABLE/i, "0008 must not drop any table");
+  assert.doesNotMatch(sql, /DROP COLUMN/i, "0008 must not drop any column");
+  assert.doesNotMatch(sql, /ALTER TABLE/i, "0008 must not ALTER any table (it only adds an index)");
+  assert.doesNotMatch(sql, /CREATE TABLE/i, "0008 must not create any table");
+  for (const v1Name of Object.keys(V1_TABLE_COLUMN_NAMES)) {
+    assert.doesNotMatch(
+      sql,
+      new RegExp(`"${v1Name}"`),
+      `migration 0008 must not reference v1 table "${v1Name}"`,
+    );
+  }
+  for (const v2Name of Object.keys(V2_TABLES)) {
+    assert.doesNotMatch(
+      sql,
+      new RegExp(`"${v2Name}"`),
+      `migration 0008 must not reference v2 table "${v2Name}"`,
     );
   }
 });

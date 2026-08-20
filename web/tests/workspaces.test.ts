@@ -3,20 +3,38 @@
  * v2 row: resolving a user id to their personal workspace, and refusing to
  * let a caller use a workspace id that is not theirs.
  *
+ * MIGORDER-001 update: `getOrCreatePersonalWorkspace` now issues a real
+ * `db.insert(workspaces).values(...).onConflictDoNothing({ target, where })`
+ * against `workspaces_created_by_personal_live_idx` (the partial unique
+ * index MIGORDER-001 added — see `db/schema.ts` and
+ * `db/migrations/0008_workspaces_created_by_personal_live_unique.sql`)
+ * instead of WORKSPACE-001's original `INSERT ... WHERE NOT EXISTS`, which
+ * had no unique constraint to target and could not fully close the race
+ * (see git history for that prior shape and `lib/db/workspaces.ts`'s own
+ * doc comment for the current one).
+ *
  * No live database is used (matching the in-memory harness pattern
  * `tests/tenant-isolation.test.ts` established: real query builders, a
  * recording/evaluating fake store, nothing under `lib/` stubbed). `@/lib/db`
  * is replaced in `require.cache` before `@/lib/db/workspaces` is required, so
  * every predicate below is the ACTUAL drizzle SQL `lib/db/workspaces.ts`
- * compiles — evaluated here via the real `PgDialect`, not reimplemented.
+ * compiles — evaluated here via the real `PgDialect`, not reimplemented. The
+ * fake insert below recognises ONLY the exact conflict target/predicate
+ * `getOrCreatePersonalWorkspace` emits (compiled the same way) and throws on
+ * anything else, so a change to the production statement's shape breaks
+ * this test loudly rather than passing by accident.
  *
- * What this file does NOT prove: true multi-connection concurrency safety
- * for `getOrCreatePersonalWorkspace`'s insert. That was verified separately
- * against a real local Postgres 16 instance during this task's manual
- * verification (see the queue evidence) — a fake single-threaded JS store
- * cannot demonstrate the same race a real database's MVCC snapshots can, and
- * `lib/db/workspaces.ts`'s own doc comment explains exactly why the race is
- * not fully closeable within this task's owned paths.
+ * What this file does NOT prove on its own: true multi-connection
+ * concurrency safety for the real `ON CONFLICT` clause against a live
+ * database engine — a fake single-threaded JS store cannot demonstrate the
+ * same race a real database's MVCC/index locking can. That was verified
+ * separately against a real local Postgres 18 instance as part of
+ * MIGORDER-001 (15 genuinely concurrent connections issuing this exact
+ * compiled SQL for the same `created_by`: exactly one `RETURNING` a row,
+ * the other 14 `INSERT 0 0`) — see the task's queue evidence/commit message.
+ * What this file DOES prove is that `getOrCreatePersonalWorkspace` builds
+ * that exact statement shape and handles both outcomes (own insert wins;
+ * own insert loses and reads back the winner) correctly.
  */
 
 import assert from "node:assert/strict";
@@ -24,6 +42,7 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import test from "node:test";
 
+import { Column, getTableName, is } from "drizzle-orm";
 import { PgDialect } from "drizzle-orm/pg-core";
 
 /* eslint-disable @typescript-eslint/no-explicit-any --
@@ -66,7 +85,7 @@ type Row = {
 
 const dialect = new PgDialect();
 let rows: Row[] = [];
-let executeCallCount = 0;
+let insertCallCount = 0;
 
 function compile(condition: unknown) {
   if (!condition) return null;
@@ -243,53 +262,107 @@ function makeSelectChain(fields: Record<string, unknown> | null): any {
   return chain;
 }
 
-/** Recognises ONLY the exact insert shape `getOrCreatePersonalWorkspace`
- *  emits. Anything else throws rather than silently no-opping, so a change
- *  to the production statement's shape breaks this test loudly instead of
- *  passing by accident. */
-function fakeExecute(query: unknown) {
-  executeCallCount += 1;
-  const compiled = compile(query);
-  if (!compiled) throw new Error("fake db.execute received an empty query");
-  const { sql, params } = compiled;
-  const isKnownInsert =
-    sql.includes('insert into "workspaces"') &&
-    sql.includes("where not exists") &&
-    sql.includes("returning id");
-  if (!isKnownInsert) {
-    throw new Error(
-      `fake db.execute does not recognise this statement shape: ${sql}`,
+/** The exact compiled text of `PERSONAL_LIVE_WORKSPACE` from
+ *  `lib/db/workspaces.ts` — the `ON CONFLICT ... WHERE` predicate that must
+ *  match `workspaces_created_by_personal_live_idx`'s own predicate for
+ *  Postgres to accept it as inference. Captured here (rather than
+ *  re-derived) so this test fails loudly if the production predicate ever
+ *  drifts from what the migration's index actually indexes. */
+const EXPECTED_CONFLICT_WHERE_SQL =
+  "\"workspaces\".\"kind\" = 'personal' and \"workspaces\".\"deleted_at\" is null";
+
+/** Recognises ONLY the exact `db.insert(workspaces).values(...)
+ *  .onConflictDoNothing({ target: workspaces.createdBy, where:
+ *  PERSONAL_LIVE_WORKSPACE }).returning({ id: workspaces.id })` shape
+ *  `getOrCreatePersonalWorkspace` emits — both the conflict target column
+ *  and the compiled WHERE predicate are checked against the real
+ *  `PgDialect` output, not re-implemented. Anything else throws rather than
+ *  silently no-opping, so a change to the production statement's shape (or
+ *  a drift between the ON CONFLICT predicate and the index it must match)
+ *  breaks this test loudly instead of passing by accident. Simulates a
+ *  genuine partial-unique-index conflict: an insert is rejected (and
+ *  RETURNING comes back empty) exactly when an existing row already has the
+ *  same `createdBy` with `kind = 'personal' AND deletedAt IS NULL` — the
+ *  same rule `workspaces_created_by_personal_live_idx` enforces for real. */
+function fakeInsert(table: unknown) {
+  if (getTableName(table as never) !== "workspaces") {
+    throw new Error("fake db.insert only models the workspaces table");
+  }
+  insertCallCount += 1;
+
+  let values: Row | null = null;
+  let conflictRecognised = false;
+  let returningFields: Record<string, unknown> | null | undefined;
+
+  const execute = (): Record<string, unknown>[] => {
+    if (!values) throw new Error("fake insert executed without .values()");
+    if (!conflictRecognised) {
+      throw new Error(
+        "fake insert executed without a recognised .onConflictDoNothing() call",
+      );
+    }
+    const alreadyExists = rows.some(
+      (row) =>
+        row.createdBy === values!.createdBy &&
+        row.kind === "personal" &&
+        row.deletedAt === null,
     );
-  }
-  const [id, name, createdBy, createdAt] = params as [
-    string,
-    string,
-    string,
-    string,
-  ];
-  const alreadyExists = rows.some(
-    (row) =>
-      row.createdBy === createdBy &&
-      row.kind === "personal" &&
-      row.deletedAt === null,
-  );
-  if (alreadyExists) {
-    return Promise.resolve({ rows: [] });
-  }
-  rows.push({
-    id,
-    kind: "personal",
-    name,
-    createdBy,
-    createdAt,
-    deletedAt: null,
-  });
-  return Promise.resolve({ rows: [{ id }] });
+    if (!alreadyExists) {
+      rows.push({
+        id: values.id,
+        kind: values.kind,
+        name: values.name,
+        createdBy: values.createdBy,
+        createdAt: new Date().toISOString(),
+        deletedAt: null,
+      });
+    }
+    if (returningFields === undefined) return [];
+    if (alreadyExists) return [];
+    const written = rows[rows.length - 1]!;
+    const out: Record<string, unknown> = {};
+    for (const [key, column] of Object.entries(returningFields ?? {})) {
+      const colName = (column as { name: string }).name;
+      const prop = COLUMN_BY_NAME[colName];
+      out[key] = prop ? (written[prop] ?? null) : null;
+    }
+    return [out];
+  };
+
+  const chain: any = {
+    values(input: Row) {
+      values = input;
+      return chain;
+    },
+    onConflictDoNothing(config: { target: unknown; where: unknown }) {
+      if (!is(config.target, Column) || (config.target as Column).name !== "created_by") {
+        throw new Error(
+          "fake insert only models onConflictDoNothing targeting workspaces.created_by",
+        );
+      }
+      const compiled = compile(config.where);
+      if (!compiled || compiled.sql !== EXPECTED_CONFLICT_WHERE_SQL) {
+        throw new Error(
+          `fake insert does not recognise this onConflict WHERE clause: ${compiled?.sql}`,
+        );
+      }
+      conflictRecognised = true;
+      return chain;
+    },
+    returning(fields?: Record<string, unknown>) {
+      returningFields = fields ?? null;
+      return chain;
+    },
+    then(resolve: any, reject: any) {
+      return Promise.resolve().then(execute).then(resolve, reject);
+    },
+  };
+  return chain;
 }
 
 const fakeDb = {
   select: (fields?: Record<string, unknown>) => makeSelectChain(fields ?? null),
-  execute: (query: unknown) => fakeExecute(query),
+  insert: (table: unknown) => fakeInsert(table),
 };
 
 seedModule("@/lib/db", { db: fakeDb });
@@ -302,7 +375,7 @@ const { getOrCreatePersonalWorkspace, assertWorkspaceOwnership, WorkspaceAccessD
 
 function resetStore() {
   rows = [];
-  executeCallCount = 0;
+  insertCallCount = 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -318,14 +391,14 @@ test("creates exactly one personal workspace and is idempotent on repeat calls",
   assert.equal(rows[0]?.kind, "personal");
   assert.equal(rows[0]?.deletedAt, null);
 
-  const callsBeforeSecond = executeCallCount;
+  const callsBeforeSecond = insertCallCount;
   const second = await getOrCreatePersonalWorkspace("user-1");
   assert.equal(second, first, "repeat call must return the SAME workspace id");
   assert.equal(rows.length, 1, "repeat call must not insert a second row");
   // The idempotent path is satisfied entirely by the read (findPersonalWorkspaceId);
   // it must not even attempt the insert statement.
   assert.equal(
-    executeCallCount,
+    insertCallCount,
     callsBeforeSecond,
     "an existing workspace must short-circuit before the insert statement runs",
   );
@@ -363,6 +436,29 @@ test("simultaneous first-time calls for the same user converge on one workspace"
     rows.filter((r) => r.createdBy === "user-race").length,
     1,
   );
+});
+
+test("MIGORDER-001: two concurrent first-time calls both reach the real onConflictDoNothing clause, and the loser's conflict fires instead of a duplicate row", async () => {
+  resetStore();
+  // Unlike the idempotent-repeat-call test above (whose second call
+  // short-circuits at `findPersonalWorkspaceId` before ever reaching the
+  // insert), both calls here start from an empty store, so BOTH must reach
+  // `db.insert(...).onConflictDoNothing(...)` — this is the path that only
+  // exists because MIGORDER-001 gave it a real unique-index target to
+  // conflict against. `insertCallCount === 2` proves both attempts were
+  // made; `rows.length === 1` proves exactly one of those two attempts'
+  // conflict clause actually fired rather than both silently succeeding
+  // (which is precisely the failure mode `lib/db/workspaces.ts`'s doc
+  // comment says the old `INSERT ... WHERE NOT EXISTS` shape could not
+  // rule out).
+  const [a, b] = await Promise.all([
+    getOrCreatePersonalWorkspace("user-conflict"),
+    getOrCreatePersonalWorkspace("user-conflict"),
+  ]);
+  assert.equal(insertCallCount, 2, "both concurrent callers must attempt the insert");
+  assert.equal(rows.length, 1, "exactly one insert may win; the other must hit the conflict clause");
+  assert.equal(a, b, "both callers must converge on the single winning workspace id");
+  assert.equal(rows[0]?.id, a);
 });
 
 test("a soft-deleted personal workspace does not satisfy idempotency and a fresh one is created", async () => {
