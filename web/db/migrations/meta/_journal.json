@@ -71,6 +71,13 @@
       "when": 1787236799704,
       "tag": "0009_add_motif_candidates_thread_slug",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1787248253267,
+      "tag": "0010_study_sessions_workspace_range_active_unique",
+      "breakpoints": true
     }
   ]
 }

@@ -420,6 +420,32 @@ export const studySessions = pgTable(
   (table) => [
     uniqueIndex("study_sessions_id_workspace_idx").on(table.id, table.workspaceId),
     index("study_sessions_workspace_idx").on(table.workspaceId),
+    // STUDYSESSIONRACE-001 — real database backstop for the client-side
+    // dedup rule StudyEntry.tsx's findExistingActiveSession already
+    // implements (readOnlyPath here; left untouched). That check reads
+    // this device's already-known sessions before writing, so two
+    // genuinely concurrent devices/tabs can each pass it before either has
+    // written, producing two active sessions for the identical range —
+    // documented plainly as a residual gap in StudyEntry.tsx's own header
+    // comment because db/schema.ts was read-only for STUDYENTRY-001. This
+    // partial unique index closes that at the one layer that can actually
+    // serialize concurrent writers: Postgres itself. Scoped to
+    // workflow_state = 'active' AND deleted_at IS NULL, mirroring
+    // findExistingActiveSession's own predicate exactly (workspaceId match,
+    // workflowState === "active", !deletedAt) — a closed/archived or
+    // soft-deleted session never blocks a fresh start on the same range,
+    // same as the client-side rule. `range` is a jsonb column; Postgres
+    // compares jsonb by its canonical binary form for equality (key order
+    // does not matter), so two CanonicalRangeV1 values with the same
+    // versificationId/start/end always collide here regardless of
+    // serialization order — matching findExistingActiveSession's structural
+    // (not fuzzy/overlap) equality. Same partial-unique-index shape already
+    // proven for real against Postgres by MIGORDER-001's
+    // workspaces_created_by_personal_live_idx (see lib/db/workspaces.ts) —
+    // reused here rather than inventing a new mechanism.
+    uniqueIndex("study_sessions_workspace_range_active_idx")
+      .on(table.workspaceId, table.range)
+      .where(sql`${table.workflowState} = 'active' AND ${table.deletedAt} IS NULL`),
   ],
 );
 
