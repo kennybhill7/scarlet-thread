@@ -147,14 +147,6 @@ CREATE TABLE "user_connections" (
 	CONSTRAINT "user_connections_personal_resonance_devotional_check" CHECK ("user_connections"."type" <> 'personal_resonance' OR "user_connections"."evidence_label" = 'devotional')
 );
 --> statement-breakpoint
-ALTER TABLE "applications" ADD CONSTRAINT "applications_session_workspace_fk" FOREIGN KEY ("session_id","workspace_id") REFERENCES "public"."study_sessions"("id","workspace_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "applications" ADD CONSTRAINT "applications_source_claim_workspace_fk" FOREIGN KEY ("source_claim_id","workspace_id") REFERENCES "public"."study_claims"("id","workspace_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "claim_evidence" ADD CONSTRAINT "claim_evidence_claim_workspace_fk" FOREIGN KEY ("claim_id","workspace_id") REFERENCES "public"."study_claims"("id","workspace_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "motif_sightings" ADD CONSTRAINT "motif_sightings_entry_id_entries_id_fk" FOREIGN KEY ("entry_id") REFERENCES "public"."entries"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "motif_sightings" ADD CONSTRAINT "motif_sightings_candidate_workspace_fk" FOREIGN KEY ("candidate_id","workspace_id") REFERENCES "public"."motif_candidates"("id","workspace_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "motif_sightings" ADD CONSTRAINT "motif_sightings_claim_workspace_fk" FOREIGN KEY ("claim_id","workspace_id") REFERENCES "public"."study_claims"("id","workspace_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "study_claims" ADD CONSTRAINT "study_claims_session_workspace_fk" FOREIGN KEY ("session_id","workspace_id") REFERENCES "public"."study_sessions"("id","workspace_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "teaching_drafts" ADD CONSTRAINT "teaching_drafts_session_workspace_fk" FOREIGN KEY ("session_id","workspace_id") REFERENCES "public"."study_sessions"("id","workspace_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "applications_workspace_idx" ON "applications" USING btree ("workspace_id");--> statement-breakpoint
 CREATE INDEX "claim_evidence_workspace_idx" ON "claim_evidence" USING btree ("workspace_id");--> statement-breakpoint
 CREATE INDEX "claim_evidence_claim_idx" ON "claim_evidence" USING btree ("workspace_id","claim_id");--> statement-breakpoint
@@ -171,4 +163,12 @@ CREATE UNIQUE INDEX "study_sessions_id_workspace_idx" ON "study_sessions" USING 
 CREATE INDEX "study_sessions_workspace_idx" ON "study_sessions" USING btree ("workspace_id");--> statement-breakpoint
 CREATE INDEX "teaching_drafts_workspace_idx" ON "teaching_drafts" USING btree ("workspace_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "user_connections_workspace_range_type_idx" ON "user_connections" USING btree ("workspace_id","from_range","to_range","type");--> statement-breakpoint
-CREATE INDEX "user_connections_workspace_idx" ON "user_connections" USING btree ("workspace_id");
+CREATE INDEX "user_connections_workspace_idx" ON "user_connections" USING btree ("workspace_id");--> statement-breakpoint
+ALTER TABLE "applications" ADD CONSTRAINT "applications_session_workspace_fk" FOREIGN KEY ("session_id","workspace_id") REFERENCES "public"."study_sessions"("id","workspace_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "applications" ADD CONSTRAINT "applications_source_claim_workspace_fk" FOREIGN KEY ("source_claim_id","workspace_id") REFERENCES "public"."study_claims"("id","workspace_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "claim_evidence" ADD CONSTRAINT "claim_evidence_claim_workspace_fk" FOREIGN KEY ("claim_id","workspace_id") REFERENCES "public"."study_claims"("id","workspace_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "motif_sightings" ADD CONSTRAINT "motif_sightings_entry_id_entries_id_fk" FOREIGN KEY ("entry_id") REFERENCES "public"."entries"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "motif_sightings" ADD CONSTRAINT "motif_sightings_candidate_workspace_fk" FOREIGN KEY ("candidate_id","workspace_id") REFERENCES "public"."motif_candidates"("id","workspace_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "motif_sightings" ADD CONSTRAINT "motif_sightings_claim_workspace_fk" FOREIGN KEY ("claim_id","workspace_id") REFERENCES "public"."study_claims"("id","workspace_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "study_claims" ADD CONSTRAINT "study_claims_session_workspace_fk" FOREIGN KEY ("session_id","workspace_id") REFERENCES "public"."study_sessions"("id","workspace_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "teaching_drafts" ADD CONSTRAINT "teaching_drafts_session_workspace_fk" FOREIGN KEY ("session_id","workspace_id") REFERENCES "public"."study_sessions"("id","workspace_id") ON DELETE cascade ON UPDATE no action;

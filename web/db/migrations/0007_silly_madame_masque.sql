@@ -33,15 +33,18 @@ CREATE TABLE "workspaces" (
 );
 --> statement-breakpoint
 ALTER TABLE "claim_evidence" ADD COLUMN "connection_id" text;--> statement-breakpoint
-ALTER TABLE "artifact_revisions" ADD CONSTRAINT "artifact_revisions_workspace_id_workspaces_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "public"."workspaces"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "teaching_sections" ADD CONSTRAINT "teaching_sections_workspace_id_workspaces_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "public"."workspaces"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "teaching_sections" ADD CONSTRAINT "teaching_sections_draft_workspace_fk" FOREIGN KEY ("draft_id","workspace_id") REFERENCES "public"."teaching_drafts"("id","workspace_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "workspaces" ADD CONSTRAINT "workspaces_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "artifact_revisions_workspace_idx" ON "artifact_revisions" USING btree ("workspace_id");--> statement-breakpoint
 CREATE INDEX "artifact_revisions_entity_idx" ON "artifact_revisions" USING btree ("workspace_id","entity_table","entity_id");--> statement-breakpoint
 CREATE INDEX "teaching_sections_workspace_idx" ON "teaching_sections" USING btree ("workspace_id");--> statement-breakpoint
 CREATE INDEX "teaching_sections_draft_idx" ON "teaching_sections" USING btree ("workspace_id","draft_id");--> statement-breakpoint
 CREATE INDEX "workspaces_created_by_idx" ON "workspaces" USING btree ("created_by");--> statement-breakpoint
+CREATE INDEX "claim_evidence_connection_idx" ON "claim_evidence" USING btree ("workspace_id","connection_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "teaching_drafts_id_workspace_idx" ON "teaching_drafts" USING btree ("id","workspace_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "user_connections_id_workspace_idx" ON "user_connections" USING btree ("id","workspace_id");--> statement-breakpoint
+ALTER TABLE "artifact_revisions" ADD CONSTRAINT "artifact_revisions_workspace_id_workspaces_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "public"."workspaces"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "teaching_sections" ADD CONSTRAINT "teaching_sections_workspace_id_workspaces_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "public"."workspaces"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "teaching_sections" ADD CONSTRAINT "teaching_sections_draft_workspace_fk" FOREIGN KEY ("draft_id","workspace_id") REFERENCES "public"."teaching_drafts"("id","workspace_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "workspaces" ADD CONSTRAINT "workspaces_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "applications" ADD CONSTRAINT "applications_workspace_id_workspaces_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "public"."workspaces"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "claim_evidence" ADD CONSTRAINT "claim_evidence_workspace_id_workspaces_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "public"."workspaces"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "claim_evidence" ADD CONSTRAINT "claim_evidence_connection_workspace_fk" FOREIGN KEY ("connection_id","workspace_id") REFERENCES "public"."user_connections"("id","workspace_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -51,9 +54,6 @@ ALTER TABLE "study_claims" ADD CONSTRAINT "study_claims_workspace_id_workspaces_
 ALTER TABLE "study_sessions" ADD CONSTRAINT "study_sessions_workspace_id_workspaces_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "public"."workspaces"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "teaching_drafts" ADD CONSTRAINT "teaching_drafts_workspace_id_workspaces_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "public"."workspaces"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_connections" ADD CONSTRAINT "user_connections_workspace_id_workspaces_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "public"."workspaces"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-CREATE INDEX "claim_evidence_connection_idx" ON "claim_evidence" USING btree ("workspace_id","connection_id");--> statement-breakpoint
-CREATE UNIQUE INDEX "teaching_drafts_id_workspace_idx" ON "teaching_drafts" USING btree ("id","workspace_id");--> statement-breakpoint
-CREATE UNIQUE INDEX "user_connections_id_workspace_idx" ON "user_connections" USING btree ("id","workspace_id");--> statement-breakpoint
 
 -- SCHEMAFU-001, gap (b): BUILD_PLAN.md §3.2's second enforced constraint —
 -- "devotional-labeled evidence can never back a theology claim" — was

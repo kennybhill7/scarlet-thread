@@ -57,6 +57,13 @@
       "when": 1787147400555,
       "tag": "0007_silly_madame_masque",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1787234752953,
+      "tag": "0008_workspaces_created_by_personal_live_unique",
+      "breakpoints": true
     }
   ]
 }

@@ -66,6 +66,20 @@ function columnsOf(table: object): Record<string, any> {
 //    normalizing line endings before hashing is what makes the check actually
 //    test content, matching what `git diff` itself already treats as "no
 //    difference".
+//
+//    DELIBERATE EXCEPTION (MIGORDER-001): `0006_typical_turbo.sql`'s hash
+//    below is NOT its origin/master value anymore. TRIGGER-001 discovered
+//    that file's composite FK statements were emitted BEFORE the
+//    `CREATE UNIQUE INDEX` statements those FKs require — applying it (or
+//    0007) against a fresh database fails outright with "there is no unique
+//    constraint matching given keys". MIGORDER-001 fixed this by reordering
+//    0006's statements in place — every FK statement was moved to after the
+//    index statements in the SAME FILE; every statement's TEXT is byte-
+//    identical to before, only its position moved (`git diff` on this file
+//    is a pure block move, verified in that task's commit). The hash below
+//    is that reordered file's hash, so this test still catches any FURTHER
+//    unreviewed change to 0006 from here on — it is deliberately updated
+//    once, not disabled.
 // ---------------------------------------------------------------------------
 
 const PRE_SCHEMAFU_MIGRATION_SHA256: Record<string, string> = {
@@ -75,7 +89,9 @@ const PRE_SCHEMAFU_MIGRATION_SHA256: Record<string, string> = {
   "0003_enforce_active_thread_links.sql": "324d5685991e6a86f6564c69a6d172c0f6b1daebc0347a9bc50c28d3eca6ef8f",
   "0004_minimize_sync_receipts.sql": "3990c249c22b291a322346a940079fed5904397e764fa6e16b3af6c63983e520",
   "0005_tenant_scope_sync_receipts.sql": "5215d256355bb79df9309c19eb3cb1c927f49424d8db381e78d88129743923a7",
-  "0006_typical_turbo.sql": "6ead3dee9a5608c592f7606ec7d5679db69ea704e689758cd96c046e3f221d51",
+  // MIGORDER-001: reordered in place (FK statements moved after the index
+  // statements they depend on); this is the POST-fix hash, not origin/master's.
+  "0006_typical_turbo.sql": "a5155555d1e4cdb025938a78febe29e1b4172d9ebfb826ba9f5ae2f4c2dae96d",
 };
 
 test("the seven pre-SCHEMAFU-001 migration files are content-identical to their origin/master blob (SHA-256, line-ending normalized)", () => {
@@ -132,6 +148,34 @@ test("workspaces.created_at is NOT NULL with a default; workspaces.deleted_at is
   assert.notEqual(cols.createdAt.default, undefined);
   assert.equal(cols.deletedAt.notNull, false);
   assert.equal(cols.updatedAt, undefined, "workspaces must not have updated_at — master plan §12.1 does not list one");
+});
+
+// ---------------------------------------------------------------------------
+// 0b. MIGORDER-001 — workspaces.created_by gains a PARTIAL unique index (not
+//     a plain UNIQUE(created_by)) so `lib/db/workspaces.ts`'s
+//     getOrCreatePersonalWorkspace can target it with a real ON CONFLICT.
+//     Scoped to kind='personal' AND deleted_at IS NULL: at most one LIVE
+//     personal workspace per user, but a soft-deleted one does not
+//     permanently block a replacement. Object-level proof, independent of
+//     tests/schema-v2.test.ts's SQL-text proof of the same migration.
+// ---------------------------------------------------------------------------
+
+test("workspaces.created_by has a PARTIAL unique index scoped to kind='personal' AND deleted_at IS NULL — a plain UNIQUE would wrongly block a replacement after soft-delete", () => {
+  // MUTATION PROOF (paste in the commit): remove `.where(...)` from
+  // workspaces_created_by_personal_live_idx in db/schema.ts (making it a
+  // plain, non-partial unique index) and this test fails by name.
+  const cfg = getTableConfig(schema.workspaces as any);
+  const idx = cfg.indexes.find(
+    (i: any) =>
+      i.config.unique &&
+      i.config.columns.length === 1 &&
+      i.config.columns[0].name === "created_by",
+  );
+  assert.ok(idx, "workspaces.created_by should have a unique index");
+  assert.ok(
+    (idx as any).config.where,
+    "the unique index on workspaces.created_by must be PARTIAL (have a WHERE clause), not a blanket UNIQUE(created_by)",
+  );
 });
 
 // ---------------------------------------------------------------------------

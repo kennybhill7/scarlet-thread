@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "workspaces_created_by_personal_live_idx" ON "workspaces" USING btree ("created_by") WHERE "workspaces"."kind" = 'personal' AND "workspaces"."deleted_at" IS NULL;

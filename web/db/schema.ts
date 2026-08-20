@@ -351,7 +351,20 @@ export const workspaces = pgTable(
       .notNull(),
     deletedAt: timestamp("deleted_at", { withTimezone: true, mode: "string" }),
   },
-  (table) => [index("workspaces_created_by_idx").on(table.createdBy)],
+  (table) => [
+    index("workspaces_created_by_idx").on(table.createdBy),
+    // Backs getOrCreatePersonalWorkspace's ON CONFLICT target (WORKSPACE-001
+    // documented the race and named this exact index as the real fix — see
+    // lib/db/workspaces.ts). Scoped to kind = 'personal' AND deleted_at IS
+    // NULL rather than a plain UNIQUE(created_by): a user is allowed at most
+    // one *live* personal workspace at a time, but a soft-deleted one must
+    // not permanently block them from ever getting a replacement, and this
+    // schema has no non-personal workspace kind yet for created_by to
+    // legitimately repeat under.
+    uniqueIndex("workspaces_created_by_personal_live_idx")
+      .on(table.createdBy)
+      .where(sql`${table.kind} = 'personal' AND ${table.deletedAt} IS NULL`),
+  ],
 );
 
 export const claimKindEnum = pgEnum("claim_kind", CLAIM_KINDS);
