@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "study_sessions_workspace_range_active_idx" ON "study_sessions" USING btree ("workspace_id","range") WHERE "study_sessions"."workflow_state" = 'active' AND "study_sessions"."deleted_at" IS NULL;

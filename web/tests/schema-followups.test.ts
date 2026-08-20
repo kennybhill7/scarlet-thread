@@ -441,17 +441,78 @@ test("motif_candidates gained EXACTLY one new column (thread_slug) since RADARPE
 });
 
 test("migration 0009 adds motif_candidates.thread_slug additively -- a single nullable ALTER TABLE ADD COLUMN, no FK, no rewrite of 0000-0008", () => {
+  // Looked up BY NAME, not "the newest file" -- STUDYSESSIONRACE-001 added
+  // migration 0010 after this one, which is exactly what the next test below
+  // proves. Pinning 0009's own content by its own filename keeps this
+  // assertion true regardless of what gets added after it.
+  const files = fs
+    .readdirSync(migrationsDir)
+    .filter((name) => /^\d{4}_.+\.sql$/.test(name))
+    .sort();
+  const migration0009 = files.find((name) => name.startsWith("0009_"));
+  assert.ok(migration0009, "expected a 0009_*.sql migration file to exist");
+
+  const sql = fs.readFileSync(path.join(migrationsDir, migration0009!), "utf8").replace(/\r\n/g, "\n").trim();
+  assert.equal(
+    sql,
+    'ALTER TABLE "motif_candidates" ADD COLUMN "thread_slug" text;',
+    "0009 must be exactly one additive, nullable ALTER TABLE ADD COLUMN statement -- no FK, no NOT NULL, nothing else",
+  );
+});
+
+// ---------------------------------------------------------------------------
+// 8. STUDYSESSIONRACE-001 -- study_sessions gains a real database backstop for
+//    the client-side dedup rule StudyEntry.tsx's findExistingActiveSession
+//    already implements (readOnlyPath, left untouched): a partial unique
+//    index on (workspace_id, range) scoped to
+//    workflow_state = 'active' AND deleted_at IS NULL, so two genuinely
+//    concurrent devices/tabs can no longer both mint an active session for
+//    the identical range -- Postgres itself now serializes that race.
+//    Proven end-to-end against a real local Postgres 18 instance (two
+//    overlapping transactions inserting for the same workspace_id/range;
+//    exactly one committed, the other failed with
+//    "duplicate key value violates unique constraint
+//    study_sessions_workspace_range_active_idx" -- see the task's commit
+//    message for the full transcript, including the closed/soft-deleted/
+//    different-workspace/different-range negative controls). This section is
+//    the schema-object-level proof, independent of that live-database run.
+// ---------------------------------------------------------------------------
+
+test("study_sessions has a PARTIAL unique index on (workspace_id, range) scoped to workflow_state='active' AND deleted_at IS NULL -- matching findExistingActiveSession's predicate exactly", () => {
+  // MUTATION PROOF (paste in the commit): remove `.where(...)` from
+  // study_sessions_workspace_range_active_idx in db/schema.ts (making it a
+  // plain, non-partial unique index) and this test fails by name.
+  const cfg = getTableConfig(schema.studySessions as any);
+  const idx = cfg.indexes.find(
+    (i: any) =>
+      i.config.unique &&
+      i.config.columns.length === 2 &&
+      i.config.columns.some((c: any) => c.name === "workspace_id") &&
+      i.config.columns.some((c: any) => c.name === "range"),
+  );
+  assert.ok(idx, "study_sessions should have a unique index on (workspace_id, range)");
+  assert.ok(
+    (idx as any).config.where,
+    "the unique index on study_sessions(workspace_id, range) must be PARTIAL (have a WHERE clause) -- a closed/archived/soft-deleted session must never block a fresh active one for the same range",
+  );
+});
+
+test("migration 0010 adds the study_sessions active-range unique index additively -- a single CREATE UNIQUE INDEX statement, no rewrite of 0000-0009", () => {
   const files = fs
     .readdirSync(migrationsDir)
     .filter((name) => /^\d{4}_.+\.sql$/.test(name))
     .sort();
   const newest = files[files.length - 1]!;
-  assert.match(newest, /^0009_/, "expected migration 0009 to be the newest file (a forward migration, not an edit to an applied one)");
+  assert.match(
+    newest,
+    /^0010_/,
+    "expected migration 0010 to be the newest file (a forward migration, not an edit to an applied one)",
+  );
 
   const sql = fs.readFileSync(path.join(migrationsDir, newest), "utf8").replace(/\r\n/g, "\n").trim();
   assert.equal(
     sql,
-    'ALTER TABLE "motif_candidates" ADD COLUMN "thread_slug" text;',
-    "0009 must be exactly one additive, nullable ALTER TABLE ADD COLUMN statement -- no FK, no NOT NULL, nothing else",
+    'CREATE UNIQUE INDEX "study_sessions_workspace_range_active_idx" ON "study_sessions" USING btree ("workspace_id","range") WHERE "study_sessions"."workflow_state" = \'active\' AND "study_sessions"."deleted_at" IS NULL;',
+    "0010 must be exactly one additive CREATE UNIQUE INDEX statement -- no FK, no rewrite of any earlier statement",
   );
 });
