@@ -6,6 +6,7 @@ import { computeMotifCandidates, type RadarMotifCandidate } from "@/lib/db/radar
 import { getReviewSnapshot } from "@/lib/db/review";
 import { listThreads } from "@/lib/db/threads";
 import type { Entry, ReviewSnapshot, Thread } from "@/lib/contracts";
+import { MotifRadarPanel } from "@/components/motif-radar";
 import styles from "./review.module.css";
 
 // ---------------------------------------------------------------------------
@@ -281,6 +282,11 @@ export default async function ReviewPage() {
             ))}
           </div>
         )}
+
+        <h2 className={styles.h2} style={{ marginTop: 20 }}>
+          Offered threads
+        </h2>
+        <MotifRadarPanel />
       </section>
 
       <section className={styles.section}>
