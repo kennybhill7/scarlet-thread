@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-20T06:09:48.000Z",
+  "updatedAt": "2026-08-20T06:21:48.000Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
-    "taskId": "WORKSPACE-001",
-    "runId": "cloud-20260820060948",
-    "takenAt": "2026-08-20T06:09:48.000Z",
-    "expiresAt": "2026-08-20T07:39:48.000Z"
+    "taskId": null,
+    "runId": null,
+    "takenAt": null,
+    "expiresAt": null
   },
   "tasks": {
     "DOC-002": {
@@ -262,12 +262,13 @@
       "notes": "Seeded 2026-08-19 from a gap the builder reported honestly rather than papering over. Resolved: claim_evidence and motif_sightings are each their own sync entity (evidence, motifSighting), grouped with their parent via mutationGroupId, not nested as an aggregate child array. Did not write agent-graph/LESSONS.md -- see lastEvidence for the protectedPaths conflict this surfaced. Awaiting independent audit, same as this queue's other submitted tasks."
     },
     "WORKSPACE-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "submitted",
+      "branch": "agent/WORKSPACE-001-cloud",
+      "commitSha": "92f09d9a4ed2708b96615b405db3e283a6944297",
       "attempts": 0,
       "lastRunId": "cloud-20260820060948",
-      "notes": "Seeded 2026-08-20 00:35 for the overnight run. Phase 1 continuation: the missing links between an authenticated session and a usable v2 data layer."
+      "lastEvidence": "npm run typecheck -> exit 0, no output. npm run lint -> exit 0, no output. DATABASE_URL='postgresql://u:p@localhost:5432/db' npm run build -> exit 0, Compiled successfully, 16 routes emitted, no db:migrate invoked. npm test -> tests 433, pass 433, fail 0, cancelled 0, skipped 0 (9 new in tests/workspaces.test.ts: idempotent creation incl. soft-delete case, two users get two workspaces, simulated simultaneous first-time calls converge on one workspace, assertWorkspaceOwnership accepts the true owner and rejects another user/a nonexistent id/a soft-deleted row, deterministic-ordering read-back). git diff --check -> exit 0, no output. Criterion 1 (idempotent creation): met -- repeat calls for the same user return the same id and issue no second insert (asserted via an execute-call counter on the fake db). Criterion 2 (unique constraint or ON CONFLICT, not check-then-insert) is HONESTLY ONLY PARTIALLY MET: db/schema.ts is read-only for this task and has no unique constraint on workspaces.created_by, so ON CONFLICT has no target; drizzle-orm/neon-http also throws 'No transactions support in neon-http driver' (node_modules/drizzle-orm/neon-http/session.js), so no wrapping transaction is available for SERIALIZABLE retry or a session-scoped pg_advisory_lock, and the HTTP driver gives no guarantee two sequential queries even share one session, which a session-level advisory lock would additionally need. Implemented the best available mitigation instead: a single INSERT ... SELECT ... WHERE NOT EXISTS statement, collapsing the check and the write into one round trip. Verified BOTH directions empirically against a real local Postgres 16 instance stood up for this task (schema matching db/schema.ts's workspaces table exactly, torn down before commit): the statement is correct for the common sequential case (second call for the same user inserts 0 rows, reads back the existing id), but under genuine concurrency two real simultaneous connections running this exact statement both passed WHERE NOT EXISTS and both inserted -- the race is NOT fully closed, because READ COMMITTED does not block a phantom insert without a backing constraint. Flagged a schema follow-up: a partial unique index UNIQUE (created_by) WHERE kind='personal' AND deleted_at IS NULL on workspaces, out of this task's owned paths. findPersonalWorkspaceId orders by (created_at, id) so reads stay deterministic even if the rare duplicate ever occurs. Criterion 3 (every helper scopes by the acting user; no function accepts a caller workspace id without verifying ownership): met -- assertWorkspaceOwnership is the sole way to resolve a workspace id and is mutation-proven (see below). Criterion 4 (follow lib/db/*.ts conventions): followed entries.ts/threads.ts style. Criterion 5 (tests incl. no-live-database harness matching tenant-isolation.test.ts): met -- tests/workspaces.test.ts seeds require.cache for server-only and @/lib/db exactly like tenant-isolation.test.ts, and its fake store evaluates the REAL compiled SQL (PgDialect.sqlToQuery) lib/db/workspaces.ts emits, not a reimplementation. Criterion 6 (mutation-prove the isolation check): done as a manual, uncommitted mutation -- removed eq(workspaces.createdBy, userId) from assertWorkspaceOwnership's WHERE, reran tests/workspaces.test.ts directly: exactly one named test failed ('assertWorkspaceOwnership REJECTS a workspace id belonging to another user', 8/9 passed, 1/9 failed), then restored the file byte-for-byte (confirmed via diff) and reran the full suite clean (433/433). Only web/lib/db/workspaces.ts and web/tests/workspaces.test.ts touched (WORKSPACE-001's sole owned paths); db/schema.ts, lib/db/index.ts, lib/db/entries.ts, lib/auth/config.ts, lib/contracts/study-v2.ts, and BUILD_PLAN.md were read-only grounding only. No PR opened -- this queue's other submitted tasks coordinate via this file and branch/commit alone, per QUEUE.md, not GitHub PRs. Lessons protocol: per the same protectedPaths conflict SYNCGAP-001 already surfaced (agent-graph/ is protected with only queue.state.json carved out; QUEUE.md asks for a LESSONS.md retro entry but the worker prompt's ABSOLUTE LIMITS repeats the single queue.state.json exception), this run followed the more restrictive absolute instruction and did NOT write to agent-graph/LESSONS.md.",
+      "notes": "Seeded 2026-08-20 00:35 for the overnight run. Phase 1 continuation: the missing links between an authenticated session and a usable v2 data layer. Unblocks V2API-001 and RADARPERSIST-001 (both dependsOn WORKSPACE-001). A schema follow-up is recommended: a partial unique index on workspaces(created_by) WHERE kind='personal' AND deleted_at IS NULL, to close the concurrency gap this task could only narrow, not eliminate, from its read-only db/schema.ts. Awaiting independent audit, same as this queue's other submitted tasks."
     },
     "SYNCPERSIST-001": {
       "status": "ready",
