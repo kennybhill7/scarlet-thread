@@ -111,14 +111,14 @@ export function buildEntryRange(
 /**
  * A freshly-started v2 StudySession. Field-for-field identical to
  * V2COMPOSER-001's own `buildStudySessionDraft` (components/study/
- * ClaimComposer.tsx, a readOnlyPath here) — same seven fixed fields, same
- * values (`mode: "encounter"`, `workflowState: "active"`,
- * `connectionState: "unexamined"`, `catalogReleaseId: null`,
- * `readGateAt: null`, `currentStep: "observe"`, `revision: 1`) — but
- * deliberately a SEPARATE, LOCAL copy rather than an import of that
- * function. Importing it would pull `ClaimComposer.tsx`'s own `Button`/
- * `Field` UI imports (and their CSS Modules) into `ChapterReader.tsx`'s
- * module graph transitively, through this file — and
+ * ClaimComposer.tsx — an ownedPath here as of READGATE-001, previously
+ * readOnly) — same seven fixed fields, same values (`mode: "encounter"`,
+ * `workflowState: "active"`, `connectionState: "unexamined"`,
+ * `catalogReleaseId: null`, `readGateAt: null`, `currentStep: "read"`,
+ * `revision: 1`) — but deliberately a SEPARATE, LOCAL copy rather than an
+ * import of that function. Importing it would pull `ClaimComposer.tsx`'s own
+ * `Button`/`Field` UI imports (and their CSS Modules) into
+ * `ChapterReader.tsx`'s module graph transitively, through this file — and
  * `tests/verse-selection.test.ts` / `tests/versemap-offline.test.ts` (real
  * existing tests, neither owned nor readOnly here) already load the real
  * `ChapterReader.tsx` with a fixed, smaller stub list that does not account
@@ -130,7 +130,22 @@ export function buildEntryRange(
  * `syncStudySessionV2Schema`, in tests/study-entry.test.ts and
  * tests/study-composer.test.ts respectively, so a drift between the two
  * would surface as one of those suites' schemas rejecting valid output --
- * not silently).
+ * not silently; tests/study-entry.test.ts also directly asserts the two
+ * builders' `currentStep` values stay identical to each other, per
+ * READGATE-001 acceptance criterion 1, so a future edit to one that forgets
+ * the other fails loudly there too).
+ *
+ * READGATE-001 (2026-08-20): `currentStep` changed from `"observe"` to
+ * `"read"`. Previously a freshly-started session skipped the Read step
+ * entirely and landed straight on Observe — a learner could open a
+ * brand-new session and type a claim before the passage was ever marked
+ * read, an honor-system gate BUILD_PLAN tenet 1 explicitly forbids. Ken
+ * decided (in response to WORKSPACESHELL-001 surfacing this rather than
+ * resolving it silently) that new sessions must start on Read, and Observe's
+ * real content must not render until `isPassageMarkedRead(session)` is true
+ * (see `lib/workspace/renderState.ts`'s own header for that half of the
+ * fix). This file's job is only to stop minting the "observe" default; the
+ * enforcement itself lives in WorkspaceShell/renderState.ts.
  */
 function buildNewStudySession(params: {
   id: string;
@@ -147,7 +162,7 @@ function buildNewStudySession(params: {
     connectionState: "unexamined",
     catalogReleaseId: null,
     readGateAt: null,
-    currentStep: "observe",
+    currentStep: "read",
     revision: 1,
     createdAt: params.now,
     updatedAt: params.now,

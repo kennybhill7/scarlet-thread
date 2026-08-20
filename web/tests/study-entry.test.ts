@@ -144,6 +144,33 @@ const studyEntryModule = nodeRequire("@/components/reader/StudyEntry.tsx") as {
 };
 const { buildEntryRange, findExistingActiveSession, resolveStudySessionId, beginStudyEntry } = studyEntryModule;
 
+// ===========================================================================
+// READGATE-001 acceptance criterion 1 — load the real ClaimComposer.tsx
+// too, ONLY to compare its exported `buildStudySessionDraft`'s `currentStep`
+// against StudyEntry's own (unexported) `buildNewStudySession`'s output
+// (observed via `resolveStudySessionId`'s saved session, exactly like the
+// "no existing session -> builds one" test above already does). The two
+// builders are documented as deliberately field-for-field identical (see
+// both files' own header comments); this proves that stays true for
+// `currentStep` specifically, so a future edit to one that forgets the
+// other fails HERE, loudly, rather than only showing up as a production
+// inconsistency between the two entry points. Requires stubbing
+// ClaimComposer's own CSS Modules (Chip's is already stubbed above).
+// ===========================================================================
+seedModule("@/components/study/claim-composer.module.css", { default: cssProxy });
+seedModule("@/components/ui/Button.module.css", { default: cssProxy });
+seedModule("@/components/ui/Field.module.css", { default: cssProxy });
+
+const claimComposerModule = nodeRequire("@/components/study/ClaimComposer.tsx") as {
+  buildStudySessionDraft: (params: {
+    id: string;
+    workspaceId: string;
+    range: CanonicalRangeV1;
+    now: string;
+  }) => StudySession;
+};
+const { buildStudySessionDraft } = claimComposerModule;
+
 // ---------------------------------------------------------------------------
 // A tiny in-memory fake of StudyEntryDeps, for tests that need to control
 // failure/success independently of a real IndexedDB round trip. The
@@ -238,9 +265,35 @@ test("resolveStudySessionId: no existing session -> builds one via buildStudySes
   assert.equal(saved[0].mode, "encounter");
   assert.equal(saved[0].workflowState, "active");
   assert.equal(saved[0].connectionState, "unexamined");
-  assert.equal(saved[0].currentStep, "observe");
+  assert.equal(
+    saved[0].currentStep,
+    "read",
+    "READGATE-001: a freshly created session must start on Read, never skip straight to Observe",
+  );
   assert.equal(saved[0].revision, 1);
   assert.deepEqual(pushed, ["pushed"], "resolveStudySessionId must push before returning");
+});
+
+test("IDENTITY criterion 1: StudyEntry's buildNewStudySession and ClaimComposer's buildStudySessionDraft mint the SAME currentStep for a fresh session", async () => {
+  const { deps, saved } = fakeDeps();
+  await resolveStudySessionId("workspace-1", sampleRange(), deps);
+
+  const fromClaimComposer = buildStudySessionDraft({
+    id: "irrelevant-for-this-comparison",
+    workspaceId: "workspace-1",
+    range: sampleRange(),
+    now: "2026-08-20T12:00:00.000Z",
+  });
+
+  assert.equal(
+    saved[0].currentStep,
+    fromClaimComposer.currentStep,
+    "StudyEntry.tsx's buildNewStudySession and ClaimComposer.tsx's buildStudySessionDraft must mint identical currentStep values -- both files' own header comments document this as a deliberate field-for-field duplication",
+  );
+  // Pinned independently (not derived from either builder) so this test has
+  // teeth even if BOTH builders drifted to the same wrong value together.
+  assert.equal(saved[0].currentStep, "read");
+  assert.equal(fromClaimComposer.currentStep, "read");
 });
 
 test("resolveStudySessionId: an existing active session for the same range is reused -- no second save", async () => {
