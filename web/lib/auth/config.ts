@@ -157,3 +157,73 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 });
+
+// ---------------------------------------------------------------------------
+// AUTHDISAMBIG-001 — the same "signed out vs database down" disambiguation as
+// `resolveAuthorizedDecision` above, but for the ONE other place in the app
+// that calls `auth()` directly instead of going through the middleware:
+// `app/(app)/layout.tsx`. That file's own comment explains why it exists
+// even though `web/proxy.ts` already matches every route in this group —
+// the proxy matcher is "a coarse, easily-mis-edited perimeter", so the
+// layout re-checks next to the data, where it cannot be routed around. Until
+// this task, that re-check was a bare `if (!session?.user?.id) redirect(...)`
+// with no probe of its own, so a database outage that reached the layout
+// (matcher miss, edge case, or simply the layout running as a second,
+// independent check) would relabel "the database is down" as "you are
+// signed out" — exactly the mislabeling `resolveAuthorizedDecision` exists
+// to prevent one layer up.
+//
+// This mirrors, function-for-function, the `resolveSessionState` that
+// `app/(app)/review/page.tsx`, `app/(app)/page.tsx`, and
+// `app/(app)/study/[sessionId]/page.tsx` each already built independently
+// (see AUTHDISAMBIG-001's commit message for the redundancy call on those
+// three). It lives here, not duplicated a fourth time, because
+// `app/(app)/layout.tsx` sits above all three of those pages and needed its
+// own copy regardless of what happens to theirs.
+// ---------------------------------------------------------------------------
+
+export type SessionState =
+  | { status: "authenticated"; userId: string }
+  | { status: "signed-out" }
+  | { status: "setup-incomplete" };
+
+export type SessionStateDeps = {
+  getSession: () => Promise<SessionLike>;
+  probeDatabase: () => Promise<unknown>;
+};
+
+const defaultSessionStateDeps: SessionStateDeps = {
+  // Lazily reads the `auth` bound above rather than closing over it directly,
+  // so this object literal's position in the file (before or after the
+  // `NextAuth(...)` call) cannot matter.
+  getSession: () => auth(),
+  probeDatabase: () => listThreads(PROBE_USER_ID),
+};
+
+export async function resolveSessionState(
+  deps: SessionStateDeps = defaultSessionStateDeps,
+): Promise<SessionState> {
+  let session: SessionLike;
+  try {
+    session = await deps.getSession();
+  } catch {
+    // auth() threw outright (adapter error surfaced instead of swallowed).
+    // A generic 500 would be another wrong label; name the real problem.
+    return { status: "setup-incomplete" };
+  }
+
+  const userId = session?.user?.id;
+  if (userId) return { status: "authenticated", userId };
+
+  // No session. Either genuinely signed out, or the session lookup silently
+  // failed because the database is unreachable (the exact @auth/core
+  // swallow-and-return-null behaviour documented above). Ask the database
+  // directly rather than trust the null.
+  try {
+    await deps.probeDatabase();
+  } catch {
+    return { status: "setup-incomplete" };
+  }
+
+  return { status: "signed-out" };
+}
