@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { BatchItem } from "drizzle-orm/batch";
 
 import {
@@ -13,7 +13,6 @@ import {
   teachingDrafts,
   userConnections,
   motifCandidates,
-  workspaces,
 } from "@/db/schema";
 import { groupOpsByMutationGroupId, parseSyncOpV2Payload } from "@/lib/api/sync-v2";
 import type { SyncOpV2 } from "@/lib/contracts/sync-v2";
@@ -29,6 +28,7 @@ import type {
 } from "@/lib/contracts/study-v2";
 import { db } from "@/lib/db";
 import { MOTIF_CANDIDATE_PROMOTED_STATUS } from "@/lib/db/radar";
+import { assertWorkspaceOwnership, WorkspaceAccessDeniedError } from "@/lib/db/workspaces";
 
 /**
  * SYNCPERSIST-001 — persists validated v2 sync ops (SYNCV2-001's contract) to
@@ -51,15 +51,19 @@ import { MOTIF_CANDIDATE_PROMOTED_STATUS } from "@/lib/db/radar";
  * `TABLE_BY_ENTITY`-shaped set of `plan*Op` functions below by two more
  * follows the exact same pattern as the six here.
  *
- * A second unmerged dependency this task's own `readOnlyPaths` names,
- * `lib/db/workspaces.ts` (WORKSPACE-001), is also absent from `master` as of
- * this run — so it cannot be imported. `resolveWorkspaceOwnership` below is a
- * narrow, inline equivalent of the one check this module actually needs
- * (does workspace `X` belong to acting user `U`?), reading the `workspaces`
- * table directly rather than duplicating WORKSPACE-001's fuller
- * create/idempotent-provisioning surface. Once WORKSPACE-001 merges, a
- * follow-up can swap this for its `assertWorkspaceOwnership` and delete the
- * local copy — tracked so the two do not silently diverge.
+ * SYNCDEDUP-001 — the module used to carry its own inline
+ * `resolveWorkspaceOwnership`, written as a deliberate stand-in back when
+ * WORKSPACE-001's `lib/db/workspaces.ts` had not yet landed on `master`. It
+ * has since landed. That inline copy read the exact same `workspaces` table
+ * with the exact same predicate (`id` match, `createdBy` match,
+ * `deletedAt IS NULL`) as `assertWorkspaceOwnership` below — confirmed line
+ * by line, not assumed — so this module now imports and defers to that one
+ * helper instead of keeping a second copy of the single most
+ * security-relevant check in the codebase. `ownsWorkspace` just below is
+ * NOT a second implementation: it performs no query of its own and holds no
+ * security-relevant logic; it only adapts `assertWorkspaceOwnership`'s
+ * throw-on-deny contract to the boolean this module's `planWrite`/
+ * `planMotifOp` control flow expects.
  */
 
 // ---------------------------------------------------------------------------
@@ -95,26 +99,19 @@ function receiptInsertV2(userId: string, op: SyncOpV2) {
 
 // ---------------------------------------------------------------------------
 // Cross-tenant safety — an op naming a workspace the acting user does not
-// own is rejected before anything is read or written for it. See the module
-// header for why this is inline rather than importing WORKSPACE-001.
+// own is rejected before anything is read or written for it, via the single
+// canonical check `lib/db/workspaces.ts` owns (see the module header for the
+// SYNCDEDUP-001 history behind why this used to be a second copy here).
 // ---------------------------------------------------------------------------
 
-async function resolveWorkspaceOwnership(
-  userId: string,
-  workspaceId: string,
-): Promise<boolean> {
-  const [row] = await db
-    .select({ id: workspaces.id })
-    .from(workspaces)
-    .where(
-      and(
-        eq(workspaces.id, workspaceId),
-        eq(workspaces.createdBy, userId),
-        isNull(workspaces.deletedAt),
-      ),
-    )
-    .limit(1);
-  return Boolean(row);
+async function ownsWorkspace(userId: string, workspaceId: string): Promise<boolean> {
+  try {
+    await assertWorkspaceOwnership(userId, workspaceId);
+    return true;
+  } catch (error) {
+    if (error instanceof WorkspaceAccessDeniedError) return false;
+    throw error;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -144,7 +141,7 @@ async function planWrite(
   baseRevision: number | null,
   write: () => BatchItem<"pg">,
 ): Promise<PlanOutcome> {
-  const owns = await resolveWorkspaceOwnership(userId, workspaceId);
+  const owns = await ownsWorkspace(userId, workspaceId);
   if (!owns) {
     return { ok: false, reason: "Workspace does not belong to the acting user" };
   }
@@ -334,9 +331,9 @@ async function planClaimOp(userId: string, op: SyncOpV2): Promise<PlanOutcome> {
  * `planWrite` call below) specifically so they run BEFORE these two motif-
  * only guards instead of after; `planWrite` still re-runs them itself for
  * every other rejection reason (revision conflicts, etc.), which costs one
- * redundant `resolveWorkspaceOwnership` lookup for this entity only, traded
- * deliberately for not needing to thread a per-entity guard hook through
- * the shared function every other `plan*Op` also calls.
+ * redundant `ownsWorkspace` lookup for this entity only, traded deliberately
+ * for not needing to thread a per-entity guard hook through the shared
+ * function every other `plan*Op` also calls.
  */
 async function planMotifOp(userId: string, op: SyncOpV2): Promise<PlanOutcome> {
   let payload: MotifCandidate;
@@ -351,7 +348,7 @@ async function planMotifOp(userId: string, op: SyncOpV2): Promise<PlanOutcome> {
     .where(eq(motifCandidates.id, op.entityId))
     .limit(1);
 
-  const ownsClaimedWorkspace = await resolveWorkspaceOwnership(userId, payload.workspaceId);
+  const ownsClaimedWorkspace = await ownsWorkspace(userId, payload.workspaceId);
   const rowMatchesClaimedWorkspace = !current || current.workspaceId === payload.workspaceId;
   if (ownsClaimedWorkspace && rowMatchesClaimedWorkspace) {
     if (current?.status === MOTIF_CANDIDATE_PROMOTED_STATUS) {
