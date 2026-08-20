@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-20T04:09:22Z",
+  "updatedAt": "2026-08-20T04:18:52Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
-    "taskId": "TRIGGER-001",
-    "runId": "cloud-20260820040922",
-    "takenAt": "2026-08-20T04:09:22Z",
-    "expiresAt": "2026-08-20T05:39:22Z"
+    "taskId": null,
+    "runId": null,
+    "takenAt": null,
+    "expiresAt": null
   },
   "tasks": {
     "DOC-002": {
@@ -244,12 +244,13 @@
       "notes": "Merged. Persistence wiring and the two possibly-missing sync entities are follow-ups."
     },
     "TRIGGER-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "submitted",
+      "branch": "agent/TRIGGER-001-cloud",
+      "commitSha": "a1bbbcc",
       "attempts": 0,
       "lastRunId": "cloud-20260820040922",
-      "notes": "Seeded 2026-08-19 from a gap the builder reported honestly rather than papering over. Lease taken by cloud-20260820040922 at 2026-08-20T04:09:22Z."
+      "lastEvidence": "git diff --check (this task's sole listed verification command) -> exit 0, no output. Beyond the listed check: stood up a real local Postgres 16 instance and ran the actual fixtures end-to-end -- not just written-but-unexecuted. Applying db/migrations/*.sql as shipped in file order fails on a fresh database (0006 and 0007 each add a composite (id, workspace_id) FK before the CREATE UNIQUE INDEX it needs -- a pre-existing bug in a read-only path for this task, documented in the new README, worked around only in an uncommitted local scratch copy, never in the committed migration files). With that local-only reorder applied to stand up a working schema, the full committed web/tests/db-invariants.sql (existing 0003 fixtures + new ones) ran clean: BEGIN ... ROLLBACK, zero top-level ERROR lines. Mutation-tested for real teeth: disabled each of the three new triggers (claim_evidence_no_devotional_theology, user_connections_evidence_label_change_preserves_devotional_rule, study_claims_kind_change_preserves_devotional_rule) one at a time via ALTER TABLE ... DISABLE TRIGGER; each disable broke exactly its own matching fixture (and only that one) with the exact expected 'Expected ... rejection' error, confirming with all three enabled a false pass was not possible. Criterion 1: all three rejection paths (claim_evidence insert citing a devotional connection under a theology claim; user_connections relabel to devotional under an already-theology-claim-cited row; study_claims retype to theology while already citing devotional evidence) raise check_violation, caught by dedicated DO/EXCEPTION blocks, with a follow-up assertion confirming the rejected write never landed. Criterion 2: both allowed cases (devotional evidence for a non-theology claim; non-devotional evidence for a theology claim) insert cleanly and pass a forced SET CONSTRAINTS ALL IMMEDIATE with no exception. Criterion 3: a single transaction relabels an already-cited connection to devotional under a theology claim (shown to be a genuine violation by forcing the check immediately -- check_violation raised and caught), then heals it by relabeling again before the check is forced a second time, which then passes clean -- proving the DEFERRABLE INITIALLY DEFERRED behaviour actually works, not just exists in the DDL. Criterion 4: reused the file's existing idioms exactly (single outer BEGIN/ROLLBACK, the DO $$ BEGIN...EXCEPTION WHEN check_violation THEN NULL; END; $$; pattern, SET CONSTRAINTS ALL IMMEDIATE/DEFERRED pairs); nothing in the existing 0003 section was restructured. Criterion 5: Postgres WAS reachable, so nothing here is claimed-but-unexecuted; the one thing that could not be executed as literally documented (plain sequential psql -f over db/migrations/*.sql, or npm run db:migrate) is reported honestly with the exact error and a workaround, not silently patched over. Only web/tests/db-invariants.sql (extended) and web/tests/README-db-invariants.md (new) touched -- TRIGGER-001's sole owned paths; db/migrations/, db/schema.ts, and tests/schema-followups.test.ts were read-only grounding only.",
+      "notes": "Seeded 2026-08-19 from a gap the builder reported honestly rather than papering over. Built by cloud-20260820040922. Surfaced a real pre-existing bug in db/migrations/0006 and 0007 (composite FK added before its backing unique index -- see README-db-invariants.md and agent-graph/LESSONS.md's new GENERATED-MIGRATION-FK-ORDER-001 candidate) -- out of scope to fix here, flagged for a follow-up task. Awaiting independent audit, same as this queue's other submitted tasks."
     },
     "SYNCGAP-001": {
       "status": "ready",

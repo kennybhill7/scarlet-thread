@@ -17,6 +17,9 @@ for the exact premortem/retro prompts.
 | `queue.state.json` seed | ORPHAN-REFERENCE-001 | `P0-002` was referenced in the shared queue state before its definition was committed to `tasks.json` on the same branch. The first live cloud worker run correctly declined to improvise and reported the gap. | `38c54ae` (fix) |
 | Interactive controller state | GITIGNORED-COORDINATION-STATE-001 | `agent-graph/state.local.json` (git-ignored) held all task-lifecycle state; a scheduled cloud worker on a fresh clone could not see any of it. `queue.state.json`, committed on `ops/agent-queue`, was introduced to fix this. | `8f844dc` |
 | P0-002 | FAIL-CLOSED-COVERAGE-GAP (candidate) | The PocketPg WHERE evaluator's `<>` operator was `!equal(left, right) && left !== null` — Postgres three-valued NULL logic requires *both* sides non-null for `<>` to be true/false rather than UNKNOWN, but the old code only checked the left side, so a NULL right operand made `<>` return true for every non-null left value. No production code calls `ne()`/`<>` today (confirmed by grep), so this was purely latent; fixed to `left !== null && right !== null && left !== right` with a direct unit test (`EVAL1`) against `evaluatePredicate`. Also closed 5 audit-identified gaps in the tenant-isolation attack matrix (mixed-batch partial rejection, in-batch duplicate-id dedupe, person/log slug-collision squats, soft-deleted-entry id-squat) — all test-only, no production code touched. | `c2324d2` |
+| TRIGGER-001 | CROSS-TABLE-INVARIANT-001 | Extended `db-invariants.sql` with fixtures proving migration 0007's three deferrable constraint triggers for the devotional/theology rule against a real Postgres 16 engine (previously only proven by SQL-text assertion + a JS truth table in `schema-followups.test.ts`, per SCHEMAFU-001's own notes). All three rejection paths (insert, connection relabel, claim retype), both allowed cases, and the deferred-until-commit healing case were run for real; mutation-tested by disabling each trigger individually and confirming each disable breaks exactly its own fixture. | `a1bbbcc` |
+| TRIGGER-001 | SILENT-SKIP-001 | `db-invariants.sql` is not wired into `npm test` or CI (same as before this task) — it only runs if a human remembers to `psql -f` it against a disposable database. Nothing structural stops it from silently never running again, the same shape SEC-001/round-3 already flagged for the header wire suite. Documented the exact run command and pass/fail signature in the new `README-db-invariants.md` so a human has no ambiguity about how to invoke it, but did not add CI wiring (out of this task's owned paths). | `a1bbbcc` (mitigated by documentation, not closed) |
+| TRIGGER-001 | SCOPE-BOUNDARY-001 | While standing up a real Postgres instance to run the new fixtures, discovered that `db/migrations/0006_typical_turbo.sql` and `0007_silly_madame_masque.sql`, as shipped, each add a composite `(id, workspace_id)` foreign key *before* the `CREATE UNIQUE INDEX` statement that FK depends on — so applying either file via plain `psql -f` (or `npm run db:migrate`, which hits the identical statement-order problem) fails outright on a fresh database with "there is no unique constraint matching given keys". `db/migrations/` is a read-only path for TRIGGER-001, so this was not fixed here: worked around only in an uncommitted local scratch copy (statement order changed, content untouched) to actually exercise the new fixtures, and documented in `README-db-invariants.md` with the exact repro and workaround for a human/follow-up task. | `a1bbbcc` (finding, not fixed — real fix belongs in a follow-up task against `db/migrations/`) |
 
 ## Open, not yet retro'd
 
@@ -28,3 +31,26 @@ for the exact premortem/retro prompts.
   misbehave the moment something starts exercising it," which is broader
   than just SQL operators and likely recurs in schema validators, permission
   checks, and parsers elsewhere.
+
+- New candidate pattern from TRIGGER-001, not yet in `GENERAL_LEDGER.md`:
+  **GENERATED-MIGRATION-FK-ORDER-001** — a drizzle-kit-generated migration
+  file placed `ALTER TABLE ... ADD CONSTRAINT ... FOREIGN KEY` statements
+  referencing a composite `(id, workspace_id)` pair *before* the
+  `CREATE UNIQUE INDEX ..._id_workspace_idx` statement that composite FK
+  needs, in both `0006_typical_turbo.sql` and `0007_silly_madame_masque.sql`
+  independently — the same mistake made twice, which suggests it is a
+  systematic hazard of this project's `workspaceId`-scoped composite-FK
+  pattern (now used by most v2 tables) rather than a one-off typo. Applying
+  either file with plain `psql -f`, or via `npm run db:migrate`, fails on a
+  fresh database. The general shape, if a human confirms it recurs: "a
+  generated migration file that adds a composite foreign key can silently
+  place it before the unique index backing the referenced side, and nothing
+  in the generate step or CI catches the ordering until someone actually
+  tries to apply the file end-to-end on an empty database" — worth checking
+  whether `db:generate`'s output should be lint-checked for this shape, or
+  whether newer tables should stop relying on hand-verified statement order
+  entirely. Not yet promoted; a human should review before it goes into
+  `GENERAL_LEDGER.md`. Full repro and a non-committed workaround are in
+  `web/tests/README-db-invariants.md`. Fixing the two migration files
+  themselves is out of TRIGGER-001's scope (`db/migrations/` was a
+  read-only path) and should be its own follow-up task.
