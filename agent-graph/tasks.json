@@ -1563,6 +1563,49 @@
         "cd web; npm.cmd exec drizzle-kit check"
       ],
       "humanGates": []
+    },
+    {
+      "id": "WORKSPACESHELL-001",
+      "title": "Phase 2: the Passage Workspace shell and its currentStep gating machine",
+      "objective": "Phase 1 is functionally complete: the full v2 evidence model exists, is reachable end to end, and 44 tasks across 13 waves have proven it. BUILD_PLAN §4 (Phase 2) is the next reviewed, canonical phase: one route, app/(app)/study/[sessionId]/page.tsx, hosting eight sections (Read, Observe, Context, Connect, Theology, Conviction, Apply, Teach) driven by the session's currentStep, each gated per the table in BUILD_PLAN §4 so the flow reads as one unfolding conversation rather than a form. STUDYPAGE-001 already mounts ClaimComposer directly as a bare Observe surface; this task builds the real shell around it. currentStep is presently typed as plain `string` in lib/contracts/study-v2.ts — BUT the eight step names are already a REVIEWED, DOCUMENTED vocabulary (BUILD_PLAN §4's own table), not a guess, and \"observe\" is already the live value StudyEntry.tsx writes when it creates a session — so enumerating it here is implementing a decision already made, not inventing one.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/components/workspace/",
+        "web/lib/workspace/",
+        "web/lib/contracts/study-v2.ts",
+        "web/tests/workspace-shell.test.ts",
+        "web/app/(app)/study/[sessionId]/page.tsx"
+      ],
+      "readOnlyPaths": [
+        "web/components/study/ClaimComposer.tsx",
+        "web/components/study/index.ts",
+        "web/components/reader/ChapterReader.tsx",
+        "web/lib/sync/store.ts",
+        "web/lib/db/workspaces.ts",
+        "web/tests/study-composer.test.ts",
+        "web/tests/study-page.test.ts",
+        "docs/decisions/2026-08-18-teaching-not-theology.md",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "Add STUDY_SESSION_STEPS to lib/contracts/study-v2.ts as an as-const array of exactly the eight step names in BUILD_PLAN §4's table order: read, observe, context, connect, theology, conviction, apply, teach. Additive only — currentStep's existing string-typed column and every existing caller (StudyEntry.tsx's literal \"observe\") must keep working unchanged. Do not touch db/schema.ts; the column stays text, not a Postgres enum, to match this repo's established pattern for fields whose vocabulary is settled but not yet worth a destructive enum migration.",
+        "A pure, unit-tested state machine (new file(s) under lib/workspace/) computing which of the eight steps are UNLOCKED given a session plus its own claims/applications, matching BUILD_PLAN §4's gating column exactly: Read always unlocked. Observe unlocks once the session's read gate is set. Context unlocks after >=1 claim exists for the session. Connect unlocks after \"an attempted comparison\" — this is the vaguest gate in the spec; interpret it explicitly (a reasonable reading: >=1 claim of kind context or interpretation exists) and DEFEND your interpretation in the commit message rather than silently picking one. Theology unlocks after >=1 claim exists — per BUILD_PLAN's own explicit gating principle, \"Theology does not require a Connection first,\" so do NOT gate Theology on Connect. Conviction is NEVER gated — always unlocked, by design, since it is meant to be reachable at any point. Apply unlocks after >=1 claim of kind theology exists. Teach unlocks after >=1 finalized application exists. A test proves each gate independently, including that Theology stays reachable with zero connections.",
+        "Build components/workspace/WorkspaceShell.tsx: a mobile-first ACCORDION (not tabs — BUILD_PLAN is explicit the flow should read top-to-bottom like the method itself), one section per step, each carrying its BUILD_PLAN product name (The Quiet Page, The Evidence Desk, The Context Window, The Scarlet Thread Map, The Theology Table, The Conviction Room, The Practice Bridge, Teach It Back) somewhere accessible to an assistive-tech user, not merely a visual label. A locked section explains WHY it is locked (e.g. \"unlocks after your first observation\"), never a bare disabled control with no explanation.",
+        "The Read section: the learner can mark this session's canonical range as read, which sets readGateAt through the vault writers already established (lib/sync/store.ts, read-only here) — no new write path. You do not need to reimplement the full chapter reader inside this shell; a link/embed into the existing reading experience for this session's range, plus the mark-as-read control, satisfies this criterion.",
+        "The Observe section mounts the EXISTING, UNMODIFIED ClaimComposer (read-only path — do not edit it). Read its own header comment on THE ASSERTION LINE and its \"nothing ever starts pre-selected\" invariant (mutation-proved in tests/study-composer.test.ts) before touching anything near it. Prove this invariant survived by running tests/study-composer.test.ts unmodified and green — do not re-derive the property yourself with a new test, since that file already owns it.",
+        "The Context, Connect, Theology, Conviction, Apply, and Teach sections each render an HONEST, clearly-labeled \"not built yet\" placeholder — never fabricated content, never a silently broken control, never a fake success state. State plainly in your commit that building their real functionality is deliberately OUT of this task's scope, reserved for follow-up tasks once this shell's contract is proven stable. This is a scope boundary, not a gap to apologize for.",
+        "app/(app)/study/[sessionId]/page.tsx now mounts WorkspaceShell in place of directly mounting ClaimComposer, while preserving EVERY existing guarantee STUDYPAGE-001 already proved: workspaceId resolved server-side only, a cross-workspace session id 404s, an unauthenticated visitor redirects. Every existing test in tests/study-page.test.ts must keep passing unweakened — if your change requires updating one because the page's literal rendered output changed (e.g. it now renders inside an accordion), update it explicitly and say so; do not delete or weaken an assertion about a security property to make the suite green.",
+        "Testable without a DOM per this repo's established pattern (see components/notes/StudySession.tsx's composerRenderState and app/(app)/study/[sessionId]/page.tsx's own resolveStudyPageData): the gating/unlock logic and any render-state decision live in pure functions the component actually calls, not a parallel test-only reimplementation.",
+        "Mutation-prove at least two of the eight gates end to end (your choice, but Theology-unlocked-without-Connect is a strong candidate given how easy it would be to get backwards) — break the gate, confirm a NAMED test fails, restore from a backup, diff byte-identical, confirm green again."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }

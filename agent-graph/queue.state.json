@@ -440,6 +440,14 @@
       "lastRunId": "interactive-2026-08-20-wave13",
       "lastEvidence": "MERGED to master in 3d489a1 after independent verification. 673/673, 0 skipped; typecheck/lint/build clean; drizzle-kit check fine. | Closes the concurrent-tab race STUDYENTRY-001 honestly disclosed: a partial unique index on study_sessions(workspace_id, range) scoped to active+not-deleted, matching findExistingActiveSession predicate exactly, generated as a single additive forward migration (0010). | VERIFIED INDEPENDENTLY IN TWO LAYERS: (1) schema-shape mutation proof - removed the WHERE clause and the new PARTIAL-index test failed by name; restored, green. (2) LIVE DATABASE PROOF on my own freshly-initdb Postgres 18 (not reusing the builders instance): applied all 11 migrations cleanly, then real inserts proved the constraint - two active sessions for the identical range, the second rejected with the real Postgres 23505 error - plus all four negative controls (closed, soft-deleted, different workspace, different range) each correctly NOT blocked. | REPORTED, not smuggled: lib/db/sync-v2.ts is the real server write path and will surface an unhandled 23505 rather than a graceful reuse response when two devices race - correct fail-closed behavior, just ungraceful. Same shape as MIGORDER-001 own workspaces.ts follow-up.",
       "notes": "Merged. This closes every concrete residual gap surfaced across the last 13 waves. Remaining open items are all human-gated (credentials, Vercel root directory, KJV licensing)."
+    },
+    "WORKSPACESHELL-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-20-wave14",
+      "notes": "Seeded 2026-08-20: Phase 1 (BUILD_PLAN section 3) is functionally complete across 44 tasks; this begins Phase 2 (section 4), the next reviewed phase in the canonical plan. Scoped tightly to the shell + gating machine + Read/Observe, with the remaining six sections honestly stubbed rather than half-built."
     }
   }
 }
