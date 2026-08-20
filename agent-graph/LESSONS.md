@@ -54,3 +54,24 @@ for the exact premortem/retro prompts.
   `web/tests/README-db-invariants.md`. Fixing the two migration files
   themselves is out of TRIGGER-001's scope (`db/migrations/` was a
   read-only path) and should be its own follow-up task.
+
+## TASKDEF-PATHS-001 — a task definition that names a file which does not exist
+
+**Occurred:** 2026-08-20, V2VAULT-001.
+
+I wrote `readOnlyPaths` naming `web/tests/sync-store.test.ts` and
+`web/tests/clear-device.test.ts`. Neither exists; the real files are
+`local-store.test.ts` and `device-clear.test.ts`. The builder found the real
+ones, treated them as the intended targets, left them untouched, and flagged
+the drift instead of guessing silently. That is the right handling and it cost
+it time it should not have had to spend.
+
+**Why it matters:** a builder that quietly resolves a wrong path might resolve
+it to the wrong file. A builder that treats a non-existent path as "nothing to
+read" might skip a constraint the task depended on. Either way the failure is
+silent.
+
+**How to apply:** before seeding a task, verify every path in `ownedPaths` and
+`readOnlyPaths` actually resolves - a single `git ls-files` check. For a path
+that is meant to be NEW, say so explicitly in the task so the builder knows the
+absence is intended rather than a typo.

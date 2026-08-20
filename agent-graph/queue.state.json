@@ -334,36 +334,55 @@
       "notes": "Merged. The exception to tenet 7 is now written down and reversible - worth a human look."
     },
     "MOTIFSTATUS-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/MOTIFSTATUS-001-local",
+      "commitSha": "b15bbb5",
       "attempts": 0,
       "lastRunId": "interactive-2026-08-20-wave9",
-      "notes": "Seeded 2026-08-20 from wave 8. MOTIFSTATUS-001 is the priority: it is latent today but must close before SYNCV2ROUTE-001 can open."
+      "lastEvidence": "MERGED to master in 24e7a3a after independent verification. Combined suite 551/551, 0 skipped; typecheck/lint/build clean. | THE LATENT HOLE IS CLOSED BEFORE ANYTHING COULD OPEN IT. lib/contracts/study-v2.ts now defines MOTIF_CANDIDATE_STATUSES, read out of the three constants in lib/db/radar.ts that are the only code anywhere that writes that column - not guessed. The sync schema validates against it, and the planner refuses any op that would move a candidate INTO promoted, or any further op against an already-promoted row, so a promoted-to-dismissed downgrade cannot launder through either. | Decision stated plainly in the planner header: promoted is entirely server-owned, because promotion re-derives the sighting count and demands an explicit learner confirmation, and the sync wire format carries neither. | VERIFIED INDEPENDENTLY: I disabled the refusal and both named tests failed - creating a candidate directly as promoted, and moving a pending one to promoted; restored byte-identical, green. | It reported a failing test outside its scope rather than weakening its own fix to keep the suite green, which is exactly the behavior this graph is built to reward. Repaired at integration - see the merge commit.",
+      "notes": "Merged. SYNCV2ROUTE-001 is now safe to build."
     },
     "V2VAULT-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/V2VAULT-001-local",
+      "commitSha": "0299c55",
       "attempts": 0,
       "lastRunId": "interactive-2026-08-20-wave9",
-      "notes": "Seeded 2026-08-20 from wave 8. MOTIFSTATUS-001 is the priority: it is latent today but must close before SYNCV2ROUTE-001 can open."
+      "lastEvidence": "MERGED to master in 24e7a3a after independent verification. Combined suite 551/551, 0 skipped; typecheck/lint/build clean. | The eight v2 entities exist offline for the FIRST time. Stores derived from SYNC_ENTITIES_V2 at runtime rather than hand-listed - the exact drift that shipped a six-entity handler set against an eight-entity contract. Entity and outbox op in ONE IndexedDB transaction, every writer under the same write lock, and the device clear now counts pending v2 work so it cannot report success over unsynced writing - the bug this repo already shipped once. | THE GUARANTEE THAT MATTERED MOST: the version bump 3 -> 4 is additive, gated on oldVersion, dropping nothing. A wipe here would silently destroy a real learner vault on their next app load. VERIFIED INDEPENDENTLY: I made the v4 block delete every existing store and \"opening the version-4 schema upgrades a real v1 vault in place, losing none of its data\" failed by name; restored byte-identical, green. | It also caught an error in MY task definition: readOnlyPaths named two test files that do not exist under those names. It found the real ones and said so rather than guessing. Corrected in tasks.json.",
+      "notes": "Merged. Nothing calls the eight new saveLocal* writers yet - that is the first v2 authoring UI, queued as V2COMPOSER-001."
     },
     "EXPORTV2-001": {
+      "status": "done",
+      "branch": "agent/EXPORTV2-001-local",
+      "commitSha": "47b280c",
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-20-wave9",
+      "lastEvidence": "MERGED to master in 24e7a3a after independent verification. Combined suite 551/551, 0 skipped; typecheck/lint/build clean. | A learner can get their v2 work out, which is what makes owning it true. Driven off SYNC_ENTITIES_V2 with THREE independent mechanisms that fail loudly on a ninth entity, and a claim exports as Markdown with its evidence list attached per BUILD_PLAN 3.4, not as a bare row. | Every assertion parses the UNZIPPED ARCHIVE BYTES rather than the fixture objects handed in, so an exporter that quietly drops a field cannot pass - that is the difference between a real round-trip test and a comfortable one. | It made a deliberate split from v1 and justified it: v1 export omits soft-deleted rows, v2 includes them annotated, because an export is a give-me-everything ownership act rather than a view of what the UI shows. | REPORTED, NOT SMUGGLED: app/api/export/route.ts still passes only v1 data into buildVaultArchive, so this is not reachable from a real HTTP request yet. Queued as EXPORTROUTE-001.",
+      "notes": "Merged. The capability exists; the route that would expose it does not."
+    },
+    "SYNCV2ROUTE-001": {
       "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": "interactive-2026-08-20-wave9",
-      "notes": "Seeded 2026-08-20 from wave 8. MOTIFSTATUS-001 is the priority: it is latent today but must close before SYNCV2ROUTE-001 can open."
+      "lastRunId": "interactive-2026-08-20-wave10",
+      "notes": "UNBLOCKED 2026-08-20: both dependencies (MOTIFSTATUS-001, V2VAULT-001) are done and merged. The motif-status refusal it must not be able to route around now exists and is mutation-proved."
     },
-    "SYNCV2ROUTE-001": {
-      "status": "blocked-on-dependency",
+    "EXPORTROUTE-001": {
+      "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": null,
-      "notes": "Deliberately gated behind MOTIFSTATUS-001 and V2VAULT-001. Opening this route early would hand a client the ability to promote a motif candidate without the learner confirmation. Not a human gate - it unblocks automatically when both dependencies are done."
+      "lastRunId": "interactive-2026-08-20-wave10",
+      "notes": "Seeded 2026-08-20 from wave 9."
+    },
+    "V2COMPOSER-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-20-wave10",
+      "notes": "Seeded 2026-08-20 from wave 9."
     }
   }
 }

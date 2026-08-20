@@ -1192,8 +1192,8 @@
         "web/lib/contracts/study-v2.ts",
         "web/lib/db/sync-v2.ts",
         "web/lib/sync/client.ts",
-        "web/tests/sync-store.test.ts",
-        "web/tests/clear-device.test.ts",
+        "web/tests/local-store.test.ts",
+        "web/tests/device-clear.test.ts",
         "BUILD_PLAN.md"
       ],
       "acceptanceCriteria": [
@@ -1278,6 +1278,76 @@
         "Idempotent replay through the real route - the same opId twice applies once - proven end to end, not just at the planner level.",
         "The motif-status refusal MOTIFSTATUS-001 built must hold THROUGH this route: a test proves a client cannot promote a candidate via sync push.",
         "Mutation-prove the tenant check and the replay guard: removing each must fail a NAMED test."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "EXPORTROUTE-001",
+      "title": "Make the v2 export reachable from an actual request",
+      "objective": "EXPORTV2-001 built full v2 export into lib/export/vault.ts and reported honestly that app/api/export/route.ts still queries and passes only v1 data, so none of it is reachable from a real HTTP request. The capability exists and the door to it does not. Until this lands, everything a learner builds in the v2 layer is still unexportable in practice, which is the data-ownership promise failing quietly rather than loudly.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/app/api/export/route.ts",
+        "web/tests/export-route.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/export/vault.ts",
+        "web/lib/db/workspaces.ts",
+        "web/db/schema.ts",
+        "web/lib/api/response.ts",
+        "web/tests/export-v2.test.ts",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "The route queries all eight v2 tables scoped to the caller workspace, resolved from the SESSION via lib/db/workspaces.ts - never from a caller-supplied id - and passes them plus workspaceId into buildVaultArchive.",
+        "The workspaceId-required-when-v2-data-present guard EXPORTV2-001 built is exercised by the real request path, not only by its own unit tests. Prove it.",
+        "A hostile two-account test proves account A export archive contains nothing belonging to account B, asserted by unzipping the real response body rather than by inspecting what the route passed in.",
+        "A learner with no v2 data still gets a valid archive - the empty case must not throw or produce a corrupt zip. Test it.",
+        "The response keeps the existing private/no-store cache posture and the existing v1 export behavior is unchanged, proven by the existing tests still passing unweakened.",
+        "Mutation-prove the workspace scoping: removing it must fail a NAMED cross-tenant test."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "V2COMPOSER-001",
+      "title": "The first v2 authoring flow: a learner can actually make a claim",
+      "objective": "V2VAULT-001 built eight offline writers and nothing calls any of them. The whole v2 layer - sessions, claims, evidence - is now storable, syncable, exportable and completely unreachable by a person. This is the flow that makes it real, and it is the first place the teaching pivot shows up in authoring rather than in a notice: the learner writes an observation, then upgrades it into a typed claim with the evidence they chose, and the app never fills in what the passage means. BUILD_PLAN 3.4 names this as the promote-to-claim action on NoteComposer.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/components/study/",
+        "web/tests/study-composer.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/sync/store.ts",
+        "web/lib/contracts/study-v2.ts",
+        "web/lib/contracts/sync-v2.ts",
+        "web/components/notes/NoteComposer.tsx",
+        "web/components/notes/StudySession.tsx",
+        "web/components/ui/index.ts",
+        "BUILD_PLAN.md",
+        "docs/decisions/2026-08-18-teaching-not-theology.md"
+      ],
+      "acceptanceCriteria": [
+        "A learner can create a study session and, inside it, a typed claim with at least one piece of evidence, written to the offline vault through V2VAULT-001 existing writers - no new write path, and no direct IndexedDB access of its own.",
+        "THE ASSERTION LINE HOLDS, and this is the criterion that matters most: the composer may prompt for method and may show what the learner themselves recorded, but must never supply, suggest or default the MEANING of a passage. Read docs/decisions/2026-08-18-teaching-not-theology.md and quote your wording choices in the commit so they can be reviewed as wording.",
+        "Claim type, epistemic basis and confidence come from the exported contract arrays in lib/contracts/study-v2.ts at runtime, never retyped literals - a contract change must force a change here, proven by a test.",
+        "The logic is testable WITHOUT a DOM: follow the composerRenderState precedent in components/notes/StudySession.tsx - pure functions the render body actually calls, not a parallel reimplementation of them. This repo test runner has no DOM.",
+        "A claim saved with no evidence is either refused or explicitly marked as unevidenced - decide which, and say why. A typed claim that silently carries no basis is the exact thing this app exists to prevent.",
+        "Nothing is auto-promoted or auto-typed on the learner behalf. Mutation-prove it: making the composer supply a claim type by default must fail a NAMED test."
       ],
       "verification": [
         "cd web; npm.cmd run typecheck",
