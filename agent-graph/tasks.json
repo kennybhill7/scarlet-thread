@@ -1138,6 +1138,154 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "MOTIFSTATUS-001",
+      "title": "Close the motif-status hole before v2 sync push can ever open it",
+      "objective": "RADARUI-001 surfaced this and I verified it directly: syncMotifCandidateV2Schema in lib/api/sync-v2.ts types motif candidate status as z.string().trim().min(1).max(200) - arbitrary text, no enum - because no motif candidate status enum exists in lib/contracts/study-v2.ts at all. The builder who wrote it deliberately refused to invent an enum the contract did not define, which was right. The consequence is that the moment a live v2 sync push route exists, a client could set a candidate status directly and bypass BOTH guarantees the promotion path exists to hold: the explicit learner confirmation, and the three-live-sightings precondition. This is LATENT today - no live v2 push route - so it is not an incident. It must be closed BEFORE that route exists, which is why it blocks SYNCV2ROUTE-001. A second, smaller hole rides along: lib/db/radar.ts dismissMotifCandidate has no status guard of its own and will happily overwrite an already-promoted candidate; RADARUI-001 guards it at the route, but the function itself does not.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/lib/contracts/study-v2.ts",
+        "web/lib/api/sync-v2.ts",
+        "web/lib/db/sync-v2.ts",
+        "web/lib/db/radar.ts",
+        "web/tests/sync-v2.test.ts",
+        "web/tests/sync-v2-persist.test.ts",
+        "web/tests/radar-persist.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/db/schema.ts",
+        "web/lib/contracts/sync-v2.ts",
+        "web/app/api/motifs/[id]/route.ts",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "A motif candidate status enum is defined in lib/contracts/study-v2.ts as an as-const array, in the same style as STUDY_CLAIM_STATUSES, derived from the values lib/db/radar.ts and the schema actually use - read them, do not guess. Say in the commit where each value came from.",
+        "syncMotifCandidateV2Schema validates status against that enum instead of accepting arbitrary text, and a test proves an off-enum status is REJECTED.",
+        "The sync planner cannot perform a promotion by the back door: a sync op that would move a candidate INTO the promoted state is refused with a distinguishable reason, because promotion is the privileged server transition RADARUI-001 documented (BUILD_PLAN 3.4 exception). Decide and state whether any status transition is legitimately client-drivable at all, or whether motif status is entirely server-owned. A test must prove the refusal.",
+        "dismissMotifCandidate gains its own status guard so it cannot overwrite an already-resolved candidate, matching the guard RADARUI-001 had to add at the route. Defense in depth: the route guard stays, and BOTH must be independently mutation-proved.",
+        "Every existing sync-v2, sync-v2-persist and radar-persist test keeps passing unweakened. Where one asserts the old permissive status behavior, update it explicitly and say so.",
+        "Mutation-prove each new guard: removing it must fail a NAMED test."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "V2VAULT-001",
+      "title": "Teach the offline vault the eight v2 entities",
+      "objective": "The IndexedDB vault in lib/sync/store.ts still only knows v1 entities - entry, thread, progress, log. None of the eight v2 entities (session, claim, evidence, motif, motifSighting, connection, application, teachingDraft) can be created offline at all, which means the entire v2 data layer that Phases 1 built is unreachable from a plane, a basement, or a bad signal. BUILD_PLAN 3.4 is explicit that entity and outbox op must be written in ONE IndexedDB transaction, and tenet 7 says every browser write goes through the outbox. This is the local half of that contract.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/lib/sync/store.ts",
+        "web/lib/sync/clear.ts",
+        "web/tests/vault-v2.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/contracts/sync-v2.ts",
+        "web/lib/contracts/study-v2.ts",
+        "web/lib/db/sync-v2.ts",
+        "web/lib/sync/client.ts",
+        "web/tests/sync-store.test.ts",
+        "web/tests/clear-device.test.ts",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "The vault stores all eight v2 entities, deriving the list from SYNC_ENTITIES_V2 at runtime rather than hand-listing it - a hand-list is exactly how SYNCPERSIST-001 shipped against six entities while the contract had grown to eight. Growing the contract must force a change here, and a test must prove that.",
+        "Entity write and outbox op are ONE IndexedDB transaction. Test the failure case: if the outbox write fails, the entity write must not survive. A half-written pair is silent data loss on the next sync.",
+        "Every new writer takes the same withWriteLock the existing eight writers take - cross-tab write exclusion is not optional, and a second tab writing concurrently is a real scenario on a phone plus laptop.",
+        "clear.ts destroys v2 data too, and - per the bug this repo already shipped once - a clear must NOT report success while unsynced v2 work is still pending. Test that an unsynced v2 entity blocks or warns exactly as an unsynced entry does today.",
+        "An IndexedDB schema version bump is handled as an UPGRADE, not a wipe: an existing vault with v1 data must survive the upgrade with that data intact. Test it with fake-indexeddb, opening at the old version first and then the new one.",
+        "All existing sync-store and clear-device tests keep passing unweakened.",
+        "Mutation-prove: breaking the single-transaction guarantee, and removing a write lock, must each fail a NAMED test."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "EXPORTV2-001",
+      "title": "Export the v2 entities, so the learner still owns their work",
+      "objective": "BUILD_PLAN 3.4 says export (lib/export/vault.ts) includes all new entities, and that a claim exports as Markdown with its evidence list. Today export only knows v1. Everything a learner builds in the v2 layer - study sessions, claims and their evidence, motifs, applications, teaching drafts - is currently unexportable, which quietly breaks the data-ownership promise this app is built on. A learner who cannot get their work out does not really own it.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/lib/export/vault.ts",
+        "web/tests/export-v2.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/contracts/study-v2.ts",
+        "web/lib/contracts/sync-v2.ts",
+        "web/db/schema.ts",
+        "web/lib/db/radar.ts",
+        "web/tests/export.test.ts",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "Export covers all eight v2 entities, driven off SYNC_ENTITIES_V2 at runtime rather than a hand-written list, so adding a ninth entity later fails loudly here instead of silently exporting eight. Prove that with a test.",
+        "A claim exports as Markdown WITH its evidence list attached, per BUILD_PLAN 3.4 - not as a bare row. Show the exact rendered shape in the commit.",
+        "Export is workspace-scoped and never crosses tenants: a hostile test proves account A export contains nothing belonging to account B.",
+        "Round-trip honesty: whatever the export claims to contain, a test must verify by parsing the OUTPUT rather than by re-reading the source objects the exporter was handed. An exporter that quietly drops a field would otherwise pass.",
+        "Soft-deleted rows are handled deliberately - decide whether an export includes tombstoned work and say why. A learner exporting their vault probably does want deleted-but-not-purged work; state the choice either way.",
+        "All existing export tests keep passing unweakened.",
+        "Mutation-prove: dropping an entity from the export must fail a NAMED test."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "SYNCV2ROUTE-001",
+      "title": "Put v2 sync push and pull behind a live route",
+      "objective": "SYNCPERSIST-001 built pushSyncOpsV2 and it is fully tested, but NOTHING CALLS IT - there is no live v2 sync route, so the entire v2 offline story is inert end to end. This wires it up. It is deliberately gated behind MOTIFSTATUS-001, because opening this route while the motif status field still accepts arbitrary client text would hand a client the ability to promote a candidate without the learner confirmation and the three-sightings precondition that the promotion path exists to guarantee.",
+      "baseBranch": null,
+      "dependsOn": [
+        "MOTIFSTATUS-001",
+        "V2VAULT-001"
+      ],
+      "ownedPaths": [
+        "web/app/api/sync/v2/",
+        "web/lib/sync/client.ts",
+        "web/tests/sync-v2-route.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/db/sync-v2.ts",
+        "web/lib/api/sync-v2.ts",
+        "web/app/api/sync/push/route.ts",
+        "web/app/api/sync/pull/route.ts",
+        "web/lib/db/workspaces.ts",
+        "web/lib/sync/store.ts",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "Push and pull routes exist for v2, following the shape the v1 routes already established rather than inventing a new one, and the v1 routes stay byte-stable.",
+        "The route is the ONLY new write path: it delegates to pushSyncOpsV2 and adds no persistence logic of its own. Any validation it performs must call the existing lib/api/sync-v2.ts parsers, not a second copy.",
+        "Hostile two-account tests: an op naming another workspace is refused at the route, and a pull returns nothing belonging to another account.",
+        "Idempotent replay through the real route - the same opId twice applies once - proven end to end, not just at the planner level.",
+        "The motif-status refusal MOTIFSTATUS-001 built must hold THROUGH this route: a test proves a client cannot promote a candidate via sync push.",
+        "Mutation-prove the tenant check and the replay guard: removing each must fail a NAMED test."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }

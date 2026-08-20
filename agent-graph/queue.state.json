@@ -307,28 +307,63 @@
       "notes": "Merged. Deployment is no longer blocked by migrations; the remaining blocker is credentials plus the Vercel root directory (OPS-001)."
     },
     "MOTIFTHREAD-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/MOTIFTHREAD-001-local",
+      "commitSha": "1042eb5",
       "attempts": 0,
       "lastRunId": "interactive-2026-08-20-wave8",
-      "notes": "Seeded 2026-08-20 from wave 7. Each came from a gap a builder reported honestly rather than papering over."
+      "lastEvidence": "MERGED to master in 14e5051 after independent verification. Combined suite 527/527, 0 skipped; typecheck/lint/build clean; drizzle-kit check fine. | motif_candidates gains a nullable thread_slug (migration 0009, a single additive ALTER TABLE ADD COLUMN, no FK) written inside the SAME atomic batch as the promotion. The derived-slug workaround is gone: a learner who already has an unrelated thread by that name is now promoted with a numbered variant instead of hitting an error, which was the bug this task was filed to fix. | It reported rather than smuggled: tests/schema-v2.test.ts asserted a CLOSED list of migrations and went red the moment 0009 existed, and that file was outside its scope. I fixed it during integration - and NOT by appending 0009, because a closed list rots on every future migration. The 0000-0006 pin is kept, plus contiguity, tag-number-equals-journal-idx, and the three tags other tests locate by prefix. Mutation-proved two ways.",
+      "notes": "Merged. No live-Postgres proof for 0009, disclosed rather than implied - it is one additive ADD COLUMN with no constraint."
     },
     "V2API-002": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/V2API-002-local",
+      "commitSha": "ef76990",
       "attempts": 0,
       "lastRunId": "interactive-2026-08-20-wave8",
-      "notes": "Seeded 2026-08-20 from wave 7. Each came from a gap a builder reported honestly rather than papering over."
+      "lastEvidence": "MERGED to master in 14e5051 after independent verification. Combined suite 527/527, 0 skipped; typecheck/lint/build clean; drizzle-kit check fine. | THE GAP THAT ACTUALLY BIT A LEARNER IS CLOSED: a soft-deleted claim was still being returned in v2 list responses. queries.ts now excludes deletedAt rows by default, following the lib/db/entries.ts includeDeleted convention rather than inventing a second one - two soft-delete conventions in one codebase is how this class of bug survives. | Also adds read routes for the five remaining v2 entities and a bounded page size (default 50, max 200, 400 outside that) so a large workspace cannot return an unbounded response. Tests went 14 -> 38, and the M1 tautology mutation now proves the five NEW entities leak too, not just the original three. | VERIFIED INDEPENDENTLY: I disabled the filter across all 8 list queries and five named tests failed (S1, S2, S3, S5, S6); restored byte-identical, green. | It also disclosed a mid-task process slip unprompted: a git checkout restore during its first mutation cycle reverted uncommitted work, which it caught immediately and redid with proper backups. Reporting that rather than hiding it is exactly the behavior this graph is built to reward.",
+      "notes": "Merged. Pagination is limit-only - no cursor - so a workspace with more than 200 rows of one entity cannot be paged past the newest 200. Not blocking; revisit when a real workspace approaches the bound."
     },
     "RADARUI-001": {
+      "status": "done",
+      "branch": "agent/RADARUI-001-local",
+      "commitSha": "f6aede2",
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-20-wave8",
+      "lastEvidence": "MERGED to master in 14e5051 after independent verification. Combined suite 527/527, 0 skipped; typecheck/lint/build clean; drizzle-kit check fine. | The third-sighting mechanic is reachable by a PERSON for the first time. GET /api/motifs offers pending candidates; POST accepts exactly confirm or dismiss and derives learnerConfirmed in ONE place from the action - never a default, never a client-supplied boolean. 17 tests including three hostile cross-workspace cases. | VERIFIED INDEPENDENTLY: I hardcoded learnerConfirmed to true and four named tests failed, including a dismiss request wrongly creating a thread; restored byte-identical, green. | It made a real architectural call rather than dodging it: confirm/dismiss are a narrow DELIBERATE exception to tenet 7, reasoned in the route header, because sync push carries client-held field values while these carry no payload at all, and promotion is one atomic batch reaching a v1 threads row the v2 wire format has no entity for. I ratified it in BUILD_PLAN 3.4 during integration rather than leave doc and code disagreeing. | It also refused to fake a mutation proof it could not honestly make: defeating its own workspace guard still 404s because radar.ts re-checks scope independently. It said so and redirected the proof to a guard that IS uniquely its job.",
+      "notes": "Merged. The exception to tenet 7 is now written down and reversible - worth a human look."
+    },
+    "MOTIFSTATUS-001": {
       "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": "interactive-2026-08-20-wave8",
-      "notes": "Seeded 2026-08-20 from wave 7. Each came from a gap a builder reported honestly rather than papering over."
+      "lastRunId": "interactive-2026-08-20-wave9",
+      "notes": "Seeded 2026-08-20 from wave 8. MOTIFSTATUS-001 is the priority: it is latent today but must close before SYNCV2ROUTE-001 can open."
+    },
+    "V2VAULT-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-20-wave9",
+      "notes": "Seeded 2026-08-20 from wave 8. MOTIFSTATUS-001 is the priority: it is latent today but must close before SYNCV2ROUTE-001 can open."
+    },
+    "EXPORTV2-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-20-wave9",
+      "notes": "Seeded 2026-08-20 from wave 8. MOTIFSTATUS-001 is the priority: it is latent today but must close before SYNCV2ROUTE-001 can open."
+    },
+    "SYNCV2ROUTE-001": {
+      "status": "blocked-on-dependency",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "notes": "Deliberately gated behind MOTIFSTATUS-001 and V2VAULT-001. Opening this route early would hand a client the ability to promote a motif candidate without the learner confirmation. Not a human gate - it unblocks automatically when both dependencies are done."
     }
   }
 }
