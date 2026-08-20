@@ -1356,6 +1356,109 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "SYNCV2MERGE-001",
+      "title": "Make v2 sync two-way: merge a pulled snapshot without re-enqueueing it",
+      "objective": "SYNCV2ROUTE-001 wired /api/sync/v2/pull and proved it is live, then stopped at exactly the right place and explained why. The only v2 vault writer, saveLocalV2EntityByName, always enqueues an outbound syncQueueV2 op for whatever it writes. That is correct for a locally-authored edit and WRONG for a server-authored pull: merging a snapshot through it would re-enqueue every pulled row as a fresh local change one revision behind what the server just returned, which the server would then reject as a revision conflict on every subsequent sync, forever. That is a real functional regression, not a cosmetic gap, and it correctly refused to cause it from inside a task where lib/sync/store.ts was read-only. Until this lands, v2 sync is PUSH-ONLY: a second device can send but never receive.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/lib/sync/store.ts",
+        "web/lib/sync/client.ts",
+        "web/tests/vault-v2-merge.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/db/sync-v2.ts",
+        "web/app/api/sync/v2/pull/route.ts",
+        "web/lib/contracts/sync-v2.ts",
+        "web/tests/vault-v2.test.ts",
+        "web/tests/sync-v2-route.test.ts",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "A mergeRemoteChanges-shaped writer applies a pulled v2 snapshot to the local stores WITHOUT enqueueing an outbox op. A test proves the outbox is byte-identical before and after a merge - that assertion is the whole point of this task.",
+        "A local edit still enqueues, unchanged. Prove both behaviors coexist rather than one replacing the other.",
+        "Conflict rule stated and enforced: when a pulled row and an unsynced local edit disagree, decide what happens and say why. Long-form prose must never be silently lost - BUILD_PLAN tenet 4. If the answer is that the local edit wins and stays queued, prove the pulled row does not clobber it.",
+        "The merge runs under the same withWriteLock the other writers use, and entity writes within one merge are one IndexedDB transaction so a partial merge cannot survive a failure.",
+        "lib/sync/client.ts calls it from syncNowV2, so a pull actually lands locally and v2 sync is two-way end to end.",
+        "All existing vault-v2 and local-store tests keep passing unweakened.",
+        "Mutation-prove: making the merge enqueue an outbox op must fail a NAMED test, since that is precisely the revision-conflict loop this task exists to avoid."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "STUDYPAGE-001",
+      "title": "Mount the claim composer on a real page",
+      "objective": "V2COMPOSER-001 built ClaimComposer and reported that nothing mounts it: app/(app)/study/[sessionId]/page.tsx does not exist. The composer takes workspaceId as a prop and trusts its caller to resolve it server-side from the session. That resolution, and the page around it, is this task. Until it lands, the entire v2 authoring path is unreachable by a person - the same shape as the radar before RADARUI-001.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/app/(app)/study/",
+        "web/tests/study-page.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/components/study/ClaimComposer.tsx",
+        "web/components/study/index.ts",
+        "web/lib/db/workspaces.ts",
+        "web/lib/auth/config.ts",
+        "web/app/(app)/review/page.tsx",
+        "web/app/(app)/read/[book]/[chapter]/page.tsx",
+        "web/components/shell/TabBar.tsx",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "A page mounts ClaimComposer with a workspaceId resolved SERVER-SIDE from the session via lib/db/workspaces.ts - never from a route param, query string, or anything else a caller controls. A hostile test proves a caller cannot aim the page at another workspace.",
+        "An unauthenticated visitor is refused, following whatever the sibling pages under app/(app)/ already do rather than inventing a new pattern.",
+        "A session id that does not exist, or belongs to another workspace, renders a not-found rather than an empty composer pointed at nothing.",
+        "Follow the existing page conventions in app/(app)/ exactly - server component boundaries, layout, and how a client component receives props.",
+        "Testable without a DOM: keep the page thin and put any decision in a pure function the page actually calls, per the composerRenderState precedent.",
+        "Mutation-prove the workspace resolution: making the page trust a caller-supplied workspace id must fail a NAMED test."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "SYNCDEDUP-001",
+      "title": "Delete the duplicate workspace-ownership check in the sync planner",
+      "objective": "SYNCPERSIST-001 wrote an inline resolveWorkspaceOwnership in lib/db/sync-v2.ts as a deliberate stand-in, with a header comment saying it should be swapped for WORKSPACE-001 real helper once that landed. WORKSPACE-001 landed. Two builders since have read that comment, confirmed the swap is still pending, and correctly left it alone because the file was read-only for them. It is now two implementations of the single most security-relevant check in the codebase, which is exactly how the two drift and one gets fixed while the other does not.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/lib/db/sync-v2.ts",
+        "web/tests/sync-v2-persist.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/db/workspaces.ts",
+        "web/lib/db/sync.ts",
+        "web/tests/tenant-isolation.test.ts",
+        "web/tests/sync-v2-route.test.ts"
+      ],
+      "acceptanceCriteria": [
+        "The inline resolveWorkspaceOwnership is replaced by lib/db/workspaces.ts existing helper and the local duplicate is DELETED, along with the now-obsolete header comment describing it as temporary.",
+        "Behavior is identical, proven rather than asserted: every existing tenant-isolation and sync-v2 test passes unweakened, including the cross-workspace refusal ones.",
+        "If the two implementations turn out to differ in any case - soft-deleted workspaces, a missing row, an empty user id - say so explicitly and state which behavior you kept and why. A silent behavior change in a tenant check is the worst possible outcome of a cleanup task.",
+        "tests/sync-v2-route.test.ts MUTPROVE-1 targets the compiled shape of this exact call site. If your change alters that shape, the mutation pattern must be updated so the proof keeps working - a mutation proof that silently stops matching is worse than none. That file is read-only here, so if it needs a change, REPORT it.",
+        "Mutation-prove the surviving check: removing it must still fail a NAMED cross-tenant test."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }

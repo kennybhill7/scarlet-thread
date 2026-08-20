@@ -42,7 +42,7 @@
       "commitSha": "c2324d2197037a8a4918f473cc8fb6183cf9179b",
       "attempts": 0,
       "lastRunId": "cloud-20260814051329",
-      "lastEvidence": "typecheck exit 0 (no output); lint exit 0 (no output); npm test -> tests 93, pass 93, fail 0, cancelled 0, skipped 0 (tenant-isolation.test.ts alone: 55 tests all passing, incl. the 6 new: C2b, S10, S11, S12, S13, EVAL1); DATABASE_URL='postgresql://u:p@localhost:5432/db' npm run build -> exit 0, 'Compiled successfully', no db:migrate invoked. Criterion 1: PocketPg's <> evaluator now implements Postgres three-valued NULL logic (left!==null && right!==null && left!==right) instead of the old !equal(left,right)&&left!==null, which returned true whenever the right operand was NULL regardless of the left side; grep confirmed no production code calls ne()/<> today, so this closes a latent gap, proven directly by new test EVAL1 against evaluatePredicate. Criterion 2: new attack S10 mixes a B-targeted entry upsert with a valid A log upsert in one push batch; asserts exactly one rejection, the A op's write+receipt land, the rejected op has no receipt, B's entry and every other B row unchanged. Criterion 3: new attack S11 pushes two ops sharing one id in the same batch; asserts the second is silently deduped (not applied, not rejected) and exactly one receipt exists. Criterion 4: new attacks S12 (person slug collision) and S13 (daily-log date collision) mirror S4's existing thread-slug pattern, each creating A's own row under the composite primary key without touching B's. Criterion 5: new attack C2b mirrors C2 (id-squat on B's active entry) against B's soft-deleted entry, proving the same fail-closed 500 (finding F2) holds for a deleted row in the same global entries.id namespace. Criterion 6: every new attack calls assertBUntouched; S10-S13 also added to S8's snapshot-survives-every-attack sweep. Only web/tests/tenant-isolation.test.ts touched (its sole owned path); no production code changed. No PR opened — this queue's prior submitted tasks (SEC-002, P0UI-002) coordinate via this file and branch/commit alone, per QUEUE.md, not GitHub PRs. | FORMALIZED DONE 2026-08-17: independently re-verified by Claude in a fresh worktree - typecheck/lint/test all real (93/93 matching claim), then went further than reading: hand-reverted the <>/NULL fix to its old buggy form, confirmed exactly one test (EVAL1) fails with the precise Postgres three-valued-logic error message, restored, reconfirmed 93/93 - proof the test has real teeth, not a self-fulfilling assertion.",
+      "lastEvidence": "typecheck exit 0 (no output); lint exit 0 (no output); npm test -> tests 93, pass 93, fail 0, cancelled 0, skipped 0 (tenant-isolation.test.ts alone: 55 tests all passing, incl. the 6 new: C2b, S10, S11, S12, S13, EVAL1); DATABASE_URL='postgresql://u:p@localhost:5432/db' npm run build -> exit 0, 'Compiled successfully', no db:migrate invoked. Criterion 1: PocketPg's <> evaluator now implements Postgres three-valued NULL logic (left!==null && right!==null && left!==right) instead of the old !equal(left,right)&&left!==null, which returned true whenever the right operand was NULL regardless of the left side; grep confirmed no production code calls ne()/<> today, so this closes a latent gap, proven directly by new test EVAL1 against evaluatePredicate. Criterion 2: new attack S10 mixes a B-targeted entry upsert with a valid A log upsert in one push batch; asserts exactly one rejection, the A op's write+receipt land, the rejected op has no receipt, B's entry and every other B row unchanged. Criterion 3: new attack S11 pushes two ops sharing one id in the same batch; asserts the second is silently deduped (not applied, not rejected) and exactly one receipt exists. Criterion 4: new attacks S12 (person slug collision) and S13 (daily-log date collision) mirror S4's existing thread-slug pattern, each creating A's own row under the composite primary key without touching B's. Criterion 5: new attack C2b mirrors C2 (id-squat on B's active entry) against B's soft-deleted entry, proving the same fail-closed 500 (finding F2) holds for a deleted row in the same global entries.id namespace. Criterion 6: every new attack calls assertBUntouched; S10-S13 also added to S8's snapshot-survives-every-attack sweep. Only web/tests/tenant-isolation.test.ts touched (its sole owned path); no production code changed. No PR opened \u2014 this queue's prior submitted tasks (SEC-002, P0UI-002) coordinate via this file and branch/commit alone, per QUEUE.md, not GitHub PRs. | FORMALIZED DONE 2026-08-17: independently re-verified by Claude in a fresh worktree - typecheck/lint/test all real (93/93 matching claim), then went further than reading: hand-reverted the <>/NULL fix to its old buggy form, confirmed exactly one test (EVAL1) fails with the precise Postgres three-valued-logic error message, restored, reconfirmed 93/93 - proof the test has real teeth, not a self-fulfilling assertion.",
       "notes": "Base branch agent/SYNC-001-claude (tip 12f65b2), which contains the isolation suite plus the sync fix. Awaiting independent audit, same as SYNC-001 itself. | MERGED TO MASTER 2026-08-18 in 5eb1b34 (integration/verified-2026-08-18): all five code branches merged together, then verified AS A COMBINED WHOLE - typecheck clean, lint clean, 165/165 tests, production build clean. Individually-verified is not the same as integrated-verified; this checked the latter."
     },
     "SEC-001": {
@@ -361,28 +361,55 @@
       "notes": "Merged. The capability exists; the route that would expose it does not."
     },
     "SYNCV2ROUTE-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/SYNCV2ROUTE-001-local",
+      "commitSha": "bf427bf",
       "attempts": 0,
       "lastRunId": "interactive-2026-08-20-wave10",
-      "notes": "UNBLOCKED 2026-08-20: both dependencies (MOTIFSTATUS-001, V2VAULT-001) are done and merged. The motif-status refusal it must not be able to route around now exists and is mutation-proved."
+      "lastEvidence": "MERGED to master in 8ba733c after independent verification. Combined suite 618/618, 0 skipped; typecheck/lint/build clean. | /api/sync/v2/push and /pull exist. Push delegates every write, tenant check, idempotency check and motif-promotion refusal to the existing pushSyncOpsV2 and adds no persistence of its own; pull resolves the workspace from the SESSION and reads all eight tables in one snapshot. The v1 routes are proven byte-stable by a hash test. | The refusal MOTIFSTATUS-001 built is proven to hold THROUGH the real route for both the create-as-promoted and promote-existing shapes - which is exactly why that task gated this one. | I REPLACED ITS MUTATION PROOFS AT INTEGRATION: it shipped them as skip-unless-an-env-var tests that only did anything after a human hand-edited a read-only file on disk. Permanently skipped, named MUTATION PROOF, proving nothing in a normal run - the same shape as the silently-skipped wire suite this repo already shipped once. Now they use the compile-time hook motif-ui and v2-api already use: applied to module source as it loads, run every npm test, never write to disk, and assert hits > 0 so a stale pattern fails loudly. Read-only means do not EDIT the file, not do not TEST it.",
+      "notes": "Merged. v2 sync is PUSH-ONLY until SYNCV2MERGE-001 lands - pull fetches a snapshot but cannot write it locally yet."
     },
     "EXPORTROUTE-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/EXPORTROUTE-001-local",
+      "commitSha": "b602465",
       "attempts": 0,
       "lastRunId": "interactive-2026-08-20-wave10",
-      "notes": "Seeded 2026-08-20 from wave 9."
+      "lastEvidence": "MERGED to master in 8ba733c after independent verification. Combined suite 618/618, 0 skipped; typecheck/lint/build clean. | The v2 export EXPORTV2-001 built is now reachable from an actual request. It deliberately did NOT reuse the v2 read queries, which cap at 200 rows and hide soft-deletes: both are right for a UI list and wrong for a give-me-everything export. That is the kind of judgment that separates wiring from thinking. | Every assertion unzips the real response body. | It also reported honestly that its own query-layer regression is invisible to end-to-end tests because lib/export/vault.ts re-filters independently, and wrote a query-layer test instead of pretending the hostile tests covered it. I confirmed that independently during integration - see R9 below.",
+      "notes": "Merged. Its honesty about the defense-in-depth masking is what let me fix R9 correctly rather than trivially."
     },
     "V2COMPOSER-001": {
+      "status": "done",
+      "branch": "agent/V2COMPOSER-001-local",
+      "commitSha": "e8e08e0",
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-20-wave10",
+      "lastEvidence": "MERGED to master in 8ba733c after independent verification. Combined suite 618/618, 0 skipped; typecheck/lint/build clean. | A learner can create a study session, a typed claim and its evidence, written through V2VAULT-001 vault writers only - no new write path. 44 new tests. | THE PRODUCT RULES HOLD: nothing is pre-selected (claim kind, epistemic basis, confidence and doctrine status all start null, mutation-proved), and a claim with no evidence is REFUSED rather than saved as unevidenced - a typed claim silently carrying no basis is the exact thing this app exists to prevent. Option lists come from the contract arrays at runtime, so a contract change forces a change here. | It followed the composerRenderState precedent rather than inventing a test-only copy of the logic: PromoteFields is hookless so its real element tree is walkable without a DOM, and Chip/Button handlers are invoked off the real rendered tree.",
+      "notes": "Merged. Not mounted on any page yet - queued as STUDYPAGE-001."
+    },
+    "SYNCV2MERGE-001": {
       "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": "interactive-2026-08-20-wave10",
-      "notes": "Seeded 2026-08-20 from wave 9."
+      "lastRunId": "interactive-2026-08-20-wave11",
+      "notes": "Seeded 2026-08-20 from wave 10."
+    },
+    "STUDYPAGE-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-20-wave11",
+      "notes": "Seeded 2026-08-20 from wave 10."
+    },
+    "SYNCDEDUP-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-20-wave11",
+      "notes": "Seeded 2026-08-20 from wave 10."
     }
   }
 }
