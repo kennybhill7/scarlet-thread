@@ -402,3 +402,56 @@ test("all four SCHEMAFU-001 additions (workspaces, teaching_sections, artifact_r
   assert.ok(schema.artifactRevisions);
   assert.ok(columnsOf(schema.claimEvidence).connectionId);
 });
+
+// ---------------------------------------------------------------------------
+// 7. MOTIFTHREAD-001 — motif_candidates.thread_slug: an additive, nullable
+//    column recording WHICH v1 threads row a promoted candidate became,
+//    replacing RADARPERSIST-001's deterministic-slug workaround
+//    (lib/db/radar.ts's threadSlugForCandidate, now deleted). Deliberately
+//    the SAME shape as user_connections.threadSlug (above, gap (b)'s
+//    neighbor) rather than a composite FK: `threads` is keyed by
+//    (userId, slug), not id, and motif_candidates carries no userId column
+//    to pair into a composite reference with.
+// ---------------------------------------------------------------------------
+
+test("motif_candidates.thread_slug is nullable text with NO foreign key -- same shape as user_connections.thread_slug, for the same reason (threads is (userId, slug)-keyed, not id-keyed)", () => {
+  // MUTATION PROOF (paste in the commit): add `.notNull()` to
+  // motifCandidates.threadSlug in db/schema.ts and this test fails by name
+  // on the `notNull` assertion.
+  const cols = columnsOf(schema.motifCandidates);
+  assert.ok(cols.threadSlug, "motif_candidates should have a threadSlug column");
+  assert.equal(cols.threadSlug.name, "thread_slug");
+  assert.equal(cols.threadSlug.dataType, "string");
+  assert.equal(cols.threadSlug.notNull, false, "thread_slug must be nullable -- an un-promoted candidate has no thread");
+
+  const cfg = getTableConfig(schema.motifCandidates as any);
+  const fk = cfg.foreignKeys.find((f: any) =>
+    f.reference().columns.some((c: any) => c.name === "thread_slug"),
+  );
+  assert.equal(fk, undefined, "thread_slug must carry no foreign key (threads has no id-keyed unique target to reference)");
+});
+
+test("motif_candidates gained EXACTLY one new column (thread_slug) since RADARPERSIST-001 -- id, workspace_id, label, normalized_key, status, thread_slug, revision, plus the standard timestamps", () => {
+  const cols = columnsOf(schema.motifCandidates);
+  const actualKeys = Object.keys(cols).sort();
+  assert.deepEqual(
+    actualKeys,
+    ["id", "workspaceId", "label", "normalizedKey", "status", "threadSlug", "revision", "createdAt", "updatedAt", "deletedAt"].sort(),
+  );
+});
+
+test("migration 0009 adds motif_candidates.thread_slug additively -- a single nullable ALTER TABLE ADD COLUMN, no FK, no rewrite of 0000-0008", () => {
+  const files = fs
+    .readdirSync(migrationsDir)
+    .filter((name) => /^\d{4}_.+\.sql$/.test(name))
+    .sort();
+  const newest = files[files.length - 1]!;
+  assert.match(newest, /^0009_/, "expected migration 0009 to be the newest file (a forward migration, not an edit to an applied one)");
+
+  const sql = fs.readFileSync(path.join(migrationsDir, newest), "utf8").replace(/\r\n/g, "\n").trim();
+  assert.equal(
+    sql,
+    'ALTER TABLE "motif_candidates" ADD COLUMN "thread_slug" text;',
+    "0009 must be exactly one additive, nullable ALTER TABLE ADD COLUMN statement -- no FK, no NOT NULL, nothing else",
+  );
+});

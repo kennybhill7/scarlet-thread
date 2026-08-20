@@ -14,21 +14,25 @@
  * `motif_sightings` (THEOLOGY_MASTER_BUILD_PLAN.md §12.3) existed on this
  * branch.
  *
- * RADARPERSIST-001 (this task) EXTENDS the file with the persistence half
- * RADAR-001 deliberately deferred, now that those tables exist
- * (SCHEMAV2-001): `persistMotifCandidates` writes computed candidates and
- * their sightings; `dismissMotifCandidate` marks a candidate dismissed
- * without touching the underlying entries; `promoteMotifCandidate` is the
- * BUILD_PLAN §3.3/§3.5 promotion transaction — "Promotion on the third
- * genuine sighting creates the thread and links earlier sightings
- * transactionally" — gated on an explicit learner confirmation the caller
- * must supply; reaching three sightings alone never promotes anything. See
- * the "Persistence (RADARPERSIST-001)" section near the bottom of this file
- * for the full design notes, including the one genuine schema gap this task
- * ran into (`motif_candidates`/`motif_sightings` have no column that can
- * store WHICH v1 thread a promoted candidate became — `schema.ts` is a
- * read-only path here, so the created thread's slug is instead made
- * deterministic — see that section).
+ * RADARPERSIST-001 EXTENDED the file with the persistence half RADAR-001
+ * deliberately deferred, now that those tables exist (SCHEMAV2-001):
+ * `persistMotifCandidates` writes computed candidates and their sightings;
+ * `dismissMotifCandidate` marks a candidate dismissed without touching the
+ * underlying entries; `promoteMotifCandidate` is the BUILD_PLAN §3.3/§3.5
+ * promotion transaction — "Promotion on the third genuine sighting creates
+ * the thread and links earlier sightings transactionally" — gated on an
+ * explicit learner confirmation the caller must supply; reaching three
+ * sightings alone never promotes anything.
+ *
+ * MOTIFTHREAD-001 closed the one schema gap RADARPERSIST-001 reported and
+ * worked around: `motif_candidates` now has a real, additive, nullable
+ * `thread_slug` column (`db/schema.ts`, migration `0009`), and
+ * `promoteMotifCandidate` writes it in the same atomic batch as the rest of
+ * the promotion instead of forcing the created thread's slug to equal the
+ * candidate's `normalizedKey`. See the "Persistence" section near the
+ * bottom of this file for the full design notes, including the slug-
+ * collision retry `promoteMotifCandidate` now does instead of erroring the
+ * first time a learner already happens to have a same-named thread.
  *
  * BUILD_PLAN.md §3.3: "`user_connections` ... radar output lives in
  * `motif_candidates` — the three provenances never share a table." This
@@ -333,58 +337,74 @@ export class MotifPromotionAlreadyResolvedError extends Error {
 }
 
 /**
- * Thrown when the v1 thread promotion would create already exists for this
- * learner (`threads` is keyed by `(userId, slug)`) — either a genuine race
- * (two tabs promoting the same candidate) or the learner separately having
- * hand-created a thread with the same title/slug already. Either way,
- * nothing about this promotion attempt lands (see `promoteMotifCandidate`'s
- * header for the atomicity guarantee); the caller can surface this as "you
- * already have a thread called ⟨slug⟩."
+ * MOTIFTHREAD-001: RADARPERSIST-001 left this class describing a promotion
+ * that fails outright the moment its deterministic slug (== normalizedKey)
+ * was already taken by any thread. That was a real bug, not a feature: a
+ * learner who happened to already have a thread named "faith" could never
+ * promote a "faith" candidate at all. `db/schema.ts` now carries
+ * `motif_candidates.thread_slug` (additive, nullable — see that column's own
+ * comment), so the created thread's slug no longer has to equal, or be
+ * derivable from, `normalizedKey` — `promoteMotifCandidate` below tries a
+ * human-readable slug derived from the candidate's label, and on a genuine
+ * `(userId, slug)` collision retries with the next numbered variant
+ * ("label-2", "label-3", ...) up to `MAX_THREAD_SLUG_ATTEMPTS`, so a naming
+ * collision no longer blocks promotion at all.
+ *
+ * This class is KEPT, not deleted, but its trigger condition has narrowed:
+ * it now fires only when EVERY attempt up to the bound collides — i.e. the
+ * learner already has `MAX_THREAD_SLUG_ATTEMPTS` distinct threads whose slugs
+ * are all numbered variants of this exact label. That is a genuinely
+ * degenerate case (not "the learner has one thread with this name," which is
+ * the case this task was filed to stop erroring on), so surfacing an error
+ * rather than looping forever is still the right behavior for it.
  */
 export class MotifThreadSlugCollisionError extends Error {
-  constructor(readonly slug: string) {
-    super(`A thread with slug "${slug}" already exists for this learner`);
+  constructor(
+    readonly label: string,
+    readonly attempts: number,
+  ) {
+    super(
+      `Could not find a free thread slug derived from "${label}" for this learner ` +
+        `after ${attempts} attempt(s) — every numbered variant is already taken`,
+    );
     this.name = "MotifThreadSlugCollisionError";
   }
 }
 
+/** Bound on how many `(userId, slug)` collisions `promoteMotifCandidate`
+ * will retry past before giving up (see `MotifThreadSlugCollisionError`).
+ * Generous on purpose: a learner would need this many DISTINCT existing
+ * threads, all numbered variants of the same label, before promotion ever
+ * refuses — a case that does not occur in ordinary use. Exported so the
+ * mutation-proof test can target it by name instead of a magic number. */
+export const MAX_THREAD_SLUG_ATTEMPTS = 25;
+
 /**
- * KNOWN SCHEMA GAP (report per HARD RULES / SCOPE-BOUNDARY-001 — `schema.ts`
- * is a read-only path for this task, so this cannot be fixed here):
- *
- * Neither `motif_candidates` nor `motif_sightings` has a column that can
- * store WHICH v1 `threads` row a promoted candidate became — no
- * `thread_slug`, no `thread_id`. (`user_connections.threadSlug` exists for
- * exactly this purpose on THAT table; the motif tables never got the
- * equivalent column.) BUILD_PLAN.md:128 and
- * THEOLOGY_MASTER_BUILD_PLAN.md:1039 both say plainly that "promotion
- * creates the thread and links earlier sightings transactionally," which
- * requires a real link to exist somewhere.
- *
- * The fix implemented here, entirely inside this task's owned paths: the
- * created thread's `slug` is made DETERMINISTIC — it is exactly the
- * candidate's own `normalizedKey` (already unique per workspace by
- * construction; `persistMotifCandidates` below refuses to create a second
- * candidate row for a normalizedKey that already has one). A caller that
- * knows the candidate's `normalizedKey` can therefore always compute which
- * thread promotion produced without a stored pointer: `threadSlug ===
- * candidate.normalizedKey`. `motif_candidates.status` and every promoted
- * `motif_sightings.status` also flip to `"promoted"`, so "did this resolve,
- * and into what" is fully answerable from data already on these rows plus
- * this one deterministic rule.
- *
- * This is a real, working substitute, not a silent gap — but it is
- * genuinely worse than a real column: it means "the candidate's
- * normalizedKey" is now assumed stable and never reused as a thread slug for
- * an unrelated hand-created thread, which is exactly the collision
- * `MotifThreadSlugCollisionError` exists to catch rather than silently
- * misattribute. The correct real fix is a `thread_slug text` column on
- * `motif_candidates` (nullable, set only on promotion) — a one-line,
- * additive migration — filed here for a follow-up schema task rather than
- * invented on top of a read-only file.
+ * Same slugification convention `components/threads/ThreadCreator.tsx`
+ * already uses for hand-created threads (diff-level match ported here,
+ * that file is a client component and cannot be imported into this
+ * server-side module) — kebab-case, ASCII-folded, capped at the 120-char
+ * limit `lib/api/threads.ts`'s `threadSlugSchema` enforces on every thread
+ * slug, hand-made or promoted alike.
  */
-function threadSlugForCandidate(normalizedKey: string): string {
-  return normalizedKey;
+function slugify(value: string): string {
+  return value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 120)
+    .replace(/-+$/, "");
+}
+
+/** The Nth slug this promotion will try for `label` (0-indexed): the plain
+ * slugified label first, then "label-2", "label-3", ... — never "label-1",
+ * matching the human-facing counting a learner would expect ("the first one
+ * is just the name; the second collision is #2"). */
+function candidateThreadSlug(label: string, attempt: number): string {
+  const base = slugify(label) || "thread";
+  return attempt === 0 ? base : `${base}-${attempt + 1}`;
 }
 
 /** Best-available `CanonicalRangeV1` for a sighting's originating entry.
@@ -583,18 +603,34 @@ export interface PromoteMotifCandidateResult {
  * header). The caller (a route handler, driven by the learner explicitly
  * confirming in the UI) is the only thing that can set this flag.
  *
- * ATOMIC: every write below — the candidate's status flip, every one of its
+ * ATOMIC PER ATTEMPT: every write for one attempt — the candidate's status
+ * flip (now including `threadSlug`, MOTIFTHREAD-001), every one of its
  * sightings' status flips, and the new `threads` row — is issued as ONE
  * `db.batch([...])` call. `db.batch` on this codebase's Neon HTTP driver is
  * one transaction (the same fact `lib/db/sync.ts` and `lib/db/sync-v2.ts`
  * already rely on, stated in their own header comments) — if ANY statement
- * in the array fails, NOTHING in the array lands. The one realistic failure
- * mode exercised here is a `threads (userId, slug)` primary-key collision
- * (see `MotifThreadSlugCollisionError`'s header) — a genuine case (the
- * learner already has a thread with this slug), not a synthetic one, and it
- * is deliberately the LAST statement in the batch specifically so a test can
- * prove that the two updates ahead of it in the array (which, unbatched,
- * WOULD have already landed) are rolled back too.
+ * in the array fails, NOTHING in that attempt's array lands: the candidate
+ * stays exactly as it was (status, revision, and `threadSlug` all
+ * unchanged), so a promoted candidate can never exist without its thread
+ * reference (this task's acceptance criterion 2). The thread insert is
+ * deliberately the LAST statement in each attempt's array specifically so a
+ * failure there proves the two kinds of updates ahead of it (which,
+ * unbatched, WOULD have already landed) are rolled back too.
+ *
+ * SLUG COLLISION HANDLING (MOTIFTHREAD-001, replacing RADARPERSIST-001's
+ * deterministic-slug workaround): the thread slug is no longer forced to
+ * equal `candidate.normalizedKey`. It tries `candidateThreadSlug(label, 0)`
+ * (the plain slugified label) first; if that specific attempt's batch fails
+ * with a real `threads (userId, slug)` primary-key collision (SQLSTATE
+ * 23505) — the learner already has an unrelated thread by that name, or a
+ * genuine concurrent promotion race — it retries the WHOLE batch with the
+ * next numbered variant ("label-2", "label-3", ...), up to
+ * `MAX_THREAD_SLUG_ATTEMPTS` real attempts. Each attempt is independently
+ * atomic (its own `db.batch` call, its own rollback on failure), so a
+ * learner who already has a same-named thread now gets promoted into a
+ * differently-slugged thread instead of hitting an error (the bug this task
+ * was filed to fix) — `MotifThreadSlugCollisionError` is thrown only if
+ * every attempt up to the bound collides.
  *
  * `userId` is trusted from the caller, exactly like every other
  * `lib/db/*.ts` module in this codebase (`threads.ts`, `entries.ts`): this
@@ -653,36 +689,44 @@ export async function promoteMotifCandidate(
   }
 
   const now = new Date().toISOString();
-  const slug = threadSlugForCandidate(candidate.normalizedKey);
 
-  try {
-    await db.batch([
-      db
-        .update(motifCandidates)
-        .set({ status: MOTIF_CANDIDATE_PROMOTED_STATUS, revision: candidate.revision + 1, updatedAt: now })
-        .where(and(eq(motifCandidates.id, candidateId), eq(motifCandidates.workspaceId, workspaceId))),
-      ...sightings.map((sighting) =>
+  for (let attempt = 0; attempt < MAX_THREAD_SLUG_ATTEMPTS; attempt += 1) {
+    const threadSlug = candidateThreadSlug(candidate.label, attempt);
+    try {
+      await db.batch([
         db
-          .update(motifSightings)
-          .set({ status: MOTIF_SIGHTING_PROMOTED_STATUS, revision: sighting.revision + 1, updatedAt: now })
-          .where(and(eq(motifSightings.id, sighting.id), eq(motifSightings.workspaceId, workspaceId))),
-      ),
-      db.insert(threadsTable).values({
-        userId,
-        slug,
-        title: candidate.label,
-        definition: "",
-        seeing: "",
-        createdAt: now,
-        updatedAt: now,
-      }),
-    ] as Parameters<typeof db.batch>[0]);
-  } catch (error) {
-    if (hasDatabaseErrorCode(error, "23505")) {
-      throw new MotifThreadSlugCollisionError(slug);
+          .update(motifCandidates)
+          .set({
+            status: MOTIF_CANDIDATE_PROMOTED_STATUS,
+            threadSlug,
+            revision: candidate.revision + 1,
+            updatedAt: now,
+          })
+          .where(and(eq(motifCandidates.id, candidateId), eq(motifCandidates.workspaceId, workspaceId))),
+        ...sightings.map((sighting) =>
+          db
+            .update(motifSightings)
+            .set({ status: MOTIF_SIGHTING_PROMOTED_STATUS, revision: sighting.revision + 1, updatedAt: now })
+            .where(and(eq(motifSightings.id, sighting.id), eq(motifSightings.workspaceId, workspaceId))),
+        ),
+        db.insert(threadsTable).values({
+          userId,
+          slug: threadSlug,
+          title: candidate.label,
+          definition: "",
+          seeing: "",
+          createdAt: now,
+          updatedAt: now,
+        }),
+      ] as Parameters<typeof db.batch>[0]);
+
+      return { threadSlug, threadTitle: candidate.label, sightingCount: sightings.length };
+    } catch (error) {
+      if (!hasDatabaseErrorCode(error, "23505")) throw error;
+      // This attempt's batch rolled back in full (nothing above landed);
+      // fall through and retry with the next numbered slug variant.
     }
-    throw error;
   }
 
-  return { threadSlug: slug, threadTitle: candidate.label, sightingCount: sightings.length };
+  throw new MotifThreadSlugCollisionError(candidate.label, MAX_THREAD_SLUG_ATTEMPTS);
 }

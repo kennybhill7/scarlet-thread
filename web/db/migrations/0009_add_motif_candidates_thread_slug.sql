@@ -1,0 +1,1 @@
+ALTER TABLE "motif_candidates" ADD COLUMN "thread_slug" text;

@@ -429,6 +429,7 @@ const {
   promoteMotifCandidate,
   MotifPromotionNotConfirmedError,
   MotifThreadSlugCollisionError,
+  MAX_THREAD_SLUG_ATTEMPTS,
   MOTIF_CANDIDATE_PENDING_STATUS,
   MOTIF_CANDIDATE_DISMISSED_STATUS,
   MOTIF_CANDIDATE_PROMOTED_STATUS,
@@ -543,7 +544,7 @@ test("promotion without an explicit learner confirmation is refused and changes 
   assert.deepEqual(world, before, "an unconfirmed promotion attempt must not touch the database at all");
 });
 
-test("a confirmed promotion is one atomic write: creates the thread and rewrites all three sightings", async () => {
+test("a confirmed promotion is one atomic write: creates the thread, stores its slug on the candidate, and rewrites all three sightings", async () => {
   await persistMotifCandidates("workspace-a", threeCovenantEntries(), []);
   const [candidateRow] = rowsOf("motif_candidates");
 
@@ -563,6 +564,14 @@ test("a confirmed promotion is one atomic write: creates the thread and rewrites
   const [updatedCandidate] = rowsOf("motif_candidates");
   assert.equal(updatedCandidate.status, MOTIF_CANDIDATE_PROMOTED_STATUS);
   assert.equal(updatedCandidate.revision, 2, "the candidate's revision must advance");
+  // MOTIFTHREAD-001: the promoted-into thread slug is now a REAL stored
+  // column, written in the same batch as the status flip -- not recomputed
+  // from normalizedKey.
+  assert.equal(
+    updatedCandidate.threadSlug,
+    "covenant",
+    "promoteMotifCandidate must write the created thread's slug onto the candidate row",
+  );
 
   const sightingRows = rowsOf("motif_sightings");
   assert.equal(sightingRows.length, 3);
@@ -572,23 +581,93 @@ test("a confirmed promotion is one atomic write: creates the thread and rewrites
   }
 });
 
-test("mid-transaction failure: a colliding thread slug rolls back the candidate and sighting updates that ran ahead of it", async () => {
+test("a candidate can never end up promoted without its thread_slug set -- an unconfirmed or failed attempt leaves it null", async () => {
   await persistMotifCandidates("workspace-a", threeCovenantEntries(), []);
   const [candidateRow] = rowsOf("motif_candidates");
+  assert.equal(candidateRow.threadSlug, null, "an un-promoted candidate must start with a null thread_slug");
 
-  // A thread named "covenant" already exists for user-a (independently
-  // hand-created, or a genuine concurrent-promotion race) — colliding with
-  // the (userId, slug) primary key promotion is about to insert.
+  // An unconfirmed attempt must not touch threadSlug either.
+  await assert.rejects(
+    () =>
+      promoteMotifCandidate("workspace-a", "user-a", candidateRow.id as string, { learnerConfirmed: false }),
+    MotifPromotionNotConfirmedError,
+  );
+  const [afterUnconfirmed] = rowsOf("motif_candidates");
+  assert.equal(afterUnconfirmed.threadSlug, null);
+  assert.equal(afterUnconfirmed.status, MOTIF_CANDIDATE_PENDING_STATUS);
+});
+
+function seedThread(userId: string, slug: string, title = `${slug} (pre-existing)`) {
   rowsOf("threads").push({
-    userId: "user-a",
-    slug: "covenant",
-    title: "Covenant (hand-made)",
+    userId,
+    slug,
+    title,
     definition: "",
     seeing: "",
     createdAt: "2025-06-01T00:00:00.000Z",
     updatedAt: "2025-06-01T00:00:00.000Z",
     deletedAt: null,
   });
+}
+
+test("a learner who already has an unrelated thread with the natural slug can still promote -- a decoupled, numbered slug is chosen instead of erroring", async () => {
+  await persistMotifCandidates("workspace-a", threeCovenantEntries(), []);
+  const [candidateRow] = rowsOf("motif_candidates");
+
+  // user-a already hand-made (or was promoted into) a thread literally named
+  // "covenant" -- this is exactly the case RADARPERSIST-001's deterministic
+  // slug made unrecoverable (MotifThreadSlugCollisionError, promotion
+  // refused outright). MOTIFTHREAD-001's whole point is that this must now
+  // succeed.
+  seedThread("user-a", "covenant", "Covenant (hand-made, unrelated)");
+
+  const result = await promoteMotifCandidate("workspace-a", "user-a", candidateRow.id as string, {
+    learnerConfirmed: true,
+  });
+
+  assert.equal(
+    result.threadSlug,
+    "covenant-2",
+    "the natural slug was taken by an unrelated thread, so the next numbered variant must be used",
+  );
+  assert.notEqual(
+    result.threadSlug,
+    candidateRow.normalizedKey,
+    "the promoted thread's slug must no longer be forced to equal the candidate's normalizedKey",
+  );
+
+  // The pre-existing thread is completely untouched.
+  const preExisting = rowsOf("threads").find((r) => r.slug === "covenant")!;
+  assert.equal(preExisting.title, "Covenant (hand-made, unrelated)");
+
+  // The new thread is a distinct row.
+  const created = rowsOf("threads").find((r) => r.slug === "covenant-2")!;
+  assert.ok(created, "a new thread with the decoupled slug must have been created");
+  assert.equal(created.title, "covenant");
+  assert.equal(rowsOf("threads").length, 2);
+
+  const [candidateAfter] = rowsOf("motif_candidates");
+  assert.equal(candidateAfter.status, MOTIF_CANDIDATE_PROMOTED_STATUS);
+  assert.equal(candidateAfter.threadSlug, "covenant-2");
+  // The revision advanced exactly once -- proof the FIRST (colliding, rolled
+  // back) attempt left no partial increment behind for the second attempt to
+  // compound on top of.
+  assert.equal(candidateAfter.revision, 2);
+});
+
+test("mid-batch failure leaves no partial state, proven across MAX_THREAD_SLUG_ATTEMPTS real, repeated primary-key collisions", async () => {
+  await persistMotifCandidates("workspace-a", threeCovenantEntries(), []);
+  const [candidateRow] = rowsOf("motif_candidates");
+
+  // Seed a same-named thread AND every numbered variant promoteMotifCandidate
+  // will try, so every single attempt's batch genuinely 23505s on the thread
+  // insert (real primary-key collisions, not a synthetic hook) and every one
+  // of those batches must roll back completely before the function finally
+  // gives up.
+  seedThread("user-a", "covenant");
+  for (let n = 2; n <= MAX_THREAD_SLUG_ATTEMPTS; n += 1) {
+    seedThread("user-a", `covenant-${n}`);
+  }
   const beforeAttempt = snapshotWorld();
 
   await assert.rejects(
@@ -599,20 +678,19 @@ test("mid-transaction failure: a colliding thread slug rolls back the candidate 
     MotifThreadSlugCollisionError,
   );
 
-  // The candidate-status update and every sighting-status update are EARLIER
-  // in promoteMotifCandidate's batch array than the failing thread insert —
-  // if they were not wrapped in the same db.batch() call, they would already
-  // be committed at this point. Proving they are NOT is the actual point of
-  // this test (see the mutation proof in the builder's commit message).
+  // Every one of the MAX_THREAD_SLUG_ATTEMPTS real batch failures rolled
+  // back in full -- the world is byte-identical to before the very first
+  // attempt. If even one failed attempt had left a partial candidate-status
+  // or sighting-status update behind, this would catch it.
   assert.deepEqual(
     world,
     beforeAttempt,
-    "a failure anywhere in the promotion batch must leave the ENTIRE world exactly as it was before the attempt",
+    "repeated real mid-batch failures must never leave ANY partial state, individually or across attempts",
   );
-  assert.equal(rowsOf("threads").length, 1, "only the pre-existing thread may remain -- no second row");
   const [candidateAfter] = rowsOf("motif_candidates");
   assert.equal(candidateAfter.status, MOTIF_CANDIDATE_PENDING_STATUS);
   assert.equal(candidateAfter.revision, 1);
+  assert.equal(candidateAfter.threadSlug, null);
   for (const row of rowsOf("motif_sightings")) {
     assert.equal(row.status, MOTIF_SIGHTING_PENDING_STATUS);
     assert.equal(row.revision, 1);
