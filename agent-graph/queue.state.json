@@ -433,12 +433,13 @@
       "notes": "Merged. Two honest gaps remain, both narrow: no server-side unique constraint backs the dedup rule (a genuine concurrent-tab race, needs a schema migration), and v2 study entry does not consult the v1 \"finished reading\" gate."
     },
     "STUDYSESSIONRACE-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/STUDYSESSIONRACE-001-local",
+      "commitSha": "30b4a83",
       "attempts": 0,
       "lastRunId": "interactive-2026-08-20-wave13",
-      "notes": "Seeded 2026-08-20 from wave 12 - the one concrete residual gap STUDYENTRY-001 named as needing a schema migration."
+      "lastEvidence": "MERGED to master in 3d489a1 after independent verification. 673/673, 0 skipped; typecheck/lint/build clean; drizzle-kit check fine. | Closes the concurrent-tab race STUDYENTRY-001 honestly disclosed: a partial unique index on study_sessions(workspace_id, range) scoped to active+not-deleted, matching findExistingActiveSession predicate exactly, generated as a single additive forward migration (0010). | VERIFIED INDEPENDENTLY IN TWO LAYERS: (1) schema-shape mutation proof - removed the WHERE clause and the new PARTIAL-index test failed by name; restored, green. (2) LIVE DATABASE PROOF on my own freshly-initdb Postgres 18 (not reusing the builders instance): applied all 11 migrations cleanly, then real inserts proved the constraint - two active sessions for the identical range, the second rejected with the real Postgres 23505 error - plus all four negative controls (closed, soft-deleted, different workspace, different range) each correctly NOT blocked. | REPORTED, not smuggled: lib/db/sync-v2.ts is the real server write path and will surface an unhandled 23505 rather than a graceful reuse response when two devices race - correct fail-closed behavior, just ungraceful. Same shape as MIGORDER-001 own workspaces.ts follow-up.",
+      "notes": "Merged. This closes every concrete residual gap surfaced across the last 13 waves. Remaining open items are all human-gated (credentials, Vercel root directory, KJV licensing)."
     }
   }
 }
