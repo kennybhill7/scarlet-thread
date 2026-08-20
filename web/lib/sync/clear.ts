@@ -42,11 +42,19 @@ export const APP_CACHE_PREFIXES = [
 ] as const;
 
 /**
- * The object store lib/sync/store.ts:47-51 queues unsynced writes in. Named
- * here as a literal rather than imported because the read below deliberately
- * does not go through that module — see countPendingWrites().
+ * The object stores lib/sync/store.ts queues unsynced writes in — v1's
+ * `syncQueue` and v2's `syncQueueV2` (V2VAULT-001), a SEPARATE store because
+ * `SyncOpV2`'s envelope shape is not `SyncOp`'s (see store.ts's own comment
+ * on `syncQueueV2`). Both are named here as literals rather than imported
+ * because the read below deliberately does not go through that module — see
+ * countPendingWrites(). A device with unsynced v2 writing (a study session, a
+ * claim, a motif sighting, ...) must block a clear exactly as unsynced v1
+ * writing does today — this is the same bug this repo already shipped once
+ * (a clear-device that reported success while destroying unsynced work),
+ * just for the newer entities that write into the newer store.
  */
 const SYNC_QUEUE_STORE = "syncQueue";
+const SYNC_QUEUE_STORE_V2 = "syncQueueV2";
 
 /**
  * Where the "this device was NOT cleared" warning survives a reload.
@@ -293,12 +301,15 @@ function openRawDatabase(): Promise<{
   });
 }
 
-function countStoreRecords(db: IDBDatabase): Promise<number | null> {
+function countStoreRecords(
+  db: IDBDatabase,
+  storeName: string,
+): Promise<number | null> {
   return new Promise((resolve) => {
     try {
       const request = db
-        .transaction(SYNC_QUEUE_STORE, "readonly")
-        .objectStore(SYNC_QUEUE_STORE)
+        .transaction(storeName, "readonly")
+        .objectStore(storeName)
         .count();
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => resolve(null);
@@ -345,10 +356,26 @@ export async function countPendingWrites(): Promise<number | null> {
   if (opened === null) return null;
   const { db, created } = opened;
   try {
-    // A database we just created holds nothing, and a schema without the queue
-    // store predates it — both are a definite zero, not an unknown.
-    if (created || !db.objectStoreNames.contains(SYNC_QUEUE_STORE)) return 0;
-    return await countStoreRecords(db);
+    // A database we just created holds nothing, so that alone is a definite
+    // zero, not an unknown. Below that, v1 and v2 write into separate stores
+    // (see SYNC_QUEUE_STORE_V2 above), and a schema that predates one of them
+    // (a v1-only device that has never been upgraded to the v2 vault) simply
+    // has nothing in the store it lacks — also a definite zero for that half,
+    // not an unknown, exactly like the v1-only check this replaces.
+    if (created) return 0;
+    const hasV1 = db.objectStoreNames.contains(SYNC_QUEUE_STORE);
+    const hasV2 = db.objectStoreNames.contains(SYNC_QUEUE_STORE_V2);
+    if (!hasV1 && !hasV2) return 0;
+    const [v1Count, v2Count] = await Promise.all([
+      hasV1 ? countStoreRecords(db, SYNC_QUEUE_STORE) : Promise.resolve(0),
+      hasV2 ? countStoreRecords(db, SYNC_QUEUE_STORE_V2) : Promise.resolve(0),
+    ]);
+    // Either store being unreadable fails the WHOLE count closed to null
+    // ("unknown"), not to whatever the other store managed to report — a
+    // clear must never proceed on a partial read that happened to net to
+    // zero because one store's real, unreadable count was silently dropped.
+    if (v1Count === null || v2Count === null) return null;
+    return v1Count + v2Count;
   } finally {
     db.close();
     if (created) {
