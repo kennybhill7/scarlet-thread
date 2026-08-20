@@ -307,27 +307,27 @@
       "notes": "Merged. Deployment is no longer blocked by migrations; the remaining blocker is credentials plus the Vercel root directory (OPS-001)."
     },
     "MOTIFTHREAD-001": {
-      "status": "ready",
+      "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": null,
+      "lastRunId": "interactive-2026-08-20-wave8",
       "notes": "Seeded 2026-08-20 from wave 7. Each came from a gap a builder reported honestly rather than papering over."
     },
     "V2API-002": {
-      "status": "ready",
+      "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": null,
+      "lastRunId": "interactive-2026-08-20-wave8",
       "notes": "Seeded 2026-08-20 from wave 7. Each came from a gap a builder reported honestly rather than papering over."
     },
     "RADARUI-001": {
-      "status": "ready",
+      "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": null,
+      "lastRunId": "interactive-2026-08-20-wave8",
       "notes": "Seeded 2026-08-20 from wave 7. Each came from a gap a builder reported honestly rather than papering over."
     }
   }
