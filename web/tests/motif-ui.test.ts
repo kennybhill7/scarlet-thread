@@ -542,7 +542,13 @@ https.request = () => blocked("https.request");
 //    every cycle.
 // ---------------------------------------------------------------------------
 
-let mutating: { file: string; pattern: RegExp; replacement: string; hits: number } | null = null;
+type MutationSpec = { file: string; pattern: RegExp; replacement: string; hits: number };
+
+// WAVE 9 INTEGRATION: this was a single-file hook. MOTIFSTATUS-001 gave
+// lib/db/radar.ts its own already-resolved guard, so proving the route's
+// guard still matters now takes TWO simultaneous mutations -- see MUTPROVE-2a
+// / MUTPROVE-2b below.
+let mutations: MutationSpec[] = [];
 
 const originalCompile = (Module as any).prototype._compile;
 (Module as any).prototype._compile = function patchedCompile(
@@ -552,10 +558,11 @@ const originalCompile = (Module as any).prototype._compile;
 ) {
   const resolved = path.resolve(filename);
   let source = content;
-  if (mutating && resolved === mutating.file) {
-    const hits = source.match(mutating.pattern)?.length ?? 0;
-    mutating.hits += hits;
-    source = source.replace(mutating.pattern, mutating.replacement);
+  for (const mutation of mutations) {
+    if (resolved !== mutation.file) continue;
+    const hits = source.match(mutation.pattern)?.length ?? 0;
+    mutation.hits += hits;
+    source = source.replace(mutation.pattern, mutation.replacement);
   }
   return originalCompile.call(this, source, filename, ...rest);
 };
@@ -564,11 +571,68 @@ const SEEDED_PATHS = new Set([SERVER_ONLY_PATH, DB_PATH, AUTH_PATH, ENTRIES_PATH
 const APP_DIR = path.join(WEB_ROOT, "app") + path.sep;
 
 function purgeApplicationModules() {
+  // Anything currently under mutation must be recompiled even when it lives
+  // outside app/ -- lib/db/radar.ts would otherwise stay cached from an
+  // earlier require and the mutation would silently no-op, which is exactly
+  // the kind of quietly-vacuous proof this file exists to avoid.
+  const mutated = new Set(mutations.map((m) => m.file));
   for (const key of Object.keys(nodeRequire.cache)) {
-    if (SEEDED_PATHS.has(key)) continue;
     const resolved = path.resolve(key);
+    if (mutated.has(resolved)) {
+      delete (nodeRequire.cache as any)[key];
+      continue;
+    }
+    if (SEEDED_PATHS.has(key)) continue;
     if (resolved.startsWith(APP_DIR)) {
       delete (nodeRequire.cache as any)[key];
+    }
+  }
+}
+
+async function withMutations(
+  specs: { relativeFile: string; pattern: RegExp; replacement: string }[],
+  body: () => Promise<void>,
+) {
+  const targets = specs.map((spec) => {
+    const file = path.join(WEB_ROOT, spec.relativeFile);
+    return {
+      relativeFile: spec.relativeFile,
+      file,
+      beforeHash: createHash("sha256").update(fs.readFileSync(file)).digest("hex"),
+      beforeMtime: fs.statSync(file).mtimeMs,
+    };
+  });
+
+  mutations = specs.map((spec, i) => ({
+    file: targets[i].file,
+    pattern: spec.pattern,
+    replacement: spec.replacement,
+    hits: 0,
+  }));
+  const applied = mutations;
+  purgeApplicationModules();
+  routes = loadRoutes();
+
+  try {
+    for (const [i, mutation] of applied.entries()) {
+      assert.ok(
+        mutation.hits > 0,
+        `mutation matched nothing in ${specs[i].relativeFile} — the compiled shape changed; update the pattern`,
+      );
+    }
+    await body();
+  } finally {
+    mutations = [];
+    purgeApplicationModules();
+    routes = loadRoutes();
+    for (const target of targets) {
+      const afterHash = createHash("sha256").update(fs.readFileSync(target.file)).digest("hex");
+      assert.equal(afterHash, target.beforeHash, `${target.relativeFile} was modified on disk`);
+      assert.equal(
+        fs.statSync(target.file).mtimeMs,
+        target.beforeMtime,
+        `${target.relativeFile} mtime changed`,
+      );
     }
   }
 }
@@ -579,28 +643,7 @@ async function withMutation(
   replacement: string,
   body: () => Promise<void>,
 ) {
-  const file = path.join(WEB_ROOT, relativeFile);
-  const beforeHash = createHash("sha256").update(fs.readFileSync(file)).digest("hex");
-  const beforeMtime = fs.statSync(file).mtimeMs;
-
-  mutating = { file, pattern, replacement, hits: 0 };
-  purgeApplicationModules();
-  routes = loadRoutes();
-
-  try {
-    assert.ok(
-      mutating.hits > 0,
-      `mutation matched nothing in ${relativeFile} — the compiled shape changed; update the pattern`,
-    );
-    await body();
-  } finally {
-    mutating = null;
-    purgeApplicationModules();
-    routes = loadRoutes();
-    const afterHash = createHash("sha256").update(fs.readFileSync(file)).digest("hex");
-    assert.equal(afterHash, beforeHash, `${relativeFile} was modified on disk`);
-    assert.equal(fs.statSync(file).mtimeMs, beforeMtime, `${relativeFile} mtime changed`);
-  }
+  await withMutations([{ relativeFile, pattern, replacement }], body);
 }
 
 // ---------------------------------------------------------------------------
@@ -931,48 +974,109 @@ test("after MUTPROVE-1's cycle, a real dismiss request dismisses again (harness 
 //     mutation with no real counterpart. Reported plainly rather than
 //     silently claimed as proved.
 //
-//     What IS uniquely this route's job, with no such backstop in
-//     lib/db/radar.ts: `dismissMotifCandidate` has no status guard of its
-//     own (see this file's header comment on `dismissMotifCandidate`'s
-//     production-code doc block, and `[id]/route.ts`'s own note) — it will
-//     happily overwrite an already-PROMOTED candidate's status back to
-//     "dismissed" if asked to. The `candidate.status !==
-//     MOTIF_CANDIDATE_PENDING_STATUS` 409 guard in `[id]/route.ts` is the
-//     ONLY thing stopping that. This mutation proof targets it.
+//     WAVE 9 INTEGRATION REWRITE. This proof used to assert that
+//     `dismissMotifCandidate` had NO status guard of its own, so defeating
+//     this route's 409 check alone let a dismiss overwrite an
+//     already-PROMOTED candidate. MOTIFSTATUS-001 then gave radar.ts exactly
+//     that guard, which made the old assertion's premise false and turned it
+//     red. MOTIFSTATUS-001 reported it rather than weakening its own fix to
+//     keep this test green -- the right call, and this is the repair.
+//
+//     The proof is now STRONGER, not merely updated. A single mutation can no
+//     longer demonstrate the hole, because two independent layers refuse it.
+//     So it is split:
+//
+//       MUTPROVE-2a — defeat ONLY this route's guard. The dismiss must STILL
+//         be refused, with the same 409, by radar.ts's backstop. This is what
+//         proves the backstop is real rather than assumed, and it is the
+//         actual production race: two dismisses (or a dismiss and a confirm)
+//         arriving close enough together that both read a still-pending row.
+//
+//       MUTPROVE-2b — defeat BOTH guards at once. Only then does the dismiss
+//         wrongly succeed. That is what proves NEITHER guard is decorative:
+//         remove either one alone and the system still refuses; remove both
+//         and the learner's promoted candidate is silently corrupted.
+//
+//     Together they say something the old single test could not: this is
+//     genuine defense in depth, and we know it because we watched each layer
+//     hold on its own.
+//
+//     NOTE on H1/H2 (criterion 5) and why they are NOT also formally
+//     mutation-proved against this route's workspace predicate specifically:
+//     tried first, and found to be structurally impossible to observe from
+//     inside this task's owned paths alone. Defeating ONLY
+//     `loadOwnedPendingCandidate`'s workspace check (self-comparison
+//     tautology, same technique as MUTPROVE-1/tests/v2-api.test.ts's M1)
+//     still produces a 404: `promoteMotifCandidate`/`dismissMotifCandidate`
+//     independently re-select by `workspaceId = <the caller's own real
+//     workspace> AND id = <candidateId>`, so B's candidate row never matches
+//     A's real workspace id there either. Left as directly-tested rather
+//     than faking a mutation with no real counterpart.
 // ---------------------------------------------------------------------------
 
-test("MUTPROVE-2 removing the already-resolved guard lets a dismiss silently overwrite an already-promoted candidate", async () => {
-  await withMutation(
-    path.join("app", "api", "motifs", "[id]", "route.ts"),
-    /if\(candidate\.status!==import_radar\.MOTIF_CANDIDATE_PENDING_STATUS\)/,
-    "if(false)",
-    async () => {
-      const candidateId = await seedPendingCandidate(WORKSPACE_A);
-      const confirmResponse = await asUser(SESSION_A, () => api.act(candidateId, "confirm"));
-      assert.equal(confirmResponse.status, 200, "the confirm itself must still succeed normally");
-      assert.equal(rowsOf("threads").length, 1);
+const ROUTE_GUARD_MUTATION = {
+  relativeFile: path.join("app", "api", "motifs", "[id]", "route.ts"),
+  pattern: /if\(candidate\.status!==import_radar\.MOTIF_CANDIDATE_PENDING_STATUS\)/,
+  replacement: "if(false)",
+};
 
-      // With the guard gone, dismissing the now-PROMOTED candidate must go
-      // through instead of being refused.
-      const dismissResponse = await asUser(SESSION_A, () => api.act(candidateId, "dismiss"));
-      assert.equal(
-        dismissResponse.status,
-        200,
-        "MUTPROVE-2: with the already-resolved guard removed, a dismiss on a promoted candidate must wrongly succeed",
-      );
-      const candidateRow = rowsOf("motif_candidates").find((r) => r.id === candidateId)!;
-      assert.equal(
-        candidateRow.status,
-        "dismissed",
-        "MUTPROVE-2: the guard's removal must let dismiss overwrite the promoted candidate's status",
-      );
-      assert.equal(
-        rowsOf("threads").length,
-        1,
-        "the earlier promotion's thread is untouched by this — the bug is a misleading candidate.status, not a deleted thread",
-      );
-    },
-  );
+const RADAR_GUARD_MUTATION = {
+  relativeFile: path.join("lib", "db", "radar.ts"),
+  pattern: /if\(current\.status!==MOTIF_CANDIDATE_PENDING_STATUS\)/,
+  replacement: "if(false)",
+};
+
+test("MUTPROVE-2a defeating ONLY this route's already-resolved guard is not enough — radar.ts's own guard still refuses the dismiss with the same 409", async () => {
+  await withMutations([ROUTE_GUARD_MUTATION], async () => {
+    const candidateId = await seedPendingCandidate(WORKSPACE_A);
+    const confirmResponse = await asUser(SESSION_A, () => api.act(candidateId, "confirm"));
+    assert.equal(confirmResponse.status, 200, "the confirm itself must still succeed normally");
+    assert.equal(rowsOf("threads").length, 1);
+
+    const dismissResponse = await asUser(SESSION_A, () => api.act(candidateId, "dismiss"));
+    assert.equal(
+      dismissResponse.status,
+      409,
+      "MUTPROVE-2a: with this route's guard gone, radar.ts's backstop must still refuse — and as a 409, never a 500, because an ordinary lost race is not a server fault",
+    );
+    const body = (await dismissResponse.json()) as { error?: { code?: string } };
+    assert.equal(
+      body.error?.code,
+      "MOTIF_CANDIDATE_ALREADY_RESOLVED",
+      "a caller must not be able to tell WHICH of the two layers refused",
+    );
+    assert.equal(
+      rowsOf("motif_candidates").find((r) => r.id === candidateId)!.status,
+      "promoted",
+      "the learner's promoted candidate must be untouched",
+    );
+  });
+});
+
+test("MUTPROVE-2b removing BOTH already-resolved guards lets a dismiss silently overwrite an already-promoted candidate", async () => {
+  await withMutations([ROUTE_GUARD_MUTATION, RADAR_GUARD_MUTATION], async () => {
+    const candidateId = await seedPendingCandidate(WORKSPACE_A);
+    const confirmResponse = await asUser(SESSION_A, () => api.act(candidateId, "confirm"));
+    assert.equal(confirmResponse.status, 200, "the confirm itself must still succeed normally");
+    assert.equal(rowsOf("threads").length, 1);
+
+    const dismissResponse = await asUser(SESSION_A, () => api.act(candidateId, "dismiss"));
+    assert.equal(
+      dismissResponse.status,
+      200,
+      "MUTPROVE-2b: with BOTH guards removed, a dismiss on a promoted candidate must wrongly succeed — that is what makes the two guards load-bearing rather than decorative",
+    );
+    assert.equal(
+      rowsOf("motif_candidates").find((r) => r.id === candidateId)!.status,
+      "dismissed",
+      "MUTPROVE-2b: both guards gone must let dismiss overwrite the promoted candidate's status",
+    );
+    assert.equal(
+      rowsOf("threads").length,
+      1,
+      "the earlier promotion's thread is untouched by this — the bug is a misleading candidate.status, not a deleted thread",
+    );
+  });
 });
 
 test("after MUTPROVE-2's cycle, dismissing an already-promoted candidate is refused again (409, harness hygiene)", async () => {

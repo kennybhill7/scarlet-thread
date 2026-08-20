@@ -10,6 +10,7 @@ import { db } from "@/lib/db";
 import {
   MOTIF_CANDIDATE_PENDING_STATUS,
   MotifCandidateNotFoundError,
+  MotifDismissalAlreadyResolvedError,
   MotifThreadSlugCollisionError,
   dismissMotifCandidate,
   promoteMotifCandidate,
@@ -157,11 +158,16 @@ export async function POST(request: Request, context: RouteContext) {
 
     // A candidate this route already resolved once (promoted or dismissed
     // on an earlier request) is not "offered" any more -- refuse rather than
-    // silently re-resolve it a second time. `dismissMotifCandidate` itself
-    // has no such guard (it will happily overwrite an already-promoted row's
-    // status back to "dismissed" -- see this file's own note to a future
-    // reader of `lib/db/radar.ts`), so this route enforces it independently
-    // rather than trusting that call to.
+    // silently re-resolve it a second time. MOTIFSTATUS-001 gave
+    // `dismissMotifCandidate` its own equivalent guard, so this is now
+    // genuine defense in depth rather than the only thing standing between a
+    // learner and a corrupted status. This check stays: it answers with a
+    // precise 409 the UI can render, and it refuses BEFORE touching the
+    // database. radar.ts's guard is the backstop for the narrow race this
+    // read-then-check cannot close on its own -- two dismisses, or a dismiss
+    // and a confirm, arriving close enough together that both read a
+    // still-pending row. That loser surfaces below as the same 409, never a
+    // 500.
     if (candidate.status !== MOTIF_CANDIDATE_PENDING_STATUS) {
       return privateJson(
         {
@@ -206,6 +212,22 @@ export async function POST(request: Request, context: RouteContext) {
     return privateJson({ data: { action: "dismiss" as const, candidateId } });
   } catch (error) {
     if (error instanceof MotifCandidateNotFoundError) return notFound();
+    // radar.ts's own already-resolved guard (MOTIFSTATUS-001), reached only
+    // when the read-then-check above lost a race. Same code, same status as
+    // this route's own refusal -- a caller must not be able to tell which of
+    // the two layers refused, and must never get a 500 for an ordinary
+    // double-click.
+    if (error instanceof MotifDismissalAlreadyResolvedError) {
+      return privateJson(
+        {
+          error: {
+            code: "MOTIF_CANDIDATE_ALREADY_RESOLVED",
+            message: `This suggestion was already "${error.status}" -- it can't be acted on again.`,
+          },
+        },
+        { status: 409 },
+      );
+    }
     if (error instanceof MotifThreadSlugCollisionError) {
       return privateJson(
         { error: { code: "MOTIF_THREAD_SLUG_COLLISION", message: error.message } },
