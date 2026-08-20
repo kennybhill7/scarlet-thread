@@ -1171,7 +1171,7 @@ The server responds accepted, rejected, or conflict, including the authoritative
 
 Initial sync is a paginated snapshot taken against a transactional high-watermark, followed by changes after that watermark. If a cursor expires because the log was compacted, the server returns `resetRequired` and a new snapshot token. Define retention, maximum batch/log sizes, conflict-payload limits, create `baseRevision` semantics, delete conflicts, and rejected-receipt replay.
 
-Related offline creations—session, claim, evidence, motif, and connection—use a bounded atomic `mutationGroupId`, or explicit `dependsOn` ordering when atomicity is not possible. An accepted mutation atomically writes the entity/revision, prior artifact revision, tombstone where relevant, change-log entry, and idempotency receipt.
+Related offline creations—session, claim, evidence, motif, motif sighting, and connection—each sync as their **own** top-level entity (`evidence` and `motifSighting` included — neither rides inside its parent's payload as a nested/aggregate array) and are tied to their parent by a bounded atomic `mutationGroupId`, or explicit `dependsOn` ordering when atomicity is not possible. **Resolved (SYNCGAP-001):** this closes the gap `BUILD_PLAN.md §3.4` left open by naming only six of the eight v2 sync entities; both documents now agree on the same eight-entity list and the same "own entity, grouped by `mutationGroupId`" shape. An accepted mutation atomically writes the entity/revision, prior artifact revision, tombstone where relevant, change-log entry, and idempotency receipt.
 
 ### Merge rules
 

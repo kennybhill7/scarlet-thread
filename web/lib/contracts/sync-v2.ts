@@ -1,11 +1,11 @@
 /**
- * v2 sync contract — Phase 1 (SYNCV2-001).
+ * v2 sync contract — Phase 1 (SYNCV2-001, extended by SYNCGAP-001).
  *
  * BUILD_PLAN.md tenet 7 / §3.4 and THEOLOGY_MASTER_BUILD_PLAN.md §14 ("Sync
  * v2"): sync push is the SOLE browser mutation path for learner entities; v2
  * resource routes are read-only. Today's frozen `SyncEntity`
  * (`lib/contracts.ts`) covers only `entry | thread | person | progress | log
- * | stage` — the six v2 study entities BUILD_PLAN.md:144 adds have no sync
+ * | stage` — the eight v2 study entities BUILD_PLAN.md:144 adds have no sync
  * representation at all. This module is that representation.
  *
  * Per tenet 4 ("Additive contracts only") and the pattern `range-v1.ts` and
@@ -20,56 +20,79 @@
  * agreed, so the two can be reviewed separately.
  *
  * ---------------------------------------------------------------------------
- * Known gaps in the source docs, reported rather than silently resolved, per
- * this task's instructions and the precedent `study-v2.ts` already set for
- * doc gaps:
+ * Resolved gap (SYNCGAP-001): `claim_evidence` and `motif_sightings` sync
+ * entities.
  *
- * 1. THEOLOGY_MASTER_BUILD_PLAN.md §14 prose says "Related offline
- *    creations—session, claim, evidence, motif, and connection—use a
- *    bounded atomic mutationGroupId", naming `evidence` as one of the
- *    related-creation kinds. But BUILD_PLAN.md:144, which is the section
- *    that actually enumerates the `SyncEntity` extension list this task
- *    builds ("Extend `SyncEntity` with the six new entities —
- *    `"session" | "claim" | "motif" | "connection" | "application" |
- *    "teachingDraft"`"), does NOT include `evidence` among the six, and this
- *    task's own acceptance criteria repeat that exact six-item list. `claim
- *    evidence` (`ClaimEvidence` in `study-v2.ts`, `claim_evidence` in
- *    `db/schema.ts`) therefore has no v2 sync entity of its own yet — a
- *    related `session` + `claim` + `claim evidence` offline creation cannot
- *    be pushed as one group until a future task adds it (and decides
- *    whether evidence rides inside its claim's payload or gets a seventh
- *    entity). This module follows BUILD_PLAN.md's explicit six-item list,
- *    the same authority order `study-v2.ts` already used ("no conflict...
- *    one is silent, not contradictory" does not apply here — this IS a
- *    direct list mismatch between the two docs, so BUILD_PLAN.md's own
- *    stated precedence for disagreements, "the master plan wins", would
- *    normally apply; it is not applied here because master plan §14 is
- *    prose describing the intended grouping *behavior*, not a table naming
- *    the entity list the way BUILD_PLAN.md:144 does, and this task's
- *    acceptance criteria pin the literal six).
- * 2. `study-v2.ts` types both `MotifCandidate` and `MotifSighting` as
- *    separate record interfaces (a sighting links a candidate to one
- *    specific passage occurrence), but the six-item vocabulary has only one
- *    `motif` entity. `lib/api/sync-v2.ts`'s `syncMotifCandidateV2Schema`
- *    maps `motif` to `MotifCandidate` only; `MotifSighting` has no sync
- *    entity of its own yet, the same class of gap as `evidence` above.
+ * SYNCV2-001 originally left this open: THEOLOGY_MASTER_BUILD_PLAN.md §14's
+ * prose named `evidence` as one of the "related offline creations" kinds,
+ * but BUILD_PLAN.md:144's literal `SyncEntity` list only named six values,
+ * omitting both `claim_evidence` (`ClaimEvidence` in `study-v2.ts`,
+ * `claim_evidence` in `db/schema.ts`) and `motif_sightings`
+ * (`MotifSighting`, `motif_sightings`) — a genuine list-vs-list conflict
+ * between the two documents, not a "one is silent" case.
  *
- * The atomic-group mechanics below (`mutationGroupId`, `dependsOn`) are
- * entity-agnostic and need no change to carry `evidence` or `MotifSighting`
- * once either gets a sync entity.
+ * Resolution: **each is its own top-level sync entity** (`evidence` and
+ * `motifSighting`), never nested inside its parent's payload as an
+ * aggregate/child array. Reasons:
+ *
+ * 1. THEOLOGY_MASTER_BUILD_PLAN.md §14's own prose already names `evidence`
+ *    as a *sibling* in the "session, claim, evidence, motif, and
+ *    connection" related-creation list — grouped with its parent via
+ *    `mutationGroupId`, not folded inside it. That is the "own entity"
+ *    shape, not the aggregate shape. Per BUILD_PLAN.md's own stated
+ *    precedence for disagreements ("the master plan wins"), the master
+ *    plan's shape governs once the two are reconciled to name the same
+ *    entities.
+ * 2. `ClaimEvidence` and `MotifSighting` both carry their own `revision`
+ *    column in `db/schema.ts` and `study-v2.ts` — independent optimistic-
+ *    concurrency state that only makes sense if each row can be pushed,
+ *    conflict-checked, and idempotently retried on its own, exactly like
+ *    `claim` and `motif` already are. An aggregate array folded into the
+ *    parent's payload would have no way to carry a per-child `baseRevision`
+ *    through the existing `SyncOpV2` envelope without inventing a second,
+ *    parallel revision-conflict mechanism this task does not own.
+ * 3. The atomic-group mechanics this module already built —
+ *    `mutationGroupId`, `dependsOn`, `groupOpsByMutationGroupId`,
+ *    `findDanglingDependsOnOpIds` — exist *specifically* to express "these
+ *    related ops must be treated as one bounded unit" without requiring
+ *    payload nesting. Reusing them for `evidence`/`motifSighting` needs no
+ *    new mechanism; nesting would have required inventing one solely for
+ *    these two entities while every other v2 entity uses the flat op shape.
+ *
+ * `claim_evidence` payloads name their parent via `claimId`;
+ * `motif_sightings` payloads name theirs via `candidateId` — exactly like
+ * `claim` already names its `sessionId`. A push that instead nests evidence
+ * or sightings inside their parent's payload (the aggregate shape that was
+ * NOT chosen) is rejected: every payload schema below is `.strict()`, so an
+ * extra `evidence`/`sightings` array key on a `claim`/`motif` payload fails
+ * validation rather than being silently accepted or ignored (see
+ * `lib/api/sync-v2.ts` and `tests/sync-v2.test.ts` for the enforcing schemas
+ * and the test that proves it).
+ *
+ * One remaining, narrower, out-of-scope gap: `db/schema.ts`'s
+ * `claim_evidence` table (added by SCHEMAFU-001, after `study-v2.ts`'s
+ * `ClaimEvidence` interface was written by STUDYV2-001) carries a
+ * `connectionId` column that `study-v2.ts`'s own header already flags as
+ * missing from its `ClaimEvidence` interface (gap #5 there). `study-v2.ts`
+ * is read-only for this task, so `syncClaimEvidenceV2Schema` below mirrors
+ * that interface as written (no `connectionId`) rather than inventing a
+ * field absent from its read-only source of truth; closing that gap needs a
+ * task that owns `study-v2.ts`.
  * ---------------------------------------------------------------------------
  */
 
 // ---------------------------------------------------------------------------
-// The v2 sync entity vocabulary — BUILD_PLAN.md:144's exact six-item list,
-// as a runtime-checkable const array (never a hand-retyped string literal
-// union living next to it).
+// The v2 sync entity vocabulary — BUILD_PLAN.md:144's eight-item list (as
+// reconciled by SYNCGAP-001), as a runtime-checkable const array (never a
+// hand-retyped string literal union living next to it).
 // ---------------------------------------------------------------------------
 
 export const SYNC_ENTITIES_V2 = [
   "session",
   "claim",
+  "evidence",
   "motif",
+  "motifSighting",
   "connection",
   "application",
   "teachingDraft",

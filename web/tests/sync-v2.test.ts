@@ -10,7 +10,9 @@ import {
   isReadOnlyV2Method,
   parseSyncOpV2Payload,
   syncApplicationV2Schema,
+  syncClaimEvidenceV2Schema,
   syncMotifCandidateV2Schema,
+  syncMotifSightingV2Schema,
   syncOpV2Schema,
   syncPushV2Schema,
   syncStudyClaimV2Schema,
@@ -28,17 +30,19 @@ import {
 } from "@/lib/contracts/sync-v2";
 
 // ---------------------------------------------------------------------------
-// BUILD_PLAN.md:144's exact six-item list, transcribed independently here
-// from the doc text (not derived from the module under test — a test's
-// expected value must never come from the code it is checking). If
-// sync-v2.ts's exported array ever drifts — an added, removed, renamed, or
-// reordered entity — this catches it.
+// BUILD_PLAN.md:144's exact eight-item list (as reconciled by SYNCGAP-001),
+// transcribed independently here from the doc text (not derived from the
+// module under test — a test's expected value must never come from the code
+// it is checking). If sync-v2.ts's exported array ever drifts — an added,
+// removed, renamed, or reordered entity — this catches it.
 // ---------------------------------------------------------------------------
 
 const EXPECTED_SYNC_ENTITIES_V2 = [
   "session",
   "claim",
+  "evidence",
   "motif",
+  "motifSighting",
   "connection",
   "application",
   "teachingDraft",
@@ -51,7 +55,7 @@ test("SyncEntityV2 matches BUILD_PLAN.md:144 verbatim", () => {
 test("lib/contracts.ts's v1 SyncEntity is untouched by this module", () => {
   // Static guarantee, exercised at runtime: importing lib/contracts/sync-v2.ts
   // must not require or re-export anything from lib/contracts.ts's SyncEntity.
-  // The six v2 values below are not part of the v1 SyncEntity vocabulary.
+  // The eight v2 values below are not part of the v1 SyncEntity vocabulary.
   const v1SyncEntities = ["entry", "thread", "person", "progress", "log", "stage"];
   for (const v2Entity of SYNC_ENTITIES_V2) {
     assert.equal(
@@ -133,6 +137,24 @@ function validClaimPayload() {
   };
 }
 
+function validEvidencePayload() {
+  return {
+    id: "evidence-1",
+    workspaceId: "workspace-1",
+    claimId: "claim-1",
+    evidenceType: "passage",
+    canonicalReference: range("1.1.1", "1.1.1"),
+    displayReference: null,
+    contentBlockId: null,
+    citationId: null,
+    note: "Genesis 1:1 anchors the claim in the text.",
+    revision: 1,
+    createdAt: TS,
+    updatedAt: TS,
+    deletedAt: null,
+  };
+}
+
 function validMotifPayload() {
   return {
     id: "motif-1",
@@ -140,6 +162,23 @@ function validMotifPayload() {
     label: "Seed of the woman",
     normalizedKey: "seed-of-the-woman",
     status: "candidate",
+    revision: 1,
+    createdAt: TS,
+    updatedAt: TS,
+    deletedAt: null,
+  };
+}
+
+function validMotifSightingPayload() {
+  return {
+    id: "sighting-1",
+    workspaceId: "workspace-1",
+    candidateId: "motif-1",
+    passageUnitKey: "1.3",
+    exactRange: range("1.3.15", "1.3.15"),
+    entryId: null,
+    claimId: null,
+    status: "sighted",
     revision: 1,
     createdAt: TS,
     updatedAt: TS,
@@ -211,7 +250,9 @@ function validTeachingDraftPayload() {
 const validPayloadByEntity = {
   session: validSessionPayload,
   claim: validClaimPayload,
+  evidence: validEvidencePayload,
   motif: validMotifPayload,
+  motifSighting: validMotifSightingPayload,
   connection: validConnectionPayload,
   application: validApplicationPayload,
   teachingDraft: validTeachingDraftPayload,
@@ -220,7 +261,9 @@ const validPayloadByEntity = {
 const schemaByEntity = {
   session: syncStudySessionV2Schema,
   claim: syncStudyClaimV2Schema,
+  evidence: syncClaimEvidenceV2Schema,
   motif: syncMotifCandidateV2Schema,
+  motifSighting: syncMotifSightingV2Schema,
   connection: syncUserConnectionV2Schema,
   application: syncApplicationV2Schema,
   teachingDraft: syncTeachingDraftV2Schema,
@@ -245,7 +288,7 @@ function validOp(entity: keyof typeof validPayloadByEntity, overrides: Partial<S
 
 // ---------------------------------------------------------------------------
 // Criterion 2: a Zod schema validates a push payload for every one of the
-// six entities.
+// eight entities.
 // ---------------------------------------------------------------------------
 
 test("every v2 entity has a payload schema that accepts a well-formed payload", () => {
@@ -255,6 +298,58 @@ test("every v2 entity has a payload schema that accepts a well-formed payload", 
     const result = schema.safeParse(payload);
     assert.equal(result.success, true, `expected a valid ${entity} payload to parse`);
   }
+});
+
+// ---------------------------------------------------------------------------
+// Criterion 2 (SYNCGAP-001, continued): claim_evidence and motif_sightings
+// were resolved as their OWN sync entities (`evidence`, `motifSighting`),
+// never nested inside their parent's payload as an aggregate/child array —
+// the option that was NOT chosen. Prove the NOT-chosen shape is rejected,
+// so the decision is enforced, not merely documented.
+// ---------------------------------------------------------------------------
+
+test("claim payload schema rejects a nested aggregate evidence array (the NOT-chosen shape)", () => {
+  const aggregateShaped = {
+    ...validClaimPayload(),
+    evidence: [{ evidenceType: "passage", note: "smuggled in as a child of its parent" }],
+  };
+  assert.equal(syncStudyClaimV2Schema.safeParse(aggregateShaped).success, false);
+});
+
+test("motif payload schema rejects a nested aggregate sightings array (the NOT-chosen shape)", () => {
+  const aggregateShaped = {
+    ...validMotifPayload(),
+    sightings: [{ passageUnitKey: "1.3", status: "sighted" }],
+  };
+  assert.equal(syncMotifCandidateV2Schema.safeParse(aggregateShaped).success, false);
+});
+
+test("evidence payload schema validates standalone, naming its parent claim via claimId", () => {
+  const payload = validEvidencePayload();
+  const result = syncClaimEvidenceV2Schema.safeParse(payload);
+  assert.equal(result.success, true);
+  assert.equal(payload.claimId, "claim-1");
+});
+
+test("motifSighting payload schema validates standalone, naming its parent candidate via candidateId", () => {
+  const payload = validMotifSightingPayload();
+  const result = syncMotifSightingV2Schema.safeParse(payload);
+  assert.equal(result.success, true);
+  assert.equal(payload.candidateId, "motif-1");
+});
+
+test("evidence and motifSighting are pushed as their own ops, grouped with their parent via mutationGroupId", () => {
+  const groupId = uuid(40);
+  const claimOp = validOp("claim", { mutationGroupId: groupId });
+  const evidenceOp = validOp("evidence", { opId: uuid(41), mutationGroupId: groupId });
+  const candidateOp = validOp("motif", { opId: uuid(42), mutationGroupId: groupId });
+  const sightingOp = validOp("motifSighting", { opId: uuid(43), mutationGroupId: groupId });
+
+  const result = syncPushV2Schema.safeParse({ ops: [claimOp, evidenceOp, candidateOp, sightingOp] });
+  assert.equal(result.success, true);
+
+  const groups = groupOpsByMutationGroupId([claimOp, evidenceOp, candidateOp, sightingOp]);
+  assert.equal(groups.get(groupId)?.length, 4);
 });
 
 test("session payload schema rejects an unknown mode", () => {
@@ -377,7 +472,7 @@ test("parseSyncOpV2Payload is fail-closed: a custom accessor returning undefined
 
 test("parseSyncOpV2Payload honors a custom timestamp accessor (the SYNC-001 pattern, not a hardcoded field)", () => {
   // Every v2 payload here declares updatedAt, so the default accessor
-  // already covers all six — this proves the mechanism is a real parameter,
+  // already covers all eight — this proves the mechanism is a real parameter,
   // not dead code, by pointing it at a different (also-present) field and
   // matching clientTime against THAT field's value instead.
   const payload = { ...validSessionPayload(), currentStep: TS };
