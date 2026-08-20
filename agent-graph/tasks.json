@@ -1528,6 +1528,41 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "STUDYSESSIONRACE-001",
+      "title": "Close the concurrent-tab/device race in study-session dedup with a real constraint",
+      "objective": "STUDYENTRY-001 built the dedup rule (an existing ACTIVE session for the same range is reused, not duplicated) entirely client-side, because db/schema.ts was a read-only path for it. It documented plainly that two genuinely concurrent devices or browser tabs could each pass the findExistingActiveSession check before either has written, producing two active sessions for the identical range. That is a narrow window, not a security hole, but it is a real data-integrity gap this task closes for good with an actual database constraint rather than a client-side check that can only ever be advisory.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/db/schema.ts",
+        "web/db/migrations/",
+        "web/lib/db/workspaces.ts",
+        "web/tests/migration-order.test.ts",
+        "web/tests/schema-followups.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/components/reader/StudyEntry.tsx",
+        "web/lib/contracts/study-v2.ts",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "A partial unique index or constraint on study_sessions scoped to (workspace_id, range) WHERE workflow_state = 'active' AND deleted_at IS NULL, matching the dedup semantics StudyEntry.tsx already implements client-side: an active session blocks a duplicate for the same range; closed/archived ones do not.",
+        "A new forward migration, generated via drizzle-kit from the schema change - do not hand-write SQL, and do not edit an already-applied migration.",
+        "The new migration passes tests/migration-order.test.ts (no FK or constraint issued before whatever it needs already exists).",
+        "If reachable, prove the constraint against a real Postgres the way MIGORDER-001 did: two genuinely concurrent inserts for the same (workspace, active range), exactly one succeeds. If a live database is not reachable in this environment, say so plainly and state the proof is static-analysis only.",
+        "This is a database-level backstop for a client-side check that already exists, not a replacement for it - do not remove or weaken StudyEntry.tsx dedup logic (read-only here) even though it becomes technically redundant with this constraint in place.",
+        "Every existing schema and migration test keeps passing unweakened."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test",
+        "cd web; npm.cmd exec drizzle-kit check"
+      ],
+      "humanGates": []
     }
   ]
 }
