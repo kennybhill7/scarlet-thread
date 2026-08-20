@@ -996,6 +996,44 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "MIGORDER-001",
+      "title": "Fix the migration ordering bug that breaks a fresh database, and make workspace creation race-proof",
+      "objective": "TRIGGER-001 stood up a real Postgres and discovered that applying web/db/migrations in file order FAILS on a fresh database: migrations 0006 and 0007 each add a composite (id, workspace_id) foreign key BEFORE the CREATE UNIQUE INDEX that foreign key requires. Postgres needs a unique constraint on the referenced columns first. This is a genuine deployment blocker - the moment real credentials exist and drizzle-kit migrate runs against an empty database, it fails. Separately, WORKSPACE-001 honestly reported it could not make workspace creation race-proof because workspaces.created_by has no unique constraint, so its ON CONFLICT had no target. Both are schema/migration work, so they are one task and one migration.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/db/schema.ts",
+        "web/db/migrations/",
+        "web/lib/db/workspaces.ts",
+        "web/tests/schema-v2.test.ts",
+        "web/tests/schema-followups.test.ts",
+        "web/tests/migration-order.test.ts",
+        "web/tests/workspaces.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/contracts/study-v2.ts",
+        "web/tests/db-invariants.sql",
+        "web/tests/README-db-invariants.md",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "Applying every migration in web/db/migrations in file order against a FRESH empty database succeeds. Do not rewrite history in already-applied migrations if that can be avoided - prefer a new forward migration that creates the missing unique indexes, and explain your choice. If editing 0006/0007 in place is genuinely the only correct fix, say plainly why and note the risk for any database that already ran them.",
+        "A test proves the ordering property WITHOUT needing a live database - for example by parsing the migration SQL in order and asserting that no composite FK references a (table, columns) pair before a unique index or constraint on those columns has been created. It must FAIL against the current broken ordering; prove that with a mutation.",
+        "workspaces.created_by gains the unique constraint that lets WORKSPACE-001 resolve-or-create use a real ON CONFLICT rather than check-then-insert. Note the constraint must respect soft-deletes if a user could ever have a deleted workspace - decide and state which semantics you chose.",
+        "lib/db/workspaces.ts is updated to use ON CONFLICT now that a target exists, and its existing nine tests keep passing unweakened, with a new test covering the concurrent-first-call path through the real conflict clause.",
+        "Every existing test keeps passing; where an existing test asserts the old (broken or absent) behavior, update it to the new reality and say so explicitly rather than deleting it.",
+        "If you can run a real Postgres to prove the fresh-database migration actually succeeds, do so and paste the output - TRIGGER-001 proved that is possible in this environment. If you cannot, say plainly that the proof is static-analysis only."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test",
+        "cd web; npm.cmd exec drizzle-kit check"
+      ],
+      "humanGates": []
     }
   ]
 }
