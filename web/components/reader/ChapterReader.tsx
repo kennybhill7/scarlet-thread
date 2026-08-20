@@ -11,11 +11,21 @@ import { getLastRead, setLastRead } from "@/lib/bible/lastRead";
 import { Sheet } from "@/components/ui/Sheet";
 import { Chip } from "@/components/ui/Chip";
 import { StudySession } from "@/components/notes/StudySession";
+import { StudyEntryControl } from "./StudyEntry";
 import styles from "./ChapterReader.module.css";
 
 interface ChapterReaderProps {
   book: number;
   chapter: number;
+  /**
+   * STUDYENTRY-001 — this reader's own workspace id, resolved server-side by
+   * `app/(app)/read/[book]/[chapter]/page.tsx` (owned) the same way
+   * `app/(app)/study/[sessionId]/page.tsx` resolves it for the composer:
+   * from the authenticated session, never from a caller-supplied value. Null
+   * when that resolution failed (database unreachable) — `StudyEntryControl`
+   * disables itself rather than the whole reader failing.
+   */
+  workspaceId: string | null;
 }
 
 // Each piece of async state carries the request key it resolved for.
@@ -115,7 +125,7 @@ export function VerseColumn({ book, chapter, rows, selectedVerse, onSelectVerse 
   );
 }
 
-export function ChapterReader({ book, chapter }: ChapterReaderProps) {
+export function ChapterReader({ book, chapter, workspaceId }: ChapterReaderProps) {
   const router = useRouter();
   const { index } = useBibleIndex();
   const [version, setVersion] = useState<VersionId>(() => getLastRead().version);
@@ -358,6 +368,13 @@ export function ChapterReader({ book, chapter }: ChapterReaderProps) {
       </main>
 
       <div className={styles.toolbar}>
+        <StudyEntryControl
+          book={book}
+          chapter={chapter}
+          selectedVerse={selectedVerse}
+          verseCount={rows.length}
+          workspaceId={workspaceId}
+        />
         <Chip active={night} tone="green" onClick={() => setNight((n) => !n)}>
           {night ? "☾ Night" : "☀ Day"}
         </Chip>
