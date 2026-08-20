@@ -280,27 +280,27 @@
       "notes": "Merged. Handlers for the two new entities added during integration."
     },
     "V2API-001": {
-      "status": "ready",
+      "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": null,
+      "lastRunId": "interactive-2026-08-20-am",
       "notes": "Seeded 2026-08-20 00:35 for the overnight run. Phase 1 continuation: the missing links between an authenticated session and a usable v2 data layer."
     },
     "RADARPERSIST-001": {
-      "status": "ready",
+      "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": null,
+      "lastRunId": "interactive-2026-08-20-am",
       "notes": "Seeded 2026-08-20 00:35 for the overnight run. Phase 1 continuation: the missing links between an authenticated session and a usable v2 data layer."
     },
     "MIGORDER-001": {
-      "status": "ready",
+      "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": null,
+      "lastRunId": "interactive-2026-08-20-am",
       "notes": "Seeded 2026-08-20 from a REAL deploy blocker TRIGGER-001 found by running an actual Postgres, plus the race-proofing WORKSPACE-001 honestly reported it could not do."
     }
   }
