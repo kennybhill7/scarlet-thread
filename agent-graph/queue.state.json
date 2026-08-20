@@ -3,10 +3,10 @@
   "updatedAt": "2026-08-20T05:10:10.000Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
-    "taskId": "SYNCGAP-001",
-    "runId": "cloud-20260820051010",
-    "takenAt": "2026-08-20T05:10:10.000Z",
-    "expiresAt": "2026-08-20T06:40:10.000Z"
+    "taskId": null,
+    "runId": null,
+    "takenAt": null,
+    "expiresAt": null
   },
   "tasks": {
     "DOC-002": {
@@ -253,12 +253,13 @@
       "notes": "Seeded 2026-08-19 from a gap the builder reported honestly rather than papering over. Built by cloud-20260820040922. Surfaced a real pre-existing bug in db/migrations/0006 and 0007 (composite FK added before its backing unique index -- see README-db-invariants.md and agent-graph/LESSONS.md's new GENERATED-MIGRATION-FK-ORDER-001 candidate) -- out of scope to fix here, flagged for a follow-up task. Awaiting independent audit, same as this queue's other submitted tasks."
     },
     "SYNCGAP-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "submitted",
+      "branch": "agent/SYNCGAP-001-cloud",
+      "commitSha": "e953202f5149ea7a3ce80c518ae54ad70c889cb8",
       "attempts": 0,
       "lastRunId": "cloud-20260820051010",
-      "notes": "Seeded 2026-08-19 from a gap the builder reported honestly rather than papering over."
+      "lastEvidence": "typecheck exit 0 (no output); lint exit 0 (no output); DATABASE_URL='postgresql://u:p@localhost:5432/db' npm run build -> exit 0, Compiled successfully, static pages 16/16; npm test -> tests 429, pass 429, fail 0, cancelled 0, skipped 0 (includes 5 new sync-v2 tests: claim/motif reject nested aggregate evidence/sightings arrays (the NOT-chosen shape), evidence and motifSighting validate standalone naming their parent via claimId/candidateId, and both push as their own ops sharing a mutationGroupId with their parent). git diff --check clean, no output. Criterion 1: BUILD_PLAN.md Sec.3.4 and THEOLOGY_MASTER_BUILD_PLAN.md Sec.14 now state identically that claim_evidence and motif_sightings are each their OWN sync entity (evidence, motifSighting), naming their parent by id (claimId/candidateId), never nested as an aggregate child array; every stale six-entity reference in both docs updated to eight (BUILD_PLAN.md lines 48, 144, 154). Criterion 2: lib/contracts/sync-v2.ts SYNC_ENTITIES_V2 grew from 6 to 8 entries; lib/api/sync-v2.ts adds syncClaimEvidenceV2Schema and syncMotifSightingV2Schema (both .strict(), mirroring study-v2.ts interfaces and db/schema.ts columns) plus a structural displayReferenceV1Schema, wired into payloadSchemasByEntity; tests prove a claim payload with a nested evidence array and a motif payload with a nested sightings array (the NOT-chosen aggregate shape) are both rejected by strict-schema extra-key validation. Criterion 3: not applicable -- aggregate option was not chosen. Criterion 4: recommendation (own-entity option) implemented and reasoned in the commit message and the sync-v2.ts header comment; EXPECTED_SYNC_ENTITIES_V2 in the test independently transcribed from the reconciled doc text, matching existing precedent. Not closed: study-v2.ts (read-only for this task) already flags in its own header that db/schema.ts claim_evidence.connectionId has no matching field on the ClaimEvidence TS interface -- syncClaimEvidenceV2Schema mirrors the interface as written (no connectionId), flagged in its own comment, needs a task that owns study-v2.ts to close. Lessons protocol: QUEUE.md asks the worker to append a retro entry to agent-graph/LESSONS.md after every task, but graph.config.json protectedPaths lists agent-graph/ as protected with only queue.state.json carved out, and the worker prompt ABSOLUTE LIMITS repeats that single exception -- this run followed the more restrictive absolute instruction and did NOT write to agent-graph/LESSONS.md; a human should reconcile the two. The cross-project ledger QUEUE.md references (C:\\Users\\kenny\\.claude\\lessons\\GENERAL_LEDGER.md) is a Windows-local path not reachable from this cloud container; only the project-local agent-graph/LESSONS.md was read this run.",
+      "notes": "Seeded 2026-08-19 from a gap the builder reported honestly rather than papering over. Resolved: claim_evidence and motif_sightings are each their own sync entity (evidence, motifSighting), grouped with their parent via mutationGroupId, not nested as an aggregate child array. Did not write agent-graph/LESSONS.md -- see lastEvidence for the protectedPaths conflict this surfaced. Awaiting independent audit, same as this queue's other submitted tasks."
     },
     "WORKSPACE-001": {
       "status": "ready",
