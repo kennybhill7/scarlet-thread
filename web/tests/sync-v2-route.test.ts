@@ -875,9 +875,15 @@ test("push rejects a non-JSON body with 400 (matching the v1 route's INVALID_JSO
 const SYNC_V2_DB = path.join("lib", "db", "sync-v2.ts");
 
 test("MUTPROVE-1 removing the tenant-ownership check lets a hostile cross-workspace push through", async () => {
+  // SYNCDEDUP-001 (wave 11) deleted the inline resolveWorkspaceOwnership this
+  // pattern used to target and replaced it with a thin adapter over
+  // lib/db/workspaces.ts's own assertWorkspaceOwnership, named ownsWorkspace.
+  // Same predicate, same columns, same limit(1) -- verified line-by-line by
+  // that task, not merely assumed -- so the mutation and the assertion below
+  // are unchanged; only the compiled shape being targeted moved.
   await withMutation(
     SYNC_V2_DB,
-    /const owns=await resolveWorkspaceOwnership\(userId,workspaceId\);/,
+    /const owns=await ownsWorkspace\(userId,workspaceId\);/,
     "const owns=true;",
     async () => {
       await asUser(SESSION_A, async () => {
