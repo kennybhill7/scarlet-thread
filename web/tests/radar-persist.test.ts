@@ -429,6 +429,7 @@ const {
   promoteMotifCandidate,
   MotifPromotionNotConfirmedError,
   MotifThreadSlugCollisionError,
+  MotifDismissalAlreadyResolvedError,
   MAX_THREAD_SLUG_ATTEMPTS,
   MOTIF_CANDIDATE_PENDING_STATUS,
   MOTIF_CANDIDATE_DISMISSED_STATUS,
@@ -724,6 +725,51 @@ test("dismissing a candidate marks it dismissed and never touches its sightings 
   // registered an "entries" table at all, so dismissMotifCandidate could not
   // have issued any query against one without this whole test throwing.
   assert.ok(!world.has("entries"));
+});
+
+// ---------------------------------------------------------------------------
+// MOTIFSTATUS-001, acceptance criterion 4 — dismissMotifCandidate gains its
+// own status guard (defense in depth alongside app/api/motifs/[id]/route.ts's
+// pre-existing route-level guard, which this test suite does not exercise --
+// that route is a read-only path for this task).
+// ---------------------------------------------------------------------------
+
+test("dismissing an already-promoted candidate is refused, and the row is left completely untouched", async () => {
+  await persistMotifCandidates("workspace-a", threeCovenantEntries(), []);
+  const [candidateRow] = rowsOf("motif_candidates");
+  await promoteMotifCandidate("workspace-a", "user-a", candidateRow.id as string, { learnerConfirmed: true });
+  const before = snapshotWorld();
+
+  await assert.rejects(
+    () => dismissMotifCandidate("workspace-a", candidateRow.id as string),
+    (error: unknown) => {
+      assert.ok(error instanceof MotifDismissalAlreadyResolvedError);
+      assert.equal((error as InstanceType<typeof MotifDismissalAlreadyResolvedError>).status, MOTIF_CANDIDATE_PROMOTED_STATUS);
+      return true;
+    },
+  );
+
+  assert.deepEqual(rowsOf("motif_candidates"), before.get("motif_candidates"), "the promoted row must be unchanged");
+  assert.deepEqual(rowsOf("threads"), before.get("threads"), "the promotion's thread must be unchanged");
+});
+
+test("dismissing an already-dismissed candidate a second time is refused, and the revision does not advance again", async () => {
+  await persistMotifCandidates("workspace-a", threeCovenantEntries(), []);
+  const [candidateRow] = rowsOf("motif_candidates");
+
+  await dismissMotifCandidate("workspace-a", candidateRow.id as string);
+  const afterFirstDismiss = clone(rowsOf("motif_candidates"));
+
+  await assert.rejects(
+    () => dismissMotifCandidate("workspace-a", candidateRow.id as string),
+    (error: unknown) => {
+      assert.ok(error instanceof MotifDismissalAlreadyResolvedError);
+      assert.equal((error as InstanceType<typeof MotifDismissalAlreadyResolvedError>).status, MOTIF_CANDIDATE_DISMISSED_STATUS);
+      return true;
+    },
+  );
+
+  assert.deepEqual(rowsOf("motif_candidates"), afterFirstDismiss, "a second dismiss must not advance the revision again");
 });
 
 test("re-running the radar does not duplicate an existing candidate for the same normalized key in the same workspace", async () => {

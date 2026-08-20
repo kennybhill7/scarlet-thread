@@ -93,7 +93,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { motifCandidates, motifSightings, threads as threadsTable } from "@/db/schema";
 import type { Entry, Thread } from "@/lib/contracts";
 import { CANONICAL_VERSIFICATION_ID, type CanonicalRangeV1 } from "@/lib/contracts/range-v1";
-import type { MotifCandidate } from "@/lib/contracts/study-v2";
+import type { MotifCandidate, MotifCandidateStatus } from "@/lib/contracts/study-v2";
 import { hasDatabaseErrorCode } from "@/lib/db/errors";
 
 // `drizzle-orm` and `@/db/schema` are both side-effect-free to import under
@@ -194,11 +194,17 @@ export type RadarMotifCandidate = Pick<MotifCandidate, "label" | "normalizedKey"
 /**
  * Status for a candidate that exists only for this render pass, not yet
  * written anywhere. `MotifCandidate.status` has no enumerated values in
- * either planning document (`lib/contracts/study-v2.ts` gap #3) — this
- * module does not invent an enum either; `"candidate"` is a plain string,
- * not a member of a closed type.
+ * either planning document (`lib/contracts/study-v2.ts` gap #3), so this
+ * module's three status constants (below, "Status vocabulary") remain the
+ * source of truth for the actual literal values written to the column.
+ * MOTIFSTATUS-001 closed the closed-type half of that gap:
+ * `lib/contracts/study-v2.ts` now exports `MOTIF_CANDIDATE_STATUSES`,
+ * derived FROM these three constants' values (read, not guessed), and this
+ * constant is typed against the resulting `MotifCandidateStatus` union so
+ * the two can never silently drift apart — a typo or a removed value here
+ * fails `npm run typecheck`, not just a runtime assertion.
  */
-const PENDING_STATUS = "candidate";
+const PENDING_STATUS: MotifCandidateStatus = "candidate";
 
 /** Cap on how many candidates one render surfaces — carried over from the
  * pre-existing radar UI so the section's length doesn't change shape. */
@@ -280,15 +286,25 @@ export function computeMotifCandidates(entries: Entry[], threads: Thread[]): Rad
 //
 // Status vocabulary — `motif_candidates.status` / `motif_sightings.status`
 // have NO enumerated values in either planning document
-// (`lib/contracts/study-v2.ts` gap #3); these four are this module's own
+// (`lib/contracts/study-v2.ts` gap #3); these five are this module's own
 // plain-text choice, not a guessed enum. `MOTIF_SIGHTING_PENDING_STATUS`
 // reuses `"counting"`, the value `tests/sync-v2-persist.test.ts`'s own
 // `validMotifSightingPayload` fixture already picked for an
 // un-promoted sighting — matching existing usage rather than inventing a
 // second word for the same idea.
-export const MOTIF_CANDIDATE_PENDING_STATUS = PENDING_STATUS;
-export const MOTIF_CANDIDATE_DISMISSED_STATUS = "dismissed";
-export const MOTIF_CANDIDATE_PROMOTED_STATUS = "promoted";
+//
+// MOTIFSTATUS-001: the three `MOTIF_CANDIDATE_*` constants below are now
+// typed against `MotifCandidateStatus` (`lib/contracts/study-v2.ts`'s
+// `MOTIF_CANDIDATE_STATUSES`, sourced FROM these exact three values) so this
+// module and the contract can never independently drift. `motif_sightings.
+// status` (the two `MOTIF_SIGHTING_*` constants) is NOT part of that closed
+// type — it stays untyped plain text; nothing reads this column anywhere in
+// the codebase to gate a decision on (grep-confirmed), so it carries none of
+// `motif_candidates.status`'s promotion-bypass risk and MOTIFSTATUS-001's
+// acceptance criteria scope an enum to the candidate column only.
+export const MOTIF_CANDIDATE_PENDING_STATUS: MotifCandidateStatus = PENDING_STATUS;
+export const MOTIF_CANDIDATE_DISMISSED_STATUS: MotifCandidateStatus = "dismissed";
+export const MOTIF_CANDIDATE_PROMOTED_STATUS: MotifCandidateStatus = "promoted";
 export const MOTIF_SIGHTING_PENDING_STATUS = "counting";
 export const MOTIF_SIGHTING_PROMOTED_STATUS = "promoted";
 
@@ -333,6 +349,30 @@ export class MotifPromotionAlreadyResolvedError extends Error {
   ) {
     super(`Motif candidate "${candidateId}" is already "${status}" and cannot be promoted again`);
     this.name = "MotifPromotionAlreadyResolvedError";
+  }
+}
+
+/**
+ * MOTIFSTATUS-001, acceptance criterion 4 — `dismissMotifCandidate`'s own
+ * defense-in-depth guard. Until now this function issued a bare `UPDATE ...
+ * SET status = 'dismissed'` scoped only by `(id, workspaceId)`, with no
+ * check of the row's CURRENT status first — so calling it on an already-
+ * promoted candidate would silently flip a real, thread-backed promotion
+ * back to "dismissed". `app/api/motifs/[id]/route.ts` (read-only for this
+ * task) already guards this at the route layer before either action runs;
+ * this is the SECOND, independent guard the route's own comment flags as
+ * missing ("`dismissMotifCandidate` itself has no such guard"). Both guards
+ * are kept — the route's so a caller gets a clean 409 on the common path,
+ * this one so `dismissMotifCandidate` is safe to call from anywhere, not
+ * only from behind that specific route's pre-check.
+ */
+export class MotifDismissalAlreadyResolvedError extends Error {
+  constructor(
+    readonly candidateId: string,
+    readonly status: string,
+  ) {
+    super(`Motif candidate "${candidateId}" is already "${status}" and cannot be dismissed`);
+    this.name = "MotifDismissalAlreadyResolvedError";
   }
 }
 
@@ -557,6 +597,10 @@ export async function persistMotifCandidates(
  * point at, and every other candidate are all left completely alone —
  * structurally, not just by care, since this function never imports or
  * references the `entries` table at all.
+ *
+ * MOTIFSTATUS-001: refuses (`MotifDismissalAlreadyResolvedError`) rather
+ * than silently overwriting a candidate that is not currently PENDING — see
+ * that error class's own header.
  */
 export async function dismissMotifCandidate(workspaceId: string, candidateId: string): Promise<void> {
   const db = await getDb();
@@ -573,6 +617,13 @@ export async function dismissMotifCandidate(workspaceId: string, candidateId: st
     )
     .limit(1);
   if (!current) throw new MotifCandidateNotFoundError(candidateId);
+  // MOTIFSTATUS-001, acceptance criterion 4 — see MotifDismissalAlreadyResolvedError's
+  // own header. A candidate that is already "dismissed" OR already "promoted"
+  // may not be dismissed again; only a genuinely pending candidate reaches
+  // the UPDATE below.
+  if (current.status !== MOTIF_CANDIDATE_PENDING_STATUS) {
+    throw new MotifDismissalAlreadyResolvedError(candidateId, current.status);
+  }
 
   await db
     .update(motifCandidates)

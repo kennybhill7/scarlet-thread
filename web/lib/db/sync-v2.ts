@@ -28,6 +28,7 @@ import type {
   UserConnection,
 } from "@/lib/contracts/study-v2";
 import { db } from "@/lib/db";
+import { MOTIF_CANDIDATE_PROMOTED_STATUS } from "@/lib/db/radar";
 
 /**
  * SYNCPERSIST-001 — persists validated v2 sync ops (SYNCV2-001's contract) to
@@ -294,6 +295,49 @@ async function planClaimOp(userId: string, op: SyncOpV2): Promise<PlanOutcome> {
   return planWrite(userId, payload.workspaceId, current, op.baseRevision, write);
 }
 
+/**
+ * MOTIFSTATUS-001 — closes the back door `app/api/motifs/[id]/route.ts`'s
+ * header comment flags: "If a future task wires `pushSyncOpsV2` behind a
+ * live route, THAT task must either exclude `motif.status` transitions from
+ * the generic upsert ... or fold this route's confirm/dismiss logic into
+ * the sync planner." This is that future task, and the decision (per this
+ * task's own acceptance criteria: "decide and state whether any status
+ * transition is legitimately client-drivable at all, or whether motif
+ * status is entirely server-owned") is the FIRST option, narrowed to
+ * exactly the value that carries a bypassable guarantee:
+ *
+ *   - `"promoted"` is entirely server-owned. `promoteMotifCandidate`
+ *     (`lib/db/radar.ts`) is a privileged transition that re-derives the
+ *     sighting count from the database itself and refuses outright unless
+ *     the CALLER supplies `learnerConfirmed: true` — a field the v2 sync
+ *     wire format (`lib/contracts/sync-v2.ts`) has no place to carry at
+ *     all, and a recomputation the generic upsert below structurally cannot
+ *     perform. No sync op may ever cause a candidate to enter `"promoted"`,
+ *     and — once a candidate IS `"promoted"` — no further sync op may touch
+ *     that row at all, so a client cannot launder a downgrade (e.g.
+ *     `"promoted"` -> `"dismissed"`) through the same back door either.
+ *   - `"candidate"` and `"dismissed"` remain ordinary, client-syncable
+ *     values: neither is gated by an analogous server-recomputed invariant,
+ *     and existing coverage (`tests/sync-v2-persist.test.ts`'s generic
+ *     "every v2 entity applies a valid create" and "delete mutation..."
+ *     tests) already creates/deletes `"candidate"`-status motif rows
+ *     through this exact path and must keep doing so unweakened.
+ *
+ * Both checks below run AFTER confirming the acting user owns the CLAIMED
+ * `payload.workspaceId` and (for an update) that the claimed workspace
+ * matches the row's REAL stored workspace — the same two gates `planWrite`
+ * enforces for every entity — so a cross-tenant probe against another
+ * workspace's promoted candidate gets the ordinary, non-distinguishing
+ * "Workspace does not belong to the acting user" / "Entity ID belongs to
+ * another workspace" rejection, never a status-revealing one. Both gates
+ * are duplicated inline here (rather than deferred to the shared
+ * `planWrite` call below) specifically so they run BEFORE these two motif-
+ * only guards instead of after; `planWrite` still re-runs them itself for
+ * every other rejection reason (revision conflicts, etc.), which costs one
+ * redundant `resolveWorkspaceOwnership` lookup for this entity only, traded
+ * deliberately for not needing to thread a per-entity guard hook through
+ * the shared function every other `plan*Op` also calls.
+ */
 async function planMotifOp(userId: string, op: SyncOpV2): Promise<PlanOutcome> {
   let payload: MotifCandidate;
   try {
@@ -302,10 +346,33 @@ async function planMotifOp(userId: string, op: SyncOpV2): Promise<PlanOutcome> {
     return { ok: false, reason: messageOf(error) };
   }
   const [current] = await db
-    .select({ workspaceId: motifCandidates.workspaceId, revision: motifCandidates.revision })
+    .select({ workspaceId: motifCandidates.workspaceId, revision: motifCandidates.revision, status: motifCandidates.status })
     .from(motifCandidates)
     .where(eq(motifCandidates.id, op.entityId))
     .limit(1);
+
+  const ownsClaimedWorkspace = await resolveWorkspaceOwnership(userId, payload.workspaceId);
+  const rowMatchesClaimedWorkspace = !current || current.workspaceId === payload.workspaceId;
+  if (ownsClaimedWorkspace && rowMatchesClaimedWorkspace) {
+    if (current?.status === MOTIF_CANDIDATE_PROMOTED_STATUS) {
+      return {
+        ok: false,
+        reason:
+          "Motif candidate is already promoted; a promoted candidate's status is immutable via sync push " +
+          "(server-owned -- see app/api/motifs/[id]/route.ts)",
+      };
+    }
+    if (payload.status === MOTIF_CANDIDATE_PROMOTED_STATUS) {
+      return {
+        ok: false,
+        reason:
+          "Motif candidate promotion is a privileged server transition (requires a database-re-derived " +
+          "sighting count and an explicit learnerConfirmed flag, neither of which sync push carries) and " +
+          "cannot be performed via sync push",
+      };
+    }
+  }
+
   const deletedAt = resolveDeletedAt(op, payload.deletedAt);
   const write = () =>
     db
