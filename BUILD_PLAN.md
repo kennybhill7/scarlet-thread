@@ -45,7 +45,7 @@ content/                        NEW at repo root (master plan §11) — the sing
   sources/                      master source registry
 ```
 
-Curated content compiles into **immutable, checksummed catalog releases** (§5.1) consumed identically by the app, the offline downloader, and the APIs — never mutated after publish, never dependent on staying inside one Vercel deployment. User study work flows through the IndexedDB outbox → **sync push** → Postgres path with six new sync entities; sync push is the only browser write path (tenet 7).
+Curated content compiles into **immutable, checksummed catalog releases** (§5.1) consumed identically by the app, the offline downloader, and the APIs — never mutated after publish, never dependent on staying inside one Vercel deployment. User study work flows through the IndexedDB outbox → **sync push** → Postgres path with eight new sync entities; sync push is the only browser write path (tenet 7).
 
 ---
 
@@ -141,7 +141,7 @@ export type DoctrineStatus = "core" | "conviction" | "open" | "disputed" | "wisd
 
 ### 3.4 Sync + API — one write path
 
-- Extend `SyncEntity` with the six new entities — `"session" | "claim" | "motif" | "connection" | "application" | "teachingDraft"` — and add the matching arrays to `SyncResponse` (additive; related offline creations sync as a bounded atomic group per master plan §14).
+- Extend `SyncEntity` with **eight** new entities — `"session" | "claim" | "evidence" | "motif" | "motifSighting" | "connection" | "application" | "teachingDraft"` — and add the matching arrays to `SyncResponse` (additive). **Resolved (SYNCGAP-001):** `claim_evidence` and `motif_sightings` are each their **own** sync entity (`evidence`, `motifSighting`) naming their parent by id in their payload (`claimId`, `candidateId`), exactly like `claim` names its `sessionId` — they are never nested inside their parent's payload as an aggregate array. Related offline creations (e.g. a session, one of its claims, and that claim's evidence) sync as a bounded atomic group tied together by a shared `mutationGroupId` per master plan §14, not as one combined payload.
 - **All browser writes go through sync push** (tenet 7). New v2 routes are **read-only** resource endpoints (`/api/v2/workspaces/[id]/claims`, `/connections`, `/applications`, `/teach`); conflict resolution invokes the same authoritative revision/idempotency transaction as sync. No independent REST mutations.
 - Phase 1 also lands the sync v2 substance this depends on: per-entity `revision`, `artifact_revisions` for prose-conflict preservation, tombstones, idempotent receipts, and the local rule that entity + outbox op write in one IndexedDB transaction. Phone + laptop is already multi-device; this is not deferrable.
 - `NoteComposer` gains the `teaching` kind (already in the enum; audit gap #6) and a "promote to claim" action that upgrades an observation into a typed `StudyClaim` with evidence.
@@ -151,7 +151,7 @@ export type DoctrineStatus = "core" | "conviction" | "open" | "disputed" | "wisd
 
 `Thread radar` keeps its lexical engine but its output changes shape: it emits **motif candidates**, never `Connection` rows — a theological edge exists only after the learner has compared both texts and typed a rationale. Accepting a candidate walks through the side-by-side comparison first. Add the missing dedicated tests: repeated-word detection, third-sighting threshold, candidate dedup vs existing motifs and connections.
 
-**Phase 1 tests:** CanonicalRange round-trip + SBL mapping, claim-evidence badge logic, connection uniqueness + required rationale, application finalize-completeness (drafts save partial), prose-conflict preservation, sync round-trip for all six entities, tenant isolation (RLS + app predicates) on every read route and the sync path. Target: 35 → ~60 tests.
+**Phase 1 tests:** CanonicalRange round-trip + SBL mapping, claim-evidence badge logic, connection uniqueness + required rationale, application finalize-completeness (drafts save partial), prose-conflict preservation, sync round-trip for all eight entities, tenant isolation (RLS + app predicates) on every read route and the sync path. Target: 35 → ~60 tests.
 
 ---
 

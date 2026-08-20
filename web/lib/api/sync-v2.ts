@@ -12,6 +12,7 @@ import {
 } from "@/lib/contracts/sync-v2";
 import {
   CLAIM_CONFIDENCES,
+  CLAIM_EVIDENCE_TYPES,
   CLAIM_KINDS,
   CLAIM_PROVENANCES,
   CONNECTION_TYPES,
@@ -49,6 +50,27 @@ export const canonicalRangeV1Schema = z
     versificationId: z.literal(CANONICAL_VERSIFICATION_ID),
     start: verseRefSchema,
     end: verseRefSchema,
+  })
+  .strict();
+
+// ---------------------------------------------------------------------------
+// DisplayReferenceV1 (`lib/contracts/range-v1.ts`) — structural validation
+// only, same rationale as `canonicalRangeV1Schema` above: full validation of
+// `mappedStart`/`mappedEnd` against a translation's own versification lives
+// in `lib/bible/range.ts`'s `CanonTable`, which this task does not own. Only
+// `canonicalRange` reuses `canonicalRangeV1Schema`, since `mappedStart`/
+// `mappedEnd` are expressed in `translationId`'s own numbering and are not
+// guaranteed to match the 66-book-canonical `verseRefSchema` shape.
+// ---------------------------------------------------------------------------
+const VERSION_IDS_V1 = ["BSB", "KJV", "ASV", "YLT", "SBL"] as const;
+
+export const displayReferenceV1Schema = z
+  .object({
+    canonicalRange: canonicalRangeV1Schema,
+    translationId: z.enum(VERSION_IDS_V1),
+    corpusReleaseId: z.string().min(1).max(200),
+    mappedStart: z.string().min(1).max(50),
+    mappedEnd: z.string().min(1).max(50),
   })
   .strict();
 
@@ -123,12 +145,38 @@ export const syncStudyClaimV2Schema = z
   });
 
 /**
+ * entity: "evidence" — `ClaimEvidence` (`lib/contracts/study-v2.ts`).
+ * SYNCGAP-001: its own top-level sync entity, naming its parent claim via
+ * `claimId` (never nested inside the `claim` payload — see the header note
+ * in `lib/contracts/sync-v2.ts`). Mirrors `study-v2.ts`'s `ClaimEvidence`
+ * interface exactly, including its documented gap #5: that interface (and
+ * so this schema) has no `connectionId` field even though `db/schema.ts`'s
+ * `claim_evidence` table has one — `study-v2.ts` is read-only for this
+ * task, so this does not invent a field absent from it.
+ */
+export const syncClaimEvidenceV2Schema = z
+  .object({
+    id: z.string().min(1).max(200),
+    workspaceId: z.string().min(1).max(200),
+    claimId: z.string().min(1).max(200),
+    evidenceType: z.enum(CLAIM_EVIDENCE_TYPES),
+    canonicalReference: canonicalRangeV1Schema.nullish(),
+    displayReference: displayReferenceV1Schema.nullish(),
+    contentBlockId: z.string().min(1).max(200).nullish(),
+    citationId: z.string().min(1).max(200).nullish(),
+    note: z.string().min(1).max(20_000),
+    revision: z.number().int().nonnegative(),
+    createdAt: timestampSchema,
+    updatedAt: timestampSchema,
+    deletedAt: timestampSchema.nullish(),
+  })
+  .strict();
+
+/**
  * entity: "motif" — `MotifCandidate` (`lib/contracts/study-v2.ts`).
- * `MotifSighting` (the candidate-to-passage occurrence link) has no sync
- * entity of its own in BUILD_PLAN.md:144's six-item list, same class of gap
- * as `claim evidence` — see the header note in `lib/contracts/sync-v2.ts`.
- * `status` is typed as plain text, not a guessed enum, per that same file's
- * documented gap #3 (neither source doc enumerates its values).
+ * `status` is typed as plain text, not a guessed enum, per
+ * `lib/contracts/study-v2.ts`'s documented gap #3 (neither source doc
+ * enumerates its values).
  */
 export const syncMotifCandidateV2Schema = z
   .object({
@@ -136,6 +184,30 @@ export const syncMotifCandidateV2Schema = z
     workspaceId: z.string().min(1).max(200),
     label: z.string().trim().min(1).max(500),
     normalizedKey: z.string().trim().min(1).max(500),
+    status: z.string().trim().min(1).max(200),
+    revision: z.number().int().nonnegative(),
+    createdAt: timestampSchema,
+    updatedAt: timestampSchema,
+    deletedAt: timestampSchema.nullish(),
+  })
+  .strict();
+
+/**
+ * entity: "motifSighting" — `MotifSighting` (`lib/contracts/study-v2.ts`).
+ * SYNCGAP-001: its own top-level sync entity, naming its parent candidate
+ * via `candidateId` (never nested inside the `motif` payload — see the
+ * header note in `lib/contracts/sync-v2.ts`). `status` is plain text for
+ * the same documented-gap-#3 reason as `syncMotifCandidateV2Schema` above.
+ */
+export const syncMotifSightingV2Schema = z
+  .object({
+    id: z.string().min(1).max(200),
+    workspaceId: z.string().min(1).max(200),
+    candidateId: z.string().min(1).max(200),
+    passageUnitKey: z.string().trim().min(1).max(200),
+    exactRange: canonicalRangeV1Schema,
+    entryId: z.string().min(1).max(200).nullish(),
+    claimId: z.string().min(1).max(200).nullish(),
     status: z.string().trim().min(1).max(200),
     revision: z.number().int().nonnegative(),
     createdAt: timestampSchema,
@@ -233,7 +305,9 @@ export const syncTeachingDraftV2Schema = z
 const payloadSchemasByEntity: Record<SyncEntityV2, ZodType> = {
   session: syncStudySessionV2Schema,
   claim: syncStudyClaimV2Schema,
+  evidence: syncClaimEvidenceV2Schema,
   motif: syncMotifCandidateV2Schema,
+  motifSighting: syncMotifSightingV2Schema,
   connection: syncUserConnectionV2Schema,
   application: syncApplicationV2Schema,
   teachingDraft: syncTeachingDraftV2Schema,
@@ -335,7 +409,7 @@ export function groupOpsByMutationGroupId(ops: SyncOpV2[]): Map<string, SyncOpV2
  * `parsePayload`), inherited deliberately: `timestampFromPayload` (default
  * `payload.updatedAt`) and `idFromPayload` (default `payload.id`) are
  * accessors, not hardcoded field names, so no v2 entity is exempted from
- * either cross-check by construction. Every one of the six v2 payload
+ * either cross-check by construction. Every one of the eight v2 payload
  * schemas above declares both `id` and `updatedAt`, so the defaults cover
  * all of them today — unlike v1, where `progress.readAt` needed an
  * override — but the parameters stay so a future v2 entity whose id or
