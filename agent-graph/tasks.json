@@ -1606,6 +1606,47 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "READGATE-001",
+      "title": "Phase 2: make the read gate real -- Observe must not accept writes before the passage is marked read",
+      "objective": "DECIDED (Ken, 2026-08-20, in response to WORKSPACESHELL-001 explicitly surfacing this as a product question rather than resolving it silently): honor BUILD_PLAN tenet 1 for real. \"Read before you write... enforced in UI state, not honor system\" is the FIRST design tenet, fixed for every phase -- not a minor detail. Today a learner can open a brand-new v2 study session and write a typed claim before ever marking the passage read, because StudyEntry.tsx and ClaimComposer.tsx both create fresh sessions with currentStep:\"observe\" (skipping Read entirely), and WorkspaceShell deliberately does not hide the Observe composer when locked. The argument that the learner was probably already reading does not hold -- tapping a start-study control the instant a chapter loads is not the same as having read it, and the v1 app already treats mark-as-read as a deliberate action for exactly this reason. This is the first screen of the new guided flow; an honor-system gate there undercuts the app's central premise.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/components/reader/StudyEntry.tsx",
+        "web/components/study/ClaimComposer.tsx",
+        "web/components/workspace/WorkspaceShell.tsx",
+        "web/lib/workspace/renderState.ts",
+        "web/tests/study-entry.test.ts",
+        "web/tests/study-composer.test.ts",
+        "web/tests/study-page.test.ts",
+        "web/tests/workspace-shell.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/sync/store.ts",
+        "web/lib/contracts/study-v2.ts",
+        "web/lib/workspace/gating.ts",
+        "BUILD_PLAN.md",
+        "docs/decisions/2026-08-18-teaching-not-theology.md"
+      ],
+      "acceptanceCriteria": [
+        "Both places that construct a fresh v2 StudySession -- StudyEntry.tsx's buildNewStudySession and ClaimComposer.tsx's buildStudySessionDraft, which are DELIBERATELY kept field-for-field identical per their own existing header comments -- now set currentStep: \"read\" instead of \"observe\". Update BOTH, and update each file's own header comment describing the duplication and why (the comments currently document the OLD \"observe\" default; they must not go stale). A test proves the two builders' currentStep values stay identical, so a future edit to one that forgets the other fails loudly, not silently.",
+        "WorkspaceShell/renderState.ts: the Observe section's REAL content (the mounted ClaimComposer) is now conditioned on isPassageMarkedRead(session) -- when not yet read, Observe shows the same kind of honest why-locked state the placeholder sections already use, not the live composer. Read stays always-open and ungated, unchanged. The six placeholder sections (Context/Connect/Theology/Conviction/Apply/Teach) are unaffected -- they have no real content regardless of lock state, so this criterion does not touch them. This DELIBERATELY REVERSES the prior task's unlocked-never-removes-content decision, but only for Observe specifically -- update that file's own header comment to say so plainly rather than leaving the old reasoning standing uncorrected.",
+        "Marking the passage read (the existing buildReadGateUpdate flow, unchanged in its own logic) also advances the session's currentStep from read to observe in the same write, so the transition feels like one continuous flow rather than a wall the learner has to manually push through a second time. Scope this to ONLY the read-to-observe transition -- do not attempt to design auto-advance for any of the other six steps in this task; that is separate, harder, future work and improvising it here risks getting ahead of a decision nobody has made yet.",
+        "A NEW test proves the actual regression this task exists to fix: a freshly created session (currentStep: read, readGateAt: null) does NOT render the real ClaimComposer content -- only after readGateAt is set does the Observe section's real composer appear. This is the test that did not exist before and is the whole point.",
+        "Update the frozen fixtures/assertions in tests/study-page.test.ts and tests/study-composer.test.ts wherever they currently assert or assume currentStep: observe / readGateAt: null implies the real composer renders -- that assumption is exactly what this task corrects, so updating it here is correct, not a weakening. Every OTHER assertion in those two files (the server-side workspace-resolution hostile tests, the nothing-ever-starts-pre-selected invariant covering kind/basis/confidence) must keep passing completely unweakened and unedited -- this task changes WHEN Observe's content is visible, never what ClaimComposer itself does once it is.",
+        "tests/study-entry.test.ts: update any assertion pinned to a freshly-created session's currentStep being observe to read.",
+        "All existing gating-unlock tests (Theology-unlocked-without-Connect, Apply-requires-theology, etc., in tests/workspace-shell.test.ts) keep passing completely unweakened -- this task changes ONLY when Observe is visible, not how any of the eight unlock computations work.",
+        "Mutation-prove the fix directly: revert Observe back to always rendering its real content regardless of readGateAt, and confirm the new regression test from criterion 4 fails by name. Restore from a backup, diff byte-identical, confirm green again."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }

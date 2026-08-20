@@ -449,6 +449,14 @@
       "lastRunId": "interactive-2026-08-20-wave14",
       "lastEvidence": "MERGED to master in 9c38ff6 after independent verification. 707/707, 0 skipped; typecheck/lint/build clean. | The Phase 2 shell exists: an eight-section accordion with a currentStep gating state machine matching BUILD_PLAN section 4 exactly, including the rule most likely to get built backwards - Theology unlocks after a bare claim, never requiring a Connection first. Read and Observe are real; the other six sections render honest not-built-yet placeholders, disclosed as a deliberate scope boundary. | VERIFIED INDEPENDENTLY: I coupled Theology to the Connect-attempt predicate and the named ZERO-connections test failed; restored byte-identical, green. I ran tests/study-composer.test.ts and tests/study-page.test.ts UNMODIFIED (both frozen for this task) and confirmed via git diff neither file changed while both invariants (nothing pre-selected; server-side workspace resolution) stayed green. | SURFACED, NOT SILENTLY RESOLVED: the shell documents that locked never actually hides content - Observe mounts and accepts writes regardless of whether the passage is marked read, because StudyEntry.tsx (wave 12) already creates every session at currentStep:\"observe\"/readGateAt:null and the frozen study-page fixture depends on that shape. This tensions against BUILD_PLAN tenet 1 (\"enforced in UI state, not honor system\"). Left as an open product question for Ken rather than resolved either direction at integration - see the merge commit for the full reasoning.",
       "notes": "Merged. Phase 2 is started. The read-gate/tenet-1 question above is a genuine human decision, not a bug an agent should silently fix."
+    },
+    "READGATE-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-20-wave15",
+      "notes": "Seeded 2026-08-20: Ken's explicit decision on the product question WORKSPACESHELL-001 surfaced rather than silently resolved. Honor tenet 1 for real -- close the gap, do not carve out an exception."
     }
   }
 }
