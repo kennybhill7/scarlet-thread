@@ -2,19 +2,19 @@ import { invalidRequest, notFound, privateJson } from "@/lib/api/response";
 
 import { limitQuerySchema } from "../../../_lib/pagination";
 import { rejectMutation, withReadOnlyV2Workspace } from "../../../_lib/guard";
-import { listClaimEvidenceV2 } from "../../../_lib/queries";
+import { listMotifSightingsV2 } from "../../../_lib/queries";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 /**
- * GET /api/v2/claims/[id]/evidence — every non-deleted evidence row citing
- * one claim, scoped to the acting user's workspace, bounded by `?limit=`
- * (default 50, max 200 — see `_lib/pagination.ts`). `listClaimEvidenceV2`
- * resolves the parent claim inside the caller's workspace FIRST (excluding
- * a soft-deleted claim) and returns `null` if it does not — so probing
- * another workspace's claim id, or a claim id the caller has since deleted,
- * here 404s exactly like `GET /api/v2/claims/[id]` does, rather than leaking
- * a distinguishing "claim exists but you can't see it" empty-list response.
+ * GET /api/v2/motifs/[id]/sightings — every non-deleted sighting of one
+ * motif candidate, scoped to the acting user's workspace, bounded by
+ * `?limit=` (default 50, max 200 — see `_lib/pagination.ts`).
+ * `listMotifSightingsV2` resolves the parent candidate inside the caller's
+ * workspace FIRST (excluding a soft-deleted candidate) and returns `null`
+ * if it does not — so probing another workspace's candidate id 404s exactly
+ * like `GET /api/v2/motifs/[id]` does, rather than leaking a distinguishing
+ * "candidate exists but you can't see it" empty-list response.
  */
 export async function GET(request: Request, context: RouteContext) {
   return withReadOnlyV2Workspace(request, async (workspaceId) => {
@@ -25,7 +25,7 @@ export async function GET(request: Request, context: RouteContext) {
     if (!parsed.success) return invalidRequest(parsed.error);
 
     const { id } = await context.params;
-    const data = await listClaimEvidenceV2(workspaceId, id, { limit: parsed.data.limit });
+    const data = await listMotifSightingsV2(workspaceId, id, { limit: parsed.data.limit });
     if (data === null) return notFound();
     return privateJson({ data });
   });

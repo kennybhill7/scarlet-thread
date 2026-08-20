@@ -1,15 +1,24 @@
-import { privateJson } from "@/lib/api/response";
+import { invalidRequest, privateJson } from "@/lib/api/response";
 
+import { limitQuerySchema } from "../_lib/pagination";
 import { rejectMutation, withReadOnlyV2Workspace } from "../_lib/guard";
 import { listSessionsV2 } from "../_lib/queries";
 
 /**
- * GET /api/v2/sessions — every study session in the acting user's workspace.
- * BUILD_PLAN tenet 7: read-only. Mutations go through /api/sync/push.
+ * GET /api/v2/sessions — every non-deleted study session in the acting
+ * user's workspace, newest first, bounded by `?limit=` (default 50, max
+ * 200 — see `_lib/pagination.ts`). BUILD_PLAN tenet 7: read-only. Mutations
+ * go through /api/sync/push.
  */
 export async function GET(request: Request) {
   return withReadOnlyV2Workspace(request, async (workspaceId) => {
-    const data = await listSessionsV2(workspaceId);
+    const url = new URL(request.url);
+    const parsed = limitQuerySchema.safeParse({
+      limit: url.searchParams.get("limit") ?? undefined,
+    });
+    if (!parsed.success) return invalidRequest(parsed.error);
+
+    const data = await listSessionsV2(workspaceId, { limit: parsed.data.limit });
     return privateJson({ data });
   });
 }
