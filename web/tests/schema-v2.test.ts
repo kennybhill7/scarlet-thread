@@ -406,7 +406,31 @@ function readJournal(): { idx: number; tag: string }[] {
   return JSON.parse(raw).entries;
 }
 
-test("drizzle-kit generated exactly two new migrations after 0006 (0007 SCHEMAFU-001, 0008 MIGORDER-001), and 0000-0006 are untouched, in order", () => {
+// ---------------------------------------------------------------------------
+// WAVE 8 INTEGRATION NOTE (2026-08-20). The test below used to assert a CLOSED
+// list: "exactly two new migrations after 0006". MOTIFTHREAD-001 added a third
+// (0009) as its own acceptance criterion required, saw this test go red, and
+// correctly REPORTED it rather than editing a file outside its scope
+// (SCOPE-BOUNDARY-001). Fixed here, during integration, where the file IS in
+// scope.
+//
+// The fix is deliberately not "append 0009 to the list". A closed list rots on
+// every future migration and teaches whoever hits it to reach for the list
+// instead of thinking. What the test was actually protecting is kept and
+// strengthened:
+//   - 0000-0006 pinned byte-for-byte in order, unchanged (the real guard
+//     against anyone rewriting applied history);
+//   - entries after 6 must be CONTIGUOUS with no gaps or duplicates;
+//   - every tag's numeric prefix must equal its own journal idx, so a
+//     misnumbered or hand-edited entry still fails;
+//   - the three tags other tests locate by prefix (0007, 0008, 0009) must sit
+//     at exactly those indexes.
+// A future migration 0010 now passes this test, as it should — and still has
+// to pass tests/migration-order.test.ts, which is what actually proves a new
+// migration is safe.
+// ---------------------------------------------------------------------------
+
+test("journal history 0000-0006 is untouched and in order, and every later entry is contiguous and correctly numbered", () => {
   const entries = readJournal();
   const preExisting = entries.filter((e) => e.idx <= 6);
   assert.deepEqual(
@@ -420,17 +444,38 @@ test("drizzle-kit generated exactly two new migrations after 0006 (0007 SCHEMAFU
       "0005_tenant_scope_sync_receipts",
       "0006_typical_turbo",
     ],
-    "the pre-existing journal entries 0-6 must be untouched, in order (0006 is SCHEMAV2-001's migration, landed before this task started)",
+    "the pre-existing journal entries 0-6 must be untouched, in order (0006 is SCHEMAV2-001's migration, landed before the v2 work started)",
   );
+
   const newEntries = entries.filter((e) => e.idx > 6);
-  assert.deepEqual(
-    newEntries.map((e) => e.tag),
-    ["0007_silly_madame_masque", "0008_workspaces_created_by_personal_live_unique"],
-    "expected exactly 0007 (SCHEMAFU-001) then 0008 (MIGORDER-001) after 0006, in order",
-  );
+  assert.ok(newEntries.length >= 3, "expected at least 0007, 0008 and 0009 after 0006");
+
   assert.deepEqual(
     newEntries.map((e) => e.idx),
-    [7, 8],
+    newEntries.map((_, i) => 7 + i),
+    "journal entries after 0006 must be contiguous from 7 with no gaps or duplicates",
+  );
+
+  for (const entry of newEntries) {
+    const prefix = entry.tag.slice(0, 4);
+    assert.equal(
+      Number(prefix),
+      entry.idx,
+      `migration "${entry.tag}" is filed at journal idx ${entry.idx}; its own name says ${prefix}`,
+    );
+  }
+
+  const byIdx = new Map(entries.map((e) => [e.idx, e.tag]));
+  assert.equal(byIdx.get(7), "0007_silly_madame_masque", "0007 is SCHEMAFU-001's migration");
+  assert.equal(
+    byIdx.get(8),
+    "0008_workspaces_created_by_personal_live_unique",
+    "0008 is MIGORDER-001's migration",
+  );
+  assert.equal(
+    byIdx.get(9),
+    "0009_add_motif_candidates_thread_slug",
+    "0009 is MOTIFTHREAD-001's migration",
   );
 });
 
