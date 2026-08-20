@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-20T05:10:10.000Z",
+  "updatedAt": "2026-08-20T06:09:48.000Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
-    "taskId": null,
-    "runId": null,
-    "takenAt": null,
-    "expiresAt": null
+    "taskId": "WORKSPACE-001",
+    "runId": "cloud-20260820060948",
+    "takenAt": "2026-08-20T06:09:48.000Z",
+    "expiresAt": "2026-08-20T07:39:48.000Z"
   },
   "tasks": {
     "DOC-002": {
@@ -262,11 +262,11 @@
       "notes": "Seeded 2026-08-19 from a gap the builder reported honestly rather than papering over. Resolved: claim_evidence and motif_sightings are each their own sync entity (evidence, motifSighting), grouped with their parent via mutationGroupId, not nested as an aggregate child array. Did not write agent-graph/LESSONS.md -- see lastEvidence for the protectedPaths conflict this surfaced. Awaiting independent audit, same as this queue's other submitted tasks."
     },
     "WORKSPACE-001": {
-      "status": "ready",
+      "status": "building",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
-      "lastRunId": null,
+      "lastRunId": "cloud-20260820060948",
       "notes": "Seeded 2026-08-20 00:35 for the overnight run. Phase 1 continuation: the missing links between an authenticated session and a usable v2 data layer."
     },
     "SYNCPERSIST-001": {
