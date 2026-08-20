@@ -148,6 +148,17 @@ const PRIMARY_KEYS: Record<string, string[]> = {
   daily_logs: ["userId", "date"],
   stages: ["slug"],
   sync_receipts: ["userId", "opId"],
+  // WAVE 10: the export route now reads the v2 layer too, so this harness has
+  // to model it or R9 stops proving anything (see the note above MODELLED_TABLES).
+  workspaces: ["id"],
+  study_sessions: ["id"],
+  study_claims: ["id"],
+  claim_evidence: ["id"],
+  motif_candidates: ["id"],
+  motif_sightings: ["id"],
+  user_connections: ["id"],
+  applications: ["id"],
+  teaching_drafts: ["id"],
 };
 
 /** Tables carrying a `user_id`. `stages` is deliberately absent: it is global
@@ -162,6 +173,17 @@ const TENANT_TABLES = new Set([
   "sync_receipts",
 ]);
 
+// WAVE 10 INTEGRATION. EXPORTROUTE-001 taught app/api/export/route.ts to read
+// the eight v2 tables, which this harness did not model -- so R9 stopped
+// returning an archive at all and started returning 500 ("PocketPg has no
+// table \"workspaces\""). Failing loudly there was the harness working
+// correctly; leaving it failing would have left the export leak check dead.
+//
+// Modelled here rather than deleted, because R9's whole value is that it
+// decompresses every archive member and scans it for ANY of account B's
+// markers. Extending it to the v2 layer means the newest and least-exercised
+// export surface is now under the same hostile two-account scan as the v1 one,
+// instead of trusting that a separate suite covers it.
 const MODELLED_TABLES: Table[] = [
   schema.users,
   schema.entries,
@@ -172,6 +194,15 @@ const MODELLED_TABLES: Table[] = [
   schema.dailyLogs,
   schema.stages,
   schema.syncReceipts,
+  schema.workspaces,
+  schema.studySessions,
+  schema.studyClaims,
+  schema.claimEvidence,
+  schema.motifCandidates,
+  schema.motifSightings,
+  schema.userConnections,
+  schema.applications,
+  schema.teachingDrafts,
 ];
 
 const metaByTable = new Map<Table, TableMeta>();
@@ -1105,6 +1136,10 @@ const A_THREAD = "a-thread";
 const B_THREAD = "b-private-thread";
 const B_RETIRED = "b-private-retired";
 
+/** Workspace ids, under the same marker discipline: B's begins `bbbbbbbb-`. */
+const A_WORKSPACE = "workspace-a";
+const B_WORKSPACE = "bbbbbbbb-workspace";
+
 const T0 = "2026-01-01T00:00:00.000Z";
 const T1 = "2026-02-02T00:00:00.000Z";
 const T2 = "2026-03-03T00:00:00.000Z";
@@ -1284,6 +1319,76 @@ function seedFixtures() {
       ],
     ],
     [schema.syncReceipts, []],
+    // ---------------------------------------------------------------------
+    // WAVE 10: the v2 layer, seeded under the same marker discipline as the
+    // v1 rows above. Without these, R9 would pass trivially -- the export
+    // route would query eight empty tables and no v2 leak could possibly be
+    // observed. B's rows carry `B-PRIVATE-` markers in every field an
+    // exporter renders, so if any of them reach A's archive, R9 fails.
+    // ---------------------------------------------------------------------
+    [
+      schema.workspaces,
+      [
+        { id: A_WORKSPACE, kind: "personal", name: "Personal", createdBy: USER_A },
+        { id: B_WORKSPACE, kind: "personal", name: "Personal", createdBy: USER_B },
+      ],
+    ],
+    [
+      schema.studySessions,
+      [
+        { id: "a-session-1", workspaceId: A_WORKSPACE, range: "1.1.1", mode: "encounter", workflowState: "active", connectionState: "unexamined", currentStep: "observe" },
+        { id: "bbbbbbbb-session-1", workspaceId: B_WORKSPACE, range: "40.1.1", mode: "encounter", workflowState: "active", connectionState: "unexamined", currentStep: "B-PRIVATE-STEP" },
+      ],
+    ],
+    [
+      schema.studyClaims,
+      [
+        { id: "a-claim-1", workspaceId: A_WORKSPACE, sessionId: "a-session-1", kind: "observation", epistemicBasis: "text_explicit", body: "A's own claim", passage: "1.1.1", confidence: "developing", provenance: "learner", status: "draft" },
+        { id: "bbbbbbbb-claim-1", workspaceId: B_WORKSPACE, sessionId: "bbbbbbbb-session-1", kind: "observation", epistemicBasis: "text_explicit", body: "B-PRIVATE-CLAIM-BODY", passage: "40.1.1", confidence: "developing", provenance: "learner", status: "draft" },
+      ],
+    ],
+    [
+      schema.claimEvidence,
+      [
+        { id: "a-evidence-1", workspaceId: A_WORKSPACE, claimId: "a-claim-1", evidenceType: "passage", note: "A's own evidence" },
+        { id: "bbbbbbbb-evidence-1", workspaceId: B_WORKSPACE, claimId: "bbbbbbbb-claim-1", evidenceType: "passage", note: "B-PRIVATE-EVIDENCE-NOTE" },
+      ],
+    ],
+    [
+      schema.motifCandidates,
+      [
+        { id: "a-motif-1", workspaceId: A_WORKSPACE, label: "Light", normalizedKey: "light", status: "candidate" },
+        { id: "bbbbbbbb-motif-1", workspaceId: B_WORKSPACE, label: "B-PRIVATE-MOTIF-LABEL", normalizedKey: "b-private-motif-key", status: "candidate" },
+      ],
+    ],
+    [
+      schema.motifSightings,
+      [
+        { id: "a-sighting-1", workspaceId: A_WORKSPACE, candidateId: "a-motif-1", passageUnitKey: "1.1", exactRange: "1.1.1", status: "open" },
+        { id: "bbbbbbbb-sighting-1", workspaceId: B_WORKSPACE, candidateId: "bbbbbbbb-motif-1", passageUnitKey: "40.1", exactRange: "40.1.1", status: "B-PRIVATE-SIGHTING-STATUS" },
+      ],
+    ],
+    [
+      schema.userConnections,
+      [
+        { id: "a-connection-1", workspaceId: A_WORKSPACE, fromRange: "1.1.1", toRange: "1.2.1", type: "motif", evidenceLabel: "plausible", rationale: "A's own rationale", status: "draft" },
+        { id: "bbbbbbbb-connection-1", workspaceId: B_WORKSPACE, fromRange: "40.1.1", toRange: "40.2.1", type: "motif", evidenceLabel: "plausible", rationale: "B-PRIVATE-CONNECTION-RATIONALE", status: "draft" },
+      ],
+    ],
+    [
+      schema.applications,
+      [
+        { id: "a-application-1", workspaceId: A_WORKSPACE, sessionId: "a-session-1", sourceClaimId: "a-claim-1", originalAudienceMeaning: "A's own meaning", enduringPrinciple: "A's own principle", canonicalBridge: "A's own bridge", applicationClass: "direct", promiseScope: "general", modernDomain: "work", situation: "A's own situation", responseType: "prayer", faithfulResponse: "A's own response", cautions: "", status: "open" },
+        { id: "bbbbbbbb-application-1", workspaceId: B_WORKSPACE, sessionId: "bbbbbbbb-session-1", sourceClaimId: "bbbbbbbb-claim-1", originalAudienceMeaning: "B-PRIVATE-MEANING", enduringPrinciple: "B-PRIVATE-PRINCIPLE", canonicalBridge: "B-PRIVATE-BRIDGE", applicationClass: "direct", promiseScope: "general", modernDomain: "work", situation: "B-PRIVATE-SITUATION", responseType: "prayer", faithfulResponse: "B-PRIVATE-RESPONSE", cautions: "B-PRIVATE-CAUTION", status: "open" },
+      ],
+    ],
+    [
+      schema.teachingDrafts,
+      [
+        { id: "a-draft-1", workspaceId: A_WORKSPACE, sessionId: "a-session-1", title: "A's own draft", bigIdea: "A's own big idea", audience: "small_group", durationMinutes: 30, gospelConnection: "A's own connection", status: "draft" },
+        { id: "bbbbbbbb-draft-1", workspaceId: B_WORKSPACE, sessionId: "bbbbbbbb-session-1", title: "B-PRIVATE-DRAFT-TITLE", bigIdea: "B-PRIVATE-BIG-IDEA", audience: "small_group", durationMinutes: 30, gospelConnection: "B-PRIVATE-GOSPEL-CONNECTION", status: "draft" },
+      ],
+    ],
   ];
 
   world.clear();

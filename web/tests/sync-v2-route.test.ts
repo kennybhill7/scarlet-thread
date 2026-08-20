@@ -25,7 +25,7 @@
 
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { createRequire } from "node:module";
+import Module, { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
@@ -47,6 +47,70 @@ import { CANONICAL_VERSIFICATION_ID } from "@/lib/contracts/range-v1";
 
 const WEB_ROOT = path.resolve(__dirname, "..");
 const nodeRequire = createRequire(__filename);
+
+// ---------------------------------------------------------------------------
+// WAVE 10 INTEGRATION: in-memory mutation, replacing an on-disk one.
+//
+// This file shipped its two mutation proofs as `{ skip: !process.env.… }`
+// tests that only did anything after a human hand-edited lib/db/sync-v2.ts on
+// disk. As committed code they were permanently skipped, named "MUTATION
+// PROOF", and proved nothing in a normal run — the precise shape of the
+// "wire suite skipped silently" bug this repo already shipped once.
+//
+// Replaced with the compile-time hook tests/motif-ui.test.ts and
+// tests/v2-api.test.ts already use: the mutation is applied to the module
+// source as it loads, so it runs on EVERY `npm test`, never writes to disk,
+// and the file's hash and mtime are re-asserted afterwards. `hits > 0` is
+// asserted too, so a mutation whose pattern stopped matching fails loudly
+// instead of quietly proving nothing.
+// ---------------------------------------------------------------------------
+
+let mutation: { file: string; pattern: RegExp; replacement: string; hits: number } | null = null;
+
+const originalCompile = (Module as any).prototype._compile;
+(Module as any).prototype._compile = function patchedCompile(
+  content: string,
+  filename: string,
+  ...rest: unknown[]
+) {
+  let source = content;
+  if (mutation && path.resolve(filename) === mutation.file) {
+    const hits = source.match(mutation.pattern)?.length ?? 0;
+    mutation.hits += hits;
+    source = source.replace(mutation.pattern, mutation.replacement);
+  }
+  return originalCompile.call(this, source, filename, ...rest);
+};
+
+async function withMutation(
+  relativeFile: string,
+  pattern: RegExp,
+  replacement: string,
+  body: () => Promise<void>,
+) {
+  const file = path.join(WEB_ROOT, relativeFile);
+  const beforeHash = createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+  const beforeMtime = fs.statSync(file).mtimeMs;
+
+  mutation = { file, pattern, replacement, hits: 0 };
+  reloadRoutes();
+  try {
+    assert.ok(
+      mutation.hits > 0,
+      `mutation matched nothing in ${relativeFile} — the compiled shape changed; update the pattern`,
+    );
+    await body();
+  } finally {
+    mutation = null;
+    reloadRoutes();
+    assert.equal(
+      createHash("sha256").update(fs.readFileSync(file)).digest("hex"),
+      beforeHash,
+      `${relativeFile} was modified on disk`,
+    );
+    assert.equal(fs.statSync(file).mtimeMs, beforeMtime, `${relativeFile} mtime changed`);
+  }
+}
 
 function seedModule(specifier: string, exports: Record<string, unknown>) {
   const resolved = nodeRequire.resolve(specifier);
@@ -800,51 +864,76 @@ test("push rejects a non-JSON body with 400 (matching the v1 route's INVALID_JSO
 });
 
 // ---------------------------------------------------------------------------
-// 8. Mutation proofs — acceptance criterion 6.
+// 8. Mutation proofs — acceptance criterion 6. Always run; see the hook above.
 //
-// `lib/db/sync-v2.ts` is a readOnlyPath for this task: the tenant check and
-// the replay guard both live inside it (`planWrite`'s `resolveWorkspaceOwnership`
-// call, and `pushSyncOpsV2`'s `hasReceiptV2` short-circuit), not in anything
-// this task owns. Proving a NAMED test in THIS file actually fails when
-// either is removed therefore requires the real file on disk to change
-// (reusing the real, unmodified `pushSyncOpsV2` export against a
-// hand-rolled substitute would be exactly the "mock that could pass while
-// production leaks" tests/sync-v2-persist.test.ts's own header warns
-// against). This is done as a temporary, fully-reverted edit — backed up
-// before, diffed byte-identical after — never staged or committed; see this
-// task's final report for the verbatim before/after test output and the
-// diff confirming the file is unchanged in the delivered commit.
-//
-// This section is SKIPPED by default so `npm test` stays a clean read-only
-// run; it only executes when SYNC_V2_ROUTE_MUTATION_PROOF=1 is set, which is
-// how the builder invoked it by hand for this task's evidence and is not
-// part of the normal CI-shaped `npm test` invocation.
+// Both guards live in lib/db/sync-v2.ts, which was a readOnlyPath for the task
+// that wrote this file. Read-only means "do not EDIT it" — mutating its source
+// in memory to prove a test has teeth is exactly what the hook above is for,
+// and it leaves the file byte-identical on disk.
 // ---------------------------------------------------------------------------
 
-const MUTATION_PROOF = process.env.SYNC_V2_ROUTE_MUTATION_PROOF === "1";
+const SYNC_V2_DB = path.join("lib", "db", "sync-v2.ts");
 
-test("MUTATION PROOF — removing the tenant-ownership check makes the hostile-workspace test observably fail", { skip: !MUTATION_PROOF }, async () => {
-  reloadRoutes();
+test("MUTPROVE-1 removing the tenant-ownership check lets a hostile cross-workspace push through", async () => {
+  await withMutation(
+    SYNC_V2_DB,
+    /const owns=await resolveWorkspaceOwnership\(userId,workspaceId\);/,
+    "const owns=true;",
+    async () => {
+      await asUser(SESSION_A, async () => {
+        const hostileOp = makeOp({
+          payload: validSessionPayload({ workspaceId: "workspace-b" }),
+        });
+        const response = await push([hostileOp]);
+        const body = (await response.json()) as { rejected: unknown[] };
+        assert.equal(
+          body.rejected.length,
+          0,
+          "MUTPROVE-1: with the tenant check gone, A's op naming B's workspace must be ACCEPTED — that acceptance is the leak this guard prevents",
+        );
+      });
+    },
+  );
+});
+
+test("after MUTPROVE-1, a hostile cross-workspace push is refused again (harness hygiene)", async () => {
   await asUser(SESSION_A, async () => {
-    const hostileOp = makeOp({ payload: validSessionPayload({ workspaceId: "workspace-b" }) });
+    const hostileOp = makeOp({
+      payload: validSessionPayload({ workspaceId: "workspace-b" }),
+    });
     const response = await push([hostileOp]);
-    const body = await response.json();
-    // With the tenant check removed this assertion is expected to FAIL
-    // (rejected.length becomes 0) — that failure IS the proof.
-    assert.equal(body.rejected.length, 1, "MUTATION PROOF: expected this to fail with the tenant check removed");
+    const body = (await response.json()) as { rejected: unknown[] };
+    assert.equal(body.rejected.length, 1, "the real guard must still refuse it");
   });
 });
 
-test("MUTATION PROOF — removing the replay guard makes the idempotent-replay test observably fail", { skip: !MUTATION_PROOF }, async () => {
-  reloadRoutes();
+test("MUTPROVE-2 removing the replay guard makes an identical second push stop being idempotent", async () => {
+  await withMutation(
+    SYNC_V2_DB,
+    /if\(await hasReceiptV2\(userId,op\.opId\)\)continue;/g,
+    "if(false)continue;",
+    async () => {
+      await asUser(SESSION_A, async () => {
+        const op = makeOp();
+        await push([op]);
+        const second = await push([op]);
+        const secondBody = (await second.json()) as { rejected: unknown[] };
+        assert.notDeepEqual(
+          secondBody.rejected,
+          [],
+          "MUTPROVE-2: with the replay guard gone, replaying the identical op must stop being silently accepted — it re-plans against a now-existing row and conflicts",
+        );
+      });
+    },
+  );
+});
+
+test("after MUTPROVE-2, an identical replay is silently accepted again (harness hygiene)", async () => {
   await asUser(SESSION_A, async () => {
     const op = makeOp();
     await push([op]);
     const second = await push([op]);
-    const secondBody = await second.json();
-    // With the replay guard removed, the second push re-plans the identical
-    // create-shaped op against a now-existing row and gets a revision
-    // conflict instead of a silent accept — expected to FAIL here.
-    assert.deepEqual(secondBody.rejected, [], "MUTATION PROOF: expected this to fail with the replay guard removed");
+    const secondBody = (await second.json()) as { rejected: unknown[] };
+    assert.deepEqual(secondBody.rejected, [], "replay must remain idempotent");
   });
 });
