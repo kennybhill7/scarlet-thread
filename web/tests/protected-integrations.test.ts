@@ -111,25 +111,36 @@ test("SyncRegistration is mounted exactly once, only in the protected layout", (
 
 // --- A2. the protected layout is the auth boundary ---------------------------
 
-test("the protected layout is a server component that awaits auth() and redirects", () => {
+test("the protected layout is a server component that resolves session state and redirects", () => {
+  // AUTHDISAMBIG-001 (wave 12) replaced this layout's bare `auth()` call with
+  // `resolveSessionState()` (lib/auth/config.ts), so a database outage renders
+  // "setup incomplete" instead of being relabelled a sign-out. This test's
+  // literal source-text assertions pinned the OLD mechanism; updated to pin
+  // the new one, keeping every ordering guarantee it originally checked.
   const layout = read("app/(app)/layout.tsx");
   assert.doesNotMatch(
     layout,
     /^\s*["']use client["']/m,
     "a Client Component cannot hold a server-side auth check",
   );
-  assert.match(layout, /from "@\/auth"/);
-  assert.match(layout, /await auth\(\)/);
+  assert.match(layout, /from "@\/lib\/auth\/config"/);
+  assert.match(layout, /await resolveSessionState\(\)/);
   assert.match(layout, /redirect\("\/sign-in"\)/);
 
-  // The condition itself, pinned. `!session` would satisfy every other
+  // The condition itself, pinned. `!sessionState` would satisfy every other
   // assertion in this test while readmitting a de-allowlisted account:
-  // lib/auth/config.ts:43 blanks `session.user.id` when the email is no longer
-  // on the allowlist and leaves the session object itself intact.
+  // lib/auth/config.ts blanks `session.user.id` when the email is no longer
+  // on the allowlist, and resolveSessionState's own `userId` check (not
+  // merely "a session exists") is what turns that blank into "signed-out".
   assert.match(
     layout,
-    /if \(!session\?\.user\?\.id\) \{/,
-    "the boundary is a usable user id, not merely the presence of a session",
+    /sessionState\.status !== "authenticated"/,
+    "the boundary is a usable authenticated state, not merely the presence of a session",
+  );
+  assert.match(
+    read("lib/auth/config.ts"),
+    /const userId = session\?\.user\?\.id;/,
+    "resolveSessionState reads the usable id, not merely session presence",
   );
   assert.match(
     read("lib/auth/config.ts"),
@@ -137,15 +148,15 @@ test("the protected layout is a server component that awaits auth() and redirect
     "and that is what makes the id condition the fail-closed one",
   );
 
-  const guard = layout.indexOf("await auth()");
-  const idGuard = layout.indexOf("if (!session?.user?.id) {");
+  const guard = layout.indexOf("await resolveSessionState()");
+  const idGuard = layout.indexOf('sessionState.status !== "authenticated"');
   const redirected = layout.indexOf('redirect("/sign-in")');
   const mount = layout.indexOf("<ProtectedClientMounts");
   const children = layout.indexOf("{children}");
   assert.ok(guard > -1 && redirected > guard, "the redirect follows the check");
   assert.ok(
     idGuard > guard && redirected > idGuard,
-    "the id condition sits between the session read and the redirect",
+    "the authenticated-state condition sits between the session read and the redirect",
   );
   assert.ok(
     redirected < mount && mount < children,
@@ -170,7 +181,7 @@ test("settings is a reachable route inside the protected tree", () => {
 
   // Inside the protected group, so the layout's auth check covers it.
   const layout = read("app/(app)/layout.tsx");
-  assert.match(layout, /await auth\(\)/);
+  assert.match(layout, /await resolveSessionState\(\)/);
   assert.match(layout, /redirect\("\/sign-in"\)/);
 
   // Its three sections are all present.
