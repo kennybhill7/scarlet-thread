@@ -581,6 +581,21 @@ export const motifCandidates = pgTable(
     normalizedKey: text("normalized_key").notNull(),
     /** No enumerated values in either source doc (BUILD_PLAN §3.3 warning block) — plain text, not a guessed enum. */
     status: text("status").notNull(),
+    /**
+     * MOTIFTHREAD-001: which v1 `threads` row this candidate became, once
+     * promoted. Additive, nullable — an un-promoted candidate has no thread.
+     * Deliberately a plain nullable `text` column with NO foreign key, the
+     * same shape `userConnections.threadSlug` (above) already established for
+     * exactly this "point at a v1 thread by slug" need: `threads` is keyed by
+     * `(userId, slug)`, not `id`, and this table has no `userId` column to
+     * pair into a composite FK with — `motif_candidates` is workspace-scoped,
+     * `threads` is learner-scoped, and nothing here bridges the two scopes.
+     * Replaces RADARPERSIST-001's workaround (the created thread's slug was
+     * forced to equal `normalizedKey` so it could be recomputed instead of
+     * stored) — see `lib/db/radar.ts` for the promotion logic that now writes
+     * this column instead of deriving it.
+     */
+    threadSlug: text("thread_slug"),
     revision: integer("revision").notNull().default(1),
     ...timestamps,
   },
