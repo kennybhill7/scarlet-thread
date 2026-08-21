@@ -60,12 +60,29 @@
  * section, and renders the same kind of honest "why locked" treatment the
  * placeholder sections already use otherwise — see that file's own header
  * comment for the render-side half of this.
+ *
+ * CLAIMPANES-001 (2026-08-21) extends the SAME exception to Context and
+ * Theology, now their own `contentMode`s ("context" / "theology") rather
+ * than "placeholder": each mounts a real, write-capable `ClaimComposer`
+ * (narrowed to one offered `ClaimKind` — see `SECTION_OFFERED_KINDS` below
+ * and this task's commit message for the criterion-2 design decision) once
+ * its own gate from `lib/workspace/gating.ts` (UNTOUCHED by this task) is
+ * satisfied, and a `LockedNotice` otherwise — the identical shape READGATE-001
+ * established for Observe, not a new pattern. Conviction also becomes its
+ * own `contentMode` ("conviction"), but is never gated: its section always
+ * mounts the real composer unconditionally, both because
+ * `computeStepGates` already returns `unlocked: true` for it and, more
+ * importantly, because `ConvictionSection.tsx` itself never reads an
+ * `unlocked` prop at all — "never gated" is a property of that component,
+ * not an inference from today's gate value. Connect/Apply/Teach remain
+ * "placeholder" — architecturally different, out of this task's scope (see
+ * `WorkspaceShell.tsx`'s header).
  * ---------------------------------------------------------------------------
  */
 
 import { parseVerseKeyStrict } from "@/lib/bible/range";
 import type { CanonicalRangeV1 } from "@/lib/contracts/range-v1";
-import type { StudySession, StudySessionStep } from "@/lib/contracts/study-v2";
+import type { ClaimKind, StudySession, StudySessionStep } from "@/lib/contracts/study-v2";
 import { STUDY_SESSION_STEPS } from "@/lib/contracts/study-v2";
 import { computeStepGates, type StepGateResult, type WorkspaceGatingInput } from "@/lib/workspace/gating";
 
@@ -93,19 +110,43 @@ export const STEP_LABELS: Record<StudySessionStep, string> = {
   teach: "Teach",
 };
 
-export type SectionContentMode = "read" | "observe" | "placeholder";
+export type SectionContentMode = "read" | "observe" | "context" | "theology" | "conviction" | "placeholder";
 
-/** Which of the eight sections has a REAL surface built in this task; the rest are honest placeholders (deliberate scope boundary — see WorkspaceShell.tsx). */
+/** Which of the eight sections has a REAL surface built in this task; the rest (Connect/Apply/Teach) are honest placeholders (deliberate scope boundary — see WorkspaceShell.tsx). */
 const STEP_CONTENT_MODE: Record<StudySessionStep, SectionContentMode> = {
   read: "read",
   observe: "observe",
-  context: "placeholder",
+  context: "context",
   connect: "placeholder",
-  theology: "placeholder",
-  conviction: "placeholder",
+  theology: "theology",
+  conviction: "conviction",
   apply: "placeholder",
   teach: "placeholder",
 };
+
+/**
+ * CLAIMPANES-001 acceptance criterion 2's design decision, applied
+ * identically to all three sections it covers (see this task's commit
+ * message for the full reasoning): Context/Theology/Conviction each mount
+ * `ClaimComposer` with its `offeredKinds` prop narrowed to the ONE
+ * `ClaimKind` that section's own BUILD_PLAN §4 row writes — never more than
+ * one, and never a kind other than the row's own ("Context...writes...
+ * interpretation", "Theology...writes...theology", "Conviction...writes...
+ * conviction"). `undefined` (Read/Observe/the three placeholders) means "not
+ * applicable" — Observe stays the ORIGINAL, unmodified, full-eight-kind
+ * `ClaimComposer` mount; it predates this decision and is not one of the
+ * three sections it governs.
+ */
+const SECTION_OFFERED_KINDS: Partial<Record<StudySessionStep, readonly ClaimKind[]>> = {
+  context: ["interpretation"],
+  theology: ["theology"],
+  conviction: ["conviction"],
+};
+
+/** Pure lookup — the one place `SECTION_OFFERED_KINDS` is read, so a test can prove `computeWorkspaceSections`' output without reaching into JSX. */
+export function offeredKindsForStep(step: StudySessionStep): readonly ClaimKind[] | undefined {
+  return SECTION_OFFERED_KINDS[step];
+}
 
 export interface SectionRenderState {
   step: StudySessionStep;
@@ -119,6 +160,8 @@ export interface SectionRenderState {
   /** Default open/closed state for the accordion `<details>` element. */
   expanded: boolean;
   contentMode: SectionContentMode;
+  /** The single `ClaimKind` this section's `ClaimComposer` offers, per `SECTION_OFFERED_KINDS` above; `undefined` where not applicable. */
+  offeredKinds: readonly ClaimKind[] | undefined;
 }
 
 /**
@@ -145,6 +188,7 @@ export function computeWorkspaceSections(
       isCurrent,
       expanded: isCurrent,
       contentMode: STEP_CONTENT_MODE[step],
+      offeredKinds: offeredKindsForStep(step),
     };
   });
 }
