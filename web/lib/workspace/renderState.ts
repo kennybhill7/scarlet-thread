@@ -74,35 +74,27 @@
  * `computeStepGates` already returns `unlocked: true` for it and, more
  * importantly, because `ConvictionSection.tsx` itself never reads an
  * `unlocked` prop at all — "never gated" is a property of that component,
- * not an inference from today's gate value. Connect/Apply/Teach remained
- * "placeholder" as of CLAIMPANES-001 — architecturally different, out of
- * that task's scope.
+ * Teach remains "placeholder" as of these two same-day sibling tasks —
+ * TEACHDRAFTPANE-001 (also 2026-08-21) graduates it too, the SAME exception
+ * a fourth time: its own `contentMode` ("teach"), gated on the EXISTING
+ * `teach: hasFinalizedApplication(applications)` gate (`lib/workspace/
+ * gating.ts`, untouched). Unlike Context/Theology/Conviction, Teach's real
+ * surface is NOT a narrowed `ClaimComposer` mount — a `TeachingDraft` is an
+ * architecturally different record (title/bigIdea/audience/durationMinutes/
+ * gospelConnection, not a `StudyClaim`), so it gets its own composer,
+ * `TeachSection.tsx`, writing through the already-built
+ * `saveLocalTeachingDraft` vault writer. Deliberately DRAFT-LEVEL FIELDS
+ * ONLY, not the section-by-section outline builder BUILD_PLAN also
+ * describes — see `TeachSection.tsx`'s own header for the verified (not
+ * merely asserted) scope boundary.
  *
- * CONNECTPANE-001 (2026-08-21) extends the SAME exception to Connect, now
- * its own `contentMode` ("connect"). Architecturally distinct from the
- * three CLAIMPANES-001 sections: it does NOT mount `ClaimComposer` at all —
- * it writes a `UserConnection` (a different v2 entity entirely,
- * `lib/contracts/study-v2.ts`) through `saveLocalUserConnection`, or records
- * an honest `no_warrant_yet` outcome by updating the session's own
- * `connectionState` through `saveLocalStudySession` — both existing vault
- * writers, no new write path. Gated by the SAME `hasAttemptedComparison`
- * gate `lib/workspace/gating.ts` already computes for `"connect"`
- * (untouched by this task): `ConnectSection.tsx` shows `LockedNotice` until
- * `unlocked` is true, identical shape to Context/Theology/Observe.
- *
- * APPLYPANE-001 (2026-08-21, same day, sibling task) graduates Apply to its
- * own `contentMode` ("apply"), the SAME shape again: `ApplySection.tsx`
- * mounts once `lib/workspace/gating.ts`'s `apply` gate (>=1 theology claim,
- * UNTOUCHED by this task) is satisfied, `LockedNotice` otherwise. Apply is
- * NOT a `ClaimComposer` mount at all either — it writes a whole different v2
- * entity (`Application`, via `saveLocalApplication`, `lib/sync/store.ts`)
- * with its own bridge-field form, so it carries no `offeredKinds` entry
- * below (stays `undefined`, same as Read/Observe/Connect/Teach — "not
- * applicable" is correct for a non-`ClaimComposer` section, not a gap).
- *
- * Teach remains "placeholder" as of these two tasks — TEACHDRAFTPANE-001
- * (also 2026-08-21) graduates it separately; see that task's own commit and
- * this file's `STEP_CONTENT_MODE` map below for the current state.
+ * As of this integration (2026-08-21), all eight sections have graduated
+ * from the generic placeholder — Read, Observe, Context, Connect, Theology,
+ * Conviction, Apply, and Teach are all real. The section-by-section outline
+ * builder inside Teach (ordered kind/sortOrder/body rows) is the one piece
+ * of Phase 2's BUILD_PLAN section 4 spec still unbuilt, gated behind a
+ * ninth sync entity that does not exist yet — see `TeachSection.tsx`'s own
+ * header.
  * ---------------------------------------------------------------------------
  */
 
@@ -152,9 +144,10 @@ export type SectionContentMode =
   | "theology"
   | "conviction"
   | "apply"
+  | "teach"
   | "placeholder";
 
-/** Which sections have a REAL surface built so far; Teach remains an honest placeholder pending TEACHDRAFTPANE-001's own merge (deliberate scope boundary — see WorkspaceShell.tsx). */
+/** All eight sections now have a real surface (deliberate scope boundary on Teach's own outline builder remains — see WorkspaceShell.tsx / TeachSection.tsx). */
 const STEP_CONTENT_MODE: Record<StudySessionStep, SectionContentMode> = {
   read: "read",
   observe: "observe",
@@ -163,7 +156,7 @@ const STEP_CONTENT_MODE: Record<StudySessionStep, SectionContentMode> = {
   theology: "theology",
   conviction: "conviction",
   apply: "apply",
-  teach: "placeholder",
+  teach: "teach",
 };
 
 /**

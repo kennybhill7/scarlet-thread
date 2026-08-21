@@ -15,6 +15,7 @@ import { ObserveSection } from "./ObserveSection";
 import { PlaceholderSection } from "./PlaceholderSection";
 import { ReadSection } from "./ReadSection";
 import { lockBadgeStyle, noticeStyle, productNameStyle, sectionStyle, summaryStyle } from "./styles";
+import { TeachSection } from "./TeachSection";
 import { TheologySection } from "./TheologySection";
 
 /**
@@ -105,14 +106,21 @@ import { TheologySection } from "./TheologySection";
  *   - Apply mounts `ApplySection` — NOT a `ClaimComposer` either, since
  *     `Application` is a third distinct v2 entity — once
  *     `hasClaimOfKind(claims, "theology")` (the `apply` gate,
- *     `lib/workspace/gating.ts`, UNTOUCHED by both tasks) is true; see
- *     `ApplySection.tsx`'s own header for its draft-vs-finalize design and
- *     the sensitive-modernDomain referral-copy reasoning.
- *   - Teach ALWAYS renders an honest "not built yet" placeholder
- *     (`PlaceholderSection`) as of these two tasks — that is the entirety
- *     of its content here, locked or not. TEACHDRAFTPANE-001 (also
- *     2026-08-21, sibling task) graduates it separately; see that task's
- *     own commit for the current state of this file.
+ *     `lib/workspace/gating.ts`, UNTOUCHED) is true; see `ApplySection.tsx`'s
+ *     own header for its draft-vs-finalize design and the
+ *     sensitive-modernDomain referral-copy reasoning.
+ *   - Teach mounts `TeachSection` (TEACHDRAFTPANE-001) — NOT a narrowed
+ *     `ClaimComposer`, since a `TeachingDraft` is an architecturally
+ *     different record — once `hasFinalizedApplication(applications)` is
+ *     true (`lib/workspace/gating.ts`, untouched); a `LockedNotice`
+ *     otherwise. Draft-level fields only (title/bigIdea/audience/
+ *     gospelConnection/durationMinutes) — the section-by-section outline
+ *     builder is deliberately out of scope; see `TeachSection.tsx`'s own
+ *     header for the verified (not asserted) scope boundary.
+ *
+ * As of this integration (2026-08-21), all eight sections render real
+ * content — `PlaceholderSection` no longer has a live caller in this file,
+ * kept only as shared infrastructure should a future section need it again.
  */
 
 export interface WorkspaceShellProps {
@@ -234,6 +242,9 @@ export function WorkspaceShell({
               unlocked={section.unlocked}
               workspaceId={workspaceId}
             />
+          ) : null}
+          {section.contentMode === "teach" ? (
+            <TeachSection workspaceId={workspaceId} session={session} unlocked={section.unlocked} />
           ) : null}
           {section.contentMode === "placeholder" ? <PlaceholderSection section={section} /> : null}
         </details>
