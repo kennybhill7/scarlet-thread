@@ -301,6 +301,131 @@ test("every v2 entity has a payload schema that accepts a well-formed payload", 
 });
 
 // ---------------------------------------------------------------------------
+// APPLYSCHEMA-001 — closes the gap APPLYPANE-001 self-reported: the eight
+// free-text bridge fields (`cautions` already excepted) used to be
+// `min(1)`-required for EVERY save. `applicationClass`/`promiseScope`
+// weren't among the min(1) fields loosened here in name only — both DID
+// carry `min(1)` before this task and lose only that, keeping their
+// pre-existing `.trim()`. `modernDomain`/`responseType` are deliberately
+// NOT loosened — see `syncApplicationV2Schema`'s own header comment for the
+// direct-evidence reason (real Postgres NOT NULL enum columns with no
+// blank member).
+// ---------------------------------------------------------------------------
+
+/** A draft Application with every relaxed bridge field left blank/whitespace-only — the shape APPLYPANE-001 needed but the OLD schema rejected outright. */
+function blankBridgeDraftApplicationPayload(overrides: Record<string, unknown> = {}) {
+  return {
+    ...validApplicationPayload(),
+    originalAudienceMeaning: "",
+    enduringPrinciple: "   ", // whitespace-only counts as blank too, not just ""
+    canonicalBridge: "",
+    applicationClass: "",
+    promiseScope: "",
+    situation: "",
+    faithfulResponse: "",
+    cautions: "",
+    status: "draft",
+    ...overrides,
+  };
+}
+
+test("APPLYSCHEMA-001 draft relaxation: a draft Application with all eight relaxed bridge fields blank/whitespace-only VALIDATES", () => {
+  const result = syncApplicationV2Schema.safeParse(blankBridgeDraftApplicationPayload());
+  assert.equal(result.success, true, "a genuinely partial draft must be a valid payload shape");
+});
+
+test("APPLYSCHEMA-001 draft relaxation: MUTATION-PROOF TARGET — a draft this permissive would have been rejected under the OLD nine-fields-always-required schema", () => {
+  // Re-derives the OLD, now-removed constraint independently (never imported
+  // from the schema under test) and proves the exact fixture above would
+  // have failed it — the mutation-proof harness (see this task's commit)
+  // temporarily restores that OLD behavior in the real file and confirms
+  // this exact test name fails, then restores the real file byte-identical.
+  const oldRequiredNonBlankFields = [
+    "originalAudienceMeaning",
+    "enduringPrinciple",
+    "canonicalBridge",
+    "applicationClass",
+    "promiseScope",
+    "situation",
+    "faithfulResponse",
+  ];
+  const draft = blankBridgeDraftApplicationPayload();
+  const stillBlankUnderOldRule = oldRequiredNonBlankFields.some(
+    (field) => String(draft[field as keyof typeof draft]).trim().length === 0,
+  );
+  assert.equal(stillBlankUnderOldRule, true, "fixture must actually exercise the relaxed floor, not accidentally satisfy it");
+});
+
+test("APPLYSCHEMA-001 draft relaxation: modernDomain/responseType are UNCHANGED -- still required even for a draft (no blank enum member exists)", () => {
+  const missingDomain = { ...validApplicationPayload(), status: "draft", modernDomain: null };
+  assert.equal(syncApplicationV2Schema.safeParse(missingDomain).success, false);
+
+  const missingResponseType = { ...validApplicationPayload(), status: "draft", responseType: null };
+  assert.equal(syncApplicationV2Schema.safeParse(missingResponseType).success, false);
+});
+
+// ---------------------------------------------------------------------------
+// APPLYSCHEMA-001 — the SERVER-side finalize-completeness backstop. Nothing
+// in this schema trusts `ApplySection.tsx`'s own client-side
+// `finalizeReadiness`; a push claiming `status: "finalized"` is re-checked
+// here against all TEN bridge fields independently.
+// ---------------------------------------------------------------------------
+
+test("APPLYSCHEMA-001 finalize backstop: status 'finalized' with every bridge field filled VALIDATES", () => {
+  const result = syncApplicationV2Schema.safeParse({ ...validApplicationPayload(), status: "finalized", cautions: "Watch for X." });
+  assert.equal(result.success, true);
+});
+
+test("APPLYSCHEMA-001 finalize backstop: status 'finalized' with ANY ONE of the ten bridge fields blank is REJECTED, one field at a time", () => {
+  const tenBridgeFieldBlankOverrides: Record<string, unknown>[] = [
+    { originalAudienceMeaning: "" },
+    { enduringPrinciple: "   " },
+    { canonicalBridge: "" },
+    { applicationClass: "" },
+    { promiseScope: "" },
+    { situation: "" },
+    { faithfulResponse: "" },
+    { cautions: "" }, // the field a DRAFT may always leave blank -- finalize must NOT
+  ];
+  for (const overrides of tenBridgeFieldBlankOverrides) {
+    const payload = { ...validApplicationPayload(), status: "finalized", cautions: "Watch for X.", ...overrides };
+    const result = syncApplicationV2Schema.safeParse(payload);
+    assert.equal(
+      result.success,
+      false,
+      `expected finalize to reject a blank ${Object.keys(overrides)[0]}`,
+    );
+  }
+});
+
+test("APPLYSCHEMA-001 finalize backstop: rejection is a DISTINGUISHABLE reason naming the actual missing field, not a generic failure", () => {
+  const result = syncApplicationV2Schema.safeParse({
+    ...validApplicationPayload(),
+    status: "finalized",
+    cautions: "", // blank: cautions is required for finalize, not for draft
+  });
+  assert.equal(result.success, false);
+  if (!result.success) {
+    const issue = result.error.issues.find((i) => i.path.join(".") === "cautions");
+    assert.ok(issue, "expected an issue attached to the cautions field path specifically");
+    assert.match(issue!.message, /finalized Application requires "cautions"/);
+  }
+});
+
+test("APPLYSCHEMA-001 finalize backstop: a hostile push cannot launder an incomplete draft into 'finalized' status, nor is it silently downgraded back to 'draft' -- it is REJECTED outright", () => {
+  // Simulates exactly the attack this task's objective names: a malicious
+  // or buggy client sets status: "finalized" directly, skipping the UI's
+  // own finalizeReadiness gate entirely.
+  const hostilePush = { ...blankBridgeDraftApplicationPayload(), status: "finalized" };
+  const result = syncApplicationV2Schema.safeParse(hostilePush);
+  assert.equal(result.success, false, "must not silently accept");
+  // Confirms this is a REJECTION, not a silent status downgrade: the schema
+  // has no mechanism to rewrite `status` -- a failed parse never produces a
+  // `.data` at all, so there is no downgraded record to observe either.
+  assert.equal("data" in result, false);
+});
+
+// ---------------------------------------------------------------------------
 // Criterion 2 (SYNCGAP-001, continued): claim_evidence and motif_sightings
 // were resolved as their OWN sync entities (`evidence`, `motifSighting`),
 // never nested inside their parent's payload as an aggregate/child array —

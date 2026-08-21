@@ -265,22 +265,78 @@ export const syncUserConnectionV2Schema = z
  * entity: "application" — `Application` (`lib/contracts/study-v2.ts`).
  * `applicationClass`, `promiseScope`, and `status` are typed as plain text,
  * not guessed enums, per that file's documented gaps #2/#3.
+ *
+ * APPLYSCHEMA-001 — eight of BUILD_PLAN §3.3's ten bridge fields
+ * (everything below except `modernDomain`/`responseType`, see the note
+ * just below for why those two are unchanged, and `cautions`, which was
+ * already the one field this schema allowed blank) used to be
+ * `min(1)`-required for EVERY save, draft or not. That made
+ * `components/workspace/ApplySection.tsx`'s own two-tier readiness design
+ * (`draftSaveReadiness` looser than `finalizeReadiness`) a lie at the
+ * persistence layer: a "genuine partial draft" the UI's copy promises was
+ * never actually reachable, because `saveLocalApplication`
+ * (`lib/sync/store.ts`) parses every local write against this exact
+ * exported schema object, and any sync push hits the identical check via
+ * `parseSyncOpV2Payload` below. This relaxes those seven text fields plus
+ * `cautions` for a GENERAL save (representation below), and adds a
+ * `superRefine` that requires all TEN bridge fields back whenever `status`
+ * is exactly `"finalized"` — the same two string literals
+ * `ApplySection.tsx`'s own `ApplicationStatus` type already uses, referenced
+ * here rather than redefined.
+ *
+ * Representation chosen for "not yet filled in": blank-string `""`, exactly
+ * like `cautions` already used, and exactly like `ApplySection.tsx`'s own
+ * `BLANK_APPLICATION_DRAFT` initializes every one of its text fields to `""`
+ * (not `null`) — `.trim().min(1)` becomes `.trim()` only (or, for the two
+ * fields that never trimmed before, `.max()` only, unchanged otherwise) so
+ * a whitespace-only or empty string round-trips instead of being rejected,
+ * but the field itself stays a required-present `string` — matching
+ * `Application`'s own read-only interface, which types every one of these
+ * as plain `string`, never `string | null`.
+ *
+ * `modernDomain`/`responseType` are DELIBERATELY LEFT REQUIRED, not
+ * loosened to `.nullable()` even though `ApplySection.tsx`'s own client-side
+ * `ApplicationDraft` type already allows `null` for both (the textbook
+ * "not-yet-chosen enum" shape this file already uses for
+ * `StudyClaim.doctrineStatus` just above). Verified by reading
+ * `db/schema.ts` (out of this task's owned paths) directly rather than
+ * guessing: `applications.modern_domain`/`applications.response_type` are
+ * real Postgres ENUM columns declared `.notNull()` with NO blank/"unset"
+ * member in `MODERN_DOMAINS`/`RESPONSE_TYPES` — there is no value that is
+ * simultaneously a legal `ModernDomain`/`ResponseType` AND representable as
+ * SQL NULL for that column. Making these two `.nullable()` here would let a
+ * draft pass Zod validation and then either (a) crash the real server insert
+ * with a raw Postgres `23502 not-null violation` inside `pushSyncOpsV2`'s
+ * `db.batch(...)` catch block, surfacing an opaque DB error instead of a
+ * clean rejection, or worse (b) silently "pass" against
+ * `tests/sync-v2-persist.test.ts`'s in-memory PocketPg-lite harness, whose
+ * `applyDefaults` only raises its simulated not-null violation for an
+ * OMITTED key, not an explicitly-provided `null` — verified by reading that
+ * function directly — so a hostile/careless test asserting "a draft with
+ * `modernDomain: null` persists" would pass in-memory while the same push
+ * would fail against real Postgres, the exact shape of self-fulfilling-test
+ * gap this project's `agent-graph/LESSONS.md` already flags once
+ * (SEC-001/round 2). Closing this fully needs `db/schema.ts` to make those
+ * two columns nullable (a migration), which is out of this task's owned
+ * paths — reported as a residual gap, not silently worked around.
  */
+const isBridgeTextFieldBlank = (value: string) => value.trim().length === 0;
+
 export const syncApplicationV2Schema = z
   .object({
     id: z.string().min(1).max(200),
     workspaceId: z.string().min(1).max(200),
     sessionId: z.string().min(1).max(200),
     sourceClaimId: z.string().min(1).max(200),
-    originalAudienceMeaning: z.string().min(1).max(100_000),
-    enduringPrinciple: z.string().min(1).max(100_000),
-    canonicalBridge: z.string().min(1).max(100_000),
-    applicationClass: z.string().trim().min(1).max(200),
-    promiseScope: z.string().trim().min(1).max(200),
+    originalAudienceMeaning: z.string().max(100_000),
+    enduringPrinciple: z.string().max(100_000),
+    canonicalBridge: z.string().max(100_000),
+    applicationClass: z.string().trim().max(200),
+    promiseScope: z.string().trim().max(200),
     modernDomain: z.enum(MODERN_DOMAINS),
-    situation: z.string().min(1).max(100_000),
+    situation: z.string().max(100_000),
     responseType: z.enum(RESPONSE_TYPES),
-    faithfulResponse: z.string().min(1).max(100_000),
+    faithfulResponse: z.string().max(100_000),
     cautions: z.string().max(100_000),
     availableAfter: timestampSchema.nullish(),
     status: z.string().trim().min(1).max(200),
@@ -289,7 +345,43 @@ export const syncApplicationV2Schema = z
     updatedAt: timestampSchema,
     deletedAt: timestampSchema.nullish(),
   })
-  .strict();
+  .strict()
+  .superRefine((application, context) => {
+    // Server-side completeness backstop for the "finalized" transition —
+    // ApplySection.tsx's own `finalizeReadiness` is fast client-side UX
+    // feedback ONLY; nothing there stops a client from pushing
+    // `status: "finalized"` with blank bridge fields directly through sync
+    // push, bypassing the UI entirely. This is the SAME two-value
+    // `"draft" | "finalized"` vocabulary that file's `ApplicationStatus`
+    // type already defines (referenced by literal here, not redefined —
+    // that file is read-only for this task).
+    if (application.status !== "finalized") return;
+    const textFields: Array<[string, string]> = [
+      ["originalAudienceMeaning", application.originalAudienceMeaning],
+      ["enduringPrinciple", application.enduringPrinciple],
+      ["canonicalBridge", application.canonicalBridge],
+      ["applicationClass", application.applicationClass],
+      ["promiseScope", application.promiseScope],
+      ["situation", application.situation],
+      ["faithfulResponse", application.faithfulResponse],
+      ["cautions", application.cautions],
+    ];
+    for (const [field, value] of textFields) {
+      if (isBridgeTextFieldBlank(value)) {
+        context.addIssue({
+          code: "custom",
+          path: [field],
+          message: `A finalized Application requires "${field}" to be present and non-blank`,
+        });
+      }
+    }
+    // `modernDomain`/`responseType` need no check here: both stay
+    // `z.enum(...)`-required (see this schema's header note), so a payload
+    // that reaches this superRefine at all already carries a valid,
+    // non-blank value for each — the base object schema, not this
+    // refinement, is what enforces their "always required" tenth/ninth of
+    // the ten bridge fields.
+  });
 
 /**
  * entity: "teachingDraft" — `TeachingDraft` (`lib/contracts/study-v2.ts`).

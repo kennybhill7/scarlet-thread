@@ -448,6 +448,23 @@ async function planConnectionOp(userId: string, op: SyncOpV2): Promise<PlanOutco
   return planWrite(userId, payload.workspaceId, current, op.baseRevision, write);
 }
 
+/**
+ * APPLYSCHEMA-001 — VERIFIED (no extension needed) that the finalize-
+ * completeness guarantee carried by `syncApplicationV2Schema`'s
+ * `superRefine` (`lib/api/sync-v2.ts`) actually reaches this persistence
+ * layer, not merely a Zod object shape validating in isolation:
+ * `parseSyncOpV2Payload` below is called from INSIDE this function — the
+ * same real function `pushSyncOpsV2` -> `planOp` -> here dispatches every
+ * live sync push through — not from some earlier, bypassable route-level
+ * layer. A push claiming `status: "finalized"` with any bridge field blank
+ * therefore fails to parse right here and this function returns
+ * `{ ok: false, ... }` BEFORE any `db.select`/`db.insert` for the row runs,
+ * exactly like every other schema-shape rejection this function already
+ * produces (a malformed `modernDomain`, a missing `id`, etc.) — proven by a
+ * hostile test that calls `pushSyncOpsV2` end to end
+ * (`tests/sync-v2-persist.test.ts`), not `syncApplicationV2Schema.safeParse`
+ * in isolation.
+ */
 async function planApplicationOp(userId: string, op: SyncOpV2): Promise<PlanOutcome> {
   let payload: Application;
   try {

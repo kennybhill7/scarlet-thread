@@ -1095,3 +1095,188 @@ test("after MUTPROVE-DEDUP-1, a hostile cross-workspace push is refused again th
   assert.match(rejected[0].reason, /Workspace does not belong to the acting user/);
   assert.equal(rowsOf("study_sessions").length, 0);
 });
+
+// ---------------------------------------------------------------------------
+// 8. APPLYSCHEMA-001 — closes the gap APPLYPANE-001 self-reported:
+// `syncApplicationV2Schema`'s nine bridge fields used to be `min(1)`-required
+// for EVERY save, draft or not. Eight of the nine (everything but
+// `modernDomain`/`responseType`, deliberately left required -- see that
+// schema's own header comment for the direct-evidence reason: real Postgres
+// NOT NULL enum columns with no blank member) are now genuinely optional for
+// a draft, and a `superRefine` requires all TEN bridge fields (the nine plus
+// `cautions`) back whenever `status` is exactly `"finalized"` -- a
+// SERVER-side backstop behind `ApplySection.tsx`'s own client-side
+// `finalizeReadiness`, which a hostile or buggy client could otherwise
+// bypass entirely by pushing `status: "finalized"` directly.
+//
+// Both proofs below go through the REAL `pushSyncOpsV2` -> `planOp` ->
+// `planApplicationOp` -> `parseSyncOpV2Payload` chain, not
+// `syncApplicationV2Schema.safeParse` in isolation (that schema-level proof
+// lives in `tests/sync-v2.test.ts`) -- satisfying this task's acceptance
+// criterion that the guarantee is proven at the actual persistence layer.
+// ---------------------------------------------------------------------------
+
+test("APPLYSCHEMA-001: a draft Application with eight bridge fields blank/whitespace-only persists successfully through the real pushSyncOpsV2", async () => {
+  const op = makeOp("application", {
+    payload: validApplicationPayload({
+      originalAudienceMeaning: "",
+      enduringPrinciple: "   ",
+      canonicalBridge: "",
+      applicationClass: "",
+      promiseScope: "",
+      situation: "",
+      faithfulResponse: "",
+      cautions: "",
+      status: "draft",
+    }),
+  });
+  const rejected = await pushSyncOpsV2("user-a", [op]);
+  assert.deepEqual(rejected, [], "a genuinely partial draft must be accepted by the real planning function");
+  const [row] = rowsOf("applications");
+  assert.equal(row.status, "draft");
+  assert.equal(row.originalAudienceMeaning, "");
+  assert.equal(row.cautions, "");
+});
+
+test("APPLYSCHEMA-001: a hostile push claiming status \"finalized\" with a blank bridge field is REJECTED by the real planApplicationOp, and nothing is written -- not silently accepted, not silently downgraded to draft", async () => {
+  const op = makeOp("application", {
+    payload: validApplicationPayload({
+      status: "finalized",
+      cautions: "", // a draft may leave this blank; finalize may not
+    }),
+  });
+  const rejected = await pushSyncOpsV2("user-a", [op]);
+  assert.equal(rejected.length, 1, "planApplicationOp must reject this outright");
+  assert.match(
+    rejected[0].reason,
+    /Invalid application payload/,
+    "the real planning function's own parse-failure reason -- proves this came from " +
+      "parseSyncOpV2Payload INSIDE planApplicationOp itself, not a separate/earlier layer",
+  );
+  assert.equal(rowsOf("applications").length, 0, "nothing lands -- no accepted row, no silently-downgraded draft row");
+});
+
+test("APPLYSCHEMA-001: a finalized Application with all ten bridge fields present is accepted normally", async () => {
+  const op = makeOp("application", {
+    payload: validApplicationPayload({ status: "finalized", cautions: "Watch for X." }),
+  });
+  const rejected = await pushSyncOpsV2("user-a", [op]);
+  assert.deepEqual(rejected, []);
+  const [row] = rowsOf("applications");
+  assert.equal(row.status, "finalized");
+});
+
+// ---------------------------------------------------------------------------
+// 9. APPLYSCHEMA-001 mutation proofs. Reuses the SAME
+// `Module.prototype._compile` hook registered in section 7 above (the
+// `mutation`/`patchedCompile` machinery is file-agnostic -- it already keys
+// off `mutation.file`), just pointed at `lib/api/sync-v2.ts`, where the
+// draft-relaxation and the finalize-completeness `superRefine` actually
+// live. `lib/db/sync-v2.ts` must ALSO be dropped and re-required alongside
+// it: it imports `parseSyncOpV2Payload` from `lib/api/sync-v2.ts` at module
+// load time, so a stale cached copy of that import would keep running the
+// OLD, unmutated schema no matter what the source-text mutation patches.
+// ---------------------------------------------------------------------------
+
+const API_V2_FILE = nodeRequire.resolve("@/lib/api/sync-v2.ts");
+
+function reloadApiAndDbSyncV2(): typeof import("@/lib/db/sync-v2") {
+  delete (nodeRequire.cache as any)[API_V2_FILE];
+  delete (nodeRequire.cache as any)[SYNC_V2_FILE];
+  return nodeRequire("@/lib/db/sync-v2.ts") as typeof import("@/lib/db/sync-v2");
+}
+
+async function withSyncApiV2Mutation(
+  pattern: RegExp,
+  replacement: string,
+  body: (mutated: typeof import("@/lib/db/sync-v2")) => Promise<void>,
+) {
+  const beforeHash = createHash("sha256").update(fs.readFileSync(API_V2_FILE)).digest("hex");
+  const beforeMtime = fs.statSync(API_V2_FILE).mtimeMs;
+
+  mutation = { file: API_V2_FILE, pattern, replacement, hits: 0 };
+  const mutated = reloadApiAndDbSyncV2();
+  try {
+    assert.ok(
+      mutation.hits > 0,
+      "mutation matched nothing in lib/api/sync-v2.ts -- the compiled shape changed; update the pattern",
+    );
+    await body(mutated);
+  } finally {
+    mutation = null;
+    reloadApiAndDbSyncV2(); // re-prime the cache with the real, unmutated modules
+    assert.equal(
+      createHash("sha256").update(fs.readFileSync(API_V2_FILE)).digest("hex"),
+      beforeHash,
+      "lib/api/sync-v2.ts was modified on disk",
+    );
+    assert.equal(
+      fs.statSync(API_V2_FILE).mtimeMs,
+      beforeMtime,
+      "lib/api/sync-v2.ts mtime changed on disk",
+    );
+  }
+}
+
+test("MUTPROVE-APPLYSCHEMA-1 disabling the finalize-completeness superRefine lets a finalized Application with a blank bridge field through the real pushSyncOpsV2", async () => {
+  await withSyncApiV2Mutation(
+    /if\s*\(application\.status\s*!==\s*"finalized"\)\s*return;/,
+    "if (true) return;",
+    async (mutated) => {
+      const hostileOp = makeOp("application", {
+        payload: validApplicationPayload({ status: "finalized", cautions: "" }),
+      });
+      const rejected = await mutated.pushSyncOpsV2("user-a", [hostileOp]);
+      assert.deepEqual(
+        rejected,
+        [],
+        "MUTPROVE-APPLYSCHEMA-1: with the finalize-completeness check disabled, a finalized " +
+          "Application with a blank cautions field must be ACCEPTED -- that acceptance is " +
+          "exactly the hole this refinement exists to close",
+      );
+    },
+  );
+});
+
+test("after MUTPROVE-APPLYSCHEMA-1, a finalized Application with a blank bridge field is refused again (harness hygiene)", async () => {
+  const hostileOp = makeOp("application", {
+    payload: validApplicationPayload({ status: "finalized", cautions: "" }),
+  });
+  const rejected = await pushSyncOpsV2("user-a", [hostileOp]);
+  assert.equal(rejected.length, 1, "the real superRefine must still refuse it");
+  assert.equal(rowsOf("applications").length, 0);
+});
+
+test("MUTPROVE-APPLYSCHEMA-2 re-imposing the OLD min(1) requirement on originalAudienceMeaning makes a genuine partial draft fail again through the real pushSyncOpsV2", async () => {
+  await withSyncApiV2Mutation(
+    // Whitespace-, bundler-prefix-, and numeric-literal-tolerant: esbuild
+    // (tsx's on-the-fly TS transform) compiles this file's `z.string()` to
+    // `import_zod.z.string()` and folds `100_000` to `1e5`, verified by
+    // dumping the actual compiled source rather than guessing it.
+    /originalAudienceMeaning:([^,]*?)\.max\(/,
+    "originalAudienceMeaning:$1.min(1).max(",
+    async (mutated) => {
+      const draftOp = makeOp("application", {
+        payload: validApplicationPayload({ originalAudienceMeaning: "", status: "draft" }),
+      });
+      const rejected = await mutated.pushSyncOpsV2("user-a", [draftOp]);
+      assert.equal(
+        rejected.length,
+        1,
+        "MUTPROVE-APPLYSCHEMA-2: with the OLD always-required rule restored, a genuinely " +
+          "partial draft (blank originalAudienceMeaning) must be REJECTED again -- proving " +
+          "today's acceptance is caused by THIS task's relaxation, not some unrelated path",
+      );
+    },
+  );
+});
+
+test("after MUTPROVE-APPLYSCHEMA-2, a genuine partial draft persists again (harness hygiene)", async () => {
+  const draftOp = makeOp("application", {
+    payload: validApplicationPayload({ originalAudienceMeaning: "", status: "draft" }),
+  });
+  const rejected = await pushSyncOpsV2("user-a", [draftOp]);
+  assert.deepEqual(rejected, []);
+  const [row] = rowsOf("applications");
+  assert.equal(row.originalAudienceMeaning, "");
+});
