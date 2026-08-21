@@ -7,6 +7,7 @@ import type { Application, StudyClaim, StudySession } from "@/lib/contracts/stud
 import type { WorkspaceGatingInput } from "@/lib/workspace/gating";
 import { computeWorkspaceSectionsFromSession } from "@/lib/workspace/renderState";
 
+import { ConnectSection, type ConnectSectionSavedResult } from "./ConnectSection";
 import { ContextSection } from "./ContextSection";
 import { ConvictionSection } from "./ConvictionSection";
 import { ObserveSection } from "./ObserveSection";
@@ -26,14 +27,26 @@ import { TheologySection } from "./TheologySection";
  * inlined all eight sections' markup directly. Each is now its own file
  * under `components/workspace/` (`ReadSection`, `ObserveSection`,
  * `ContextSection`, `TheologySection`, `ConvictionSection`, and the shared
- * `PlaceholderSection` for whatever remains stubbed — Connect/Apply/Teach).
- * This file keeps only the accordion shell and the per-section dispatch, so
- * later tasks building Connect/Apply/Teach each own one new file instead of
- * three tasks all editing this same component. Every existing behavior
- * (gating, expand-on-current-step, Read and Observe exactly as
- * READGATE-001 left them) is unchanged by this extraction — proven by
- * running the pre-existing test suite unmodified before anything new was
- * added (see this task's commit message for the verbatim output).
+ * `PlaceholderSection` for whatever remains stubbed — Apply/Teach, as of
+ * CONNECTPANE-001). This file keeps only the accordion shell and the
+ * per-section dispatch, so later tasks building Connect/Apply/Teach each own
+ * one new file instead of three tasks all editing this same component. Every
+ * existing behavior (gating, expand-on-current-step, Read and Observe
+ * exactly as READGATE-001 left them) is unchanged by this extraction —
+ * proven by running the pre-existing test suite unmodified before anything
+ * new was added (see this task's commit message for the verbatim output).
+ *
+ * CONNECTPANE-001 (2026-08-21) graduates Connect from "placeholder" to its
+ * own real `ConnectSection` — see that file's own header comment for the
+ * full design (it writes a `UserConnection`, an architecturally different
+ * entity from the `StudyClaim` the other three real sections write, so it
+ * does not mount `ClaimComposer` at all). `handleConnectSaved` below only
+ * ever calls `setSession` for the `no_warrant_yet` outcome — a saved typed
+ * connection does not change `session` at all (nothing in `StudySession`
+ * needs to change when a `UserConnection` saves; see
+ * `lib/workspace/renderState.ts`'s `buildNoWarrantYetUpdate` header for why
+ * this task deliberately does NOT invent a `connectionState` transition for
+ * that path either).
  *
  * NO `.module.css` IMPORT, DELIBERATELY, ANYWHERE IN THIS FILE OR ANY FILE
  * IT IMPORTS: `tests/study-page.test.ts` (frozen, read-only here) loads the
@@ -73,13 +86,17 @@ import { TheologySection } from "./TheologySection";
  *     UNCONDITIONALLY — never gated, by construction, not merely because
  *     `computeStepGates` currently always returns `unlocked: true` for it —
  *     see `ConvictionSection.tsx`.
- *   - Connect/Apply/Teach ALWAYS render an honest "not built yet"
- *     placeholder (`PlaceholderSection`) — that is the entirety of their
- *     content in this task, locked or not. Building their real
- *     functionality is deliberately OUT of this task's scope (they are
- *     architecturally different: a UserConnection form, an Application
- *     bridge-fields form, a TeachingDraft builder) — see this task's commit
- *     message.
+ *   - Connect mounts `ConnectSection` — its own real form, NOT
+ *     `ClaimComposer` (it writes `UserConnection`, a different entity) —
+ *     once `hasAttemptedComparison(claims)` is true; `LockedNotice`
+ *     otherwise. See `ConnectSection.tsx`'s own header for the full design
+ *     (CHECK-constraint guarantee, no_warrant_yet, motif/thread surfacing).
+ *   - Apply/Teach ALWAYS render an honest "not built yet" placeholder
+ *     (`PlaceholderSection`) — that is the entirety of their content as of
+ *     this task, locked or not. Building their real functionality is
+ *     deliberately OUT of this task's scope (they are architecturally
+ *     different: an Application bridge-fields form, a TeachingDraft
+ *     builder) — see this task's commit message.
  */
 
 export interface WorkspaceShellProps {
@@ -106,6 +123,22 @@ export function WorkspaceShell({
   function handleClaimSaved(result: ClaimComposerSavedResult) {
     setSession(result.session);
     setClaims((previous) => [...previous, result.claim]);
+  }
+
+  /**
+   * CONNECTPANE-001: `ConnectSection`'s two outcomes are NOT symmetric with
+   * `handleClaimSaved` above. Only `no_warrant_yet` carries an updated
+   * `StudySession` (its own `connectionState` transition) — a saved typed
+   * `UserConnection` does not change `session` or `claims` at all (neither
+   * gating input reads connections; see `lib/workspace/gating.ts`'s own
+   * `WorkspaceGatingInput`, untouched by this task). This shell does not
+   * track a session's saved connections in local state at all — there is no
+   * downstream consumer of that list within this component today, and
+   * inventing one would be speculative UI this task's own scope does not
+   * require.
+   */
+  function handleConnectSaved(result: ConnectSectionSavedResult) {
+    if (result.kind === "no_warrant_yet") setSession(result.session);
   }
 
   return (
@@ -149,6 +182,14 @@ export function WorkspaceShell({
               session={session}
               offeredKinds={section.offeredKinds ?? []}
               onSaved={handleClaimSaved}
+            />
+          ) : null}
+          {section.contentMode === "connect" ? (
+            <ConnectSection
+              workspaceId={workspaceId}
+              session={session}
+              unlocked={section.unlocked}
+              onSaved={handleConnectSaved}
             />
           ) : null}
           {section.contentMode === "placeholder" ? <PlaceholderSection section={section} /> : null}

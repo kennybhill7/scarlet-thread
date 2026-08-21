@@ -74,16 +74,36 @@
  * `computeStepGates` already returns `unlocked: true` for it and, more
  * importantly, because `ConvictionSection.tsx` itself never reads an
  * `unlocked` prop at all — "never gated" is a property of that component,
- * not an inference from today's gate value. Connect/Apply/Teach remain
- * "placeholder" — architecturally different, out of this task's scope (see
- * `WorkspaceShell.tsx`'s header).
+ * not an inference from today's gate value.
+ *
+ * CONNECTPANE-001 (2026-08-21) extends the SAME exception a third time to
+ * Connect, now its own `contentMode` ("connect"). Architecturally distinct
+ * from the three CLAIMPANES-001 sections: it does NOT mount `ClaimComposer`
+ * at all — it writes a `UserConnection` (a different v2 entity entirely,
+ * `lib/contracts/study-v2.ts`) through `saveLocalUserConnection`, or records
+ * an honest `no_warrant_yet` outcome by updating the session's own
+ * `connectionState` through `saveLocalStudySession` — both existing vault
+ * writers, no new write path. Gated by the SAME `hasAttemptedComparison`
+ * gate `lib/workspace/gating.ts` already computes for `"connect"`
+ * (untouched by this task): `ConnectSection.tsx` shows `LockedNotice` until
+ * `unlocked` is true, identical shape to Context/Theology/Observe. Apply/
+ * Teach remain "placeholder" — architecturally different, out of this
+ * task's scope (see `WorkspaceShell.tsx`'s header).
  * ---------------------------------------------------------------------------
  */
 
 import { parseVerseKeyStrict } from "@/lib/bible/range";
-import type { CanonicalRangeV1 } from "@/lib/contracts/range-v1";
-import type { ClaimKind, StudySession, StudySessionStep } from "@/lib/contracts/study-v2";
-import { STUDY_SESSION_STEPS } from "@/lib/contracts/study-v2";
+import { CANONICAL_VERSIFICATION_ID, type CanonicalRangeV1 } from "@/lib/contracts/range-v1";
+import {
+  isPersonalResonanceEvidenceLabelValid,
+  type ClaimKind,
+  type ConnectionType,
+  type EvidenceLabel,
+  type StudySession,
+  type StudySessionStep,
+  type UserConnection,
+} from "@/lib/contracts/study-v2";
+import { EVIDENCE_LABELS, STUDY_SESSION_STEPS } from "@/lib/contracts/study-v2";
 import { computeStepGates, type StepGateResult, type WorkspaceGatingInput } from "@/lib/workspace/gating";
 
 /** BUILD_PLAN §4's own product name for each section — must reach an assistive-tech user, not just a visual label. */
@@ -110,14 +130,14 @@ export const STEP_LABELS: Record<StudySessionStep, string> = {
   teach: "Teach",
 };
 
-export type SectionContentMode = "read" | "observe" | "context" | "theology" | "conviction" | "placeholder";
+export type SectionContentMode = "read" | "observe" | "context" | "connect" | "theology" | "conviction" | "placeholder";
 
-/** Which of the eight sections has a REAL surface built in this task; the rest (Connect/Apply/Teach) are honest placeholders (deliberate scope boundary — see WorkspaceShell.tsx). */
+/** Which of the eight sections has a REAL surface built as of this task; Apply/Teach remain honest placeholders (deliberate scope boundary — see WorkspaceShell.tsx). */
 const STEP_CONTENT_MODE: Record<StudySessionStep, SectionContentMode> = {
   read: "read",
   observe: "observe",
   context: "context",
-  connect: "placeholder",
+  connect: "connect",
   theology: "theology",
   conviction: "conviction",
   apply: "placeholder",
@@ -253,4 +273,287 @@ export function buildReadGateUpdate(session: StudySession, now: string): StudySe
 /** True once this session's read gate is set — the one condition the Read section's own control needs to know about itself. */
 export function isPassageMarkedRead(session: Pick<StudySession, "readGateAt">): boolean {
   return Boolean(session.readGateAt);
+}
+
+// ---------------------------------------------------------------------------
+// Connect section — CONNECTPANE-001 (BUILD_PLAN §4 row 4, "Connect — The
+// Scarlet Thread Map"). All payload-construction and selection-mechanics for
+// `components/workspace/ConnectSection.tsx` live here, per this task's own
+// acceptance criterion 7 ("any payload-construction or gating logic lives in
+// a pure function under lib/workspace/, not inline JSX a test cannot
+// reach") — the same discipline `buildStudyClaimDraft`/`selectKind` in
+// `components/study/ClaimComposer.tsx` already established for claims,
+// applied here to the separate `UserConnection` entity.
+//
+// No new write path: `ConnectSection.tsx` calls `saveLocalUserConnection`
+// (typed connection) or `saveLocalStudySession` (no_warrant_yet) — both
+// already-built `lib/sync/store.ts` writers (readOnlyPath here) — with the
+// records these functions build.
+// ---------------------------------------------------------------------------
+
+/**
+ * BUILD_PLAN §3.3 / `db/schema.ts`'s own comment on `user_connections.
+ * rationale` ("Required, minimum 20 characters"), confirmed against the
+ * REAL enforced value rather than guessed: `lib/api/sync-v2.ts`'s
+ * `syncUserConnectionV2Schema` (the schema `saveLocalUserConnection` itself
+ * validates every local write against, via `v2PayloadSchemas` in
+ * `lib/sync/store.ts`) types the field `z.string().trim().min(20).max(20_000)`
+ * — 20 is the real, live-enforced minimum, not a number picked from the
+ * comment alone.
+ */
+export const CONNECTION_RATIONALE_MIN_LENGTH = 20;
+
+/**
+ * The two fields a Connect submission must choose, kept separate from the
+ * range/rationale text state (plain component `useState` strings in
+ * `ConnectSection.tsx` — no assertion-line risk in holding raw text) because
+ * `type` and `evidenceLabel` have a REAL, enforced coupling
+ * (`isPersonalResonanceEvidenceLabelValid`, `lib/contracts/study-v2.ts`) that
+ * must be impossible to violate through this file's own mutator functions,
+ * not just discouraged by them.
+ */
+export interface ConnectionSelectionDraft {
+  type: ConnectionType | null;
+  evidenceLabel: EvidenceLabel | null;
+}
+
+/** Mirrors `ClaimComposer.tsx`'s `BLANK_CLAIM_SELECTION` — nothing starts pre-selected (teaching-not-theology assertion-line discipline extends to "the app never picks a connection type for you" too). */
+export const BLANK_CONNECTION_SELECTION: ConnectionSelectionDraft = {
+  type: null,
+  evidenceLabel: null,
+};
+
+/**
+ * The ONLY evidence label a `personal_resonance` connection may ever carry —
+ * `db/schema.ts`'s `user_connections_personal_resonance_devotional_check`,
+ * transcribed as a single-element array so the render side
+ * (`evidenceLabelOptionsFor`, below) can hand it straight to `optionsFrom`
+ * exactly like every unrestricted field's full array.
+ */
+const PERSONAL_RESONANCE_ONLY_EVIDENCE_LABELS: readonly EvidenceLabel[] = ["devotional"];
+
+/**
+ * THE STRUCTURAL HALF of the CHECK-constraint guarantee (acceptance
+ * criterion 2): `ConnectSection.tsx`'s evidence-label chip fieldset renders
+ * `optionsFrom(evidenceLabelOptionsFor(selection.type))`, never the bare
+ * `EVIDENCE_LABELS` array directly — so the moment `type` is
+ * `"personal_resonance"`, the ONLY chip that exists in the rendered tree is
+ * "devotional". A learner cannot click a chip that was never rendered; this
+ * is stronger than merely disabling the other three, because there is
+ * nothing in the DOM to disable in the first place.
+ */
+export function evidenceLabelOptionsFor(type: ConnectionType | null): readonly EvidenceLabel[] {
+  return type === "personal_resonance" ? PERSONAL_RESONANCE_ONLY_EVIDENCE_LABELS : EVIDENCE_LABELS;
+}
+
+/**
+ * Choosing a connection type. THE AUTO-LOCK HALF of the CHECK-constraint
+ * guarantee (acceptance criterion 2, the "auto-locking...and saying so
+ * visibly" branch this task chose over silent filtering alone —
+ * `ConnectSection.tsx`'s own header comment defends the choice): the instant
+ * `type` becomes `"personal_resonance"`, `evidenceLabel` is force-set to
+ * `"devotional"` in the SAME update, mirroring `selectKind`'s
+ * `doctrineStatus` reset in `ClaimComposer.tsx` exactly — a stale
+ * non-devotional label left over from a PRIOR type selection can never ride
+ * along silently.
+ */
+export function selectConnectionType(
+  selection: ConnectionSelectionDraft,
+  type: ConnectionType,
+): ConnectionSelectionDraft {
+  return {
+    ...selection,
+    type,
+    evidenceLabel: type === "personal_resonance" ? "devotional" : selection.evidenceLabel,
+  };
+}
+
+/**
+ * Choosing an evidence label directly. BELT-AND-SUSPENDERS (acceptance
+ * criterion 2's own "a test must prove the UI can never construct a payload
+ * the CHECK constraint would refuse"): the render-side narrowing above
+ * (`evidenceLabelOptionsFor`) already makes it structurally impossible for
+ * `ConnectSection.tsx`'s OWN rendered chips to call this with an invalid
+ * combination, but this function refuses the invalid combination itself too
+ * — a no-op that returns `selection` unchanged — so a FUTURE caller of this
+ * exported function (a different mount, a test, a refactor that forgets the
+ * render-side narrowing) still cannot construct it either. Both halves are
+ * proven independently in `tests/connect-pane.test.ts`.
+ */
+export function selectEvidenceLabel(
+  selection: ConnectionSelectionDraft,
+  evidenceLabel: EvidenceLabel,
+): ConnectionSelectionDraft {
+  if (selection.type === "personal_resonance" && evidenceLabel !== "devotional") return selection;
+  return { ...selection, evidenceLabel };
+}
+
+/**
+ * Parses the learner-typed "other passage" boundary keys into a
+ * `CanonicalRangeV1`, or `null` for anything malformed. DESIGN DECISION
+ * (acceptance criterion 1's "typing a reference" option, defended here since
+ * no reusable verse-PICKER widget exists anywhere in this codebase — grepped,
+ * not assumed; see this task's commit message): rather than inventing a new
+ * picker, this reuses the exact canonical-key TEXT FORM this app already
+ * shows learners today — `ClaimComposer.tsx`'s own `formatRange` renders a
+ * session's range as "1.3.1–1.3.6" directly in the composer header, so
+ * asking a learner to TYPE a boundary in that same "book.chapter.verse" form
+ * is consistent with what they already read elsewhere in this workspace, not
+ * a new convention. Parsing reuses `parseVerseKeyStrict`
+ * (`lib/bible/range.ts`, already imported by this file for `readLinkParams`)
+ * unmodified — the one existing strict boundary-key parser in this codebase
+ * — plus a same-book, start-<=-end structural check. This matches, not
+ * exceeds, the validation depth `lib/api/sync-v2.ts`'s own
+ * `canonicalRangeV1Schema` enforces server-side (structural only — full
+ * canon-bounds checking needs a `CanonTable` neither this module nor the
+ * server schema has); if the learner types a nonexistent verse (e.g. a
+ * chapter with too few verses), that already-existing server-side gap is
+ * unchanged by this task, not newly introduced by it.
+ */
+export function parseTypedRange(startKey: string, endKey: string): CanonicalRangeV1 | null {
+  const start = startKey.trim();
+  const end = endKey.trim();
+  const parsedStart = parseVerseKeyStrict(start);
+  const parsedEnd = parseVerseKeyStrict(end);
+  if (!parsedStart || !parsedEnd) return null;
+  if (parsedStart.book !== parsedEnd.book) return null;
+  if (parsedStart.chapter > parsedEnd.chapter) return null;
+  if (parsedStart.chapter === parsedEnd.chapter && parsedStart.verse > parsedEnd.verse) return null;
+  return { versificationId: CANONICAL_VERSIFICATION_ID, start, end };
+}
+
+export interface ConnectionReadiness {
+  ready: boolean;
+  /** Human-readable reasons, in a stable order, for what is still missing — same shape as ClaimComposer.tsx's PromoteReadiness. */
+  missing: string[];
+}
+
+/** The single gate `ConnectSection.tsx`'s "Save connection" button and its missing-field list both read. */
+export function connectionReadiness(params: {
+  toRange: CanonicalRangeV1 | null;
+  selection: ConnectionSelectionDraft;
+  rationale: string;
+}): ConnectionReadiness {
+  const missing: string[] = [];
+  if (!params.toRange) {
+    missing.push(
+      "Enter the other passage's start and end as book.chapter.verse (e.g. 1.3.15), start on or before end, same book.",
+    );
+  }
+  if (!params.selection.type) missing.push("Choose a connection type.");
+  if (!params.selection.evidenceLabel) missing.push("Choose an evidence label.");
+  if (params.rationale.trim().length < CONNECTION_RATIONALE_MIN_LENGTH) {
+    missing.push(`Write your rationale — at least ${CONNECTION_RATIONALE_MIN_LENGTH} characters.`);
+  }
+  return { ready: missing.length === 0, missing };
+}
+
+/**
+ * Builds the `UserConnection` record `ConnectSection.tsx` saves through
+ * `saveLocalUserConnection`. Throws if called before its own required
+ * selection is complete or with a rationale under the schema's own minimum
+ * — `submit` in `ConnectSection.tsx` never does either (it gates on
+ * `connectionReadiness` first) — mirroring `buildStudyClaimDraft`'s own
+ * defensive-throw shape exactly. The `isPersonalResonanceEvidenceLabelValid`
+ * check is the THIRD, final layer of the CHECK-constraint guarantee (after
+ * the render-side narrowing and `selectEvidenceLabel`'s own guard) — by this
+ * point it is structurally unreachable through this file's own selection
+ * mutators, and the throw exists so a future caller of this exported builder
+ * cannot silently produce the one record the database itself would refuse.
+ */
+export function buildUserConnectionDraft(params: {
+  id: string;
+  workspaceId: string;
+  fromRange: CanonicalRangeV1;
+  toRange: CanonicalRangeV1;
+  selection: ConnectionSelectionDraft;
+  rationale: string;
+  threadSlug: string | null;
+  now: string;
+}): UserConnection {
+  const { type, evidenceLabel } = params.selection;
+  if (!type) throw new Error("buildUserConnectionDraft requires a chosen connection type");
+  if (!evidenceLabel) throw new Error("buildUserConnectionDraft requires a chosen evidence label");
+  if (!isPersonalResonanceEvidenceLabelValid({ type, evidenceLabel })) {
+    throw new Error('personal_resonance connections require evidenceLabel "devotional"');
+  }
+  const rationale = params.rationale.trim();
+  if (rationale.length < CONNECTION_RATIONALE_MIN_LENGTH) {
+    throw new Error(
+      `buildUserConnectionDraft requires a rationale of at least ${CONNECTION_RATIONALE_MIN_LENGTH} characters`,
+    );
+  }
+  return {
+    id: params.id,
+    workspaceId: params.workspaceId,
+    fromRange: params.fromRange,
+    toRange: params.toRange,
+    type,
+    evidenceLabel,
+    rationale,
+    threadSlug: params.threadSlug ?? null,
+    status: "draft",
+    revision: 1,
+    createdAt: params.now,
+    updatedAt: params.now,
+    deletedAt: null,
+  };
+}
+
+/**
+ * NO_WARRANT_YET DESIGN DECISION (acceptance criterion 3 — "there is no
+ * existing precedent for this specific action anywhere in the codebase, so
+ * state your reasoning plainly"):
+ *
+ * This records `no_warrant_yet` as a `StudySession.connectionState`
+ * transition, nothing more, defended as follows:
+ *
+ *   1. `"no_warrant_yet"` is already a real, reviewed member of
+ *      `STUDY_SESSION_CONNECTION_STATES` (`lib/contracts/study-v2.ts`) —
+ *      grepped across the whole codebase before writing this function: no
+ *      production code path had EVER written it (every session is minted
+ *      with `connectionState: "unexamined"` and nothing transitions it
+ *      afterward, confirmed by reading `StudyEntry.tsx`'s and
+ *      `ClaimComposer.tsx`'s own session builders). The literal was reserved
+ *      for exactly this moment and has sat unused; this task is the first to
+ *      write it, not the first to invent it.
+ *   2. It reuses the ALREADY-BUILT `saveLocalStudySession` writer — no new
+ *      table, no new column, no schema change. `db/schema.ts` is out of this
+ *      task's owned/read-only paths, so adding a dedicated "why no warrant"
+ *      free-text column would be an uncoordinated, destructive-migration-risk
+ *      change this task has no authority to make (LESSONS.md's own
+ *      GENERATED-MIGRATION-FK-ORDER-001/CROSS-TABLE-INVARIANT-001 entries are
+ *      exactly the kind of schema surprise this avoids by not touching it).
+ *   3. It is the minimal HONEST fact this session can record about itself:
+ *      "the learner reached Connect (attempted a comparison, since that is
+ *      this section's own gate) and concluded, for now, that no connection
+ *      is warranted" — BUILD_PLAN's own framing of this as a legitimate,
+ *      valued outcome, not a failure state. A free-text "why not" note would
+ *      invite the exact thing the assertion line forbids elsewhere (the app
+ *      grading or interpreting the learner's reasoning); recording the FACT
+ *      of the honest decision, without asking the app to characterize it
+ *      further, keeps this outcome as unadjudicated as every claim kind
+ *      already is.
+ *   4. It is idempotent in the same sense `buildReadGateUpdate` is NOT
+ *      required to be (unlike the read gate, there is no "first timestamp
+ *      wins" semantic to preserve here — `connectionState` is a plain
+ *      current-state enum, not a first-occurrence timestamp) — a learner can
+ *      revisit Connect, actually record a real connection later, and this
+ *      transition does not block that; nothing here locks the session out of
+ *      ever having `connectionState` become `"provisional"`/`"linked"` by
+ *      some FUTURE write this task does not build (out of scope: no code
+ *      anywhere transitions connectionState to those two values yet either,
+ *      and inventing that unstated semantic here — e.g. auto-flipping to
+ *      "linked" the moment ANY typed connection saves — risks conflicting
+ *      with whatever a future task defines for it. `ConnectSection.tsx`
+ *      therefore does NOT touch `connectionState` when a typed connection
+ *      saves — only this one, explicitly-required transition).
+ */
+export function buildNoWarrantYetUpdate(session: StudySession, now: string): StudySession {
+  return {
+    ...session,
+    connectionState: "no_warrant_yet",
+    revision: session.revision + 1,
+    updatedAt: now,
+  };
 }
