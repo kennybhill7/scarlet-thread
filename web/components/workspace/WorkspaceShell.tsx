@@ -1,21 +1,19 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 
-import Link from "next/link";
-
-import { ClaimComposer } from "@/components/study";
 import type { ClaimComposerSavedResult } from "@/components/study";
 import type { Application, StudyClaim, StudySession } from "@/lib/contracts/study-v2";
-import { saveLocalStudySession } from "@/lib/sync/store";
 import type { WorkspaceGatingInput } from "@/lib/workspace/gating";
-import {
-  buildReadGateUpdate,
-  computeWorkspaceSectionsFromSession,
-  isPassageMarkedRead,
-  readLinkParams,
-  type SectionRenderState,
-} from "@/lib/workspace/renderState";
+import { computeWorkspaceSectionsFromSession } from "@/lib/workspace/renderState";
+
+import { ContextSection } from "./ContextSection";
+import { ConvictionSection } from "./ConvictionSection";
+import { ObserveSection } from "./ObserveSection";
+import { PlaceholderSection } from "./PlaceholderSection";
+import { ReadSection } from "./ReadSection";
+import { lockBadgeStyle, noticeStyle, productNameStyle, sectionStyle, summaryStyle } from "./styles";
+import { TheologySection } from "./TheologySection";
 
 /**
  * WORKSPACESHELL-001 — the Phase 2 Passage Workspace shell (BUILD_PLAN §4):
@@ -24,94 +22,65 @@ import {
  * mounted at `app/(app)/study/[sessionId]/page.tsx` in place of the bare
  * `ClaimComposer` STUDYPAGE-001 mounted directly.
  *
- * NO `.module.css` IMPORT, DELIBERATELY: `tests/study-page.test.ts` (frozen,
- * read-only here) loads the REAL `page.tsx` under plain `node:test` (no
- * bundler, no jsdom) and stubs only a fixed, exhaustive list of CSS Modules
- * — its own, plus `ClaimComposer`'s four. `tsx --test` cannot parse a real
- * `.css` file (see that file's own header comment and
- * `tests/protected-integrations.test.ts`'s), so any NEW `.module.css` this
- * component imported would break every test in that frozen file the moment
- * `page.tsx` started importing this component — with no way to fix it,
+ * CLAIMPANES-001 REFACTOR (acceptance criterion 1): this file previously
+ * inlined all eight sections' markup directly. Each is now its own file
+ * under `components/workspace/` (`ReadSection`, `ObserveSection`,
+ * `ContextSection`, `TheologySection`, `ConvictionSection`, and the shared
+ * `PlaceholderSection` for whatever remains stubbed — Connect/Apply/Teach).
+ * This file keeps only the accordion shell and the per-section dispatch, so
+ * later tasks building Connect/Apply/Teach each own one new file instead of
+ * three tasks all editing this same component. Every existing behavior
+ * (gating, expand-on-current-step, Read and Observe exactly as
+ * READGATE-001 left them) is unchanged by this extraction — proven by
+ * running the pre-existing test suite unmodified before anything new was
+ * added (see this task's commit message for the verbatim output).
+ *
+ * NO `.module.css` IMPORT, DELIBERATELY, ANYWHERE IN THIS FILE OR ANY FILE
+ * IT IMPORTS: `tests/study-page.test.ts` (frozen, read-only here) loads the
+ * REAL `page.tsx` under plain `node:test` (no bundler, no jsdom) and stubs
+ * only a fixed, exhaustive list of CSS Modules — its own, plus
+ * `ClaimComposer`'s four. `tsx --test` cannot parse a real `.css` file (see
+ * that file's own header comment and `tests/protected-integrations.test.ts`'s),
+ * so any NEW `.module.css` this component (or one of its extracted section
+ * files) imported would break every test in that frozen file the moment
+ * `page.tsx` started importing this component tree — with no way to fix it,
  * since that test file cannot be edited here. Styling instead uses inline
  * `style` objects referencing this app's existing GLOBAL CSS custom
  * properties (`app/globals.css` — `--shell-*`, `--gold`; not a module, so no
- * import is needed at all), which is a real, disclosed trade against this
- * shell's visual polish, not an oversight.
+ * import is needed at all), now centralized in `./styles.ts` and shared by
+ * every section file rather than each one re-declaring its own — a real,
+ * disclosed trade against this shell's visual polish, not an oversight.
  *
  * GATING VS. CONTENT — see `lib/workspace/renderState.ts`'s own header
- * comment for the full reasoning, including why Observe is now a deliberate
- * exception (READGATE-001, 2026-08-20). `unlocked` still drives ONLY the
- * "why locked" notice and which section starts expanded for seven of the
- * eight sections. Concretely:
+ * comment for the full reasoning, including why Observe is a deliberate
+ * exception (READGATE-001, 2026-08-20), and CLAIMPANES-001's own commit
+ * message for why Context and Theology follow the SAME exception (their
+ * real, write-capable `ClaimComposer` mount is gated exactly like Observe's
+ * — `unlocked` decides whether the live composer or a `LockedNotice` shows,
+ * never a bare disabled control with no explanation). Concretely, as of this
+ * task:
  *   - Read is always open (never gated).
- *   - Observe mounts the real, unmodified `ClaimComposer` ONLY once
- *     `isPassageMarkedRead(session)` is true. Before that, it renders the
- *     same kind of honest "why locked" treatment the placeholder sections
- *     use — never a bare disabled control with no explanation, and never
- *     the live composer either. This is a REVERSAL of WORKSPACESHELL-001's
- *     original "unlocked never removes content" decision for this one
- *     section: that decision existed because every session StudyEntry.tsx
- *     created back then already started on Observe with `readGateAt: null`
- *     in the same object literal, so gating Observe's content would have
- *     stranded the learner at the very first screen. READGATE-001 fixed the
- *     root cause instead (new sessions now start on `currentStep: "read"`),
- *     which is what makes gating Observe's content safe.
- *   - Context/Connect/Theology/Conviction/Apply/Teach ALWAYS render an
- *     honest "not built yet" placeholder (acceptance criterion 6) — that is
- *     the entirety of their content in this task, locked or not. Building
- *     their real functionality is deliberately OUT of this task's scope;
- *     see this task's commit message.
+ *   - Observe mounts the real, unmodified `ClaimComposer` (full eight-kind
+ *     picker) once `isPassageMarkedRead(session)` is true.
+ *   - Context mounts `ClaimComposer` narrowed to `kind: "interpretation"`
+ *     once `hasAnyClaim` (>=1 claim in the session) is true — see
+ *     `ContextSection.tsx`.
+ *   - Theology mounts `ClaimComposer` narrowed to `kind: "theology"` once
+ *     `hasAnyClaim` is true (a connection is NOT required — the gate itself,
+ *     `lib/workspace/gating.ts`, is untouched by this task) — see
+ *     `TheologySection.tsx`.
+ *   - Conviction mounts `ClaimComposer` narrowed to `kind: "conviction"`
+ *     UNCONDITIONALLY — never gated, by construction, not merely because
+ *     `computeStepGates` currently always returns `unlocked: true` for it —
+ *     see `ConvictionSection.tsx`.
+ *   - Connect/Apply/Teach ALWAYS render an honest "not built yet"
+ *     placeholder (`PlaceholderSection`) — that is the entirety of their
+ *     content in this task, locked or not. Building their real
+ *     functionality is deliberately OUT of this task's scope (they are
+ *     architecturally different: a UserConnection form, an Application
+ *     bridge-fields form, a TeachingDraft builder) — see this task's commit
+ *     message.
  */
-
-const sectionStyle: CSSProperties = {
-  border: "1px solid var(--shell-border)",
-  borderRadius: 8,
-  marginBottom: 12,
-  padding: "4px 14px",
-  background: "var(--shell-bg)",
-  color: "var(--shell-text)",
-};
-
-const summaryStyle: CSSProperties = {
-  cursor: "pointer",
-  padding: "10px 0",
-  fontFamily: "var(--font-label)",
-  fontWeight: 600,
-  letterSpacing: "0.02em",
-};
-
-const productNameStyle: CSSProperties = {
-  color: "var(--shell-muted-2)",
-  fontWeight: 400,
-};
-
-const lockBadgeStyle: CSSProperties = {
-  marginLeft: 8,
-  color: "var(--gold)",
-  fontSize: 11,
-  textTransform: "uppercase",
-  letterSpacing: "0.08em",
-};
-
-const noticeStyle: CSSProperties = {
-  fontSize: 13,
-  lineHeight: 1.5,
-  color: "var(--shell-muted-2)",
-  borderLeft: "2px solid var(--gold)",
-  padding: "4px 10px",
-  margin: "0 0 12px",
-};
-
-const placeholderStyle: CSSProperties = {
-  fontSize: 13,
-  lineHeight: 1.5,
-  color: "var(--shell-muted)",
-  padding: "4px 0 14px",
-};
-
-const bodyStyle: CSSProperties = {
-  padding: "0 0 14px",
-};
 
 export interface WorkspaceShellProps {
   /** The caller's own workspace id, resolved server-side (see page.tsx). Passed straight through to ClaimComposer, unmodified. */
@@ -120,83 +89,6 @@ export interface WorkspaceShellProps {
   /** This session's own claims, for gating. Empty is a valid, honest state — see this task's commit message for what does/does not fetch this today. */
   claims?: StudyClaim[];
   applications?: Application[];
-}
-
-function ReadSection({
-  session,
-  onMarkedRead,
-}: {
-  session: StudySession;
-  onMarkedRead: (updated: StudySession) => void;
-}) {
-  const [marking, setMarking] = useState(false);
-  const [error, setError] = useState("");
-  const linkParams = readLinkParams(session.range);
-  const alreadyRead = isPassageMarkedRead(session);
-
-  async function markRead() {
-    setMarking(true);
-    setError("");
-    try {
-      const updated = buildReadGateUpdate(session, new Date().toISOString());
-      await saveLocalStudySession(updated);
-      onMarkedRead(updated);
-    } catch {
-      setError(
-        "This device could not save your reading progress. Nothing else here is affected; please try again.",
-      );
-    } finally {
-      setMarking(false);
-    }
-  }
-
-  return (
-    <div style={bodyStyle}>
-      {linkParams ? (
-        <p>
-          <Link href={`/read/${linkParams.book}/${linkParams.chapter}`}>Open this passage in the reader</Link>
-        </p>
-      ) : null}
-      {alreadyRead ? (
-        <p data-testid="read-gate-set">Marked read on {session.readGateAt}.</p>
-      ) : (
-        <button type="button" onClick={() => void markRead()} disabled={marking} data-testid="mark-read-button">
-          {marking ? "Saving…" : "Mark this passage as read"}
-        </button>
-      )}
-      {error ? (
-        <p role="alert" data-testid="mark-read-error">
-          {error}
-        </p>
-      ) : null}
-    </div>
-  );
-}
-
-function PlaceholderSection({ section }: { section: SectionRenderState }) {
-  return (
-    <p style={placeholderStyle} data-testid={`placeholder-${section.step}`}>
-      Not built yet. {section.productName} is planned as its own follow-up task, once this
-      workspace shell&rsquo;s contract is proven stable. Nothing on this screen represents{" "}
-      {section.label.toLowerCase()} work you have not actually done.
-    </p>
-  );
-}
-
-/**
- * READGATE-001 — Observe's own "why locked" treatment, shown in place of the
- * real `ClaimComposer` while `isPassageMarkedRead(session)` is false. Same
- * honest-placeholder style as `PlaceholderSection` above, but distinct copy:
- * Observe IS built (unlike the six placeholder sections), so this must not
- * claim otherwise — it explains a gate, not an absence of the feature.
- */
-function ObserveLocked() {
-  return (
-    <p style={placeholderStyle} data-testid="observe-locked">
-      Locked until you mark this passage as read. Read comes first — use the
-      Read section above, then this composer opens.
-    </p>
-  );
 }
 
 export function WorkspaceShell({
@@ -229,22 +121,35 @@ export function WorkspaceShell({
               {section.lockExplanation}
             </p>
           ) : null}
-          {section.contentMode === "read" ? (
-            <ReadSection session={session} onMarkedRead={setSession} />
-          ) : null}
+          {section.contentMode === "read" ? <ReadSection session={session} onMarkedRead={setSession} /> : null}
           {section.contentMode === "observe" ? (
-            <div style={bodyStyle}>
-              {isPassageMarkedRead(session) ? (
-                <ClaimComposer
-                  workspaceId={workspaceId}
-                  range={session.range}
-                  session={session}
-                  onSaved={handleClaimSaved}
-                />
-              ) : (
-                <ObserveLocked />
-              )}
-            </div>
+            <ObserveSection workspaceId={workspaceId} session={session} onSaved={handleClaimSaved} />
+          ) : null}
+          {section.contentMode === "context" ? (
+            <ContextSection
+              workspaceId={workspaceId}
+              session={session}
+              unlocked={section.unlocked}
+              offeredKinds={section.offeredKinds ?? []}
+              onSaved={handleClaimSaved}
+            />
+          ) : null}
+          {section.contentMode === "theology" ? (
+            <TheologySection
+              workspaceId={workspaceId}
+              session={session}
+              unlocked={section.unlocked}
+              offeredKinds={section.offeredKinds ?? []}
+              onSaved={handleClaimSaved}
+            />
+          ) : null}
+          {section.contentMode === "conviction" ? (
+            <ConvictionSection
+              workspaceId={workspaceId}
+              session={session}
+              offeredKinds={section.offeredKinds ?? []}
+              onSaved={handleClaimSaved}
+            />
           ) : null}
           {section.contentMode === "placeholder" ? <PlaceholderSection section={section} /> : null}
         </details>

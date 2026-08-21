@@ -97,6 +97,34 @@ import styles from "./claim-composer.module.css";
  * and `range` as props; how a real page resolves the caller's own workspace
  * id from their session (never from a caller-supplied id, per the pattern
  * EXPORTV2-001 established) is that future task's job, not this component's.
+ *
+ * ---------------------------------------------------------------------------
+ * `offeredKinds` (CLAIMPANES-001, additive) — the ONE design decision that
+ * task's own acceptance criteria required making and defending here. Three
+ * Passage Workspace sections (Context, Theology, Conviction —
+ * `components/workspace/{Context,Theology,Conviction}Section.tsx`) each
+ * write ONE specific `ClaimKind` per BUILD_PLAN §4's own table row, and
+ * showing all eight kind chips in, say, the Theology section would let a
+ * learner record an "observation" or "conviction" claim from inside a
+ * section whose own product name and gate are about theology specifically —
+ * confusing, not doctrinally unsafe, but still wrong. The alternative
+ * (mount this component completely unmodified everywhere, relying only on
+ * each section's own outer heading to convey context) was rejected in favor
+ * of this narrower, additive prop.
+ *
+ * What this prop does NOT do, by design, matching the assertion-line
+ * invariant above word for word: it narrows which kinds `PromoteFields`
+ * OFFERS as chips, never which one starts SELECTED. `BLANK_CLAIM_SELECTION`
+ * is untouched, still every field null regardless of `offeredKinds` — a
+ * learner mounted with `offeredKinds={["theology"]}` still sees one
+ * unpressed chip and must explicitly tap it, exactly the same explicit-tap
+ * requirement as the unrestricted eight-chip picker, just with fewer wrong
+ * options to tap. Omitting the prop (Observe's own mount, and every existing
+ * caller before this task) offers the full `CLAIM_KINDS` array, byte-for-byte
+ * the original V2COMPOSER-001 behavior — see
+ * `tests/study-composer.test.ts`'s own default-mount assertions, unedited
+ * and still green after this addition.
+ * ---------------------------------------------------------------------------
  */
 
 // ---------------------------------------------------------------------------
@@ -388,6 +416,13 @@ export interface PromoteFieldsProps {
   disabled: boolean;
   onSelectionChange: (next: ClaimSelectionDraft) => void;
   onEvidenceChange: (next: EvidenceDraft[]) => void;
+  /**
+   * Additive, optional (CLAIMPANES-001) — narrows which kinds the "What kind
+   * of claim is this?" fieldset offers. `undefined` (every call site before
+   * this task, and Observe's own mount today) offers the full `CLAIM_KINDS`
+   * array — see this file's header for the full reasoning.
+   */
+  offeredKinds?: readonly ClaimKind[];
 }
 
 export function PromoteFields({
@@ -398,6 +433,7 @@ export function PromoteFields({
   disabled,
   onSelectionChange,
   onEvidenceChange,
+  offeredKinds,
 }: PromoteFieldsProps) {
   return (
     <section className={styles.promote} aria-label="Promote to a typed claim">
@@ -414,7 +450,7 @@ export function PromoteFields({
       <fieldset className={styles.field}>
         <legend className={styles.label}>What kind of claim is this?</legend>
         <div className={styles.chips} role="group">
-          {optionsFrom(CLAIM_KINDS).map((option) => (
+          {optionsFrom(offeredKinds ?? CLAIM_KINDS).map((option) => (
             <Chip
               active={selection.kind === option.value}
               aria-pressed={selection.kind === option.value}
@@ -568,6 +604,79 @@ export function PromoteFields({
 }
 
 // ---------------------------------------------------------------------------
+// Header/prompt copy — deterministic function of `offeredKinds`, never a
+// per-section hand-typed free-text prop (CLAIMPANES-001). Discovered
+// necessary, not merely cosmetic: `tests/workspace-shell.test.ts`'s frozen
+// READGATE-001 tests scan the WHOLE rendered page for the literal string
+// "What did you notice in the text?" as their proxy for "Observe's real
+// composer mounted." Once Conviction's own composer mounts UNCONDITIONALLY
+// (never gated, by this task's own requirement) using that same hardcoded
+// copy, those frozen tests started failing — Conviction's composer, not
+// Observe's, was supplying the match. This function is the fix: each of the
+// three sections this task adds gets copy that accurately names what IT is
+// asking for, and the original Observe copy is preserved byte-for-byte
+// whenever `offeredKinds` is omitted or does not narrow to exactly one kind
+// — the exact condition every pre-existing call site (Observe, and every
+// `tests/study-composer.test.ts` default-mount assertion) still satisfies.
+// ---------------------------------------------------------------------------
+
+export interface ComposerCopy {
+  eyebrow: string;
+  heading: string;
+  observationLabel: string;
+  placeholder: string;
+}
+
+/** V2COMPOSER-001's original, untouched copy — the default for every mount that does not narrow to exactly one offered kind. */
+const DEFAULT_COMPOSER_COPY: ComposerCopy = {
+  eyebrow: "OBSERVE",
+  heading: "What did you notice in the text?",
+  observationLabel: "Your observation",
+  placeholder: "What do you notice in the words themselves?",
+};
+
+/**
+ * One entry per `ClaimKind` a CLAIMPANES-001 section narrows to. Every
+ * question here asks the LEARNER what they notice/believe/sense — never an
+ * app assertion about what the passage means (assertion-line safe; see
+ * `tests/claim-panes.test.ts`'s own ASSERTION-LINE checks for these exact
+ * strings).
+ */
+const KIND_COMPOSER_COPY: Partial<Record<ClaimKind, ComposerCopy>> = {
+  interpretation: {
+    eyebrow: "CONTEXT",
+    heading: "What did this passage mean to its first audience?",
+    observationLabel: "Your attempt",
+    placeholder: "What do you think this passage meant to the people who first read or heard it?",
+  },
+  theology: {
+    eyebrow: "THEOLOGY",
+    heading: "What do you believe this passage teaches, and why?",
+    observationLabel: "Your claim",
+    placeholder: "What do you believe this passage teaches, and why?",
+  },
+  conviction: {
+    eyebrow: "CONVICTION",
+    heading: "How is this passage shaping you?",
+    observationLabel: "Your conviction",
+    placeholder: "How is this passage shaping what you believe or how you live?",
+  },
+};
+
+/**
+ * Pure, deterministic, exported for `tests/claim-panes.test.ts`. `undefined`,
+ * an empty array, or more than one offered kind all fall back to
+ * `DEFAULT_COMPOSER_COPY` — narrowing to a NAMED single-kind copy only
+ * happens for the exact one-kind shape this task's three new sections use.
+ */
+export function composerCopyFor(offeredKinds?: readonly ClaimKind[]): ComposerCopy {
+  if (offeredKinds && offeredKinds.length === 1) {
+    return KIND_COMPOSER_COPY[offeredKinds[0]] ?? DEFAULT_COMPOSER_COPY;
+  }
+  return DEFAULT_COMPOSER_COPY;
+}
+
+// ---------------------------------------------------------------------------
 // The stateful shell
 // ---------------------------------------------------------------------------
 
@@ -589,13 +698,19 @@ export interface ClaimComposerProps {
   /** An existing session to attach the claim to. Omit to start a new one. */
   session?: StudySession;
   onSaved?: (result: ClaimComposerSavedResult) => void;
+  /**
+   * Additive, optional (CLAIMPANES-001) — forwarded verbatim to
+   * `PromoteFields`. See this file's header for the full reasoning; omit to
+   * keep the original V2COMPOSER-001 full-eight-kind picker.
+   */
+  offeredKinds?: readonly ClaimKind[];
 }
 
 function formatRange(range: CanonicalRangeV1): string {
   return range.start === range.end ? range.start : `${range.start}–${range.end}`;
 }
 
-export function ClaimComposer({ workspaceId, range, session, onSaved }: ClaimComposerProps) {
+export function ClaimComposer({ workspaceId, range, session, onSaved, offeredKinds }: ClaimComposerProps) {
   const bodyId = useId();
   const [body, setBody] = useState("");
   const [selection, setSelection] = useState<ClaimSelectionDraft>(BLANK_CLAIM_SELECTION);
@@ -605,6 +720,7 @@ export function ClaimComposer({ workspaceId, range, session, onSaved }: ClaimCom
 
   const readiness = promoteReadiness(body, selection, evidence);
   const showPromote = body.trim().length > 0;
+  const copy = composerCopyFor(offeredKinds);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -660,14 +776,14 @@ export function ClaimComposer({ workspaceId, range, session, onSaved }: ClaimCom
     <form className={styles.composer} onSubmit={submit}>
       <header className={styles.header}>
         <div>
-          <p className={styles.eyebrow}>OBSERVE</p>
-          <h2>What did you notice in the text?</h2>
+          <p className={styles.eyebrow}>{copy.eyebrow}</p>
+          <h2>{copy.heading}</h2>
         </div>
         <span className={styles.reference}>{formatRange(range)}</span>
       </header>
 
       <label className={styles.label} htmlFor={bodyId}>
-        Your observation
+        {copy.observationLabel}
       </label>
       <textarea
         className={styles.textarea}
@@ -675,7 +791,7 @@ export function ClaimComposer({ workspaceId, range, session, onSaved }: ClaimCom
         id={bodyId}
         maxLength={100_000}
         onChange={(event) => setBody(event.target.value)}
-        placeholder="What do you notice in the words themselves?"
+        placeholder={copy.placeholder}
         rows={5}
         value={body}
       />
@@ -685,6 +801,7 @@ export function ClaimComposer({ workspaceId, range, session, onSaved }: ClaimCom
           body={body}
           disabled={status === "saving"}
           evidence={evidence}
+          offeredKinds={offeredKinds}
           onEvidenceChange={setEvidence}
           onSelectionChange={setSelection}
           readiness={readiness}
