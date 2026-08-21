@@ -1688,6 +1688,147 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "CONNECTPANE-001",
+      "title": "Phase 2: build Connect -- the typed-connection form",
+      "objective": "BUILD_PLAN section 4 row 4: Connect writes a UserConnection -- typed, evidence-labeled, both passages side by side -- or an honest no_warrant_yet. This is architecturally distinct from CLAIMPANES-001's three sections: it writes user_connections, not study_claims, through the ALREADY-BUILT saveLocalUserConnection vault writer (lib/sync/store.ts, read-only here) -- no new write path, no new sync entity, just a form this repo has never had. The section is unlocked per the existing gate (hasAttemptedComparison, untouched, already mutation-proved).",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/components/workspace/WorkspaceShell.tsx",
+        "web/lib/workspace/renderState.ts",
+        "web/tests/workspace-shell.test.ts",
+        "web/components/workspace/ConnectSection.tsx",
+        "web/tests/connect-pane.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/components/study/ClaimComposer.tsx",
+        "web/components/study/index.ts",
+        "web/components/ui/Button.tsx",
+        "web/components/ui/Chip.tsx",
+        "web/components/ui/Field.tsx",
+        "web/lib/contracts/study-v2.ts",
+        "web/lib/sync/store.ts",
+        "web/lib/workspace/gating.ts",
+        "web/app/(app)/study/[sessionId]/page.tsx",
+        "web/tests/study-page.test.ts",
+        "web/tests/claim-panes.test.ts",
+        "docs/decisions/2026-08-18-teaching-not-theology.md",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "Build components/workspace/ConnectSection.tsx: a real form writing a UserConnection through saveLocalUserConnection only. Fields: type (CONNECTION_TYPES, lib/contracts/study-v2.ts), evidenceLabel (EVIDENCE_LABELS), rationale (required, the schema's own minimum -- check db/schema.ts's actual constraint rather than guessing a number), and both passage ranges shown side by side (this session's own range as one side; the learner supplies the other by typing a reference or reusing the range-entry pattern already established elsewhere in this codebase -- do not invent a new verse-picker widget from scratch if an existing one is reusable read-only).",
+        "The personal_resonance/devotional constraint is a real, enforced database CHECK (db/schema.ts's user_connections_personal_resonance_devotional_check: type <> 'personal_resonance' OR evidenceLabel = 'devotional') -- the UI must not let a learner submit a combination the database would reject. Decide explicitly how: auto-locking evidenceLabel to devotional the moment personal_resonance is chosen (and saying so visibly, not silently), or filtering the evidenceLabel options once personal_resonance is selected. Whichever you choose, a test must prove the UI can never construct a payload the CHECK constraint would refuse.",
+        "A no_warrant_yet path exists as a first-class alternative to submitting a typed connection, not a workaround -- BUILD_PLAN's own wording treats it as a legitimate, valued outcome ('a theological edge exists only after the learner has compared both texts and typed a rationale' -- declining is honest, not a failure state). Decide what a no_warrant_yet action actually records (a session-level note, nothing at all beyond acknowledging the attempt was made, or something else) and defend the choice -- there is no existing precedent for this specific action anywhere in the codebase, so state your reasoning plainly.",
+        "Surface existing motif candidates for this workspace (the /api/motifs route and RADARUI-001's confirm/dismiss flow already exist) somewhere in this section -- a learner comparing passages should see what the app's own radar has already noticed, not just a blank form. Curated connections and curated user threads: BUILD_PLAN names both as inputs, but no curated-connections content or content pipeline exists yet (same situation CLAIMPANES-001 found for passage_contexts/doctrines) -- render an honest 'no curated connections yet' notice rather than fabricating any; user threads (v1 threads, already real) may be surfaced for real since they already exist.",
+        "Assertion-line check: nothing in this section's copy tells the learner what a connection MEANS or asserts that one exists between two passages -- it only asks the learner to name the type, label the evidence, and state their own rationale. Add a dedicated ASSERTION-LINE test in the style of tests/claim-panes.test.ts's own.",
+        "Gated the same way Context/Theology are (READGATE-001/CLAIMPANES-001 precedent): the real form does not render before its own gate is met; the existing LockedNotice component handles the locked state.",
+        "Testable without a DOM per this repo's established pattern -- any payload-construction or gating logic lives in a pure function under lib/workspace/, not inline JSX a test cannot reach.",
+        "All existing gating and read-gate tests keep passing completely unweakened and unedited.",
+        "Mutation-prove: the personal_resonance/devotional guard, by breaking it and confirming a NAMED test fails; and re-run the existing Theology-without-Connect gate mutation proof one more time against your changes, to confirm your wiring into WorkspaceShell.tsx did not quietly alter it."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "APPLYPANE-001",
+      "title": "Phase 2: build Apply -- the Practice Bridge form",
+      "objective": "BUILD_PLAN section 4 row 7: Apply produces an Application record with the bridge fields (original-audience meaning, enduring principle, canonical bridge, class, promise scope, modern domain, situation, response type, faithful response, cautions). Writes through the ALREADY-BUILT saveLocalApplication vault writer (lib/sync/store.ts, read-only here) -- no new write path. Unlocked per the existing gate (>=1 theology claim, untouched). Partial drafts always save locally; completeness is enforced only at an explicit finalize transition -- this is a real, deliberate two-mode UI (draft vs finalize), not a single-shot form.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/components/workspace/WorkspaceShell.tsx",
+        "web/lib/workspace/renderState.ts",
+        "web/tests/workspace-shell.test.ts",
+        "web/components/workspace/ApplySection.tsx",
+        "web/tests/apply-pane.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/components/study/ClaimComposer.tsx",
+        "web/components/study/index.ts",
+        "web/components/ui/Button.tsx",
+        "web/components/ui/Chip.tsx",
+        "web/components/ui/Field.tsx",
+        "web/lib/contracts/study-v2.ts",
+        "web/lib/sync/store.ts",
+        "web/lib/workspace/gating.ts",
+        "web/app/(app)/study/[sessionId]/page.tsx",
+        "web/tests/study-page.test.ts",
+        "web/tests/claim-panes.test.ts",
+        "docs/decisions/2026-08-18-teaching-not-theology.md",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "Build components/workspace/ApplySection.tsx: a form writing an Application through saveLocalApplication. modernDomain and responseType are REAL enums (MODERN_DOMAINS, RESPONSE_TYPES in lib/contracts/study-v2.ts) -- use optionsFrom-style derivation from the live arrays, never a retyped literal list. applicationClass and promiseScope are DELIBERATELY unenumerated free-text fields per BUILD_PLAN section 3.3's own explicit note ('do not invent enum values for them... a guessed enum becomes a destructive migration') -- render them as free-text inputs, not a picker with values you made up.",
+        "sourceClaimId links this Application to one of the session's own theology claims -- the learner picks from their own existing theology-kind claims for this session (query them through the same read pattern other sections already use), never types an arbitrary id.",
+        "Draft vs finalize, for real: a partial Application (missing bridge fields) saves successfully at any point with status reflecting draft state; a distinct 'finalize' action validates that the bridge fields required for completeness are present and only then transitions status accordingly. Decide and state exactly which fields finalize requires -- BUILD_PLAN names the bridge fields as the complete set; defend if you narrow that.",
+        "SAFETY-CRITICAL, non-negotiable (BUILD_PLAN section 3.3, verbatim): 'Sensitive domains never render medical, mental-health, legal, financial, abuse, or crisis advice -- referral language only.' Do NOT generate any dynamic per-domain guidance text. The only safe implementation is static, pre-written, human-reviewed referral copy shown for the sensitive modernDomain values (grief, anxiety -- and judge whether others in MODERN_DOMAINS also warrant it) that names getting professional help/pastoral care rather than offering any actionable advice itself. If you are not fully confident the copy you write stays on the right side of that line, render NOTHING extra for that domain rather than guess -- a missing nicety is recoverable, unlicensed advice is not. State your domain-by-domain reasoning explicitly in the commit.",
+        "The faithfulResponse/cautions fields and every other free-text prompt ask what the LEARNER concludes, never what the app asserts -- add an ASSERTION-LINE test in the style of tests/claim-panes.test.ts.",
+        "Gated per the existing >=1-theology-claim gate (untouched); locked state uses the existing LockedNotice component.",
+        "Testable without a DOM per this repo's established pattern.",
+        "All existing gating and read-gate tests keep passing completely unweakened and unedited.",
+        "Mutation-prove: the draft-vs-finalize completeness check, by breaking it (finalize accepting an incomplete record) and confirming a NAMED test fails; and re-run the Theology-without-Connect gate mutation proof once more against your changes."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "TEACHDRAFTPANE-001",
+      "title": "Phase 2: build Teach at the draft level (NOT the section outline builder -- see the scope boundary)",
+      "objective": "BUILD_PLAN section 4 row 8: Teach produces a TeachingDraft in one of four formats (60-second/5-minute/15-minute/30-minute presets, which set durationMinutes). Writes through the ALREADY-BUILT saveLocalTeachingDraft vault writer (lib/sync/store.ts, read-only here). Unlocked per the existing gate (>=1 finalized application, untouched). DELIBERATE, VERIFIED SCOPE BOUNDARY: grep this codebase yourself before writing anything -- there is a teaching_sections DATABASE table (db/schema.ts) but NO sync entity for it (SYNC_ENTITIES_V2 lists exactly eight entities and teachingSection is not one of them) and NO vault writer for it in lib/sync/store.ts. Building the section-by-section outline builder (BUILD_PLAN's ordered kind/sortOrder/body sections) would require adding a ninth sync entity across the contract, the sync planner, and the vault -- a change spanning multiple previously-owned files this task does not own and should not attempt speculatively. This task builds ONLY the draft-level fields; the outline builder is explicitly follow-up work, gated behind that sync-entity addition landing first.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/components/workspace/WorkspaceShell.tsx",
+        "web/lib/workspace/renderState.ts",
+        "web/tests/workspace-shell.test.ts",
+        "web/components/workspace/TeachSection.tsx",
+        "web/tests/teach-pane.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/components/study/ClaimComposer.tsx",
+        "web/components/study/index.ts",
+        "web/components/ui/Button.tsx",
+        "web/components/ui/Chip.tsx",
+        "web/components/ui/Field.tsx",
+        "web/lib/contracts/study-v2.ts",
+        "web/lib/sync/store.ts",
+        "web/lib/workspace/gating.ts",
+        "web/app/(app)/study/[sessionId]/page.tsx",
+        "web/tests/study-page.test.ts",
+        "web/tests/claim-panes.test.ts",
+        "docs/decisions/2026-08-18-teaching-not-theology.md",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "Build components/workspace/TeachSection.tsx: a form writing a TeachingDraft (title, bigIdea, audience, gospelConnection) through saveLocalTeachingDraft. The four format presets (60-second, 5-minute, 15-minute, 30-minute) are UI-only affordances that SET durationMinutes -- per BUILD_PLAN's own note, they are not a separate stored field. State the exact minute values you chose for each preset (60-second is presumably 1, not 0 -- use judgment and say so) since BUILD_PLAN names the presets but not their numeric values.",
+        "audience uses whatever enum/type lib/contracts/study-v2.ts actually exports for it (check the live type -- do not guess a value set).",
+        "Confirm the scope boundary yourself before writing code: grep for teachingSection/TeachingSection/teaching_sections across lib/sync/store.ts, lib/contracts/sync-v2.ts, and lib/api/sync-v2.ts, and paste what you found (or didn't) in the commit message as the actual evidence for why the outline builder is out of scope, not merely asserted.",
+        "The section renders an honest notice that the section-by-section outline builder is not yet available (naming what IS saved -- the draft's own top-level fields -- so the learner is not confused about what their work accomplished), rather than presenting a broken or absent 'add section' control with no explanation.",
+        "Every free-text prompt (bigIdea, gospelConnection) asks what the LEARNER will teach, never what the app asserts the passage means -- add an ASSERTION-LINE test in the style of tests/claim-panes.test.ts.",
+        "Gated per the existing >=1-finalized-application gate (untouched); locked state uses the existing LockedNotice component.",
+        "Testable without a DOM per this repo's established pattern.",
+        "All existing gating and read-gate tests keep passing completely unweakened and unedited.",
+        "Mutation-prove: the format-preset-to-durationMinutes mapping, by breaking one preset's value and confirming a NAMED test fails; and re-run the Theology-without-Connect gate mutation proof once more against your changes."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }

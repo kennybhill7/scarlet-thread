@@ -466,6 +466,30 @@
       "attempts": 0,
       "lastRunId": "interactive-2026-08-21-wave16",
       "notes": "Seeded 2026-08-21, 'continue building' -- the next Phase 2 slice. Deliberately scoped to the three panes that reuse the existing claim model (cheapest, lowest architectural risk) and includes a refactor that unblocks parallel work on Connect/Apply/Teach afterward."
+    },
+    "CONNECTPANE-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-21-wave17",
+      "notes": "Seeded 2026-08-21, continuing Phase 2 after CLAIMPANES-001's refactor. Three disjoint new files, run in parallel; WorkspaceShell.tsx/renderState.ts are shared owned paths across all three and will need manual conflict resolution at integration, same as any legitimate concurrent edit to a shared dispatch point."
+    },
+    "APPLYPANE-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-21-wave17",
+      "notes": "Seeded 2026-08-21, continuing Phase 2 after CLAIMPANES-001's refactor. Three disjoint new files, run in parallel; WorkspaceShell.tsx/renderState.ts are shared owned paths across all three and will need manual conflict resolution at integration, same as any legitimate concurrent edit to a shared dispatch point."
+    },
+    "TEACHDRAFTPANE-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-21-wave17",
+      "notes": "Seeded 2026-08-21, continuing Phase 2 after CLAIMPANES-001's refactor. Three disjoint new files, run in parallel; WorkspaceShell.tsx/renderState.ts are shared owned paths across all three and will need manual conflict resolution at integration, same as any legitimate concurrent edit to a shared dispatch point."
     }
   }
 }
