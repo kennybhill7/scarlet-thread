@@ -1647,6 +1647,47 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "CLAIMPANES-001",
+      "title": "Phase 2: build Context, Theology, and Conviction as real sections (all reuse the claim model)",
+      "objective": "WORKSPACESHELL-001 stubbed six of the eight Passage Workspace sections as honest not-built-yet placeholders. Three of them -- Context, Theology, and Conviction -- write the SAME underlying record type ClaimComposer already produces (a typed StudyClaim), just a different ClaimKind each (interpretation for Context's original-audience attempt, theology for Theology, conviction for Conviction). No new table, no new sync entity, no new vault writer is needed for any of the three -- this is the cheapest real slice of Phase 2 remaining, which is why it goes first. Connect, Apply, and Teach are architecturally different (a UserConnection form, an Application bridge-fields form, a TeachingDraft/sections builder) and are deliberately NOT in this task's scope -- they need genuinely new UI this task must not attempt.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/components/workspace/",
+        "web/lib/workspace/",
+        "web/tests/workspace-shell.test.ts",
+        "web/tests/claim-panes.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/components/study/ClaimComposer.tsx",
+        "web/components/study/index.ts",
+        "web/lib/contracts/study-v2.ts",
+        "web/lib/sync/store.ts",
+        "web/app/(app)/study/[sessionId]/page.tsx",
+        "web/tests/study-composer.test.ts",
+        "web/tests/study-page.test.ts",
+        "docs/decisions/2026-08-18-teaching-not-theology.md",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "REFACTOR FIRST, before adding new sections: extract each of the eight sections currently inlined in components/workspace/WorkspaceShell.tsx into its own file under components/workspace/ (e.g. ReadSection.tsx, ObserveSection.tsx, ContextSection.tsx, TheologySection.tsx, ConvictionSection.tsx, plus a shared PlaceholderSection.tsx for whatever remains stubbed). WorkspaceShell.tsx keeps only the accordion shell and the per-section dispatch. This is not busywork -- it is what lets Connect/Apply/Theology/Teach be built as later, independent, non-conflicting tasks that each own one new file instead of three tasks all editing the same 200-line component. Every existing behavior (gating, expand-on-current-step, the Read and Observe sections exactly as READGATE-001 left them) must be preserved unweakened through the refactor -- prove it with the existing test suite passing unmodified before you add anything new.",
+        "THE ONE REAL DESIGN DECISION THIS TASK MUST MAKE AND DEFEND: ClaimComposer.tsx's own header comment documents a mutation-proved invariant that claim kind (and epistemic basis, confidence, doctrine status) never starts pre-selected -- read it in full before deciding anything. Decide explicitly whether Context/Theology/Conviction each mount ClaimComposer completely unmodified (showing the full eight-kind picker in every section, relying on the section's own heading to convey context), or whether ClaimComposer gains an additive, OPTIONAL prop that narrows which kinds are OFFERED for a given mount (never which one starts SELECTED -- the existing invariant is about default STATE, not available OPTIONS, and narrowing options while still requiring an explicit tap is a workflow/method decision, which BUILD_PLAN section 5.0 explicitly allows the app to make, not a MEANING decision, which it does not allow). If you choose to extend ClaimComposer, it moves from readOnlyPaths to ownedPaths for you and tests/study-composer.test.ts stays read-only and must keep passing completely unweakened and unedited -- the existing invariant test must still prove nothing starts pre-selected. Whichever way you decide, defend it in the commit message; this decision applies identically to Theology and Conviction, so do not make it three different ways in three sections.",
+        "Context section: unlocked per the existing gate (>=1 claim exists). Lets the learner attempt the original-audience meaning as a claim of kind interpretation (or the kind set your criterion-2 decision offers), through ClaimComposer/the vault writers only -- no new write path. Since no curated passage_contexts content exists yet (Phase 1's curated tables are unbuilt), render an honest 'no curated context yet for this passage' notice rather than fabricating content -- this mirrors this section's own BUILD_PLAN row, which explicitly allows that state.",
+        "Theology section: unlocked per the existing gate (>=1 claim exists, connection NOT required -- do not regate this; lib/workspace/gating.ts is read-only and already correct, mutation-proved in the prior wave). Lets the learner record a claim of kind theology with a DoctrineStatus, through the same composer path. Render 'no curated doctrine content yet for this passage' honestly, same reasoning as Context.",
+        "Conviction section: NEVER gated (always reachable, per the existing gate computation -- do not touch it). Lets the learner record a claim of kind conviction. BUILD_PLAN section 3.3 states conviction claims are private-by-design across five surfaces (analytics, server telemetry, sharing, AI retrieval, teaching promotion) -- four of those five do not exist anywhere in this codebase yet (verify this yourself rather than trust this description: grep for any existing analytics/telemetry/sharing/AI-retrieval surface that reads StudyClaim rows) so there is nothing to newly exclude from; do NOT build speculative privacy infrastructure for features that do not exist. The one concrete obligation THIS task has: nothing you add anywhere in your ownedPaths may expose a conviction claim to any surface outside the OWNING workspace's own view of its own data. State this check explicitly in your commit rather than silently assuming it.",
+        "Every existing gating test and the READGATE-001 read-gate test in tests/workspace-shell.test.ts and tests/study-page.test.ts keep passing completely unweakened and unedited -- you are adding three new sections' real content, not touching how Read or Observe already work, gate, or render.",
+        "Testable without a DOM per this repo's established pattern: any new render-state decision (which kind options a section offers, whether the curated-content notice shows) lives in a pure function under lib/workspace/, not inline JSX logic a test cannot reach.",
+        "Mutation-prove: (a) whichever kind-scoping mechanism you built in criterion 2, by breaking it and confirming a NAMED test fails; (b) that Theology stays reachable with zero connections survives your refactor -- rerun the EXISTING mutation proof from the prior wave (couple Theology's gate to a connect-attempt) and confirm it still fails the same named test it did before, proving your refactor did not quietly change gating behavior."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }
