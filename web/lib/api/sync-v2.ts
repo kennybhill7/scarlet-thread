@@ -26,6 +26,7 @@ import {
   STUDY_SESSION_CONNECTION_STATES,
   STUDY_SESSION_MODES,
   STUDY_SESSION_WORKFLOW_STATES,
+  TEACHING_SECTION_KINDS,
   USER_CONNECTION_STATUSES,
   isPersonalResonanceEvidenceLabelValid,
 } from "@/lib/contracts/study-v2";
@@ -406,6 +407,31 @@ export const syncTeachingDraftV2Schema = z
   })
   .strict();
 
+/**
+ * entity: "teachingSection" — `TeachingSection` (`lib/contracts/study-v2.ts`).
+ * TEACHSECTIONSYNC-001, the ninth sync entity: its own top-level entity,
+ * naming its parent draft via `draftId` (never nested inside the
+ * `teachingDraft` payload — the same "own entity, named parent" shape
+ * SYNCGAP-001 already established for `evidence`/`motifSighting`). `kind`
+ * validates against `TEACHING_SECTION_KINDS`, the vocabulary
+ * `lib/contracts/study-v2.ts` now exports (closing the gap `db/schema.ts`'s
+ * own header flagged).
+ */
+export const syncTeachingSectionV2Schema = z
+  .object({
+    id: z.string().min(1).max(200),
+    workspaceId: z.string().min(1).max(200),
+    draftId: z.string().min(1).max(200),
+    kind: z.enum(TEACHING_SECTION_KINDS),
+    sortOrder: z.number().int(),
+    body: z.string().min(1).max(100_000),
+    revision: z.number().int().nonnegative(),
+    createdAt: timestampSchema,
+    updatedAt: timestampSchema,
+    deletedAt: timestampSchema.nullish(),
+  })
+  .strict();
+
 const payloadSchemasByEntity: Record<SyncEntityV2, ZodType> = {
   session: syncStudySessionV2Schema,
   claim: syncStudyClaimV2Schema,
@@ -415,6 +441,7 @@ const payloadSchemasByEntity: Record<SyncEntityV2, ZodType> = {
   connection: syncUserConnectionV2Schema,
   application: syncApplicationV2Schema,
   teachingDraft: syncTeachingDraftV2Schema,
+  teachingSection: syncTeachingSectionV2Schema,
 };
 
 // ---------------------------------------------------------------------------

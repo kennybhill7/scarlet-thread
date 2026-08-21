@@ -90,6 +90,7 @@ const PRIMARY_KEYS: Record<string, string[]> = {
   user_connections: ["id"],
   applications: ["id"],
   teaching_drafts: ["id"],
+  teaching_sections: ["id"],
   claim_evidence: ["id"],
   motif_sightings: ["id"],
   sync_receipts: ["userId", "opId"],
@@ -103,6 +104,7 @@ const MODELLED_TABLES: Table[] = [
   schema.userConnections,
   schema.applications,
   schema.teachingDrafts,
+  schema.teachingSections,
   schema.claimEvidence,
   schema.motifSightings,
   schema.syncReceipts,
@@ -555,6 +557,22 @@ function validTeachingDraftPayload(overrides: Row = {}) {
   };
 }
 
+function validTeachingSectionPayload(overrides: Row = {}) {
+  return {
+    id: "section-1",
+    workspaceId: "workspace-a",
+    draftId: "teaching-1",
+    kind: "outline",
+    sortOrder: 0,
+    body: "I. The seed promise in Genesis 3:15.",
+    revision: 1,
+    createdAt: TS,
+    updatedAt: TS,
+    deletedAt: null,
+    ...overrides,
+  };
+}
+
 
 /**
  * SYNCGAP-001 made claim_evidence and motif_sightings their own sync entities,
@@ -605,6 +623,7 @@ const validPayloadByEntity: Record<SyncEntityV2, (overrides?: Row) => Row> = {
   motifSighting: validMotifSightingPayload,
   application: validApplicationPayload,
   teachingDraft: validTeachingDraftPayload,
+  teachingSection: validTeachingSectionPayload,
 };
 
 function makeOp(entity: SyncEntityV2, overrides: Partial<SyncOpV2> = {}): SyncOpV2 {
@@ -685,6 +704,7 @@ test("every v2 entity applies a valid create (baseRevision null) into its own ta
   assert.equal(rowsOf("user_connections").length, 1);
   assert.equal(rowsOf("applications").length, 1);
   assert.equal(rowsOf("teaching_drafts").length, 1);
+  assert.equal(rowsOf("teaching_sections").length, 1);
 });
 
 test("idempotency: replaying the same opId is accepted and applied exactly once", async () => {
@@ -799,6 +819,90 @@ test("cross-tenant id-squat: a hostile op reusing another workspace's entity id 
 
   assert.equal(rowsOf("study_claims").length, 1, "no second row must be created for workspace-b");
   const [row] = rowsOf("study_claims");
+  assert.equal(row.workspaceId, "workspace-a", "the victim's row must be untouched");
+  assert.equal(row.revision, 1);
+});
+
+// ---------------------------------------------------------------------------
+// TEACHSECTIONSYNC-001 — the ninth entity, `teachingSection`. Acceptance
+// criterion 3: "Tenant scoping, idempotent replay, and revision-conflict
+// rejection must all work identically to every other entity -- prove each
+// with a hostile test," mirroring the "session"/"claim" hostile tests above.
+// ---------------------------------------------------------------------------
+
+test("teachingSection: idempotency -- replaying the same opId is accepted and applied exactly once", async () => {
+  const op = makeOp("teachingSection");
+  assert.deepEqual(await pushSyncOpsV2("user-a", [op]), []);
+  assert.equal(rowsOf("teaching_sections").length, 1);
+  assert.equal(rowsOf("sync_receipts").length, 1);
+
+  const replay = await pushSyncOpsV2("user-a", [op]);
+  assert.deepEqual(replay, []);
+  assert.equal(rowsOf("teaching_sections").length, 1, "replay must not create a second row");
+  assert.equal(rowsOf("sync_receipts").length, 1, "replay must not create a second receipt");
+});
+
+test("teachingSection: baseRevision mismatch against an existing row is rejected and the row is unchanged", async () => {
+  const create = makeOp("teachingSection", { opId: uuid(60) });
+  assert.deepEqual(await pushSyncOpsV2("user-a", [create]), []);
+
+  const staleUpdate = makeOp("teachingSection", {
+    opId: uuid(61),
+    baseRevision: 99,
+    payload: validTeachingSectionPayload({ revision: 2, body: "A different outline." }),
+  });
+  const rejected = await pushSyncOpsV2("user-a", [staleUpdate]);
+  assert.equal(rejected.length, 1);
+  assert.match(rejected[0].reason, /Revision conflict/);
+
+  const [row] = rowsOf("teaching_sections");
+  assert.equal(row.revision, 1, "stale update must not change the stored revision");
+  assert.equal(row.body, "I. The seed promise in Genesis 3:15.", "stale update must not change stored fields");
+});
+
+test("teachingSection: a matching baseRevision applies and advances the stored revision", async () => {
+  const create = makeOp("teachingSection", { opId: uuid(62) });
+  assert.deepEqual(await pushSyncOpsV2("user-a", [create]), []);
+
+  const update = makeOp("teachingSection", {
+    opId: uuid(63),
+    baseRevision: 1,
+    payload: validTeachingSectionPayload({ revision: 2, body: "A revised outline.", sortOrder: 1 }),
+  });
+  assert.deepEqual(await pushSyncOpsV2("user-a", [update]), []);
+
+  const [row] = rowsOf("teaching_sections");
+  assert.equal(row.revision, 2);
+  assert.equal(row.body, "A revised outline.");
+  assert.equal(row.sortOrder, 1);
+});
+
+test("teachingSection: cross-tenant -- an op naming a workspace the acting user does not own is rejected", async () => {
+  const hostileOp = makeOp("teachingSection", {
+    payload: validTeachingSectionPayload({ workspaceId: "workspace-b" }),
+  });
+  const rejected = await pushSyncOpsV2("user-a", [hostileOp]);
+  assert.equal(rejected.length, 1);
+  assert.match(rejected[0].reason, /Workspace does not belong to the acting user/);
+  assert.equal(rowsOf("teaching_sections").length, 0);
+});
+
+test("teachingSection: cross-tenant id-squat -- a hostile op reusing another workspace's entity id is rejected without touching the victim row", async () => {
+  const victimCreate = makeOp("teachingSection", { opId: uuid(64) }); // section-1 under workspace-a
+  assert.deepEqual(await pushSyncOpsV2("user-a", [victimCreate]), []);
+
+  const squatOp = makeOp("teachingSection", {
+    opId: uuid(65),
+    baseRevision: null,
+    payload: validTeachingSectionPayload({ id: "section-1", workspaceId: "workspace-b" }),
+    entityId: "section-1",
+  });
+  const rejected = await pushSyncOpsV2("user-b", [squatOp]);
+  assert.equal(rejected.length, 1);
+  assert.match(rejected[0].reason, /Entity ID belongs to another workspace/);
+
+  assert.equal(rowsOf("teaching_sections").length, 1, "no second row must be created for workspace-b");
+  const [row] = rowsOf("teaching_sections");
   assert.equal(row.workspaceId, "workspace-a", "the victim's row must be untouched");
   assert.equal(row.revision, 1);
 });
@@ -1279,4 +1383,44 @@ test("after MUTPROVE-APPLYSCHEMA-2, a genuine partial draft persists again (harn
   assert.deepEqual(rejected, []);
   const [row] = rowsOf("applications");
   assert.equal(row.originalAudienceMeaning, "");
+});
+
+
+// ---------------------------------------------------------------------------
+// TEACHSECTIONSYNC-001 — mutation proof that `planTeachingSectionOp` (the
+// new plan*Op handler this task added) is actually wired through the SAME
+// `ownsWorkspace` tenant check every other entity's handler goes through,
+// not a copy that only looks identical. Reuses `withSyncV2Mutation`'s
+// existing backup/restore/hash-diff machinery above (same technique, applied
+// to a teachingSection-shaped hostile op instead of a session-shaped one).
+// ---------------------------------------------------------------------------
+
+test("MUTPROVE-TEACHSECTION-1 removing the surviving ownsWorkspace check lets a hostile cross-workspace teachingSection push through pushSyncOpsV2 directly", async () => {
+  await withSyncV2Mutation(
+    /const owns=await ownsWorkspace\(userId,workspaceId\);/,
+    "const owns=true;",
+    async (mutated) => {
+      const hostileOp = makeOp("teachingSection", {
+        payload: validTeachingSectionPayload({ workspaceId: "workspace-b" }),
+      });
+      const rejected = await mutated.pushSyncOpsV2("user-a", [hostileOp]);
+      assert.deepEqual(
+        rejected,
+        [],
+        "MUTPROVE-TEACHSECTION-1: with the tenant check gone, user-a's " +
+          "teachingSection op naming workspace-b must be ACCEPTED -- that " +
+          "acceptance is the leak this guard prevents",
+      );
+    },
+  );
+});
+
+test("after MUTPROVE-TEACHSECTION-1, a hostile cross-workspace teachingSection push is refused again through pushSyncOpsV2 (harness hygiene)", async () => {
+  const hostileOp = makeOp("teachingSection", {
+    payload: validTeachingSectionPayload({ workspaceId: "workspace-b" }),
+  });
+  const rejected = await pushSyncOpsV2("user-a", [hostileOp]);
+  assert.equal(rejected.length, 1, "the real guard must still refuse it");
+  assert.match(rejected[0].reason, /Workspace does not belong to the acting user/);
+  assert.equal(rowsOf("teaching_sections").length, 0);
 });

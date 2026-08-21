@@ -27,6 +27,7 @@ import type {
   StudyClaim,
   StudySession,
   TeachingDraft,
+  TeachingSection,
   UserConnection,
 } from "@/lib/contracts/study-v2";
 import {
@@ -37,22 +38,24 @@ import {
   syncStudyClaimV2Schema,
   syncStudySessionV2Schema,
   syncTeachingDraftV2Schema,
+  syncTeachingSectionV2Schema,
   syncUserConnectionV2Schema,
 } from "@/lib/api/sync-v2";
 
 /**
- * The eight v2 study entities BUILD_PLAN.md:144 (as reconciled by
- * SYNCGAP-001) added to `SYNC_ENTITIES_V2`, mapped to the `study-v2.ts`
- * record interface each carries. This is the ONE hand-written list this
- * module needs — TypeScript, not a runtime array, so it is checked at
- * compile time: `V2EntityStores` below is `{ [K in SyncEntityV2]: ... }`,
- * a mapped type OVER `SyncEntityV2` itself, so if SYNC_ENTITIES_V2 grows a
- * ninth entity, `V2EntityRecordMap` is missing that key and every place
- * that indexes it (the IndexedDB schema, the payload-schema dispatch table)
- * fails to compile until this map is updated. Object-store *creation* and
- * the payload-schema *dispatch table* below both key off `SYNC_ENTITIES_V2`
- * at runtime, not off a second hand-typed list of the entity name strings —
- * see the upgrade() callback and v2PayloadSchemas.
+ * The nine v2 study entities `SYNC_ENTITIES_V2` carries (BUILD_PLAN.md:144's
+ * original eight, as reconciled by SYNCGAP-001, plus `teachingSection` added
+ * by TEACHSECTIONSYNC-001), mapped to the `study-v2.ts` record interface each
+ * carries. This is the ONE hand-written list this module needs — TypeScript,
+ * not a runtime array, so it is checked at compile time: `V2EntityStores`
+ * below is `{ [K in SyncEntityV2]: ... }`, a mapped type OVER `SyncEntityV2`
+ * itself, so if SYNC_ENTITIES_V2 grows a tenth entity, `V2EntityRecordMap` is
+ * missing that key and every place that indexes it (the IndexedDB schema,
+ * the payload-schema dispatch table) fails to compile until this map is
+ * updated. Object-store *creation* and the payload-schema *dispatch table*
+ * below both key off `SYNC_ENTITIES_V2` at runtime, not off a second
+ * hand-typed list of the entity name strings — see the upgrade() callback
+ * and v2PayloadSchemas.
  */
 interface V2EntityRecordMap {
   session: StudySession;
@@ -63,6 +66,7 @@ interface V2EntityRecordMap {
   connection: UserConnection;
   application: Application;
   teachingDraft: TeachingDraft;
+  teachingSection: TeachingSection;
 }
 
 /** One IndexedDB object store per v2 entity, keyed by SyncEntityV2 itself. */
@@ -149,19 +153,37 @@ async function withWriteLock<T>(run: () => Promise<T>): Promise<T> {
   return locks.request(WRITE_LOCK_NAME, { mode: "shared" }, () => run());
 }
 
-const database = openDB<BibleBrainDb>("bible-brain", 4, {
+/**
+ * The nine v2 entities MINUS `teachingSection`, frozen exactly as
+ * `SYNC_ENTITIES_V2` read at schema version 4 (V2VAULT-001) — NOT derived
+ * live from `SYNC_ENTITIES_V2` any more, now that TEACHSECTIONSYNC-001 has
+ * grown that array to nine members. The `oldVersion < 4` block below used to
+ * loop the live array directly (safe when the array and "what version 4
+ * created" were the same eight things); deriving it from the now-nine-member
+ * array would try to create the `teachingSection` store a second time in the
+ * dedicated `oldVersion < 5` block below, the first time a fresh database
+ * (oldVersion 0) runs both blocks back to back in one upgrade transaction.
+ * Freezing this list is what makes each version block additive-only and
+ * historically accurate, matching V2VAULT-001's own pattern of never
+ * touching what an earlier block already did.
+ */
+const V2_ENTITIES_AT_SCHEMA_VERSION_4 = SYNC_ENTITIES_V2.filter(
+  (entity): entity is Exclude<SyncEntityV2, "teachingSection"> => entity !== "teachingSection",
+);
+
+const database = openDB<BibleBrainDb>("bible-brain", 5, {
   upgrade(db, oldVersion) {
     // Every block below is additive-only (createObjectStore / createIndex),
     // gated on the exact prior version, and NEVER deletes or recreates a
     // store an earlier block already made. That is what makes this an
-    // UPGRADE and not a wipe: a database opened at oldVersion 1, 2, or 3
+    // UPGRADE and not a wipe: a database opened at oldVersion 1, 2, 3, or 4
     // keeps every store and every row it already had — idb/IndexedDB run
     // upgrade() once, transactionally, across every version between
     // oldVersion and the new version, so a v1-only database still gets the
-    // v2/v3/v4 blocks applied on top of its existing data rather than
+    // v2/v3/v4/v5 blocks applied on top of its existing data rather than
     // replacing it. tests/vault-v2.test.ts proves this by opening a real
     // (fake-indexeddb) database at version 1, writing data, then reopening
-    // through this exact code path at version 4 and asserting that data
+    // through this exact code path at version 5 and asserting that data
     // survived untouched.
     if (oldVersion < 1) {
       const entries = db.createObjectStore("entries", { keyPath: "id" });
@@ -186,20 +208,26 @@ const database = openDB<BibleBrainDb>("bible-brain", 4, {
       people.createIndex("updatedAt", "updatedAt");
     }
     if (oldVersion < 4) {
-      // One object store per v2 entity, derived from SYNC_ENTITIES_V2 at
-      // runtime rather than hand-listing "session", "claim", ... here — a
-      // hand-list is exactly how SYNCPERSIST-001 shipped against six
-      // entities while the contract had grown to eight (V2VAULT-001
-      // acceptance criteria). Every v2 record interface in study-v2.ts
-      // carries a plain `id: string` primary key (unlike v1, where thread
-      // keys on `slug` and progress on `chapter`), so one keyPath covers
-      // all eight.
-      for (const entity of SYNC_ENTITIES_V2) {
+      // One object store per v2 entity that existed as of schema version 4 —
+      // see V2_ENTITIES_AT_SCHEMA_VERSION_4's own comment for why this no
+      // longer loops SYNC_ENTITIES_V2 directly. Every v2 record interface in
+      // study-v2.ts carries a plain `id: string` primary key (unlike v1,
+      // where thread keys on `slug` and progress on `chapter`), so one
+      // keyPath covers all of them.
+      for (const entity of V2_ENTITIES_AT_SCHEMA_VERSION_4) {
         const store = db.createObjectStore(entity, { keyPath: "id" });
         store.createIndex("updatedAt", "updatedAt");
       }
       const queueV2 = db.createObjectStore("syncQueueV2", { keyPath: "opId" });
       queueV2.createIndex("clientTime", "clientTime");
+    }
+    if (oldVersion < 5) {
+      // TEACHSECTIONSYNC-001 — the ninth v2 entity, added on its own
+      // additive version bump exactly like every block above: a database
+      // already at version 4 keeps its eight existing v2 stores and every
+      // row in them untouched, and gains only this one new store.
+      const teachingSectionStore = db.createObjectStore("teachingSection", { keyPath: "id" });
+      teachingSectionStore.createIndex("updatedAt", "updatedAt");
     }
   },
 });
@@ -339,11 +367,12 @@ export async function saveLocalPerson(person: Person) {
 
 // ---------------------------------------------------------------------------
 // v2 vault — session, claim, evidence, motif, motifSighting, connection,
-// application, teachingDraft (V2VAULT-001). BUILD_PLAN 3.4: entity write and
-// outbox op in ONE IndexedDB transaction; tenet 7: every browser write goes
-// through the outbox. This is the local half of that contract — the eight v2
-// entities STUDYV2-001/SYNCV2-001/SYNCGAP-001 defined were otherwise
-// unreachable from an offline device.
+// application, teachingDraft (V2VAULT-001), and teachingSection
+// (TEACHSECTIONSYNC-001). BUILD_PLAN 3.4: entity write and outbox op in ONE
+// IndexedDB transaction; tenet 7: every browser write goes through the
+// outbox. This is the local half of that contract — the v2 entities
+// STUDYV2-001/SYNCV2-001/SYNCGAP-001/TEACHSECTIONSYNC-001 defined were
+// otherwise unreachable from an offline device.
 // ---------------------------------------------------------------------------
 
 /**
@@ -366,6 +395,7 @@ const v2PayloadSchemas: Record<SyncEntityV2, ZodTypeAny> = {
   connection: syncUserConnectionV2Schema,
   application: syncApplicationV2Schema,
   teachingDraft: syncTeachingDraftV2Schema,
+  teachingSection: syncTeachingSectionV2Schema,
 };
 
 /**
@@ -530,6 +560,10 @@ export async function saveLocalApplication(application: Application): Promise<vo
 
 export async function saveLocalTeachingDraft(draft: TeachingDraft): Promise<void> {
   await saveLocalV2Entity("teachingDraft", draft);
+}
+
+export async function saveLocalTeachingSection(section: TeachingSection): Promise<void> {
+  await saveLocalV2Entity("teachingSection", section);
 }
 
 /**

@@ -355,6 +355,33 @@ export function isResponseType(value: string): value is ResponseType {
   return (RESPONSE_TYPES as readonly string[]).includes(value);
 }
 
+/**
+ * TEACHSECTIONSYNC-001 — `teaching_sections.kind`. BUILD_PLAN.md §3.3 and
+ * THEOLOGY_MASTER_BUILD_PLAN.md §12.3 give the SAME vocabulary verbatim for
+ * this column (no conflict to report between the two docs here), but until
+ * this task neither vocabulary was exported from this module — `db/schema.ts`
+ * transcribed it by hand instead, with its own comment naming this exact
+ * follow-up ("add `TEACHING_SECTION_KINDS` to lib/contracts/study-v2.ts and
+ * switch this line to import it"). This is that export; `db/schema.ts` now
+ * imports it rather than duplicating the literal array.
+ */
+export const TEACHING_SECTION_KINDS = [
+  "outline",
+  "context",
+  "connection",
+  "theology",
+  "illustration",
+  "objection",
+  "application",
+  "not_justified",
+  "discussion",
+  "prayer",
+] as const;
+export type TeachingSectionKind = (typeof TEACHING_SECTION_KINDS)[number];
+export function isTeachingSectionKind(value: string): value is TeachingSectionKind {
+  return (TEACHING_SECTION_KINDS as readonly string[]).includes(value);
+}
+
 // ---------------------------------------------------------------------------
 // §3.3 — record interfaces for the v2 entities this task owns. Every one
 // carries `workspaceId` and an integer `revision` (§3.3: "Every table below
@@ -517,6 +544,33 @@ export interface TeachingDraft {
   gospelConnection: string;
   /** No enumerated values in either source doc — see gap #3 above. */
   status: string;
+  revision: number;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
+}
+
+/**
+ * TEACHSECTIONSYNC-001 — `teaching_sections` (BUILD_PLAN §3.3: "ordered
+ * sections carry kind ..., sortOrder, body"; THEOLOGY_MASTER_BUILD_PLAN.md
+ * §12.3 gives the same four content columns, no `revision`/timestamps listed
+ * there — those two are added here anyway, matching `db/schema.ts`'s real
+ * `teaching_sections` table exactly (read, not guessed) and BUILD_PLAN §3.3's
+ * header rule that every v2 table carries `workspaceId` and an integer
+ * `revision` from day one, same as every other interface in this section).
+ * `draftId` is the required parent FK (BUILD_PLAN §3.3: "`teaching_drafts` +
+ * `teaching_sections`"; `db/schema.ts`'s `teaching_sections_draft_workspace_fk`
+ * is NOT nullable), named directly rather than nested — the same shape
+ * `TeachingDraft.sessionId` and every other parent-naming field in this file
+ * already uses.
+ */
+export interface TeachingSection {
+  id: string;
+  workspaceId: string;
+  draftId: string;
+  kind: TeachingSectionKind;
+  sortOrder: number;
+  body: string;
   revision: number;
   createdAt: string;
   updatedAt: string;
