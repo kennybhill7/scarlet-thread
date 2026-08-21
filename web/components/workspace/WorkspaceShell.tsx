@@ -13,6 +13,7 @@ import { ObserveSection } from "./ObserveSection";
 import { PlaceholderSection } from "./PlaceholderSection";
 import { ReadSection } from "./ReadSection";
 import { lockBadgeStyle, noticeStyle, productNameStyle, sectionStyle, summaryStyle } from "./styles";
+import { TeachSection } from "./TeachSection";
 import { TheologySection } from "./TheologySection";
 
 /**
@@ -73,12 +74,19 @@ import { TheologySection } from "./TheologySection";
  *     UNCONDITIONALLY — never gated, by construction, not merely because
  *     `computeStepGates` currently always returns `unlocked: true` for it —
  *     see `ConvictionSection.tsx`.
- *   - Connect/Apply/Teach ALWAYS render an honest "not built yet"
- *     placeholder (`PlaceholderSection`) — that is the entirety of their
- *     content in this task, locked or not. Building their real
- *     functionality is deliberately OUT of this task's scope (they are
- *     architecturally different: a UserConnection form, an Application
- *     bridge-fields form, a TeachingDraft builder) — see this task's commit
+ *   - Teach mounts `TeachSection` (TEACHDRAFTPANE-001) — NOT a narrowed
+ *     `ClaimComposer`, since a `TeachingDraft` is an architecturally
+ *     different record — once `hasFinalizedApplication(applications)` is
+ *     true (`lib/workspace/gating.ts`, untouched by this task); a
+ *     `LockedNotice` otherwise. Draft-level fields only (title/bigIdea/
+ *     audience/gospelConnection/durationMinutes) — the section-by-section
+ *     outline builder is deliberately out of scope; see `TeachSection.tsx`'s
+ *     own header for the verified (not asserted) scope boundary.
+ *   - Connect/Apply ALWAYS render an honest "not built yet" placeholder
+ *     (`PlaceholderSection`) — that is the entirety of their content so far,
+ *     locked or not. Building their real functionality is deliberately OUT
+ *     of scope here (they are architecturally different: a UserConnection
+ *     form, an Application bridge-fields form) — see this task's commit
  *     message.
  */
 
@@ -150,6 +158,9 @@ export function WorkspaceShell({
               offeredKinds={section.offeredKinds ?? []}
               onSaved={handleClaimSaved}
             />
+          ) : null}
+          {section.contentMode === "teach" ? (
+            <TeachSection workspaceId={workspaceId} session={session} unlocked={section.unlocked} />
           ) : null}
           {section.contentMode === "placeholder" ? <PlaceholderSection section={section} /> : null}
         </details>

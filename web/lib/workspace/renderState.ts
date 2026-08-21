@@ -74,9 +74,23 @@
  * `computeStepGates` already returns `unlocked: true` for it and, more
  * importantly, because `ConvictionSection.tsx` itself never reads an
  * `unlocked` prop at all — "never gated" is a property of that component,
- * not an inference from today's gate value. Connect/Apply/Teach remain
+ * not an inference from today's gate value. Connect/Apply remain
  * "placeholder" — architecturally different, out of this task's scope (see
  * `WorkspaceShell.tsx`'s header).
+ *
+ * TEACHDRAFTPANE-001 (2026-08-21) extends the SAME exception a fourth time,
+ * to Teach — its own `contentMode` ("teach"), gated on the EXISTING
+ * `teach: hasFinalizedApplication(applications)` gate (`lib/workspace/
+ * gating.ts`, untouched). Unlike Context/Theology/Conviction, Teach's real
+ * surface is NOT a narrowed `ClaimComposer` mount — a `TeachingDraft` is an
+ * architecturally different record (title/bigIdea/audience/durationMinutes/
+ * gospelConnection, not a `StudyClaim`), so it gets its own composer,
+ * `TeachSection.tsx`, writing through the already-built
+ * `saveLocalTeachingDraft` vault writer. Deliberately DRAFT-LEVEL FIELDS
+ * ONLY, not the section-by-section outline builder BUILD_PLAN also
+ * describes — see `TeachSection.tsx`'s own header for the verified (not
+ * merely asserted) scope boundary. Connect/Apply remain the only two
+ * "placeholder" sections left.
  * ---------------------------------------------------------------------------
  */
 
@@ -110,9 +124,9 @@ export const STEP_LABELS: Record<StudySessionStep, string> = {
   teach: "Teach",
 };
 
-export type SectionContentMode = "read" | "observe" | "context" | "theology" | "conviction" | "placeholder";
+export type SectionContentMode = "read" | "observe" | "context" | "theology" | "conviction" | "teach" | "placeholder";
 
-/** Which of the eight sections has a REAL surface built in this task; the rest (Connect/Apply/Teach) are honest placeholders (deliberate scope boundary — see WorkspaceShell.tsx). */
+/** Which of the eight sections has a REAL surface built so far; Connect/Apply remain honest placeholders (deliberate scope boundary — see WorkspaceShell.tsx / TeachSection.tsx). */
 const STEP_CONTENT_MODE: Record<StudySessionStep, SectionContentMode> = {
   read: "read",
   observe: "observe",
@@ -121,7 +135,7 @@ const STEP_CONTENT_MODE: Record<StudySessionStep, SectionContentMode> = {
   theology: "theology",
   conviction: "conviction",
   apply: "placeholder",
-  teach: "placeholder",
+  teach: "teach",
 };
 
 /**
