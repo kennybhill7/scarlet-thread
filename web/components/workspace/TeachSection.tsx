@@ -1,67 +1,138 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 
+import { humanizeToken, optionsFrom } from "@/components/study/ClaimComposer";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { Field } from "@/components/ui/Field";
-import type { StudySession, TeachingDraft } from "@/lib/contracts/study-v2";
-import { saveLocalTeachingDraft } from "@/lib/sync/store";
+import {
+  TEACHING_SECTION_KINDS,
+  type StudySession,
+  type TeachingDraft,
+  type TeachingSection,
+  type TeachingSectionKind,
+} from "@/lib/contracts/study-v2";
+import { listLocalV2Entities, saveLocalTeachingDraft, saveLocalTeachingSection } from "@/lib/sync/store";
 
 import { LockedNotice } from "./LockedNotice";
 import { bodyStyle, noticeStyle } from "./styles";
 
 /**
- * TEACHDRAFTPANE-001 — BUILD_PLAN §4 row 8, "Teach — Teach It Back".
- * Unlocked per the EXISTING gate (`lib/workspace/gating.ts`'s
+ * TEACHDRAFTPANE-001 (wave 17) — BUILD_PLAN §4 row 8, "Teach — Teach It
+ * Back". Unlocked per the EXISTING gate (`lib/workspace/gating.ts`'s
  * `teach: hasFinalizedApplication(applications)`, untouched by this task) —
  * >=1 finalized `Application` exists for the session. Writes a
  * `TeachingDraft` through the ALREADY-BUILT `saveLocalTeachingDraft` vault
  * writer (`lib/sync/store.ts`, read-only here) — the same "one write path"
  * discipline every other real section in this shell follows; this component
- * has no IndexedDB access of its own.
+ * has no IndexedDB access of its own beyond the store's own exported
+ * functions.
  *
  * ---------------------------------------------------------------------------
- * SCOPE BOUNDARY — draft-level fields ONLY, not the section-by-section
- * outline builder BUILD_PLAN §4 also describes. VERIFIED, not merely
- * asserted — see this task's own commit message for the exact grep commands
- * run and their verbatim output:
+ * TEACHOUTLINE-001 (this task) — the section-by-section outline builder.
  *
- *   `grep -rn "teachingSection\|TeachingSection\|teaching_sections"` across
- *   `lib/sync/store.ts`, `lib/contracts/sync-v2.ts`, and `lib/api/sync-v2.ts`
- *   returns NOTHING in all three files. A `teaching_sections` Postgres table
- *   does exist (`db/schema.ts`'s `teachingSections`/`teachingSectionKindEnum`),
- *   but `SYNC_ENTITIES_V2` (`lib/contracts/sync-v2.ts`) lists exactly eight
- *   entities — `session`, `claim`, `evidence`, `motif`, `motifSighting`,
- *   `connection`, `application`, `teachingDraft` — and `teachingSection` is
- *   not one of them, and `lib/sync/store.ts` has no `saveLocalTeachingSection`
- *   (or similarly named) writer at all. Building the ordered
- *   kind/sortOrder/body outline builder BUILD_PLAN describes would require
- *   adding a NINTH sync entity across the contract (`lib/contracts/
- *   sync-v2.ts`), the API validation layer (`lib/api/sync-v2.ts`), and the
- *   vault (`lib/sync/store.ts`) — files this task does not own and must not
- *   speculatively touch. This component therefore builds ONLY the four
- *   `TeachingDraft` top-level fields (title/bigIdea/audience/
- *   gospelConnection) plus the format-preset -> durationMinutes mapping, and
- *   tells the learner exactly that (see `teach-outline-not-available-notice`
- *   below) rather than presenting a broken or silently absent "add section"
- *   control with no explanation. The outline builder is explicit follow-up
- *   work, gated behind that sync-entity addition landing first.
+ * TEACHSECTIONSYNC-001 (wave 18, already merged) added the ninth sync entity
+ * this file's own prior header named as the blocker: `TeachingSection`
+ * (`lib/contracts/study-v2.ts`, read-only here), `saveLocalTeachingSection`
+ * and the generic `listLocalV2Entities` reader (`lib/sync/store.ts`, both
+ * read-only here). This task builds ONLY the UI on top of that
+ * already-built plumbing — no new sync entity, no new write path, no new
+ * IndexedDB access of its own.
+ *
+ * WHICH DRAFT DOES THE OUTLINE ATTACH TO? A session could in principle have
+ * more than one `TeachingDraft` (nothing stops a learner from saving the
+ * draft form twice). `pickCurrentDraft` below resolves this the same way
+ * every "most recent wins" default in this codebase already does: the
+ * non-deleted `TeachingDraft` for this session with the LATEST `createdAt`
+ * (ties broken by `id` descending — arbitrary but deterministic, never
+ * `Math.random()` or array order). This is a plain default, not a full
+ * picker — a learner with two real, distinct drafts for one session has no
+ * way to choose which one they are outlining, and no way to see the other
+ * exists. If that ever stops being good enough, a future task needs: (a) a
+ * draft-selector control here (chips or a dropdown over
+ * `listLocalV2Entities("teachingDraft")` filtered by `sessionId`, exactly
+ * the same read this task already does), and (b) the outline's `draftId`
+ * following whichever draft is selected rather than always the newest.
+ *
+ * SOFT DELETE, NOT HARD DELETE (acceptance criterion 6): removing a section
+ * sets `deletedAt` (via `buildRemovedSectionRecord`) and persists that
+ * through the real vault writer — it does NOT remove the row from
+ * IndexedDB. This matches EVERY other v2 entity's own convention
+ * (`lib/contracts/study-v2.ts`'s `deletedAt?: string | null` on every one of
+ * the nine interfaces, and `StudySection`'s own sibling entities all honor
+ * it) and is the only choice consistent with this app's sync model: a
+ * silent hard-delete here would have no trace to reconcile against a server
+ * pull, unlike every other delete in this codebase. `activeSectionsForDraft`
+ * filters `deletedAt`-set rows out of what renders, exactly the same
+ * "filter after write, never delete the write" shape `db/schema.ts`'s
+ * soft-delete columns already assume everywhere else.
+ *
+ * KIND PICKER (acceptance criteria 1, 7, 8b): `TeachOutlinePanel` below
+ * derives its kind chips from `optionsFrom(TEACHING_SECTION_KINDS)` — the
+ * SAME `optionsFrom`/`humanizeToken` pair `ClaimComposer.tsx`'s own claim
+ * kind picker and `ConnectSection.tsx`'s connection-type picker already use
+ * (read-only imports, not re-implemented here) — never a retyped literal
+ * list. `humanizeToken` is a MECHANICAL string transform (split on `_`,
+ * capitalize) with no per-kind lookup table, so "objection" renders
+ * "Objection" and "not_justified" renders "Not justified" and nothing more
+ * — no kind, "not_justified"/"objection" included, gets an added
+ * description, example, or hint about what a passage means. A learner
+ * recording an "objection" or a "not_justified" note is doing THEIR OWN
+ * reasoning about what does or doesn't hold; this UI supplies the category
+ * label only, never the verdict. `tests/teach-pane.test.ts`'s dedicated
+ * ASSERTION-LINE test proves this against every kind in
+ * `TEACHING_SECTION_KINDS`, not just the free-text body field.
+ *
+ * "NOTHING DEFAULTS" (acceptance criterion 7): `BLANK_SECTION_FIELDS.kind`
+ * is `null`; no chip in `TeachOutlinePanel`'s kind fieldset ever renders
+ * `aria-pressed="true"` until a learner clicks one — the same discipline
+ * `ClaimComposer`'s `BLANK_CLAIM_SELECTION` and `ConnectSection`'s
+ * `BLANK_CONNECTION_SELECTION` already enforce and this codebase already
+ * mutation-proves for those two pickers.
+ *
+ * SORT ORDER (acceptance criterion 4): `nextSectionSortOrder` assigns one
+ * past the current max `sortOrder` among that draft's non-deleted sections
+ * (or `0` if none exist) — the learner never types a raw ordering number.
+ * `swapSectionOrder` is the pure reorder step (move-up/move-down only; no
+ * drag-and-drop library exists in this codebase and pulling one in is out
+ * of scope per this task's own spec). `persistNewSection` /
+ * `persistSectionReorder` / `persistSectionRemoval` are the three places
+ * pure logic meets the real vault writer, each accepting an injectable
+ * `save` function (default: the real `saveLocalTeachingSection`) —
+ * `ConnectSection.tsx`'s own `fetchImpl` seam, reused for the same reason:
+ * testable end-to-end (including "a reload shows the new order", proven
+ * against the real `fake-indexeddb`-backed vault in the test file) without
+ * a DOM.
+ *
+ * TESTABLE WITHOUT A DOM (acceptance criterion 9): every add/reorder/remove
+ * decision — `sectionFieldsReadiness`, `nextSectionSortOrder`,
+ * `buildTeachingSectionRecord`, `activeSectionsForDraft`, `pickCurrentDraft`,
+ * `swapSectionOrder`, `buildRemovedSectionRecord`, and the three `persist*`
+ * wrappers — is a plain exported function. `TeachOutlinePanel` itself is
+ * HOOKLESS (props in, markup out), exactly `ConnectSection.tsx`'s
+ * `EvidenceLabelField` / `ClaimComposer.tsx`'s `PromoteFields` precedent, so
+ * it can be rendered directly with controlled props for structural/copy
+ * assertions without waiting on `TeachSection`'s own `useEffect` load (which
+ * — like `ConnectSection`'s `UserThreadsPanel` fetch — never fires under
+ * `renderToStaticMarkup`, this repo's only render tool; see the test file's
+ * own environment note).
  * ---------------------------------------------------------------------------
  *
  * THE ASSERTION LINE (docs/decisions/2026-08-18-teaching-not-theology.md) —
  * every free-text prompt below asks the LEARNER what THEY will teach, to
- * whom, and how THEY connect it to the gospel — never what the app asserts
- * the passage means. No field starts pre-filled with an example sentence
- * about any actual passage (`BLANK_TEACH_FIELDS` is the one and only seed —
- * see `tests/teach-pane.test.ts`'s ASSERTION-LINE test).
+ * whom, and how THEY connect it to the gospel (or, for the outline, what
+ * THEY will say in each part) — never what the app asserts the passage
+ * means. No field starts pre-filled with an example sentence about any
+ * actual passage (`BLANK_TEACH_FIELDS`/`BLANK_SECTION_FIELDS` are the only
+ * seeds — see `tests/teach-pane.test.ts`'s ASSERTION-LINE tests).
  *
- * FORMAT PRESETS (acceptance criterion 1): BUILD_PLAN §4 row 8 names four
- * formats ("60-second/5-minute/15-minute/30-minute presets, which set
- * durationMinutes") but gives no numeric values anywhere in either source
- * doc — `FORMAT_PRESETS` below is the ONE place they are chosen and
- * defended, and the ONE place `tests/teach-pane.test.ts`'s mutation proof
- * targets:
+ * FORMAT PRESETS (acceptance criterion 1, TEACHDRAFTPANE-001): BUILD_PLAN §4
+ * row 8 names four formats ("60-second/5-minute/15-minute/30-minute
+ * presets, which set durationMinutes") but gives no numeric values anywhere
+ * in either source doc — `FORMAT_PRESETS` below is the ONE place they are
+ * chosen and defended, and the ONE place `tests/teach-pane.test.ts`'s
+ * mutation proof targets:
  *
  *   - "60-second" -> 1 minute. NOT 0: `syncTeachingDraftV2Schema`
  *     (`lib/api/sync-v2.ts`, read-only here) types `durationMinutes` as
@@ -188,6 +259,330 @@ export function buildTeachingDraftRecord(params: {
   };
 }
 
+/**
+ * "Most recently created, non-deleted draft for this session" — see this
+ * file's header for why this default was chosen and what a future
+ * multi-draft picker would need. Ties (identical `createdAt`) break on `id`
+ * descending, purely for a deterministic return value; no real-world
+ * significance is claimed for that ordering.
+ */
+export function pickCurrentDraft(drafts: readonly TeachingDraft[], sessionId: string): TeachingDraft | null {
+  const active = drafts.filter((draft) => draft.sessionId === sessionId && !draft.deletedAt);
+  if (active.length === 0) return null;
+  const sorted = active.slice().sort((a, b) => {
+    if (a.createdAt !== b.createdAt) return b.createdAt.localeCompare(a.createdAt);
+    return b.id.localeCompare(a.id);
+  });
+  return sorted[0];
+}
+
+// ---------------------------------------------------------------------------
+// Outline sections — the ordered kind/sortOrder/body list under a draft.
+// ---------------------------------------------------------------------------
+
+export interface NewSectionFields {
+  kind: TeachingSectionKind | null;
+  body: string;
+}
+
+/** Nothing pre-selected — see this file's header, "NOTHING DEFAULTS". */
+export const BLANK_SECTION_FIELDS: NewSectionFields = {
+  kind: null,
+  body: "",
+};
+
+export interface SectionFieldsReadiness {
+  ready: boolean;
+  missing: string[];
+}
+
+export function sectionFieldsReadiness(fields: NewSectionFields): SectionFieldsReadiness {
+  const missing: string[] = [];
+  if (!fields.kind) missing.push("Choose what kind of outline point this is.");
+  if (!fields.body.trim()) missing.push("Write this part of your outline.");
+  return { ready: missing.length === 0, missing };
+}
+
+/**
+ * One past the current maximum `sortOrder` among that draft's non-deleted
+ * sections, or `0` if none exist yet. MUTATION-TARGET (acceptance criterion
+ * 10a) — see `tests/teach-pane.test.ts`'s own mutation-proof section.
+ */
+export function nextSectionSortOrder(sections: readonly TeachingSection[], draftId: string): number {
+  const active = sections.filter((section) => section.draftId === draftId && !section.deletedAt);
+  if (active.length === 0) return 0;
+  return Math.max(...active.map((section) => section.sortOrder)) + 1;
+}
+
+/** Non-deleted sections for one draft, in `sortOrder`. The one place display order is computed. */
+export function activeSectionsForDraft(sections: readonly TeachingSection[], draftId: string): TeachingSection[] {
+  return sections
+    .filter((section) => section.draftId === draftId && !section.deletedAt)
+    .slice()
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+}
+
+/**
+ * Pure record builder — the only place a `TeachingSection` is assembled.
+ * Throws rather than silently building an incomplete record, exactly
+ * `buildTeachingDraftRecord`'s own precedent above.
+ */
+export function buildTeachingSectionRecord(params: {
+  id: string;
+  workspaceId: string;
+  draftId: string;
+  fields: NewSectionFields;
+  sortOrder: number;
+  now: string;
+}): TeachingSection {
+  const { fields } = params;
+  if (!fields.kind) throw new Error("buildTeachingSectionRecord requires a kind");
+  if (!fields.body.trim()) throw new Error("buildTeachingSectionRecord requires a body");
+  return {
+    id: params.id,
+    workspaceId: params.workspaceId,
+    draftId: params.draftId,
+    kind: fields.kind,
+    sortOrder: params.sortOrder,
+    body: fields.body.trim(),
+    revision: 1,
+    createdAt: params.now,
+    updatedAt: params.now,
+    deletedAt: null,
+  };
+}
+
+export interface ReorderResult {
+  updated: [TeachingSection, TeachingSection];
+}
+
+/**
+ * Pure swap of two ADJACENT-IN-DISPLAY-ORDER sections' `sortOrder` values.
+ * `ordered` must already be in display order (`activeSectionsForDraft`'s
+ * output) — this function does not re-sort. Returns `null` (no-op) if the
+ * target section is already at that boundary (moving the first section up,
+ * or the last down) rather than throwing, so a caller can simply skip the
+ * write. Both returned records carry a bumped `revision`/`updatedAt`, same
+ * shape every other v2 update in this codebase uses.
+ */
+export function swapSectionOrder(
+  ordered: readonly TeachingSection[],
+  sectionId: string,
+  direction: "up" | "down",
+  now: string,
+): ReorderResult | null {
+  const index = ordered.findIndex((section) => section.id === sectionId);
+  if (index === -1) return null;
+  const targetIndex = direction === "up" ? index - 1 : index + 1;
+  if (targetIndex < 0 || targetIndex >= ordered.length) return null;
+  const current = ordered[index];
+  const target = ordered[targetIndex];
+  const updatedCurrent: TeachingSection = {
+    ...current,
+    sortOrder: target.sortOrder,
+    revision: current.revision + 1,
+    updatedAt: now,
+  };
+  const updatedTarget: TeachingSection = {
+    ...target,
+    sortOrder: current.sortOrder,
+    revision: target.revision + 1,
+    updatedAt: now,
+  };
+  return { updated: [updatedCurrent, updatedTarget] };
+}
+
+/** Soft-delete — see this file's header, "SOFT DELETE, NOT HARD DELETE". */
+export function buildRemovedSectionRecord(section: TeachingSection, now: string): TeachingSection {
+  return { ...section, deletedAt: now, revision: section.revision + 1, updatedAt: now };
+}
+
+type SaveSection = (section: TeachingSection) => Promise<void>;
+
+/**
+ * Assigns `sortOrder` (`nextSectionSortOrder`), builds the record
+ * (`buildTeachingSectionRecord`), and persists it through the real vault
+ * writer — `save` defaults to the real `saveLocalTeachingSection`, injected
+ * exactly `ConnectSection.tsx`'s own `fetchImpl` seam, so a test can supply
+ * a fake and inspect exactly what was written without a DOM.
+ */
+export async function persistNewSection(params: {
+  id: string;
+  workspaceId: string;
+  draftId: string;
+  fields: NewSectionFields;
+  existingSections: readonly TeachingSection[];
+  now: string;
+  save?: SaveSection;
+}): Promise<TeachingSection> {
+  const save = params.save ?? saveLocalTeachingSection;
+  const sortOrder = nextSectionSortOrder(params.existingSections, params.draftId);
+  const record = buildTeachingSectionRecord({
+    id: params.id,
+    workspaceId: params.workspaceId,
+    draftId: params.draftId,
+    fields: params.fields,
+    sortOrder,
+    now: params.now,
+  });
+  await save(record);
+  return record;
+}
+
+/**
+ * Computes the swap (`swapSectionOrder`) and persists BOTH updated sections
+ * through the real vault writer — not just one. `save` defaults to the real
+ * `saveLocalTeachingSection`. MUTATION-TARGET (acceptance criterion 10b):
+ * breaking this to only await the first `save` call (dropping the second)
+ * must fail a named test.
+ */
+export async function persistSectionReorder(
+  ordered: readonly TeachingSection[],
+  sectionId: string,
+  direction: "up" | "down",
+  now: string,
+  save: SaveSection = saveLocalTeachingSection,
+): Promise<ReorderResult | null> {
+  const result = swapSectionOrder(ordered, sectionId, direction, now);
+  if (!result) return null;
+  await save(result.updated[0]);
+  await save(result.updated[1]);
+  return result;
+}
+
+/** Builds the soft-deleted record (`buildRemovedSectionRecord`) and persists it through the real vault writer. */
+export async function persistSectionRemoval(
+  section: TeachingSection,
+  now: string,
+  save: SaveSection = saveLocalTeachingSection,
+): Promise<TeachingSection> {
+  const updated = buildRemovedSectionRecord(section, now);
+  await save(updated);
+  return updated;
+}
+
+// ---------------------------------------------------------------------------
+// TeachOutlinePanel — HOOKLESS (props in, markup out). See this file's
+// header, "TESTABLE WITHOUT A DOM".
+// ---------------------------------------------------------------------------
+
+export interface TeachOutlinePanelProps {
+  sections: readonly TeachingSection[];
+  disabled: boolean;
+  newSectionFields: NewSectionFields;
+  sectionReadiness: SectionFieldsReadiness;
+  onFieldsChange: (fields: NewSectionFields) => void;
+  onAddSection: (event: React.FormEvent<HTMLFormElement>) => void;
+  onMove: (sectionId: string, direction: "up" | "down") => void;
+  onRemove: (sectionId: string) => void;
+  addStatus: "idle" | "saving" | "saved" | "error";
+  addMessage: string;
+}
+
+export function TeachOutlinePanel({
+  sections,
+  disabled,
+  newSectionFields,
+  sectionReadiness,
+  onFieldsChange,
+  onAddSection,
+  onMove,
+  onRemove,
+  addStatus,
+  addMessage,
+}: TeachOutlinePanelProps) {
+  return (
+    <section aria-label="Teaching outline" data-testid="teach-outline-panel">
+      <p style={noticeStyle}>
+        Build your teaching out section by section. Each part is your own reasoning, in your own words — nothing
+        here is supplied or suggested by the app.
+      </p>
+
+      {sections.length === 0 ? (
+        <p style={noticeStyle} data-testid="teach-outline-empty">
+          No outline points yet.
+        </p>
+      ) : (
+        <ol data-testid="teach-outline-list">
+          {sections.map((section, index) => (
+            <li data-testid="teach-outline-item" key={section.id}>
+              <span data-testid="teach-outline-item-kind">{humanizeToken(section.kind)}</span>
+              <p data-testid="teach-outline-item-body">{section.body}</p>
+              <div aria-label="Reorder or remove this outline point" role="group">
+                <Button
+                  disabled={disabled || index === 0}
+                  onClick={() => onMove(section.id, "up")}
+                  type="button"
+                  variant="secondary"
+                >
+                  Move up
+                </Button>
+                <Button
+                  disabled={disabled || index === sections.length - 1}
+                  onClick={() => onMove(section.id, "down")}
+                  type="button"
+                  variant="secondary"
+                >
+                  Move down
+                </Button>
+                <Button disabled={disabled} onClick={() => onRemove(section.id)} type="button" variant="secondary">
+                  Remove
+                </Button>
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
+
+      <form data-testid="teach-outline-add-form" onSubmit={onAddSection}>
+        <fieldset>
+          <legend style={noticeStyle}>What kind of outline point is this?</legend>
+          <div role="group">
+            {optionsFrom(TEACHING_SECTION_KINDS).map((option) => (
+              <Chip
+                active={newSectionFields.kind === option.value}
+                aria-pressed={newSectionFields.kind === option.value}
+                data-field="kind"
+                data-value={option.value}
+                disabled={disabled}
+                key={option.value}
+                onClick={() => onFieldsChange({ ...newSectionFields, kind: option.value })}
+              >
+                {option.label}
+              </Chip>
+            ))}
+          </div>
+        </fieldset>
+
+        <Field
+          disabled={disabled}
+          hint="Your own reasoning for this part of your teaching, in your own words."
+          label="What will you say in this part?"
+          onChange={(event) => onFieldsChange({ ...newSectionFields, body: event.target.value })}
+          value={newSectionFields.body}
+        />
+
+        {sectionReadiness.missing.length > 0 ? (
+          <ul aria-live="polite" data-testid="teach-outline-missing">
+            {sectionReadiness.missing.map((reason) => (
+              <li key={reason}>{reason}</li>
+            ))}
+          </ul>
+        ) : null}
+
+        <footer>
+          <p aria-live="polite" data-state={addStatus}>
+            {addMessage}
+          </p>
+          <Button disabled={!sectionReadiness.ready || disabled} type="submit">
+            {addStatus === "saving" ? "Saving…" : "Add to outline"}
+          </Button>
+        </footer>
+      </form>
+    </section>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // The stateful shell
 // ---------------------------------------------------------------------------
@@ -206,6 +601,40 @@ export function TeachSection({ workspaceId, session, unlocked, onSaved }: TeachS
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [message, setMessage] = useState("");
 
+  const [drafts, setDrafts] = useState<TeachingDraft[]>([]);
+  const [sections, setSections] = useState<TeachingSection[]>([]);
+  const [outlineLoaded, setOutlineLoaded] = useState(false);
+  const [sectionFields, setSectionFields] = useState<NewSectionFields>(BLANK_SECTION_FIELDS);
+  const [addStatus, setAddStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [addMessage, setAddMessage] = useState("");
+  const [outlineActionStatus, setOutlineActionStatus] = useState<"idle" | "busy" | "error">("idle");
+  const [outlineActionMessage, setOutlineActionMessage] = useState("");
+
+  // Loads this device's existing TeachingDraft/TeachingSection rows so a
+  // reload shows real, persisted state rather than starting the outline
+  // over. Never fires under `renderToStaticMarkup` (no browser commit
+  // phase) — see this file's header, "TESTABLE WITHOUT A DOM" — so the
+  // render tests exercise `TeachOutlinePanel` directly with controlled
+  // props instead of waiting on this effect.
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      const [loadedDrafts, loadedSections] = await Promise.all([
+        listLocalV2Entities("teachingDraft"),
+        listLocalV2Entities("teachingSection"),
+      ]);
+      if (!cancelled) {
+        setDrafts(loadedDrafts);
+        setSections(loadedSections);
+        setOutlineLoaded(true);
+      }
+    }
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [session.id]);
+
   if (!unlocked) {
     return (
       <LockedNotice
@@ -216,6 +645,9 @@ export function TeachSection({ workspaceId, session, unlocked, onSaved }: TeachS
   }
 
   const readiness = teachDraftReadiness(fields);
+  const currentDraft = pickCurrentDraft(drafts, session.id);
+  const orderedSections = currentDraft ? activeSectionsForDraft(sections, currentDraft.id) : [];
+  const sectionReadiness = sectionFieldsReadiness(sectionFields);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -238,6 +670,11 @@ export function TeachSection({ workspaceId, session, unlocked, onSaved }: TeachS
       setStatus("saved");
       setMessage("Saved to this device.");
       setFields(BLANK_TEACH_FIELDS);
+      // Newly created draft becomes the "most recently created" one
+      // (pickCurrentDraft) immediately, without waiting for another vault
+      // read — the outline area opens for it right away.
+      setDrafts((previous) => [...previous, draft]);
+      setOutlineLoaded(true);
       onSaved?.(draft);
     } catch {
       setStatus("error");
@@ -245,13 +682,71 @@ export function TeachSection({ workspaceId, session, unlocked, onSaved }: TeachS
     }
   }
 
+  async function addSection(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!currentDraft || !sectionReadiness.ready || addStatus === "saving") return;
+
+    setAddStatus("saving");
+    setAddMessage("Saving to this device…");
+    const now = new Date().toISOString();
+
+    try {
+      const record = await persistNewSection({
+        id: crypto.randomUUID(),
+        workspaceId,
+        draftId: currentDraft.id,
+        fields: sectionFields,
+        existingSections: sections,
+        now,
+      });
+      setSections((previous) => [...previous, record]);
+      setSectionFields(BLANK_SECTION_FIELDS);
+      setAddStatus("saved");
+      setAddMessage("Saved to this device.");
+    } catch {
+      setAddStatus("error");
+      setAddMessage("This device could not save this outline point. Nothing was discarded — please try again.");
+    }
+  }
+
+  async function moveSection(sectionId: string, direction: "up" | "down") {
+    if (outlineActionStatus === "busy") return;
+    setOutlineActionStatus("busy");
+    setOutlineActionMessage("Saving to this device…");
+    const now = new Date().toISOString();
+    try {
+      const result = await persistSectionReorder(orderedSections, sectionId, direction, now);
+      if (result) {
+        const [a, b] = result.updated;
+        setSections((previous) => previous.map((section) => (section.id === a.id ? a : section.id === b.id ? b : section)));
+      }
+      setOutlineActionStatus("idle");
+      setOutlineActionMessage("");
+    } catch {
+      setOutlineActionStatus("error");
+      setOutlineActionMessage("This device could not reorder the outline. Nothing was discarded — please try again.");
+    }
+  }
+
+  async function removeSection(sectionId: string) {
+    const target = sections.find((section) => section.id === sectionId);
+    if (!target || outlineActionStatus === "busy") return;
+    setOutlineActionStatus("busy");
+    setOutlineActionMessage("Saving to this device…");
+    const now = new Date().toISOString();
+    try {
+      const updated = await persistSectionRemoval(target, now);
+      setSections((previous) => previous.map((section) => (section.id === updated.id ? updated : section)));
+      setOutlineActionStatus("idle");
+      setOutlineActionMessage("");
+    } catch {
+      setOutlineActionStatus("error");
+      setOutlineActionMessage("This device could not remove that outline point. Nothing was discarded — please try again.");
+    }
+  }
+
   return (
     <div style={bodyStyle}>
-      <p style={noticeStyle} data-testid="teach-outline-not-available-notice">
-        Building this out section by section isn&rsquo;t available yet — that needs its own sync entity, which
-        has not been built (see this section&rsquo;s own scope note). What IS saved below is your title, big idea,
-        audience, length, and gospel connection for this teaching — nothing more, nothing fabricated.
-      </p>
       <form onSubmit={submit}>
         <Field
           disabled={status === "saving"}
@@ -319,6 +814,36 @@ export function TeachSection({ workspaceId, session, unlocked, onSaved }: TeachS
           </Button>
         </footer>
       </form>
+
+      {!outlineLoaded ? (
+        <p style={noticeStyle} data-testid="teach-outline-checking">
+          Checking this device for an existing teaching draft…
+        </p>
+      ) : !currentDraft ? (
+        <p style={noticeStyle} data-testid="teach-outline-awaiting-draft">
+          Save a teaching draft above first — then build its outline here, section by section.
+        </p>
+      ) : (
+        <>
+          {outlineActionStatus === "error" ? (
+            <p role="alert" style={noticeStyle}>
+              {outlineActionMessage}
+            </p>
+          ) : null}
+          <TeachOutlinePanel
+            addMessage={addMessage}
+            addStatus={addStatus}
+            disabled={outlineActionStatus === "busy"}
+            newSectionFields={sectionFields}
+            onAddSection={addSection}
+            onFieldsChange={setSectionFields}
+            onMove={(sectionId, direction) => void moveSection(sectionId, direction)}
+            onRemove={(sectionId) => void removeSection(sectionId)}
+            sectionReadiness={sectionReadiness}
+            sections={orderedSections}
+          />
+        </>
+      )}
     </div>
   );
 }
