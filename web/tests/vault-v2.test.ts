@@ -13,20 +13,24 @@ import type {
   StudyClaim,
   StudySession,
   TeachingDraft,
+  TeachingSection,
   UserConnection,
 } from "@/lib/contracts/study-v2";
 
 /**
- * V2VAULT-001 — the offline vault for the eight v2 study entities.
+ * V2VAULT-001 — the offline vault for the v2 study entities (eight at the
+ * time this file was first written; TEACHSECTIONSYNC-001 later added a ninth,
+ * `teachingSection`, on its own additive version-5 bump — see
+ * lib/sync/store.ts's `V2_ENTITIES_AT_SCHEMA_VERSION_4`).
  *
  * Test order is load-bearing for exactly one reason: the very first test
  * below opens the real "bible-brain" IndexedDB database RAW, at version 1,
  * before lib/sync/store.ts is ever imported in this file/process — that is
- * the only way to prove the version-4 upgrade preserves a genuine pre-
+ * the only way to prove the version-5 upgrade preserves a genuine pre-
  * existing v1 vault rather than starting from a database this same process
- * already created at version 4. Every test after it may freely import
+ * already created at version 5. Every test after it may freely import
  * lib/sync/store.ts (its module-level `database` singleton is created once,
- * already at version 4, and reused for the rest of this file) — matching the
+ * already at version 5, and reused for the rest of this file) — matching the
  * same file-isolation model tests/device-clear.test.ts documents.
  */
 
@@ -201,6 +205,21 @@ function sampleFor(entity: SyncEntityV2): unknown {
       };
       return value;
     }
+    case "teachingSection": {
+      const value: TeachingSection = {
+        id,
+        workspaceId,
+        draftId: crypto.randomUUID(),
+        kind: "outline",
+        sortOrder: 0,
+        body: "I. The seed promise.",
+        revision: 1,
+        createdAt: now,
+        updatedAt: now,
+        deletedAt: null,
+      };
+      return value;
+    }
     default: {
       const exhaustive: never = entity;
       throw new Error(`No sample payload for entity ${exhaustive}`);
@@ -291,9 +310,9 @@ async function failureOf(promise: Promise<unknown>): Promise<unknown> {
   );
 }
 
-// --- 1. the version-4 upgrade preserves a real pre-existing v1 vault -------
+// --- 1. the version-5 upgrade preserves a real pre-existing v1 vault -------
 
-test("opening the version-4 schema upgrades a real v1 vault in place, losing none of its data", async () => {
+test("opening the version-5 schema upgrades a real v1 vault in place, losing none of its data", async () => {
   assert.equal(
     await localDatabaseExists(),
     false,
@@ -355,7 +374,7 @@ test("opening the version-4 schema upgrades a real v1 vault in place, losing non
     "the seeded database is really at version 1 before the upgrade",
   );
 
-  // NOW import the module under test — its openDB("bible-brain", 4, ...)
+  // NOW import the module under test — its openDB("bible-brain", 5, ...)
   // runs the real upgrade() callback against this on-disk (well, in-memory
   // fake-indexeddb) v1 database, oldVersion=1, exactly as a real learner's
   // browser would on their next app load after this ships.

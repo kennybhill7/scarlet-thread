@@ -11,6 +11,7 @@ import {
   studySessions,
   syncReceipts,
   teachingDrafts,
+  teachingSections,
   userConnections,
   motifCandidates,
 } from "@/db/schema";
@@ -24,6 +25,7 @@ import type {
   StudyClaim,
   StudySession,
   TeachingDraft,
+  TeachingSection,
   UserConnection,
 } from "@/lib/contracts/study-v2";
 import { db } from "@/lib/db";
@@ -64,6 +66,13 @@ import { assertWorkspaceOwnership, WorkspaceAccessDeniedError } from "@/lib/db/w
  * security-relevant logic; it only adapts `assertWorkspaceOwnership`'s
  * throw-on-deny contract to the boolean this module's `planWrite`/
  * `planMotifOp` control flow expects.
+ *
+ * TEACHSECTIONSYNC-001 — added the ninth `plan*Op` handler, `planTeachingSectionOp`,
+ * once `SYNC_ENTITIES_V2` grew to include `teachingSection` (`db/schema.ts`'s
+ * `teaching_sections` table, previously reachable by no sync entity at all).
+ * Follows the same single-table plan/apply shape as every handler above it —
+ * see that function's own header for why it needs no entity-specific gate
+ * the way `planMotifOp` does.
  */
 
 // ---------------------------------------------------------------------------
@@ -561,6 +570,62 @@ async function planTeachingDraftOp(userId: string, op: SyncOpV2): Promise<PlanOu
 }
 
 /**
+ * TEACHSECTIONSYNC-001 — the ninth sync entity, `teachingSection`. Follows
+ * `planTeachingDraftOp` immediately above (and every other single-table
+ * plan*Op in this file) shape for shape: parse, SELECT the current row by
+ * primary key, resolve `deletedAt`, build the insert/onConflictDoUpdate
+ * write closure, hand the tenant/optimistic-concurrency decision to the one
+ * shared `planWrite`. No entity-specific gate is needed the way
+ * `planMotifOp` needs one — `teaching_sections` has no server-owned status
+ * transition to guard, so `planWrite`'s ordinary tenant-ownership and
+ * revision-conflict checks are the whole story here, exactly like
+ * `planSessionOp`/`planClaimOp`/`planConnectionOp`/`planApplicationOp`/
+ * `planTeachingDraftOp` above.
+ */
+async function planTeachingSectionOp(userId: string, op: SyncOpV2): Promise<PlanOutcome> {
+  let payload: TeachingSection;
+  try {
+    payload = parseSyncOpV2Payload<TeachingSection>(op);
+  } catch (error) {
+    return { ok: false, reason: messageOf(error) };
+  }
+  const [current] = await db
+    .select({ workspaceId: teachingSections.workspaceId, revision: teachingSections.revision })
+    .from(teachingSections)
+    .where(eq(teachingSections.id, op.entityId))
+    .limit(1);
+  const deletedAt = resolveDeletedAt(op, payload.deletedAt);
+  const write = () =>
+    db
+      .insert(teachingSections)
+      .values({
+        id: payload.id,
+        workspaceId: payload.workspaceId,
+        draftId: payload.draftId,
+        kind: payload.kind,
+        sortOrder: payload.sortOrder,
+        body: payload.body,
+        revision: payload.revision,
+        createdAt: payload.createdAt,
+        updatedAt: payload.updatedAt,
+        deletedAt,
+      })
+      .onConflictDoUpdate({
+        target: teachingSections.id,
+        set: {
+          draftId: payload.draftId,
+          kind: payload.kind,
+          sortOrder: payload.sortOrder,
+          body: payload.body,
+          revision: payload.revision,
+          updatedAt: payload.updatedAt,
+          deletedAt,
+        },
+      });
+  return planWrite(userId, payload.workspaceId, current, op.baseRevision, write);
+}
+
+/**
  * SYNCGAP-001 resolved the doc conflict in favour of claim_evidence and
  * motif_sightings each being their OWN sync entity that names its parent by id,
  * rather than riding along as a nested aggregate child array. SYNCPERSIST-001
@@ -660,6 +725,8 @@ async function planOp(userId: string, op: SyncOpV2): Promise<PlanOutcome> {
       return planApplicationOp(userId, op);
     case "teachingDraft":
       return planTeachingDraftOp(userId, op);
+    case "teachingSection":
+      return planTeachingSectionOp(userId, op);
     case "evidence":
       return planEvidenceOp(userId, op);
     case "motifSighting":

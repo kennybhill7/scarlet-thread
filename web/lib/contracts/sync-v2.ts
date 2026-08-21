@@ -78,6 +78,24 @@
  * that interface as written (no `connectionId`) rather than inventing a
  * field absent from its read-only source of truth; closing that gap needs a
  * task that owns `study-v2.ts`.
+ *
+ * ---------------------------------------------------------------------------
+ * Resolved gap (TEACHSECTIONSYNC-001): `teachingSection`, the ninth entity.
+ *
+ * `db/schema.ts`'s `teaching_sections` table (SCHEMAFU-001) has had no sync
+ * entity, wire schema, planner handler, or vault writer since it was created
+ * — the exact plumbing gap this task closes. Unlike `evidence`/`motifSighting`
+ * above, this addition is NOT reconciling two documents that both name the
+ * entity: neither BUILD_PLAN.md §3.4's eight-item list nor
+ * THEOLOGY_MASTER_BUILD_PLAN.md §14's "session, claim, evidence, motif, motif
+ * sighting, and connection" related-creation list mentions `teachingSection`
+ * at all. It follows anyway, because `teaching_sections` (BUILD_PLAN §3.3)
+ * has its own `revision` column and its own row-per-section identity exactly
+ * like every other entity here — reason 2 above (given for evidence/
+ * motifSighting) applies verbatim, just never checked off in either planning
+ * document's sync-entity list. `teachingSection` names its
+ * parent draft via `draftId`, the same shape `teachingDraft` names its
+ * `sessionId`.
  * ---------------------------------------------------------------------------
  */
 
@@ -96,6 +114,7 @@ export const SYNC_ENTITIES_V2 = [
   "connection",
   "application",
   "teachingDraft",
+  "teachingSection",
 ] as const;
 
 export type SyncEntityV2 = (typeof SYNC_ENTITIES_V2)[number];

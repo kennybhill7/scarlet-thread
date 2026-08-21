@@ -4,7 +4,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { CANONICAL_VERSIFICATION_ID } from "@/lib/contracts/range-v1";
-import type { MotifCandidate, StudySession, TeachingDraft } from "@/lib/contracts/study-v2";
+import type {
+  MotifCandidate,
+  StudySession,
+  TeachingDraft,
+  TeachingSection,
+} from "@/lib/contracts/study-v2";
 
 /**
  * SYNCV2MERGE-001 — proves `mergeRemoteChangesV2` (lib/sync/store.ts), the
@@ -71,6 +76,23 @@ function sampleTeachingDraft(overrides: Partial<TeachingDraft> = {}): TeachingDr
     durationMinutes: 15,
     gospelConnection: "The gospel connection.",
     status: "draft",
+    revision: 1,
+    createdAt: now,
+    updatedAt: now,
+    deletedAt: null,
+    ...overrides,
+  };
+}
+
+function sampleTeachingSection(overrides: Partial<TeachingSection> = {}): TeachingSection {
+  const now = isoNow();
+  return {
+    id: crypto.randomUUID(),
+    workspaceId: WORKSPACE_ID,
+    draftId: crypto.randomUUID(),
+    kind: "outline",
+    sortOrder: 0,
+    body: "I. The seed promise.",
     revision: 1,
     createdAt: now,
     updatedAt: now,
@@ -179,19 +201,27 @@ test("a merge writes pulled rows into the local v2 stores and leaves the outbox 
 
   const pulledSession = sampleSession(); // a different id: no conflict
   const pulledDraft = sampleTeachingDraft();
+  // TEACHSECTIONSYNC-001 — the ninth entity is exercised in this SAME central
+  // assertion, not a separate one, so the byte-identical outbox check below
+  // really does cover it rather than only the eight entities this test
+  // covered before this task.
+  const pulledSection = sampleTeachingSection();
   await store.mergeRemoteChangesV2({
     session: [pulledSession],
     teachingDraft: [pulledDraft],
+    teachingSection: [pulledSection],
   });
 
   const after = JSON.stringify(await store.getPendingV2Ops());
   assert.equal(after, before, "the outbox must be byte-identical before and after a merge");
 
-  // And the merge actually did its job: both pulled rows landed locally.
+  // And the merge actually did its job: all three pulled rows landed locally.
   const sessions = await store.listLocalV2Entities("session");
   assert.ok(sessions.some((row) => row.id === pulledSession.id), "pulled session landed");
   const drafts = await store.listLocalV2Entities("teachingDraft");
   assert.ok(drafts.some((row) => row.id === pulledDraft.id), "pulled teaching draft landed");
+  const sections = await store.listLocalV2Entities("teachingSection");
+  assert.ok(sections.some((row) => row.id === pulledSection.id), "pulled teaching section landed");
 
   const pending = await store.getPendingV2Ops();
   await store.removePendingV2Ops(pending.map((op) => op.opId));
@@ -262,6 +292,39 @@ test("conflict rule: a pulled row for an entity with a still-pending local edit 
   // decisive per-row rule, not a merge-wide no-op.
   const sessions = await store.listLocalV2Entities("session");
   assert.ok(sessions.some((row) => row.id === nonConflictingSession.id));
+
+  await store.removePendingV2Ops([ownOp.opId]);
+});
+
+// --- 3b. conflict rule, teachingSection specifically (TEACHSECTIONSYNC-001) -
+
+test("conflict rule for teachingSection: a pulled row for a section with a still-pending local edit is skipped, and the local copy plus its queued op survive untouched", async () => {
+  const store = await import("@/lib/sync/store");
+
+  const section = sampleTeachingSection({ body: "The learner's own unsynced outline point." });
+  await store.saveLocalTeachingSection(section);
+  const [ownOp] = (await store.getPendingV2Ops()).filter((op) => op.entityId === section.id);
+  assert.ok(ownOp, "the local edit produced its own outbox op");
+
+  const conflictingPulledSection = {
+    ...section,
+    body: "Server copy that must not win.",
+    updatedAt: new Date(Date.parse(section.updatedAt) + 60_000).toISOString(), // even a NEWER clock
+  };
+  await store.mergeRemoteChangesV2({ teachingSection: [conflictingPulledSection] });
+
+  const [survivor] = (await store.listLocalV2Entities("teachingSection")).filter(
+    (row) => row.id === section.id,
+  );
+  assert.equal(
+    survivor?.body,
+    "The learner's own unsynced outline point.",
+    "the unsynced local prose must not be silently overwritten by the pulled row, " +
+      "even though the pulled row's updatedAt is later",
+  );
+
+  const stillQueued = (await store.getPendingV2Ops()).some((op) => op.opId === ownOp.opId);
+  assert.ok(stillQueued, "the local edit's outbox op must still be queued after the merge");
 
   await store.removePendingV2Ops([ownOp.opId]);
 });

@@ -30,6 +30,7 @@ import {
   STUDY_SESSION_MODES,
   STUDY_SESSION_WORKFLOW_STATES,
   STUDY_CLAIM_STATUSES,
+  TEACHING_SECTION_KINDS,
   USER_CONNECTION_STATUSES,
 } from "@/lib/contracts/study-v2";
 
@@ -755,42 +756,20 @@ export const teachingDrafts = pgTable(
 // ---------------------------------------------------------------------------
 
 /**
- * SCHEMAFU-001 gap (c). BUILD_PLAN.md §3.3 ("`teaching_drafts` +
- * `teaching_sections`") and THEOLOGY_MASTER_BUILD_PLAN.md §12.3
- * (`teaching_sections`) both give the SAME kind vocabulary verbatim — no
- * conflict to report between the two docs here, unlike gap #1 in
- * lib/contracts/study-v2.ts's header.
+ * SCHEMAFU-001 gap (c), CLOSED by TEACHSECTIONSYNC-001. BUILD_PLAN.md §3.3
+ * ("`teaching_drafts` + `teaching_sections`") and
+ * THEOLOGY_MASTER_BUILD_PLAN.md §12.3 (`teaching_sections`) both give the
+ * SAME kind vocabulary verbatim — no conflict to report between the two docs
+ * here, unlike gap #1 in lib/contracts/study-v2.ts's header.
  *
- * Every other vocabulary in this file is imported from
- * `lib/contracts/study-v2.ts`, never retyped — this one is the deliberate
- * exception, and it's an exception this task cannot close: that contract
- * module does not export a teaching-section-kind vocabulary at all (it only
- * covers §3.2's canonical list plus a handful of §3.3 field vocabularies that
- * predate teaching_sections), and `lib/contracts/study-v2.ts` is a
- * *readOnlyPath* for this task — it may be read, never written. Adding the
- * missing export there is out of this task's scope by construction, not an
- * oversight. Transcribed by hand here instead, the same way SCHEMAV2-001
- * transcribed `study_claims.status` by hand while its contract source was
- * briefly stale (see the comment on `studyClaimStatusEnum` above) — except
- * this transcription cannot later collapse into an import the way that one
- * did, until a *future* task (outside SCHEMAFU-001's ownedPaths) adds the
- * export. Recommended follow-up, reported rather than smuggled per
- * SCOPE-BOUNDARY-001: add `TEACHING_SECTION_KINDS` to
- * lib/contracts/study-v2.ts and switch this line to import it.
+ * This vocabulary used to be hand-transcribed here rather than imported,
+ * because `lib/contracts/study-v2.ts` did not yet export it and was a
+ * readOnlyPath for SCHEMAFU-001 (that comment recommended exactly this
+ * follow-up: "add `TEACHING_SECTION_KINDS` to lib/contracts/study-v2.ts and
+ * switch this line to import it"). TEACHSECTIONSYNC-001 owns study-v2.ts and
+ * added that export, so this now matches every other vocabulary in this
+ * file: imported, never retyped.
  */
-const TEACHING_SECTION_KINDS = [
-  "outline",
-  "context",
-  "connection",
-  "theology",
-  "illustration",
-  "objection",
-  "application",
-  "not_justified",
-  "discussion",
-  "prayer",
-] as const;
-
 export const teachingSectionKindEnum = pgEnum("teaching_section_kind", TEACHING_SECTION_KINDS);
 
 export const teachingSections = pgTable(

@@ -18,6 +18,7 @@ import {
   syncStudyClaimV2Schema,
   syncStudySessionV2Schema,
   syncTeachingDraftV2Schema,
+  syncTeachingSectionV2Schema,
   syncUserConnectionV2Schema,
 } from "@/lib/api/sync-v2";
 import { CANONICAL_VERSIFICATION_ID } from "@/lib/contracts/range-v1";
@@ -33,11 +34,23 @@ import {
 // BUILD_PLAN.md:144's exact eight-item list (as reconciled by SYNCGAP-001),
 // transcribed independently here from the doc text (not derived from the
 // module under test — a test's expected value must never come from the code
-// it is checking). If sync-v2.ts's exported array ever drifts — an added,
-// removed, renamed, or reordered entity — this catches it.
+// it is checking). If sync-v2.ts's exported array ever drifts on any of
+// these eight — an added, removed, renamed, or reordered entity — this
+// catches it.
+//
+// TEACHSECTIONSYNC-001 grew SYNC_ENTITIES_V2 to nine members by appending
+// "teachingSection" — genuinely NOT part of BUILD_PLAN.md:144's list (nor
+// THEOLOGY_MASTER_BUILD_PLAN.md §14's related-creation list); see
+// lib/contracts/sync-v2.ts's header for why it follows anyway
+// (db/schema.ts's `teaching_sections` table has had no sync entity since
+// SCHEMAFU-001, and this task closes that gap). So this doc-fidelity check
+// is split in two: the first eight members still must match the doc
+// verbatim, and the ninth is checked separately as this task's own,
+// undocumented-in-either-plan addition, rather than silently folded into
+// a doc-derived list it was never part of.
 // ---------------------------------------------------------------------------
 
-const EXPECTED_SYNC_ENTITIES_V2 = [
+const EXPECTED_SYNC_ENTITIES_V2_FROM_BUILD_PLAN = [
   "session",
   "claim",
   "evidence",
@@ -48,8 +61,13 @@ const EXPECTED_SYNC_ENTITIES_V2 = [
   "teachingDraft",
 ];
 
-test("SyncEntityV2 matches BUILD_PLAN.md:144 verbatim", () => {
-  assert.deepEqual(SYNC_ENTITIES_V2, EXPECTED_SYNC_ENTITIES_V2);
+test("SyncEntityV2's first eight members match BUILD_PLAN.md:144 verbatim", () => {
+  assert.deepEqual(SYNC_ENTITIES_V2.slice(0, 8), EXPECTED_SYNC_ENTITIES_V2_FROM_BUILD_PLAN);
+});
+
+test("SyncEntityV2's ninth member is teachingSection (TEACHSECTIONSYNC-001, not from either planning doc)", () => {
+  assert.equal(SYNC_ENTITIES_V2.length, 9);
+  assert.equal(SYNC_ENTITIES_V2[8], "teachingSection");
 });
 
 test("lib/contracts.ts's v1 SyncEntity is untouched by this module", () => {
@@ -247,6 +265,21 @@ function validTeachingDraftPayload() {
   };
 }
 
+function validTeachingSectionPayload() {
+  return {
+    id: "section-1",
+    workspaceId: "workspace-1",
+    draftId: "teaching-1",
+    kind: "outline",
+    sortOrder: 0,
+    body: "I. The seed promise in Genesis 3:15.",
+    revision: 1,
+    createdAt: TS,
+    updatedAt: TS,
+    deletedAt: null,
+  };
+}
+
 const validPayloadByEntity = {
   session: validSessionPayload,
   claim: validClaimPayload,
@@ -256,6 +289,7 @@ const validPayloadByEntity = {
   connection: validConnectionPayload,
   application: validApplicationPayload,
   teachingDraft: validTeachingDraftPayload,
+  teachingSection: validTeachingSectionPayload,
 } as const;
 
 const schemaByEntity = {
@@ -267,6 +301,7 @@ const schemaByEntity = {
   connection: syncUserConnectionV2Schema,
   application: syncApplicationV2Schema,
   teachingDraft: syncTeachingDraftV2Schema,
+  teachingSection: syncTeachingSectionV2Schema,
 } as const;
 
 function validOp(entity: keyof typeof validPayloadByEntity, overrides: Partial<SyncOpV2> = {}): SyncOpV2 {
@@ -357,6 +392,58 @@ test("motifSighting payload schema validates standalone, naming its parent candi
   const result = syncMotifSightingV2Schema.safeParse(payload);
   assert.equal(result.success, true);
   assert.equal(payload.candidateId, "motif-1");
+});
+
+// TEACHSECTIONSYNC-001: teachingSection is the ninth entity, following the
+// same "own entity, named parent" shape evidence/motifSighting already
+// established (see lib/contracts/sync-v2.ts's header).
+
+test("teachingSection payload schema validates standalone, naming its parent draft via draftId", () => {
+  const payload = validTeachingSectionPayload();
+  const result = syncTeachingSectionV2Schema.safeParse(payload);
+  assert.equal(result.success, true);
+  assert.equal(payload.draftId, "teaching-1");
+});
+
+test("teachingSection payload schema accepts every enumerated kind value", () => {
+  const kinds = [
+    "outline",
+    "context",
+    "connection",
+    "theology",
+    "illustration",
+    "objection",
+    "application",
+    "not_justified",
+    "discussion",
+    "prayer",
+  ];
+  for (const kind of kinds) {
+    const payload = { ...validTeachingSectionPayload(), kind };
+    assert.equal(
+      syncTeachingSectionV2Schema.safeParse(payload).success,
+      true,
+      `expected kind "${kind}" to be a valid shape`,
+    );
+  }
+});
+
+test("teachingSection payload schema rejects an off-enum kind", () => {
+  const payload = { ...validTeachingSectionPayload(), kind: "not_a_real_kind" };
+  assert.equal(syncTeachingSectionV2Schema.safeParse(payload).success, false);
+});
+
+test("teachingSection payload schema rejects an unrecognized extra field (strict)", () => {
+  const payload = { ...validTeachingSectionPayload(), extraField: "not allowed" };
+  assert.equal(syncTeachingSectionV2Schema.safeParse(payload).success, false);
+});
+
+test("teachingDraft payload schema rejects a nested aggregate sections array (the NOT-chosen shape, mirroring claim/evidence and motif/motifSighting)", () => {
+  const aggregateShaped = {
+    ...validTeachingDraftPayload(),
+    sections: [{ kind: "outline", sortOrder: 0, body: "smuggled in as a child of its parent" }],
+  };
+  assert.equal(syncTeachingDraftV2Schema.safeParse(aggregateShaped).success, false);
 });
 
 test("evidence and motifSighting are pushed as their own ops, grouped with their parent via mutationGroupId", () => {
