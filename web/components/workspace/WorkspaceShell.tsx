@@ -113,10 +113,11 @@ import { TheologySection } from "./TheologySection";
  *     `ClaimComposer`, since a `TeachingDraft` is an architecturally
  *     different record — once `hasFinalizedApplication(applications)` is
  *     true (`lib/workspace/gating.ts`, untouched); a `LockedNotice`
- *     otherwise. Draft-level fields only (title/bigIdea/audience/
- *     gospelConnection/durationMinutes) — the section-by-section outline
- *     builder is deliberately out of scope; see `TeachSection.tsx`'s own
- *     header for the verified (not asserted) scope boundary.
+ *     otherwise. TEACHOUTLINE-001 (2026-08-21) completed it: once a draft
+ *     exists, `TeachSection` also renders the real, ordered outline of
+ *     `TeachingSection` rows (add / reorder / soft-delete) on top of the
+ *     draft-level fields TEACHDRAFTPANE-001 built — see `TeachSection.tsx`'s
+ *     own header for the full design.
  *
  * As of this integration (2026-08-21), all eight sections render real
  * content — `PlaceholderSection` no longer has a live caller in this file,
