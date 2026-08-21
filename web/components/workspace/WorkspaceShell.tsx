@@ -7,6 +7,7 @@ import type { Application, StudyClaim, StudySession } from "@/lib/contracts/stud
 import type { WorkspaceGatingInput } from "@/lib/workspace/gating";
 import { computeWorkspaceSectionsFromSession } from "@/lib/workspace/renderState";
 
+import { ApplySection } from "./ApplySection";
 import { ConnectSection, type ConnectSectionSavedResult } from "./ConnectSection";
 import { ContextSection } from "./ContextSection";
 import { ConvictionSection } from "./ConvictionSection";
@@ -27,14 +28,14 @@ import { TheologySection } from "./TheologySection";
  * inlined all eight sections' markup directly. Each is now its own file
  * under `components/workspace/` (`ReadSection`, `ObserveSection`,
  * `ContextSection`, `TheologySection`, `ConvictionSection`, and the shared
- * `PlaceholderSection` for whatever remains stubbed — Apply/Teach, as of
- * CONNECTPANE-001). This file keeps only the accordion shell and the
- * per-section dispatch, so later tasks building Connect/Apply/Teach each own
- * one new file instead of three tasks all editing this same component. Every
- * existing behavior (gating, expand-on-current-step, Read and Observe
- * exactly as READGATE-001 left them) is unchanged by this extraction —
- * proven by running the pre-existing test suite unmodified before anything
- * new was added (see this task's commit message for the verbatim output).
+ * `PlaceholderSection` for whatever remains stubbed). This file keeps only
+ * the accordion shell and the per-section dispatch, so later tasks building
+ * Connect/Apply/Teach each own one new file instead of three tasks all
+ * editing this same component. Every existing behavior (gating,
+ * expand-on-current-step, Read and Observe exactly as READGATE-001 left
+ * them) is unchanged by this extraction — proven by running the
+ * pre-existing test suite unmodified before anything new was added (see
+ * that task's commit message for the verbatim output).
  *
  * CONNECTPANE-001 (2026-08-21) graduates Connect from "placeholder" to its
  * own real `ConnectSection` — see that file's own header comment for the
@@ -47,6 +48,16 @@ import { TheologySection } from "./TheologySection";
  * `lib/workspace/renderState.ts`'s `buildNoWarrantYetUpdate` header for why
  * this task deliberately does NOT invent a `connectionState` transition for
  * that path either).
+ *
+ * APPLYPANE-001 (2026-08-21, same day, sibling task) graduates Apply from
+ * "placeholder" to its own real `ApplySection` in the identical spirit — a
+ * third architecturally distinct entity (`Application`, not `StudyClaim` or
+ * `UserConnection`), so it mounts neither `ClaimComposer` nor
+ * `ConnectSection`'s pattern, but the SAME `unlocked`-gated /
+ * `LockedNotice`-otherwise shape as every real section before it.
+ * `handleApplicationSaved` below upserts by id (see its own comment) rather
+ * than always appending, since repeated "Save draft" clicks from
+ * `ApplySection` update the same record in place.
  *
  * NO `.module.css` IMPORT, DELIBERATELY, ANYWHERE IN THIS FILE OR ANY FILE
  * IT IMPORTS: `tests/study-page.test.ts` (frozen, read-only here) loads the
@@ -91,12 +102,17 @@ import { TheologySection } from "./TheologySection";
  *     once `hasAttemptedComparison(claims)` is true; `LockedNotice`
  *     otherwise. See `ConnectSection.tsx`'s own header for the full design
  *     (CHECK-constraint guarantee, no_warrant_yet, motif/thread surfacing).
- *   - Apply/Teach ALWAYS render an honest "not built yet" placeholder
- *     (`PlaceholderSection`) — that is the entirety of their content as of
- *     this task, locked or not. Building their real functionality is
- *     deliberately OUT of this task's scope (they are architecturally
- *     different: an Application bridge-fields form, a TeachingDraft
- *     builder) — see this task's commit message.
+ *   - Apply mounts `ApplySection` — NOT a `ClaimComposer` either, since
+ *     `Application` is a third distinct v2 entity — once
+ *     `hasClaimOfKind(claims, "theology")` (the `apply` gate,
+ *     `lib/workspace/gating.ts`, UNTOUCHED by both tasks) is true; see
+ *     `ApplySection.tsx`'s own header for its draft-vs-finalize design and
+ *     the sensitive-modernDomain referral-copy reasoning.
+ *   - Teach ALWAYS renders an honest "not built yet" placeholder
+ *     (`PlaceholderSection`) as of these two tasks — that is the entirety
+ *     of its content here, locked or not. TEACHDRAFTPANE-001 (also
+ *     2026-08-21, sibling task) graduates it separately; see that task's
+ *     own commit for the current state of this file.
  */
 
 export interface WorkspaceShellProps {
@@ -112,10 +128,11 @@ export function WorkspaceShell({
   workspaceId,
   session: initialSession,
   claims: initialClaims = [],
-  applications = [],
+  applications: initialApplications = [],
 }: WorkspaceShellProps) {
   const [session, setSession] = useState(initialSession);
   const [claims, setClaims] = useState(initialClaims);
+  const [applications, setApplications] = useState(initialApplications);
 
   const gatingInput: WorkspaceGatingInput = { session, claims, applications };
   const sections = computeWorkspaceSectionsFromSession(session, gatingInput);
@@ -139,6 +156,23 @@ export function WorkspaceShell({
    */
   function handleConnectSaved(result: ConnectSectionSavedResult) {
     if (result.kind === "no_warrant_yet") setSession(result.session);
+  }
+
+  /**
+   * APPLYPANE-001 — upserts by id rather than always appending: repeated
+   * "Save draft" clicks from `ApplySection` update the SAME record in place
+   * (see that file's own header), so the shell's own `applications` state
+   * must reflect an edit-in-place too, not accumulate duplicate rows for
+   * one Application. A finalize is the same shape (same id, new status).
+   */
+  function handleApplicationSaved(application: Application) {
+    setApplications((previous) => {
+      const index = previous.findIndex((existing) => existing.id === application.id);
+      if (index === -1) return [...previous, application];
+      const next = [...previous];
+      next[index] = application;
+      return next;
+    });
   }
 
   return (
@@ -190,6 +224,15 @@ export function WorkspaceShell({
               session={session}
               unlocked={section.unlocked}
               onSaved={handleConnectSaved}
+            />
+          ) : null}
+          {section.contentMode === "apply" ? (
+            <ApplySection
+              claims={claims}
+              onSaved={handleApplicationSaved}
+              session={session}
+              unlocked={section.unlocked}
+              workspaceId={workspaceId}
             />
           ) : null}
           {section.contentMode === "placeholder" ? <PlaceholderSection section={section} /> : null}

@@ -334,19 +334,20 @@ test("computeWorkspaceSections: contentMode never depends on unlocked — Observ
 
 // CLAIMPANES-001: Context/Theology/Conviction graduate from "placeholder" to
 // their own real contentModes ("context"/"theology"/"conviction"). Extended
-// by CONNECTPANE-001: Connect graduates too ("connect"). This test is
-// updated (not a "gating" or "READGATE-001" test per acceptance criterion 6
-// — it is specifically the content-mode boundary each of these tasks' own
-// job is to move) to match; Apply/Teach remain the only two still-unbuilt
-// placeholders.
-test("computeWorkspaceSections: Apply/Teach are always contentMode 'placeholder', regardless of gate state -- Context/Connect/Theology/Conviction are real now", () => {
+// the same day by two sibling tasks: CONNECTPANE-001 graduates Connect
+// ("connect"), and APPLYPANE-001 graduates Apply ("apply"). This test is
+// updated (not a "gating" or "READGATE-001" test per each task's own
+// acceptance criterion 6 — it is specifically the content-mode boundary
+// these tasks' own job is to move) to match; Teach remains the only
+// still-unbuilt placeholder as of this integration.
+test("computeWorkspaceSections: Teach is always contentMode 'placeholder', regardless of gate state -- Context/Connect/Theology/Conviction/Apply are real now", () => {
   const claims = [claim("observation"), claim("context"), claim("interpretation"), claim("theology")];
   const applications = [application("finalized")];
   const sections = computeWorkspaceSections(
     "teach",
     computeStepGates({ session: { readGateAt: "2026-01-01T00:00:00.000Z" }, claims, applications }),
   );
-  const placeholderSteps: StudySessionStep[] = ["apply", "teach"];
+  const placeholderSteps: StudySessionStep[] = ["teach"];
   for (const step of placeholderSteps) {
     const section = sections.find((s) => s.step === step)!;
     assert.equal(section.contentMode, "placeholder", `${step} should still be a placeholder`);
@@ -356,6 +357,7 @@ test("computeWorkspaceSections: Apply/Teach are always contentMode 'placeholder'
     { step: "connect", expectedMode: "connect" },
     { step: "theology", expectedMode: "theology" },
     { step: "conviction", expectedMode: "conviction" },
+    { step: "apply", expectedMode: "apply" },
   ];
   for (const { step, expectedMode } of realSteps) {
     const section = sections.find((s) => s.step === step)!;
@@ -496,23 +498,38 @@ test("RENDER: an unlocked section shows no lock notice", () => {
   assert.ok(!html.includes("Unlocks once this passage is marked read."));
 });
 
-// CLAIMPANES-001/CONNECTPANE-001: only Apply/Teach remain "not built yet"
-// placeholders now (see the contentMode test above); Context/Connect/
-// Theology/Conviction get their own real-section coverage in
-// tests/claim-panes.test.ts and tests/connect-pane.test.ts.
-test("RENDER: Apply/Teach each render an honest 'not built yet' placeholder, never fabricated content", () => {
+// CLAIMPANES-001: Context/Theology/Conviction stopped rendering the generic
+// placeholder. CONNECTPANE-001 and APPLYPANE-001 (same-day sibling tasks)
+// remove Connect and Apply from that list too -- only Teach remains "not
+// built yet" now (see the contentMode test above); Context/Theology/
+// Conviction get their own real-section coverage in
+// tests/claim-panes.test.ts, Connect in tests/connect-pane.test.ts, Apply
+// in tests/apply-pane.test.ts.
+test("RENDER: Teach renders an honest 'not built yet' placeholder, never fabricated content", () => {
   const html = render({ session: sampleSession() });
-  const placeholderSteps: StudySessionStep[] = ["apply", "teach"];
+  const placeholderSteps: StudySessionStep[] = ["teach"];
   for (const step of placeholderSteps) {
     assert.ok(html.includes(`data-testid="placeholder-${step}"`), `${step} placeholder missing`);
   }
   assert.ok(html.includes("Not built yet."));
-  for (const step of ["context", "connect", "theology", "conviction"] as StudySessionStep[]) {
+  for (const step of ["context", "connect", "theology", "conviction", "apply"] as StudySessionStep[]) {
     assert.ok(
       !html.includes(`data-testid="placeholder-${step}"`),
       `${step} should no longer render the generic placeholder -- it has its own real section now`,
     );
   }
+  // Connect and Apply's own real sections show their OWN locked notices
+  // instead (sampleSession() has zero claims, so neither gate -- an
+  // attempted comparison for Connect, >=1 theology claim for Apply -- is
+  // met).
+  assert.ok(
+    html.includes('data-testid="connect-locked"'),
+    "Connect should show its own real locked notice, not the generic placeholder",
+  );
+  assert.ok(
+    html.includes('data-testid="apply-locked"'),
+    "Apply should show its own real locked notice, not the generic placeholder",
+  );
 });
 
 test("RENDER: Read shows a mark-as-read control before the gate is set, and a confirmation after", () => {

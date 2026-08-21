@@ -74,21 +74,35 @@
  * `computeStepGates` already returns `unlocked: true` for it and, more
  * importantly, because `ConvictionSection.tsx` itself never reads an
  * `unlocked` prop at all — "never gated" is a property of that component,
- * not an inference from today's gate value.
+ * not an inference from today's gate value. Connect/Apply/Teach remained
+ * "placeholder" as of CLAIMPANES-001 — architecturally different, out of
+ * that task's scope.
  *
- * CONNECTPANE-001 (2026-08-21) extends the SAME exception a third time to
- * Connect, now its own `contentMode` ("connect"). Architecturally distinct
- * from the three CLAIMPANES-001 sections: it does NOT mount `ClaimComposer`
- * at all — it writes a `UserConnection` (a different v2 entity entirely,
+ * CONNECTPANE-001 (2026-08-21) extends the SAME exception to Connect, now
+ * its own `contentMode` ("connect"). Architecturally distinct from the
+ * three CLAIMPANES-001 sections: it does NOT mount `ClaimComposer` at all —
+ * it writes a `UserConnection` (a different v2 entity entirely,
  * `lib/contracts/study-v2.ts`) through `saveLocalUserConnection`, or records
  * an honest `no_warrant_yet` outcome by updating the session's own
  * `connectionState` through `saveLocalStudySession` — both existing vault
  * writers, no new write path. Gated by the SAME `hasAttemptedComparison`
  * gate `lib/workspace/gating.ts` already computes for `"connect"`
  * (untouched by this task): `ConnectSection.tsx` shows `LockedNotice` until
- * `unlocked` is true, identical shape to Context/Theology/Observe. Apply/
- * Teach remain "placeholder" — architecturally different, out of this
- * task's scope (see `WorkspaceShell.tsx`'s header).
+ * `unlocked` is true, identical shape to Context/Theology/Observe.
+ *
+ * APPLYPANE-001 (2026-08-21, same day, sibling task) graduates Apply to its
+ * own `contentMode` ("apply"), the SAME shape again: `ApplySection.tsx`
+ * mounts once `lib/workspace/gating.ts`'s `apply` gate (>=1 theology claim,
+ * UNTOUCHED by this task) is satisfied, `LockedNotice` otherwise. Apply is
+ * NOT a `ClaimComposer` mount at all either — it writes a whole different v2
+ * entity (`Application`, via `saveLocalApplication`, `lib/sync/store.ts`)
+ * with its own bridge-field form, so it carries no `offeredKinds` entry
+ * below (stays `undefined`, same as Read/Observe/Connect/Teach — "not
+ * applicable" is correct for a non-`ClaimComposer` section, not a gap).
+ *
+ * Teach remains "placeholder" as of these two tasks — TEACHDRAFTPANE-001
+ * (also 2026-08-21) graduates it separately; see that task's own commit and
+ * this file's `STEP_CONTENT_MODE` map below for the current state.
  * ---------------------------------------------------------------------------
  */
 
@@ -130,9 +144,17 @@ export const STEP_LABELS: Record<StudySessionStep, string> = {
   teach: "Teach",
 };
 
-export type SectionContentMode = "read" | "observe" | "context" | "connect" | "theology" | "conviction" | "placeholder";
+export type SectionContentMode =
+  | "read"
+  | "observe"
+  | "context"
+  | "connect"
+  | "theology"
+  | "conviction"
+  | "apply"
+  | "placeholder";
 
-/** Which of the eight sections has a REAL surface built as of this task; Apply/Teach remain honest placeholders (deliberate scope boundary — see WorkspaceShell.tsx). */
+/** Which sections have a REAL surface built so far; Teach remains an honest placeholder pending TEACHDRAFTPANE-001's own merge (deliberate scope boundary — see WorkspaceShell.tsx). */
 const STEP_CONTENT_MODE: Record<StudySessionStep, SectionContentMode> = {
   read: "read",
   observe: "observe",
@@ -140,7 +162,7 @@ const STEP_CONTENT_MODE: Record<StudySessionStep, SectionContentMode> = {
   connect: "connect",
   theology: "theology",
   conviction: "conviction",
-  apply: "placeholder",
+  apply: "apply",
   teach: "placeholder",
 };
 
@@ -152,8 +174,15 @@ const STEP_CONTENT_MODE: Record<StudySessionStep, SectionContentMode> = {
  * `ClaimKind` that section's own BUILD_PLAN §4 row writes — never more than
  * one, and never a kind other than the row's own ("Context...writes...
  * interpretation", "Theology...writes...theology", "Conviction...writes...
- * conviction"). `undefined` (Read/Observe/the three placeholders) means "not
- * applicable" — Observe stays the ORIGINAL, unmodified, full-eight-kind
+ * conviction"). `undefined` (Read/Observe/Connect/Apply/Teach) means "not
+ * applicable" — Apply (APPLYPANE-001) is real but is not a `ClaimComposer`
+ * mount at all (it writes `Application`, a different v2 entity, through its
+ * own `ApplySection.tsx` form), so it stays `undefined` here alongside the
+ * still-unbuilt Connect/Teach placeholders — "not applicable" and "not built
+ * yet" both resolve to the same `undefined`, which is correct: this map only
+ * ever answers "which ClaimKind does this section's ClaimComposer offer,"
+ * and Apply's answer to that question is "none, it isn't one." Observe stays
+ * the ORIGINAL, unmodified, full-eight-kind
  * `ClaimComposer` mount; it predates this decision and is not one of the
  * three sections it governs.
  */
