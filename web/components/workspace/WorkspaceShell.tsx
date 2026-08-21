@@ -7,6 +7,7 @@ import type { Application, StudyClaim, StudySession } from "@/lib/contracts/stud
 import type { WorkspaceGatingInput } from "@/lib/workspace/gating";
 import { computeWorkspaceSectionsFromSession } from "@/lib/workspace/renderState";
 
+import { ApplySection } from "./ApplySection";
 import { ContextSection } from "./ContextSection";
 import { ConvictionSection } from "./ConvictionSection";
 import { ObserveSection } from "./ObserveSection";
@@ -73,13 +74,18 @@ import { TheologySection } from "./TheologySection";
  *     UNCONDITIONALLY — never gated, by construction, not merely because
  *     `computeStepGates` currently always returns `unlocked: true` for it —
  *     see `ConvictionSection.tsx`.
- *   - Connect/Apply/Teach ALWAYS render an honest "not built yet"
- *     placeholder (`PlaceholderSection`) — that is the entirety of their
- *     content in this task, locked or not. Building their real
- *     functionality is deliberately OUT of this task's scope (they are
- *     architecturally different: a UserConnection form, an Application
- *     bridge-fields form, a TeachingDraft builder) — see this task's commit
- *     message.
+ *   - Apply (APPLYPANE-001) mounts `ApplySection` — NOT a `ClaimComposer`,
+ *     since `Application` is a different v2 entity entirely — once
+ *     `hasClaimOfKind(claims, "theology")` (the `apply` gate,
+ *     `lib/workspace/gating.ts`, UNTOUCHED by this task) is true; see
+ *     `ApplySection.tsx`'s own header for its draft-vs-finalize design and
+ *     the sensitive-modernDomain referral-copy reasoning.
+ *   - Connect/Teach ALWAYS render an honest "not built yet" placeholder
+ *     (`PlaceholderSection`) — that is the entirety of their content as of
+ *     this task, locked or not. Building their real functionality is
+ *     deliberately OUT of this task's scope (a UserConnection form, a
+ *     TeachingDraft builder — architecturally different from Apply's own
+ *     bridge-fields form) — see this task's commit message.
  */
 
 export interface WorkspaceShellProps {
@@ -95,10 +101,11 @@ export function WorkspaceShell({
   workspaceId,
   session: initialSession,
   claims: initialClaims = [],
-  applications = [],
+  applications: initialApplications = [],
 }: WorkspaceShellProps) {
   const [session, setSession] = useState(initialSession);
   const [claims, setClaims] = useState(initialClaims);
+  const [applications, setApplications] = useState(initialApplications);
 
   const gatingInput: WorkspaceGatingInput = { session, claims, applications };
   const sections = computeWorkspaceSectionsFromSession(session, gatingInput);
@@ -106,6 +113,23 @@ export function WorkspaceShell({
   function handleClaimSaved(result: ClaimComposerSavedResult) {
     setSession(result.session);
     setClaims((previous) => [...previous, result.claim]);
+  }
+
+  /**
+   * APPLYPANE-001 — upserts by id rather than always appending: repeated
+   * "Save draft" clicks from `ApplySection` update the SAME record in place
+   * (see that file's own header), so the shell's own `applications` state
+   * must reflect an edit-in-place too, not accumulate duplicate rows for
+   * one Application. A finalize is the same shape (same id, new status).
+   */
+  function handleApplicationSaved(application: Application) {
+    setApplications((previous) => {
+      const index = previous.findIndex((existing) => existing.id === application.id);
+      if (index === -1) return [...previous, application];
+      const next = [...previous];
+      next[index] = application;
+      return next;
+    });
   }
 
   return (
@@ -149,6 +173,15 @@ export function WorkspaceShell({
               session={session}
               offeredKinds={section.offeredKinds ?? []}
               onSaved={handleClaimSaved}
+            />
+          ) : null}
+          {section.contentMode === "apply" ? (
+            <ApplySection
+              claims={claims}
+              onSaved={handleApplicationSaved}
+              session={session}
+              unlocked={section.unlocked}
+              workspaceId={workspaceId}
             />
           ) : null}
           {section.contentMode === "placeholder" ? <PlaceholderSection section={section} /> : null}
