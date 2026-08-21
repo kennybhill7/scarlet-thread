@@ -159,6 +159,10 @@ const PRIMARY_KEYS: Record<string, string[]> = {
   user_connections: ["id"],
   applications: ["id"],
   teaching_drafts: ["id"],
+  // WAVE 18: TEACHSECTIONSYNC-001 added the ninth v2 entity/table; the export
+  // route now queries it too, so it needs modelling here for the same reason
+  // the wave-10 note above already explains.
+  teaching_sections: ["id"],
 };
 
 /** Tables carrying a `user_id`. `stages` is deliberately absent: it is global
@@ -203,6 +207,7 @@ const MODELLED_TABLES: Table[] = [
   schema.userConnections,
   schema.applications,
   schema.teachingDrafts,
+  schema.teachingSections,
 ];
 
 const metaByTable = new Map<Table, TableMeta>();
@@ -1387,6 +1392,13 @@ function seedFixtures() {
       [
         { id: "a-draft-1", workspaceId: A_WORKSPACE, sessionId: "a-session-1", title: "A's own draft", bigIdea: "A's own big idea", audience: "small_group", durationMinutes: 30, gospelConnection: "A's own connection", status: "draft" },
         { id: "bbbbbbbb-draft-1", workspaceId: B_WORKSPACE, sessionId: "bbbbbbbb-session-1", title: "B-PRIVATE-DRAFT-TITLE", bigIdea: "B-PRIVATE-BIG-IDEA", audience: "small_group", durationMinutes: 30, gospelConnection: "B-PRIVATE-GOSPEL-CONNECTION", status: "draft" },
+      ],
+    ],
+    [
+      schema.teachingSections,
+      [
+        { id: "a-section-1", workspaceId: A_WORKSPACE, draftId: "a-draft-1", kind: "outline", sortOrder: 0, body: "A's own outline point" },
+        { id: "bbbbbbbb-section-1", workspaceId: B_WORKSPACE, draftId: "bbbbbbbb-draft-1", kind: "outline", sortOrder: 0, body: "B-PRIVATE-SECTION-BODY" },
       ],
     ],
   ];

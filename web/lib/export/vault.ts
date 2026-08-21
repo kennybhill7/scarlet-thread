@@ -14,6 +14,7 @@ import type {
   StudyClaim,
   StudySession,
   TeachingDraft,
+  TeachingSection,
   UserConnection,
 } from "@/lib/contracts/study-v2";
 import { SYNC_ENTITIES_V2, type SyncEntityV2 } from "@/lib/contracts/sync-v2";
@@ -47,6 +48,7 @@ export interface VaultExportV2 {
   connection?: UserConnection[];
   application?: Application[];
   teachingDraft?: TeachingDraft[];
+  teachingSection?: TeachingSection[];
 }
 
 /**
@@ -452,11 +454,34 @@ function renderApplications(
   return files;
 }
 
+/**
+ * TEACHSECTIONSYNC-001 added the sync entity/vault writer for
+ * `TeachingSection` but not the export renderer — `teachingSection` nests
+ * into its own draft's file here, the SAME "sibling entity, never a
+ * payload array" shape SYNCGAP-001 already resolved for `evidence` (under
+ * `claim`) and `motifSighting` (under `motif`): a section has no meaning
+ * exported on its own, only as part of the outline it belongs to.
+ */
+function renderTeachingSectionLine(section: TeachingSection): string {
+  return `- **${section.kind}** (order ${section.sortOrder}): ${section.body}${deletedNote(section.deletedAt)}`;
+}
+
 function renderTeachingDrafts(
   drafts: TeachingDraft[],
+  sections: TeachingSection[],
 ): Record<string, Uint8Array> {
   const files: Record<string, Uint8Array> = {};
+  const sectionsByDraft = new Map<string, TeachingSection[]>();
+  for (const section of sections) {
+    const group = sectionsByDraft.get(section.draftId) ?? [];
+    group.push(section);
+    sectionsByDraft.set(section.draftId, group);
+  }
+
   for (const draft of drafts) {
+    const draftSections = (sectionsByDraft.get(draft.id) ?? [])
+      .slice()
+      .sort((a, b) => a.sortOrder - b.sortOrder);
     const lines = [
       `# ${draft.title}${deletedNote(draft.deletedAt)}`,
       "",
@@ -473,6 +498,10 @@ function renderTeachingDrafts(
       "",
       draft.gospelConnection,
       "",
+      "## Outline",
+      "",
+      ...(draftSections.length ? draftSections.map(renderTeachingSectionLine) : ["- None yet"]),
+      "",
       `<!-- teachingDraft:${draft.id} updated:${draft.updatedAt} -->`,
       "",
     ];
@@ -485,12 +514,12 @@ function renderTeachingDrafts(
 
 /**
  * One renderer per `SyncEntityV2` member, keyed by the SAME runtime array
- * `buildVaultArchive` iterates. `evidence` and `motifSighting` render as
- * `null` — not absent — because BUILD_PLAN §3.4 nests them into their
- * parent's file rather than giving them one of their own; `renderClaims`/
- * `renderMotifs` already consume them. A renderer entry existing (even as
- * `null`) is what proves the entity was deliberately handled, vs. simply
- * forgotten.
+ * `buildVaultArchive` iterates. `evidence`, `motifSighting`, and
+ * `teachingSection` render as `null` — not absent — because BUILD_PLAN §3.4
+ * nests them into their parent's file rather than giving them one of their
+ * own; `renderClaims`/`renderMotifs`/`renderTeachingDrafts` already consume
+ * them. A renderer entry existing (even as `null`) is what proves the
+ * entity was deliberately handled, vs. simply forgotten.
  */
 const V2_RENDERERS: Record<
   SyncEntityV2,
@@ -503,7 +532,8 @@ const V2_RENDERERS: Record<
   motifSighting: null,
   connection: (data) => renderConnections(data.connection),
   application: (data) => renderApplications(data.application),
-  teachingDraft: (data) => renderTeachingDrafts(data.teachingDraft),
+  teachingDraft: (data) => renderTeachingDrafts(data.teachingDraft, data.teachingSection),
+  teachingSection: null,
 };
 
 function filterToWorkspace<T extends { workspaceId: string }>(
@@ -538,6 +568,7 @@ function buildV2Files(data: VaultExport): Record<string, Uint8Array> {
     connection: filterToWorkspace(data.connection ?? [], workspaceId),
     application: filterToWorkspace(data.application ?? [], workspaceId),
     teachingDraft: filterToWorkspace(data.teachingDraft ?? [], workspaceId),
+    teachingSection: filterToWorkspace(data.teachingSection ?? [], workspaceId),
   };
 
   const files: Record<string, Uint8Array> = {};

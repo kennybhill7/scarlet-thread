@@ -111,6 +111,7 @@ const MODELLED_TABLES: Table[] = [
   schema.userConnections,
   schema.applications,
   schema.teachingDrafts,
+  schema.teachingSections,
 ];
 
 const metaByTable = new Map<Table, TableMeta>();
@@ -771,6 +772,21 @@ function seedTeachingDraft(id: string, workspaceId: string, sessionId: string, m
   });
 }
 
+function seedTeachingSection(id: string, workspaceId: string, draftId: string, marker: string) {
+  rowsOf("teaching_sections").push({
+    id,
+    workspaceId,
+    draftId,
+    kind: "outline",
+    sortOrder: 0,
+    body: marker,
+    revision: 1,
+    createdAt: TS,
+    updatedAt: TS,
+    deletedAt: null,
+  });
+}
+
 /** Table sqlName + fixture ids for each of the eight SYNC_ENTITIES_V2
  *  entities, derived from the contract array at runtime (never hand-listed
  *  a second time) so a ninth entity forces this file to be updated. */
@@ -783,6 +799,7 @@ const V2_TABLE_SQL_NAMES: Record<SyncEntityV2, string> = {
   connection: getTableName(schema.userConnections),
   application: getTableName(schema.applications),
   teachingDraft: getTableName(schema.teachingDrafts),
+  teachingSection: getTableName(schema.teachingSections),
 };
 
 /** Full two-account fixture: v1 (person/thread/daily log) + all eight v2
@@ -824,6 +841,8 @@ function seedTwoAccounts() {
   seedApplication("application-b1", WORKSPACE_B, "session-b1", "claim-b1", markersB.application);
   seedTeachingDraft("draft-a1", WORKSPACE_A, "session-a1", markersA.teachingDraft);
   seedTeachingDraft("draft-b1", WORKSPACE_B, "session-b1", markersB.teachingDraft);
+  seedTeachingSection("section-a1", WORKSPACE_A, "draft-a1", markersA.teachingSection);
+  seedTeachingSection("section-b1", WORKSPACE_B, "draft-b1", markersB.teachingSection);
 
   return {
     markersA,
@@ -838,6 +857,7 @@ function seedTwoAccounts() {
         connection: "connection-a1",
         application: "application-a1",
         teachingDraft: "draft-a1",
+        teachingSection: "section-a1",
       } satisfies Record<SyncEntityV2, string>,
       B: {
         session: "session-b1",
@@ -848,6 +868,7 @@ function seedTwoAccounts() {
         connection: "connection-b1",
         application: "application-b1",
         teachingDraft: "draft-b1",
+        teachingSection: "section-b1",
       } satisfies Record<SyncEntityV2, string>,
     },
   };
@@ -879,8 +900,13 @@ test("coverage: the real GET route puts all eight SYNC_ENTITIES_V2 entities' con
   seedConnection("connection-cov", WORKSPACE_A, markers.connection);
   seedApplication("application-cov", WORKSPACE_A, "session-cov", "claim-cov", markers.application);
   seedTeachingDraft("draft-cov", WORKSPACE_A, "session-cov", markers.teachingDraft);
+  seedTeachingSection("section-cov", WORKSPACE_A, "draft-cov", markers.teachingSection);
 
-  assert.equal(SYNC_ENTITIES_V2.length, 8);
+  // Tripwire, not a hand-listed assumption: if SYNC_ENTITIES_V2 grows again,
+  // this fails loudly as a reminder that a matching seed*() call above (and
+  // the coverage this test claims) needs updating too -- exactly the gap
+  // TEACHSECTIONSYNC-001 hit here at integration when this number went stale.
+  assert.equal(SYNC_ENTITIES_V2.length, 9);
 
   const response = await asUser(SESSION_A, () => api.exportVault());
   assert.equal(response.status, 200);

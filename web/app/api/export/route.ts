@@ -10,6 +10,7 @@ import {
   studyClaims,
   studySessions,
   teachingDrafts,
+  teachingSections,
   userConnections,
 } from "@/db/schema";
 import { unauthorized, serverError } from "@/lib/api/response";
@@ -22,6 +23,7 @@ import type {
   StudyClaim,
   StudySession,
   TeachingDraft,
+  TeachingSection,
   UserConnection,
 } from "@/lib/contracts/study-v2";
 import { db } from "@/lib/db";
@@ -32,9 +34,14 @@ import { getOrCreatePersonalWorkspace } from "@/lib/db/workspaces";
 import { buildVaultArchive } from "@/lib/export/vault";
 
 // ---------------------------------------------------------------------------
-// EXPORTROUTE-001 — the door EXPORTV2-001 reported missing: this route now
-// queries all eight v2 tables and hands them, plus the resolved workspaceId,
-// to buildVaultArchive (lib/export/vault.ts, a readOnlyPath for this task).
+// EXPORTROUTE-001 — the door EXPORTV2-001 reported missing: this route
+// queries every v2 table and hands them, plus the resolved workspaceId, to
+// buildVaultArchive (lib/export/vault.ts). teachingSections added during
+// wave-18 integration (TEACHSECTIONSYNC-001 added the ninth sync entity and
+// its vault.ts renderer; this route needed the matching query to actually
+// reach it, closing the gap both that task and this file's own type-level
+// tripwire — Record<SyncEntityV2, ...> shapes throughout this file — flagged
+// the moment SYNC_ENTITIES_V2 grew).
 //
 // workspaceId is resolved from the SESSION via lib/db/workspaces.ts's
 // getOrCreatePersonalWorkspace(userId) — never from anything a caller could
@@ -75,6 +82,7 @@ type MotifSightingRow = typeof motifSightings.$inferSelect;
 type UserConnectionRow = typeof userConnections.$inferSelect;
 type ApplicationRow = typeof applications.$inferSelect;
 type TeachingDraftRow = typeof teachingDrafts.$inferSelect;
+type TeachingSectionRow = typeof teachingSections.$inferSelect;
 
 function serializeSession(row: StudySessionRow): StudySession {
   return {
@@ -226,6 +234,21 @@ function serializeTeachingDraft(row: TeachingDraftRow): TeachingDraft {
   };
 }
 
+function serializeTeachingSection(row: TeachingSectionRow): TeachingSection {
+  return {
+    id: row.id,
+    workspaceId: row.workspaceId,
+    draftId: row.draftId,
+    kind: row.kind,
+    sortOrder: row.sortOrder,
+    body: row.body,
+    revision: row.revision,
+    createdAt: toIsoTimestamp(row.createdAt),
+    updatedAt: toIsoTimestamp(row.updatedAt),
+    deletedAt: toOptionalIsoTimestamp(row.deletedAt),
+  };
+}
+
 export async function GET() {
   const session = await auth();
   if (!session?.user?.id) return unauthorized();
@@ -251,6 +274,7 @@ export async function GET() {
       connectionRows,
       applicationRows,
       teachingDraftRows,
+      teachingSectionRows,
     ] = await Promise.all([
       listEntries(userId, { includeDeleted: false }),
       listThreads(userId),
@@ -294,6 +318,10 @@ export async function GET() {
         .select()
         .from(teachingDrafts)
         .where(eq(teachingDrafts.workspaceId, workspaceId)),
+      db
+        .select()
+        .from(teachingSections)
+        .where(eq(teachingSections.workspaceId, workspaceId)),
     ]);
 
     const archive = buildVaultArchive({
@@ -332,6 +360,7 @@ export async function GET() {
       connection: connectionRows.map(serializeConnection),
       application: applicationRows.map(serializeApplication),
       teachingDraft: teachingDraftRows.map(serializeTeachingDraft),
+      teachingSection: teachingSectionRows.map(serializeTeachingSection),
     });
 
     return new Response(new Blob([archive]), {

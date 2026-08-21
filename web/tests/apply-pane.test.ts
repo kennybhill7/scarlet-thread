@@ -24,7 +24,10 @@
  *   4. Section G below calls the REAL `saveLocalApplication` /
  *      `listLocalV2Entities` from `@/lib/sync/store` (not stubbed) to prove,
  *      not merely assert in a comment, the read-only vault schema's actual
- *      non-empty floor this file's own header describes.
+ *      floor: relaxed to allow a genuinely partial DRAFT (APPLYSCHEMA-001,
+ *      wave 18) but still enforcing full bridge-field completeness the
+ *      moment status is "finalized" — a server-side backstop behind this
+ *      component's own client-side finalizeReadiness.
  */
 import "fake-indexeddb/auto";
 
@@ -591,13 +594,26 @@ test("VAULT: re-saving the SAME id with status flipped to 'finalized' updates in
   assert.equal(matches[0].revision, 2);
 });
 
-test("VAULT PROOF OF THIS FILE'S OWN HEADER CLAIM: a record missing one of the nine schema-required bridge fields is REJECTED by the real saveLocalApplication -- confirming the vault floor described above is real, not merely asserted", async () => {
-  const incomplete: Application = {
-    id: "app-vault-incomplete",
+// APPLYSCHEMA-001 (wave 18) relaxed the real wire/vault schema
+// (lib/api/sync-v2.ts's syncApplicationV2Schema) so a genuinely partial
+// DRAFT persists: eight of the nine bridge fields this file used to
+// describe as an always-required vault floor are now optional for a draft
+// save. modernDomain/responseType are the one deliberate, documented
+// exception (real Postgres NOT NULL enum columns with no blank member) and
+// stay required at every status. Completeness is now enforced only when
+// status is "finalized" -- a SERVER-side backstop behind this file's own
+// client-side draftSaveReadiness/finalizeReadiness, closing the gap that a
+// hostile or buggy client could otherwise bypass by writing a "finalized"
+// row directly. Both halves are proven below through the real
+// saveLocalApplication, not merely asserted in a comment.
+
+test("VAULT PROOF (updated by APPLYSCHEMA-001): a DRAFT missing a relaxed bridge field (originalAudienceMeaning) now SAVES successfully through the real saveLocalApplication", async () => {
+  const partialDraft: Application = {
+    id: "app-vault-partial-draft",
     workspaceId: "workspace-vault-1",
     sessionId: "session-vault-1",
     sourceClaimId: "claim-theology-1",
-    originalAudienceMeaning: "", // blank -- the vault schema's own min(1) must reject this
+    originalAudienceMeaning: "", // relaxed by APPLYSCHEMA-001 -- a draft may leave this blank
     enduringPrinciple: "e",
     canonicalBridge: "c",
     applicationClass: "class",
@@ -614,7 +630,35 @@ test("VAULT PROOF OF THIS FILE'S OWN HEADER CLAIM: a record missing one of the n
     updatedAt: "2026-01-01T00:00:00.000Z",
     deletedAt: null,
   };
-  await assert.rejects(() => saveLocalApplication(incomplete));
+  await saveLocalApplication(partialDraft);
+  const rows = (await listLocalV2Entities("application")) as Application[];
+  assert.ok(rows.some((r) => r.id === "app-vault-partial-draft" && r.originalAudienceMeaning === ""));
+});
+
+test("VAULT PROOF (APPLYSCHEMA-001's server-side completeness gate): a record claiming status \"finalized\" with the SAME blank bridge field is REJECTED by the real saveLocalApplication, even though the draft above with identical blanks succeeded", async () => {
+  const fakedFinalize: Application = {
+    id: "app-vault-fake-finalize",
+    workspaceId: "workspace-vault-1",
+    sessionId: "session-vault-1",
+    sourceClaimId: "claim-theology-1",
+    originalAudienceMeaning: "", // blank -- finalize must reject this even though draft allows it
+    enduringPrinciple: "e",
+    canonicalBridge: "c",
+    applicationClass: "class",
+    promiseScope: "scope",
+    modernDomain: "work",
+    situation: "s",
+    responseType: "rest",
+    faithfulResponse: "f",
+    cautions: "some caution",
+    availableAfter: null,
+    status: "finalized",
+    revision: 1,
+    createdAt: "2026-01-01T00:00:00.000Z",
+    updatedAt: "2026-01-01T00:00:00.000Z",
+    deletedAt: null,
+  };
+  await assert.rejects(() => saveLocalApplication(fakedFinalize));
 });
 
 test("VAULT PROOF: cautions IS the one field the real schema allows blank -- an otherwise-complete draft with empty cautions saves successfully", async () => {

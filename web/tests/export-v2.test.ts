@@ -14,6 +14,7 @@ import type {
   StudyClaim,
   StudySession,
   TeachingDraft,
+  TeachingSection,
   UserConnection,
 } from "@/lib/contracts/study-v2";
 
@@ -230,9 +231,29 @@ function makeTeachingDraft(
   };
 }
 
+function makeTeachingSection(
+  workspaceId: string,
+  id: string,
+  bodyMarker: string,
+  draftId: string,
+  now: string,
+): TeachingSection {
+  return {
+    id,
+    workspaceId,
+    draftId,
+    kind: "outline",
+    sortOrder: 0,
+    body: bodyMarker,
+    revision: 1,
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
 // ---------------------------------------------------------------------------
-// Coverage: all eight SYNC_ENTITIES_V2 entities, driven off the runtime
-// contract array (never a hand-retyped list of the eight names).
+// Coverage: all nine SYNC_ENTITIES_V2 entities, driven off the runtime
+// contract array (never a hand-retyped list of the entity names).
 // ---------------------------------------------------------------------------
 
 test("vault export renders every SYNC_ENTITIES_V2 entity's content in the archive output (runtime-driven coverage, not a hand-written list)", () => {
@@ -294,14 +315,25 @@ test("vault export renders every SYNC_ENTITIES_V2 entity's content in the archiv
         now,
       ),
     ],
+    teachingSection: [
+      makeTeachingSection(
+        WORKSPACE_A,
+        "section-cov",
+        MARKERS.teachingSection,
+        "teach-cov",
+        now,
+      ),
+    ],
   });
 
   const { files, text } = allFileText(archive);
 
-  // Sanity pin on BUILD_PLAN §3.4's own count ("eight new entities") — not
-  // derived from vault.ts, just from the contract this test is proving
-  // coverage against.
-  assert.equal(SYNC_ENTITIES_V2.length, 8);
+  // Sanity pin on the contract's actual entity count — not derived from
+  // vault.ts, just from lib/contracts/sync-v2.ts this test is proving
+  // coverage against. Updated to nine by TEACHSECTIONSYNC-001/wave-18
+  // integration; BUILD_PLAN's own prose ("eight new entities") is now
+  // stale by the same one and is a documentation follow-up, not a code bug.
+  assert.equal(SYNC_ENTITIES_V2.length, 9);
 
   for (const entity of SYNC_ENTITIES_V2) {
     assert.ok(
