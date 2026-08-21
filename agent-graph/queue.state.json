@@ -493,6 +493,22 @@
       "lastRunId": "interactive-2026-08-21-wave17",
       "lastEvidence": "MERGED to master in ba5123b after independent verification (including a real three-way merge conflict resolved by hand). 831/831, 0 skipped; typecheck/lint/build clean. | Teach at the draft level. The scope boundary against the section outline builder was VERIFIED by grep before writing code (pasted in the commit - zero matches for a ninth sync entity across the three files that would need one), not merely asserted. VERIFIED INDEPENDENTLY alongside its two siblings: the Theology-gate mutation proof re-run against the fully merged tree failed FOUR named tests across three different test files.",
       "notes": "Merged. Follow-up named: a ninth sync entity (teachingSection) is needed before the real outline builder can be built."
+    },
+    "APPLYSCHEMA-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-21-wave18",
+      "notes": "Seeded 2026-08-21, 'keep going' -- closing the two disclosed follow-ups from wave 17 (CLAIMPANES/CONNECT/APPLY/TEACHDRAFT). Both touch lib/api/sync-v2.ts but in disjoint schema blocks; run in parallel."
+    },
+    "TEACHSECTIONSYNC-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-21-wave18",
+      "notes": "Seeded 2026-08-21, 'keep going' -- closing the two disclosed follow-ups from wave 17 (CLAIMPANES/CONNECT/APPLY/TEACHDRAFT). Both touch lib/api/sync-v2.ts but in disjoint schema blocks; run in parallel."
     }
   }
 }

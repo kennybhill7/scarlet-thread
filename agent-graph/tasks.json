@@ -1829,6 +1829,82 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "APPLYSCHEMA-001",
+      "title": "Relax Application's write schema for genuine partial drafts, and make finalize completeness a SERVER guarantee",
+      "objective": "APPLYPANE-001 self-reported honestly that lib/api/sync-v2.ts's syncApplicationV2Schema already requires nine of BUILD_PLAN's ten bridge fields non-empty for ANY save, draft or not -- so 'a partial Application saves successfully at any point' (BUILD_PLAN section 4 row 7) is not actually true today. This task closes that gap, AND closes a second one nobody has named yet: ApplySection.tsx's finalizeReadiness check (requiring all ten fields including cautions) is CLIENT-SIDE ONLY. Nothing today stops a client from pushing an op with status:\"finalized\" and blank bridge fields directly through sync push, bypassing the UI entirely -- the same shape of gap MOTIFSTATUS-001 closed for motif-candidate promotion earlier this project. A privileged completeness transition needs a server-side guarantee, not just a client nicety.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/lib/api/sync-v2.ts",
+        "web/lib/db/sync-v2.ts",
+        "web/tests/sync-v2.test.ts",
+        "web/tests/sync-v2-persist.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/components/workspace/ApplySection.tsx",
+        "web/lib/contracts/study-v2.ts",
+        "web/lib/sync/store.ts",
+        "web/tests/apply-pane.test.ts",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "In lib/api/sync-v2.ts, syncApplicationV2Schema: the nine currently-required bridge fields (originalAudienceMeaning, enduringPrinciple, canonicalBridge, applicationClass, promiseScope, modernDomain, situation, responseType, faithfulResponse) become genuinely optional for a general save -- a record with all nine blank/absent must validate and be persistable as a draft. Decide the exact representation (empty string vs. nullable/optional field) consistent with how the rest of this schema already represents 'not yet filled in' elsewhere in the codebase, and say which you chose and why.",
+        "A conditional refinement (zod's superRefine, the same mechanism this schema or its siblings likely already use elsewhere in the file -- check before inventing a new validation pattern) requires ALL TEN bridge fields (the nine plus cautions) to be present and non-blank whenever status is exactly the literal \"finalized\" -- the same two-value ApplicationStatus vocabulary ApplySection.tsx already uses (read-only here; do not redefine it, just reference the same two string literals \"draft\"/\"finalized\"). A push attempting to set status to \"finalized\" with any bridge field blank must be REJECTED, with a distinguishable reason, not silently accepted or silently downgraded to draft.",
+        "This is enforced at the actual persistence layer, not only at schema-parse time: verify (and if needed, extend) lib/db/sync-v2.ts's planApplicationOp-equivalent function actually surfaces the same guarantee end to end, not merely that a Zod object shape happens to validate. A hostile test proves a sync push claiming finalized status with blank bridge fields is rejected by the real planning function, not just the schema parser in isolation.",
+        "Idempotent replay and revision-conflict handling for Application ops are UNCHANGED by this task -- you are relaxing which field VALUES are acceptable, not touching the accessor/revision-check machinery those two things depend on. Prove the existing idempotency and conflict tests still pass unedited.",
+        "Every existing sync-v2.test.ts and sync-v2-persist.test.ts test for Application ops keeps passing -- where one asserted the OLD nine-fields-always-required behavior, update it explicitly and say so (this task's whole point is that assumption was wrong); every other assertion (idempotency, tenant isolation, revision conflicts) must be untouched.",
+        "Do NOT touch ApplySection.tsx's own client-side finalizeReadiness (read-only) -- it stays as fast UX feedback; this task adds the SERVER-side backstop behind it, defense in depth, the same relationship the route-level and radar-level already-resolved guards have for motif promotion.",
+        "Mutation-prove: the new finalize-completeness refinement, by breaking it (letting a finalized-status op through with a blank bridge field) and confirming a NAMED test fails; and the draft-relaxation itself, by re-imposing the old all-nine-required behavior and confirming a NAMED test (proving a genuine partial draft can now be saved) fails."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "TEACHSECTIONSYNC-001",
+      "title": "Add teachingSection as the ninth v2 sync entity (contract, wire schema, planner, vault writer)",
+      "objective": "TEACHDRAFTPANE-001 verified by grep (not merely asserted) that teaching_sections has a real Postgres table (db/schema.ts, from SCHEMAFU-001, long since merged) but no sync entity, no wire schema, no planner handler, and no vault writer exist anywhere for it -- SYNC_ENTITIES_V2 lists exactly eight entities and teachingSection is not one. This is the plumbing task that closes that gap, following the EXACT pattern this codebase already used twice before for exactly this kind of addition (SYNCGAP-001/SYNCPERSIST-001/V2VAULT-001 for evidence and motifSighting, early in this project). This task does NOT build the outline-builder UI itself -- that is real, separate follow-up work once this lands, so a person can actually add/reorder/edit teaching-draft sections.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/lib/contracts/study-v2.ts",
+        "web/lib/contracts/sync-v2.ts",
+        "web/lib/api/sync-v2.ts",
+        "web/lib/db/sync-v2.ts",
+        "web/lib/sync/store.ts",
+        "web/db/schema.ts",
+        "web/tests/sync-v2.test.ts",
+        "web/tests/sync-v2-persist.test.ts",
+        "web/tests/vault-v2.test.ts",
+        "web/tests/vault-v2-merge.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/db/migrations/",
+        "BUILD_PLAN.md",
+        "docs/decisions/2026-08-18-teaching-not-theology.md"
+      ],
+      "acceptanceCriteria": [
+        "Add a TeachingSection TS type and TEACHING_SECTION_KINDS as-const array to lib/contracts/study-v2.ts, mirroring the shape of every other v2 entity type already there (StudyClaim, UserConnection, etc.) -- fields id, workspaceId, draftId, kind, sortOrder, body, revision, createdAt, updatedAt, deletedAt, matching db/schema.ts's teaching_sections table exactly (read its real columns, do not guess). This closes a long-standing, previously-reported SCOPE-BOUNDARY-001 item: db/schema.ts's own comment above TEACHING_SECTION_KINDS names this exact follow-up (add the export here, then have schema.ts import it instead of duplicating the literal array) -- do that swap too, and it is the ONE line in db/schema.ts (a mostly-read-only path for this task otherwise) you are authorized to touch.",
+        "Add \"teachingSection\" to SYNC_ENTITIES_V2 (lib/contracts/sync-v2.ts) as the ninth entity, and add its wire schema (syncTeachingSectionV2Schema) to lib/api/sync-v2.ts, following the exact validation-strictness conventions the other eight schemas already establish in that file (accessor pattern for the revision/timestamp cross-check, .strict() object, etc.) -- do not invent a new convention.",
+        "Add a planTeachingSectionOp function to lib/db/sync-v2.ts following the SAME plan*Op pattern every other entity already uses (read planApplicationOp or planEvidenceOp first, copy the shape, do not reinvent it), wired into the dispatch switch. Tenant scoping, idempotent replay, and revision-conflict rejection must all work identically to every other entity -- prove each with a hostile test in the tenant-isolation.test.ts style this file's siblings already established.",
+        "Add a saveLocalTeachingSection vault writer to lib/sync/store.ts (and a teachingSection object store in the IndexedDB schema, as an ADDITIVE version bump following V2VAULT-001's own upgrade-preserves-data pattern exactly -- read that pattern before touching the database version number). Entity write and outbox op write in ONE IndexedDB transaction, under the same write lock every other v2 writer uses -- these are non-negotiable, already-mutation-proved properties for every other entity and must hold for this one too.",
+        "Extend mergeRemoteChangesV2 (lib/sync/store.ts, from SYNCV2MERGE-001) to cover teachingSection too, so a pulled section merges locally without re-enqueueing an outbox op -- the exact bug that task exists to prevent, now for a ninth entity.",
+        "All existing tests across every file you own keep passing completely unweakened -- adding a ninth entity to an iterating test (one that derives its entity list from SYNC_ENTITIES_V2 at runtime rather than hand-listing it, per this codebase's own established convention) should make coverage grow automatically; if any test hand-lists the eight entities instead, fix it to iterate the real array and say so.",
+        "Mutation-prove at minimum: the new tenant-ownership check for teachingSection ops (removing it must fail a named hostile test), and the outbox-preservation guarantee in mergeRemoteChangesV2 for this entity specifically (re-run the EXISTING outbox-byte-identical mutation proof and confirm it still catches a regression now that a ninth entity is in the loop)."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }
