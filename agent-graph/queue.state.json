@@ -511,6 +511,14 @@
       "lastRunId": "interactive-2026-08-21-wave18",
       "lastEvidence": "MERGED to master in 33bc240 after independent verification, including real cross-file integration work beyond conflict resolution. 860/860, 0 skipped; typecheck/lint/build clean. | The ninth sync entity, following the established two-prior-uses pattern exactly. CAUGHT A REAL BUG BEFORE IT SHIPPED: naively deriving the version-4 IndexedDB upgrade block from the live nine-member entity array would double-create the new store on a fresh database. Froze the historical eight-entity snapshot instead. VERIFIED INDEPENDENTLY: I reverted to live-array derivation and TEN tests broke immediately across two files, including the real fresh-database upgrade test - confirming the fix is load-bearing, not decorative. | Also closed a years-old SCOPE-BOUNDARY-001 item from SCHEMAFU-001 (TEACHING_SECTION_KINDS duplication).",
       "notes": "Merged. The type-level tripwire it correctly could not fix (lib/export/vault.ts, unowned) broke the WHOLE REPO build the instant both branches merged - exactly as that file own header promised. Closed at integration: a renderer, the export route query that was missing entirely, and two more hand-listed fixture sets (tenant-isolation R9, export-v2 coverage) that needed the same treatment."
+    },
+    "TEACHOUTLINE-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-21-wave19",
+      "notes": "Seeded 2026-08-21, 'continue' -- the teaching-outline UI TEACHSECTIONSYNC-001's plumbing unblocked. No shared-file overlap with anything else in flight (TeachSection.tsx and its own test only), so this runs alone without conflict risk."
     }
   }
 }

@@ -1905,6 +1905,47 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "TEACHOUTLINE-001",
+      "title": "Phase 2: the Teach section-by-section outline builder",
+      "objective": "TEACHDRAFTPANE-001 built Teach at the draft level only and TEACHSECTIONSYNC-001 (both wave 17/18) added the ninth sync entity and vault writer (saveLocalTeachingSection) that unblocks the real thing: BUILD_PLAN section 4 row 8 describes ordered sections (kind: outline|context|connection|theology|illustration|objection|application|not_justified|discussion|prayer, sortOrder, body) that make up the actual teach-back outline. Today a learner can create a TeachingDraft's top-level fields but has no way to add, reorder, or remove the sections that make it a usable teaching outline. This task closes that -- the plumbing already exists, this is the UI on top of it.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/components/workspace/TeachSection.tsx",
+        "web/tests/teach-pane.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/sync/store.ts",
+        "web/lib/contracts/study-v2.ts",
+        "web/components/workspace/WorkspaceShell.tsx",
+        "web/components/workspace/ApplySection.tsx",
+        "web/components/workspace/ConnectSection.tsx",
+        "web/lib/workspace/gating.ts",
+        "docs/decisions/2026-08-18-teaching-not-theology.md",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "Read TEACHSECTIONSYNC-001's own commit and lib/sync/store.ts's saveLocalTeachingSection/listLocalV2Entities before writing anything -- the vault writer and the generic v2 reader both already exist and are read-only here; do not build a parallel path. TeachingSection's fields (id, workspaceId, draftId, kind, sortOrder, body, revision, timestamps) and TEACHING_SECTION_KINDS live in lib/contracts/study-v2.ts, also read-only -- derive the kind picker's options from that live array (optionsFrom-style, matching ClaimComposer.tsx/ApplySection.tsx's own established convention), never a retyped literal list.",
+        "Decide and defend which draft the outline builder operates on: this session could in principle have more than one TeachingDraft. A reasonable, defensible default is the most-recently-created draft for this session (read via listLocalV2Entities('teachingDraft') filtered by sessionId, sorted by createdAt) -- state your choice plainly rather than silently picking one, and note in the commit what a future multi-draft picker would need if that default ever stops being good enough.",
+        "Once a draft exists, the section outline renders below the draft form: sections for that draftId, in sortOrder, each showing its kind and body. Zero sections is an honest, clearly-labeled empty state ('No outline points yet'), never a silently blank area.",
+        "A learner can add a new section: pick a kind from TEACHING_SECTION_KINDS, write the body, save. sortOrder for a new section is assigned automatically as one past the current maximum for that draft (or 0 if none exist) -- the learner never types a raw ordering number.",
+        "A learner can reorder existing sections -- move-up/move-down controls are sufficient; a drag-and-drop library is not available in this codebase and pulling one in is out of scope. Reordering swaps the two affected sections' sortOrder values and persists both through the real vault writer, not just local component state -- a page reload must show the new order.",
+        "A learner can remove a section from the outline. Decide explicitly whether this is a real soft-delete (setting deletedAt, matching this codebase's established convention for every other v2 entity) or something else, and defend it -- a silent hard-delete with no vault trace would be the one wrong answer here, since every other v2 entity in this app preserves a deletedAt trail.",
+        "The 'not_justified' and 'objection' kinds in particular sit close to the assertion line -- a learner recording 'this passage does not justify X' or anticipating an objection is doing their OWN reasoning, not receiving an app-supplied verdict. No section's placeholder text, label copy, or kind description may supply, suggest, or default any claim about what a passage means. Add a dedicated ASSERTION-LINE test in the style of tests/claim-panes.test.ts covering every kind's UI copy, not just the free-text body field.",
+        "Nothing about kind ever starts pre-selected for a new section -- same 'nothing defaults' discipline this codebase has enforced and mutation-proved for every other kind-picker (ClaimComposer's claim kind, Connect's connection type). A learner must explicitly choose.",
+        "Testable without a DOM per this repo's established pattern (see ApplySection.tsx/ConnectSection.tsx's own pure readiness/record-builder/reorder functions) -- the add/reorder/remove logic lives in pure, exported functions the render body actually calls, never inline JSX-only logic a test cannot reach.",
+        "All existing tests in tests/teach-pane.test.ts (draft-level fields, format presets, the existing gate/shell integration tests) keep passing completely unweakened.",
+        "Mutation-prove: the sortOrder auto-assignment (breaking it so a new section collides with an existing sortOrder must fail a NAMED test), and the reorder swap (breaking it so a move-up/move-down does not actually persist through the vault writer must fail a NAMED test)."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }
