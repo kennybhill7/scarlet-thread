@@ -520,6 +520,14 @@
       "lastRunId": "interactive-2026-08-21-wave19",
       "lastEvidence": "MERGED to master in c43c918 after independent verification. 895/895, 0 skipped; typecheck/lint/build clean. | Closes the last real gap in BUILD_PLAN section 4s eight-section table: add/reorder/remove ordered teaching-outline sections through the vault writer wave 18 built. sortOrder auto-assigned, reorder persists both sections through the real vault writer (not local state), removal is a genuine soft-delete matching every other v2 entity. | Specific attention to objection/not_justified: a plain humanized label per kind, no per-kind description/hint/example anywhere, a dedicated test rendering one section per kind and scanning for leaked verdict language. | VERIFIED INDEPENDENTLY: I broke the sortOrder auto-assignment and three tests failed, including a would-be silent collision. I broke the reorder persistence (dropped the second save call) and two tests failed, one specifically re-reading through the real vault afterward rather than trusting in-memory state. | One small fix at integration: WorkspaceShell.tsx own header comment still called this out of scope - updated.",
       "notes": "Merged. Phase 2 (BUILD_PLAN section 4) is functionally complete across all eight sections."
+    },
+    "CONNECTIONEXPLORER-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-24-wave20",
+      "notes": "Seeded 2026-08-24, 'continue' -- the next named Phase 2 item. Deliberately scoped to ThreadDetail + the review-page language fix; Mountain's visual upgrade and doctrine/person/stage filtering are disclosed follow-ups, not attempted here."
     }
   }
 }

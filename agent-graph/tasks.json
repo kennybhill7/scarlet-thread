@@ -1946,6 +1946,51 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "CONNECTIONEXPLORER-001",
+      "title": "Phase 2: the Connection Explorer -- surface real UserConnections on a thread, plus the review-page language fix",
+      "objective": "BUILD_PLAN section 4's 'Also in Phase 2' block names two remaining, small, well-scoped items. (1) Language fix (audit gap #9): review page copy 'Where God has been working' equates note frequency with divine activity -- THEOLOGY_PRODUCT_AUDIT.md is explicit the data only supports 'What has been recurring in your study.' Both planning docs already state the correct wording; only the CODE never got updated. (2) Connection Explorer: threads/[slug] (ThreadDetail.tsx) is v1-only today -- it has never once read a v2 UserConnection, even though ConnectSection.tsx (wave 17) has been writing real ones for several days. A learner who records a typed connection currently has nowhere to go back and see it in the context of the thread it names. This task wires that up: real UserConnections, filterable by ConnectionType, visible on the thread they belong to.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/components/threads/ThreadDetail.tsx",
+        "web/app/(app)/threads/[slug]/page.tsx",
+        "web/lib/contracts.ts",
+        "web/app/(app)/review/page.tsx",
+        "web/tests/review-setup-state.test.ts",
+        "web/tests/thread-detail.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/sync/store.ts",
+        "web/lib/contracts/study-v2.ts",
+        "web/lib/db/workspaces.ts",
+        "web/components/study/ConnectSection.tsx",
+        "web/app/(app)/study/[sessionId]/page.tsx",
+        "docs/decisions/2026-08-18-teaching-not-theology.md",
+        "BUILD_PLAN.md",
+        "THEOLOGY_PRODUCT_AUDIT.md"
+      ],
+      "acceptanceCriteria": [
+        "Language fix, exact and complete: web/app/(app)/review/page.tsx's heading changes from \"Where God has been working\" to \"What has been recurring in your study\"; web/tests/review-setup-state.test.ts's EMPTY_ACCOUNT_HEADLINE constant (and any other reference to the old string in that file) updated to match; lib/contracts.ts's ThreadStrength doc comment ('The longest bar is the answer to \"where is God working\"') rewritten to the corrected framing -- note frequency in a learner's own notes, not evidence of divine activity. Grep the whole repo yourself for the old string in web/ before finishing to confirm nothing was missed.",
+        "app/(app)/threads/[slug]/page.tsx resolves workspaceId server-side from the session (auth() -> getOrCreatePersonalWorkspace(userId), the SAME pattern app/(app)/study/[sessionId]/page.tsx already established -- read that file first) and passes it to ThreadDetail as a prop, never leaving ThreadDetail to derive or accept one from a caller. An unauthenticated visitor is handled the same way every sibling page under app/(app)/ already does -- do not invent a new auth pattern.",
+        "ThreadDetail.tsx reads this thread's real UserConnections via the existing listLocalV2Entities('connection') vault reader (lib/sync/store.ts, read-only) -- no new write path, no new read path, this is a NEW CONSUMER of an existing function. A connection belongs to this thread when its threadSlug matches the page's own slug. Defense in depth: also filter by workspaceId === the server-resolved workspaceId prop, even though the local vault is already effectively single-workspace per device -- match this codebase's established habit of never trusting structural scoping alone.",
+        "Each connection renders: its ConnectionType, its EvidenceLabel, both passages (fromRange and toRange) side by side, and the learner's own rationale. A filter control lets the learner narrow the list by ConnectionType, built from the live CONNECTION_TYPES array (lib/contracts/study-v2.ts, optionsFrom-style derivation, never a retyped list). Zero connections for this thread is an honest, clearly-labeled empty state, never a silently blank section.",
+        "Curated graph_edges do not exist anywhere in this codebase yet -- no content pipeline, no table, nothing (verify this yourself with a grep before assuming it; state what you found in the commit). Render an honest 'no curated connections yet' notice for that half of BUILD_PLAN's ask, matching the precedent CLAIMPANES-001/CONNECTPANE-001 already set for other not-yet-curated content, rather than fabricating fake curated rows to demonstrate the visual distinction. Do NOT build fake/placeholder graph_edges data to make the distinct-style requirement demonstrable -- an honest absence is correct here.",
+        "Filtering by doctrine, person, and stage (also named in BUILD_PLAN's Connection Explorer bullet) is explicitly OUT of scope for this task -- doctrine/person as v2-connection-linked concepts do not exist yet, and a real 'stage' filter would need to cross-reference a connection's range against BUILD_PLAN's ascent/descent chapter staging, which is more design work than this task should improvise. State this boundary plainly; ConnectionType is the one filter this task fully builds.",
+        "The Mountain component (components/climb/Mountain.tsx) visual upgrade named in the same BUILD_PLAN bullet is explicitly OUT of scope -- this task touches ThreadDetail/the thread page only. State this boundary plainly too.",
+        "The assertion line holds: connection rendering shows the learner's OWN typed rationale verbatim, never an app-generated summary or judgment about what the connection means. Add a dedicated ASSERTION-LINE test in the style of tests/claim-panes.test.ts.",
+        "Testable without a DOM per this repo's established pattern: any filter/grouping logic lives in a pure, exported function the component actually calls.",
+        "Every existing test in tests/review-setup-state.test.ts and any other file exercising the review page or ThreadDetail keeps passing, updated only where the language fix itself requires it -- say explicitly which assertions changed and why.",
+        "Mutation-prove: the workspace-scoping filter on the connection list (removing it must fail a NAMED hostile test proving a connection from another workspace would otherwise leak in), and the ConnectionType filter itself (breaking it must fail a NAMED test)."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }
