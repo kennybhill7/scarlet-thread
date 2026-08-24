@@ -522,12 +522,13 @@
       "notes": "Merged. Phase 2 (BUILD_PLAN section 4) is functionally complete across all eight sections."
     },
     "CONNECTIONEXPLORER-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/CONNECTIONEXPLORER-001-local",
+      "commitSha": "d70d074",
       "attempts": 0,
       "lastRunId": "interactive-2026-08-24-wave20",
-      "notes": "Seeded 2026-08-24, 'continue' -- the next named Phase 2 item. Deliberately scoped to ThreadDetail + the review-page language fix; Mountain's visual upgrade and doctrine/person/stage filtering are disclosed follow-ups, not attempted here."
+      "lastEvidence": "MERGED to master in ef7420e after independent verification. 921/921, 0 skipped; typecheck/lint/build clean. | Language fix (audit gap #9) closed at all three sites - review heading, its pinning test, ThreadStrength doc comment. VERIFIED INDEPENDENTLY: grepped web/ after merge, zero hits for the old string. | Connection Explorer: ThreadDetail.tsx reads real UserConnections for the first time (ConnectSection has written them since wave 17, nothing read them back until now) - type, evidence label, both passages, the learners own rationale verbatim, filterable by ConnectionType. Curated graph_edges verified absent by grep before writing the section, not assumed - honest no-curated-yet notice, no fabricated rows. | VERIFIED INDEPENDENTLY: I dropped the workspace-scoping filter and a named cross-tenant test failed. I broke the ConnectionType filter and three tests failed, including two proving the render layer (not just the pure function) respects it.",
+      "notes": "Merged. Doctrine/person/stage filtering and the Mountain visual upgrade are disclosed follow-ups, not built here."
     }
   }
 }
