@@ -161,7 +161,7 @@ const thrower = (message: string) => async (): Promise<never> => {
 // Strings the reader actually sees. Kept as named constants so a copy change
 // that erases the distinction cannot silently pass.
 const SETUP_HEADLINE = "Setup incomplete";
-const EMPTY_ACCOUNT_HEADLINE = "Where God has been working";
+const EMPTY_ACCOUNT_HEADLINE = "What has been recurring in your study";
 const SETUP_NOTICE_HOOK = 'data-testid="setup-notice"';
 const EMPTY_TEACHING_COPY = "Nothing marked yet";
 const EMPTY_ORPHANS_COPY = "No orphans. Everything is connected to something.";
