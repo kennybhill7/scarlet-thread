@@ -230,7 +230,7 @@ export interface SyncResponse {
 export interface ThreadStrength {
   slug: string;
   title: string;
-  /** Entries linking in. The longest bar is the answer to "where is God working". */
+  /** Entries linking in. The longest bar shows what has been recurring in the learner's own notes -- a count of note frequency, not a claim about where God is working. */
   inbound: number;
 }
 

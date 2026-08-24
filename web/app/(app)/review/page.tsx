@@ -230,7 +230,7 @@ export default async function ReviewPage() {
   return (
     <div className={styles.wrap}>
       <p className={styles.eyebrow}>Sunday review</p>
-      <h1 className={styles.title}>Where God has been working</h1>
+      <h1 className={styles.title}>What has been recurring in your study</h1>
       <p className={styles.sub}>
         The four things worth checking weekly. {review.openQuestions} open question
         {review.openQuestions === 1 ? "" : "s"} you&apos;re carrying.
