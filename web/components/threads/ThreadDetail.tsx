@@ -177,8 +177,18 @@ const listStyle: CSSProperties = {
   listStyle: "none",
 };
 
+// CRIMSONACCENT-001: a left border carries the --crimson accent
+// (BUILD_PLAN section 4: "crimson marks active thread connections") on each
+// rendered connection row -- chosen over, e.g., colouring the whole card
+// border because it reads as a marker/tab against this row's own existing
+// 1px --page-border frame (the same "thin accent against a neutral frame"
+// language already used elsewhere in this file, e.g. rowHeaderStyle's
+// --brass label colour) without ever touching `color`, which stays unset
+// here so the rationale <p> below keeps inheriting --page-ink from
+// panelStyle -- --crimson never reaches body text.
 const rowStyle: CSSProperties = {
   border: "1px solid var(--page-border)",
+  borderLeft: "3px solid var(--crimson)",
   borderRadius: "var(--r-md)",
   padding: "0.9rem",
   display: "grid",
