@@ -65,7 +65,15 @@
      the 4.5:1 floor applies. #686e69 measures 4.584:1; see
      lib/theme.ts's PARCHMENT_BODY_TOKENS and tests/theme.test.ts. */
   --page-muted: #686e69;
-  --page-muted-2: #a0a89f;
+  /* Was #a0a89f (2.145:1 against --page-bg) — failed WCAG AA at the 4.5:1
+     normal-text floor. --page-muted-2 renders as placeholder text at
+     10.5-13px (Field.module.css's ::placeholder, note-composer.module.css,
+     claim-composer.module.css) — normal-size text, same floor as
+     --page-muted above. #696f6a measures 4.517:1; see lib/theme.ts's
+     PARCHMENT_BODY_TOKENS and tests/theme.test.ts. Fixed at wave-21
+     integration — flagged as a residual gap by THEMESYSTEM-001 itself
+     rather than left unfixed or silently patched with no test coverage. */
+  --page-muted-2: #696f6a;
 
   --green: #2f4f4a;
   --green-soft-bg: #e7eeeb;
@@ -117,7 +125,10 @@
   --page-ink-2: #cdcdc4;
   --page-ink-3: #9aa4ad;
   --page-muted: #7d8892;
-  --page-muted-2: #6b757e;
+  /* Was #6b757e (3.873:1 against --page-bg) — failed the 4.5:1 normal-text
+     floor the same way parchment's --page-muted-2 did. #7f8a94 measures
+     5.167:1. Fixed at wave-21 integration alongside the parchment side. */
+  --page-muted-2: #7f8a94;
 
   --green: #7fb3a6;
   --green-soft-bg: #17262a;

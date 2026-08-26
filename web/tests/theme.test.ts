@@ -174,6 +174,22 @@ test("Midnight: page-muted on page-bg meets WCAG AA normal text", () => {
   assert.ok(meetsAA(ratio), `expected >= 4.5:1, got ${ratio.toFixed(3)}:1`);
 });
 
+// page-muted-2 renders real placeholder text (Field.module.css's
+// ::placeholder, note-composer/claim-composer bodies) at the same
+// normal-text sizes as page-muted — flagged as a residual gap by
+// THEMESYSTEM-001 itself (out of its own acceptance criteria's two named
+// pairs) and fixed at wave-21 integration rather than left failing.
+
+test("Parchment: page-muted-2 on page-bg meets WCAG AA normal text", () => {
+  const ratio = contrastRatio(PARCHMENT_BODY_TOKENS.pageMuted2, PARCHMENT_BODY_TOKENS.pageBg);
+  assert.ok(meetsAA(ratio), `expected >= 4.5:1, got ${ratio.toFixed(3)}:1`);
+});
+
+test("Midnight: page-muted-2 on page-bg meets WCAG AA normal text", () => {
+  const ratio = contrastRatio(MIDNIGHT_BODY_TOKENS.pageMuted2, MIDNIGHT_BODY_TOKENS.pageBg);
+  assert.ok(meetsAA(ratio), `expected >= 4.5:1, got ${ratio.toFixed(3)}:1`);
+});
+
 // --- Token snapshot pinned against the real stylesheet -----------------------
 // lib/theme.ts's *_BODY_TOKENS are hand-transcribed (no CSS parser in this
 // project's dependencies) — these tests pin them against app/globals.css's
@@ -190,16 +206,20 @@ test("PARCHMENT_BODY_TOKENS and MIDNIGHT_BODY_TOKENS are byte-identical to app/g
   assert.match(rootBlock, /--page-bg:\s*#f3f0e8;/);
   assert.match(rootBlock, /--page-ink:\s*#233029;/);
   assert.match(rootBlock, /--page-muted:\s*#686e69;/);
+  assert.match(rootBlock, /--page-muted-2:\s*#696f6a;/);
   assert.equal(PARCHMENT_BODY_TOKENS.pageBg, "#f3f0e8");
   assert.equal(PARCHMENT_BODY_TOKENS.pageInk, "#233029");
   assert.equal(PARCHMENT_BODY_TOKENS.pageMuted, "#686e69");
+  assert.equal(PARCHMENT_BODY_TOKENS.pageMuted2, "#696f6a");
 
   assert.match(midnightBlock, /--page-bg:\s*#10161d;/);
   assert.match(midnightBlock, /--page-ink:\s*#e4e2da;/);
   assert.match(midnightBlock, /--page-muted:\s*#7d8892;/);
+  assert.match(midnightBlock, /--page-muted-2:\s*#7f8a94;/);
   assert.equal(MIDNIGHT_BODY_TOKENS.pageBg, "#10161d");
   assert.equal(MIDNIGHT_BODY_TOKENS.pageInk, "#e4e2da");
   assert.equal(MIDNIGHT_BODY_TOKENS.pageMuted, "#7d8892");
+  assert.equal(MIDNIGHT_BODY_TOKENS.pageMuted2, "#7f8a94");
 });
 
 test('the old [data-reading="night"] selector is gone; only midnight/parchment remain', async () => {

@@ -307,10 +307,15 @@ export const PARCHMENT_BODY_TOKENS = {
   pageBg: "#f3f0e8",
   pageInk: "#233029",
   pageMuted: "#686e69",
+  // Was #a0a89f (2.145:1) — also fixed at wave-21 integration, same reason
+  // and same normal-text floor as pageMuted above (real placeholder text in
+  // Field.module.css/note-composer.module.css/claim-composer.module.css).
+  pageMuted2: "#696f6a",
 } as const;
 
 export const MIDNIGHT_BODY_TOKENS = {
   pageBg: "#10161d",
   pageInk: "#e4e2da",
   pageMuted: "#7d8892",
+  pageMuted2: "#7f8a94",
 } as const;
