@@ -530,6 +530,14 @@
       "lastRunId": "interactive-2026-08-24-wave20",
       "lastEvidence": "MERGED to master in ef7420e after independent verification. 921/921, 0 skipped; typecheck/lint/build clean. | Language fix (audit gap #9) closed at all three sites - review heading, its pinning test, ThreadStrength doc comment. VERIFIED INDEPENDENTLY: grepped web/ after merge, zero hits for the old string. | Connection Explorer: ThreadDetail.tsx reads real UserConnections for the first time (ConnectSection has written them since wave 17, nothing read them back until now) - type, evidence label, both passages, the learners own rationale verbatim, filterable by ConnectionType. Curated graph_edges verified absent by grep before writing the section, not assumed - honest no-curated-yet notice, no fabricated rows. | VERIFIED INDEPENDENTLY: I dropped the workspace-scoping filter and a named cross-tenant test failed. I broke the ConnectionType filter and three tests failed, including two proving the render layer (not just the pure function) respects it.",
       "notes": "Merged. Doctrine/person/stage filtering and the Mountain visual upgrade are disclosed follow-ups, not built here."
+    },
+    "THEMESYSTEM-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-26-wave21",
+      "notes": "Seeded 2026-08-26, 'continue building' -- Ken's own recorded design decision (2026-08-13), currently unbuilt (a hardcoded no-op attribute and one unreachable CSS block, confirmed by direct read before writing this task). Self-contained, no new dependencies."
     }
   }
 }

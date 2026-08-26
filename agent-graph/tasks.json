@@ -1991,6 +1991,45 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "THEMESYSTEM-001",
+      "title": "Phase 2: the real three-way theme preference (System / Midnight / Parchment)",
+      "objective": "BUILD_PLAN section 4 records Ken's own decision (2026-08-13): 'Ship three themes — System, Midnight, Parchment — all passing accessible-contrast checks.' Today this is UNBUILT, not merely incomplete: app/layout.tsx hardcodes data-reading=\"parchment\" on every render with no client control, no persistence, and no OS-preference support, while app/globals.css only defines a [data-reading=\"night\"] override -- the two values do not even match (\"parchment\" the layout sets does nothing; \"night\" the CSS defines is unreachable). This task builds the real thing: a genuine, persisted, user-facing three-way preference applied before first paint.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/app/layout.tsx",
+        "web/app/globals.css",
+        "web/components/settings/ThemePicker.tsx",
+        "web/app/(app)/settings/page.tsx",
+        "web/lib/theme.ts",
+        "web/tests/theme.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/next.config.ts",
+        "web/components/settings/OfflineDownloads.tsx",
+        "web/tests/protected-integrations.test.ts",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "Reconcile the naming mismatch deliberately: app/layout.tsx currently sets data-reading=\"parchment\" (a no-op -- no CSS targets it) while globals.css defines [data-reading=\"night\"] (currently unreachable -- nothing ever sets it). Decide the real three values this preference takes and their exact data-reading strings, matching BUILD_PLAN's own names (System/Midnight/Parchment) as closely as sensible, and state your mapping plainly in the commit. \"System\" is not a fourth CSS variant -- it means \"follow the OS's prefers-color-scheme and re-derive Midnight or Parchment from it,\" so only two real CSS variants need exist (the current :root default, presumably becoming explicit \"Parchment\", and the current [data-reading=\"night\"] block becoming \"Midnight\") -- read globals.css's own top-of-file comment on the SHELL-vs-PAGE architecture before changing anything; the SHELL (--shell-*, always dark, \"The Climb\") is explicitly NOT part of this preference and must not change.",
+        "Applied BEFORE FIRST PAINT, not after hydration -- a real preference toggle that flashes the wrong theme for a frame on every load is a broken preference, not a working one. Use a blocking inline script in the document head (permitted under this app's own CSP -- next.config.ts, read-only, already allows script-src 'self' 'unsafe-inline') that reads the stored preference (localStorage, matching this codebase's own established pattern in lib/bible/lastRead.ts and components/auth/DeviceSessionControls.tsx, read those first) and, for \"System\", the real matchMedia('(prefers-color-scheme: dark)') result, then sets data-reading on <html> before React hydrates. No dependency on React state for the FIRST paint's correctness.",
+        "A ThemePicker component (new, components/settings/) lets the learner choose System/Midnight/Parchment, persists the choice to localStorage, and updates data-reading live without a page reload. \"System\" additionally listens for OS preference CHANGES while the app is open (matchMedia's change event) and re-applies live -- a learner who picked System should see the app follow their OS switching from light to dark, not just at the next load.",
+        "Wired into app/(app)/settings/page.tsx as a new section, following the existing card/section pattern OfflineDownloads.tsx already establishes (read it first, read-only here). Placement must not disturb the load-bearing DeviceSessionControls/VaultExportButton/OfflineDownloads relative order tests/protected-integrations.test.ts asserts (read that test's own 'settings renders downloads, then export, then clear device' case first) -- add your new section before OfflineDownloads or after DeviceSessionControls, not between any of those three.",
+        "Accessible contrast, proven not eyeballed: for BOTH real theme variants (Parchment and Midnight), the page-ink-on-page-bg and page-muted-on-page-bg color pairs meet WCAG AA (4.5:1 for normal text, 3:1 for large text/UI) -- write a pure, exported contrast-ratio function against the actual hex values in globals.css (parsed or hand-transcribed exactly, not approximated) and a test asserting the ratio for every token pair that matters for body text. If any existing pair fails, fix the color in globals.css and say so -- BUILD_PLAN's own note that 'the A-040 token fixes apply to every theme' means this may not have been true before this task and is not optional to skip.",
+        "Add a --crimson (or --scarlet, your call, state which and why) token to the SAME palette layer as the existing --gold, defined for both theme variants, per BUILD_PLAN's own note that crimson marks active thread connections and gold is reserved for provenance/status indicators, never body text. Defining the TOKEN is in scope; re-coloring every place a thread connection currently renders across the app to actually USE it is explicitly OUT of scope for this task -- a real follow-up, not attempted here. State this boundary plainly.",
+        "Testable without a DOM per this repo's established pattern: the preference-resolution logic (given a stored value and an OS-preference boolean, which data-reading value results) and the contrast-ratio math both live in pure, exported functions under lib/theme.ts, not inline script-only logic a test cannot reach directly.",
+        "Every existing test keeps passing completely unweakened, including tests/protected-integrations.test.ts's settings-order assertion.",
+        "Mutation-prove: the contrast-ratio function itself (an off-by-one in the WCAG formula must fail a NAMED test against a known reference pair), and the System-preference resolution (breaking it so System stops following the OS value must fail a NAMED test)."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }
