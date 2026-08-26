@@ -2030,6 +2030,35 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "CRIMSONACCENT-001",
+      "title": "Phase 2: apply the --crimson token to real thread-connection UI",
+      "objective": "THEMESYSTEM-001 defined --crimson in both theme variants per BUILD_PLAN section 4's own wording ('crimson marks active thread connections') and explicitly left it unapplied -- defining the token was in scope, using it was disclosed as a real follow-up. CONNECTIONEXPLORER-001 built the one place a connection actually renders today: ConnectionsPanel inside ThreadDetail.tsx. This task closes the gap between the two -- a small, single-file, low-risk change.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/components/threads/ThreadDetail.tsx",
+        "web/tests/thread-detail.test.ts"
+      ],
+      "readOnlyPaths": [
+        "BUILD_PLAN.md",
+        "web/app/globals.css"
+      ],
+      "acceptanceCriteria": [
+        "Each rendered connection row in ConnectionsPanel carries a visible --crimson accent -- a left border is a reasonable, low-risk choice matching this app's existing card/row visual language (read rowStyle's current definition first), but any placement that is clearly visible and does not touch body text color is acceptable; state your choice and why. Never apply --crimson to text color for the rationale/passage body content -- BUILD_PLAN's own wording reserves it as an accent, and body text must keep using --page-ink for its own established contrast guarantees (THEMESYSTEM-001, already verified).",
+        "A test renders a real ConnectionsPanel with at least one connection and asserts the actual rendered style/CSS for that row references var(--crimson) -- not merely that the token is defined somewhere, which is already proven and is not this task's job to re-prove.",
+        "The empty and no-curated-notice states are unaffected -- crimson marks an actual connection, not the absence of one.",
+        "All existing tests in tests/thread-detail.test.ts keep passing completely unweakened.",
+        "Mutation-prove: remove the crimson accent from the row style and confirm the new test fails by name; restore from a backup, diff byte-identical, confirm green again."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }

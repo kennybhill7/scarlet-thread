@@ -539,6 +539,14 @@
       "lastRunId": "interactive-2026-08-26-wave21",
       "lastEvidence": "MERGED to master in 1d06df4 after independent verification. 957/957, 0 skipped; typecheck/lint/build clean. | Kens own 2026-08-13 decision built for real: System/Midnight/Parchment, System follows the OS live and re-applies on change, all persisted and applied before first paint via a blocking inline script. Found and fixed a genuine WCAG AA failure while verifying the contrast claim - parchment page-muted was 2.78:1 against its background (real 10.5-11.5px body text), fixed to 4.58:1. VERIFIED INDEPENDENTLY, entirely outside this codebases own test suite: a standalone WCAG relative-luminance computation confirms black-on-white is exactly 21:1 and the new page-muted value genuinely clears 4.584:1. | I broke the System-preference resolution and the dedicated test caught it.",
       "notes": "Merged. --crimson token defined for both variants but not yet applied to any thread-connection UI - disclosed follow-up."
+    },
+    "CRIMSONACCENT-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-26-wave22",
+      "notes": "Seeded 2026-08-26, 'keep building' -- closing the crimson-token loose end THEMESYSTEM-001 and CONNECTIONEXPLORER-001 both explicitly disclosed. Small, single-file, low risk."
     }
   }
 }
