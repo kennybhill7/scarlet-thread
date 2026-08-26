@@ -3,12 +3,24 @@
  *
  * Two surfaces coexist rather than one theme toggling:
  *   SHELL  ("The Climb")     always dark. Navigation, mountain, progress, review.
- *   PAGE   ("Notecards")     the reading surface. Parchment by default, night by choice.
+ *   PAGE   ("Notecards")     the reading surface. Parchment by default, Midnight by choice.
  *
  * The shell is dark because the mountain reads as a night sky and the app should
  * feel like a quiet room. The page is light because you read it for twenty minutes
- * and a dark wall of serif text at 6am is punishing. Night mode exists for anyone
- * actually reading at 6am in the dark — set data-reading="night" on <html>.
+ * and a dark wall of serif text at 6am is punishing. Midnight reading exists for
+ * anyone actually reading at 6am in the dark — set data-reading="midnight" on <html>.
+ * The shell's own tokens (--shell-*) never change with this preference; only
+ * the --page-* (and --green/--brass/--crimson) layer below does.
+ *
+ * THEMESYSTEM-001: this preference is System / Midnight / Parchment, but
+ * "System" is resolved client-side (lib/theme.ts#resolveReading) into one of
+ * the two real CSS variants below — it is never a data-reading value itself.
+ * The block below used to be `[data-reading="night"]`; it is the same block,
+ * renamed to match. The bare :root block IS the "parchment" variant already —
+ * setting data-reading="parchment" explicitly needs no extra CSS here, since
+ * :root applies regardless of the attribute's value; a redundant
+ * `[data-reading="parchment"]` block would just be a second place for these
+ * values to drift out of sync with each other.
  *
  * Two dead declarations from the mockup are deliberately not carried over:
  * `color:#b9b6 af` and `color:#3a4karp`. Both were typos.
@@ -47,13 +59,24 @@
   --page-ink: #233029;
   --page-ink-2: #3a453f;
   --page-ink-3: #6a746d;
-  --page-muted: #8a938c;
+  /* Was #8a938c (2.78:1 against --page-bg) — failed WCAG AA even at the
+     relaxed 3:1 large-text/UI floor. --page-muted renders at 10.5-11.5px
+     (Field.module.css, claim-composer.module.css) — normal-size text, so
+     the 4.5:1 floor applies. #686e69 measures 4.584:1; see
+     lib/theme.ts's PARCHMENT_BODY_TOKENS and tests/theme.test.ts. */
+  --page-muted: #686e69;
   --page-muted-2: #a0a89f;
 
   --green: #2f4f4a;
   --green-soft-bg: #e7eeeb;
   --green-soft-border: #d3e0da;
   --brass: #a98b3e;
+  /* Thread-connection accent (BUILD_PLAN section 4, 2026-08-13: "crimson
+     marks active thread connections"). Defining this token is in scope for
+     THEMESYSTEM-001; re-coloring existing thread-connection UI to actually
+     use it is explicitly OUT of scope — see the task's own acceptance
+     criteria and the commit message. Never use for body text. */
+  --crimson: #a13333;
 
   --page-shadow: 0 8px 24px rgba(47, 79, 74, 0.08);
   --page-shadow-sm: 0 3px 10px rgba(47, 79, 74, 0.05);
@@ -80,8 +103,10 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Night reading — same page structure, inverted for a dark room. */
-:root[data-reading="night"] {
+/* Midnight reading — same page structure, inverted for a dark room. Was
+   [data-reading="night"] (unreachable — nothing ever set it); renamed to
+   match the real three-way preference (THEMESYSTEM-001). */
+:root[data-reading="midnight"] {
   --page-bg: #10161d;
   --page-card: #161e27;
   --page-card-alt: #18212b;
@@ -98,6 +123,9 @@
   --green-soft-bg: #17262a;
   --green-soft-border: #243a3d;
   --brass: #c9a24b;
+  /* See --crimson in :root above. #d9615f is lighter than the parchment
+     value so it stays visible against this variant's dark --page-bg. */
+  --crimson: #d9615f;
 
   --page-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   --page-shadow-sm: 0 3px 10px rgba(0, 0, 0, 0.25);

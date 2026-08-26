@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Archivo_Narrow, Fraunces, Inter, Spectral } from "next/font/google";
 import { ServiceWorkerRegistration } from "@/components/shell/ServiceWorkerRegistration";
+import { getThemeBootstrapScript } from "@/lib/theme";
 import "./globals.css";
 
 /*
@@ -75,9 +76,27 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      // Real default for no-JS / before the bootstrap script below runs.
+      // THEMESYSTEM-001: previously a no-op (nothing in globals.css targeted
+      // this string); "parchment" is now a real CSS variant. The blocking
+      // script overwrites this synchronously before <body> paints, so a
+      // JS-enabled visitor with a stored "midnight" or "system" preference
+      // never sees this default flash.
       data-reading="parchment"
       className={`${fraunces.variable} ${spectral.variable} ${inter.variable} ${archivo.variable} ${archivoNarrow.variable}`}
     >
+      <head>
+        {/*
+         * Applies the persisted reading-theme preference to <html> BEFORE
+         * first paint. Un-`async`/un-`defer`, so the browser blocks on it
+         * while still parsing <head> — it always runs before <body> is
+         * parsed, let alone painted. Permitted under this app's CSP
+         * (next.config.ts: script-src 'self' 'unsafe-inline'; read-only
+         * here). Source text lives in lib/theme.ts#getThemeBootstrapScript
+         * so tests/theme.test.ts can assert its exact shape without a DOM.
+         */}
+        <script dangerouslySetInnerHTML={{ __html: getThemeBootstrapScript() }} />
+      </head>
       <body>
         <ServiceWorkerRegistration />
         {children}
