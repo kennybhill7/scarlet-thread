@@ -460,12 +460,13 @@
       "notes": "Merged. Tenet 1 is now enforced in UI state at the guided flows entry point, as BUILD_PLAN requires."
     },
     "CLAIMPANES-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/CLAIMPANES-001-local",
+      "commitSha": "a416791",
       "attempts": 0,
       "lastRunId": "interactive-2026-08-21-wave16",
-      "notes": "Seeded 2026-08-21, 'continue building' -- the next Phase 2 slice. Deliberately scoped to the three panes that reuse the existing claim model (cheapest, lowest architectural risk) and includes a refactor that unblocks parallel work on Connect/Apply/Teach afterward."
+      "lastEvidence": "MERGED to master in 9bc6064 (Integrate wave 16). 739/739 tests, 0 skipped; typecheck/lint/build clean. WorkspaceShell.tsx refactored into one file per section (ReadSection, ObserveSection, ContextSection, TheologySection, ConvictionSection, PlaceholderSection), unblocking the independent Connect/Apply/Teach tasks that followed in waves 17-19. Context, Theology, and Conviction each write a StudyClaim of the appropriate kind through ClaimComposer/vault writers only, with an additive optional offeredKinds prop on ClaimComposer that narrows which kind chips a mount offers (never which one starts selected -- BLANK_CLAIM_SELECTION untouched). CORRECTED 2026-08-26 by the cloud night-queue worker: this entry was left at a stale 'building' (branch/commitSha null) from the interactive session, even though the work was committed (a416791) and merged to master five days earlier, before the queue.state.json update was made. Fixed the record only (queue.state.json is the one path exception to protectedPaths) -- no code, tests, or other files touched; no task worked this run.",
+      "notes": "Merged. Bookkeeping-only correction -- work itself was already done and verified by Ken at integration; nothing new was built this run."
     },
     "CONNECTPANE-001": {
       "status": "done",
