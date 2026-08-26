@@ -541,12 +541,13 @@
       "notes": "Merged. --crimson token defined for both variants but not yet applied to any thread-connection UI - disclosed follow-up."
     },
     "CRIMSONACCENT-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/CRIMSONACCENT-001-local",
+      "commitSha": "9ca944e",
       "attempts": 0,
       "lastRunId": "interactive-2026-08-26-wave22",
-      "notes": "Seeded 2026-08-26, 'keep building' -- closing the crimson-token loose end THEMESYSTEM-001 and CONNECTIONEXPLORER-001 both explicitly disclosed. Small, single-file, low risk."
+      "lastEvidence": "MERGED to master in c577939 after independent verification. 958/958, 0 skipped; typecheck/lint/build clean. A left border carries --crimson on each connection row, matching this file own existing thin-accent idiom (rowHeaderStyle brass label). color stays unset on the row so the rationale text keeps inheriting page-ink and its own verified contrast guarantee. VERIFIED INDEPENDENTLY: I removed the border and the named test failed; restored byte-identical, green.",
+      "notes": "Merged. Last disclosed Phase 2 loose end from the theme/connection-explorer waves closed."
     }
   }
 }
