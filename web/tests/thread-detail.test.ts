@@ -48,6 +48,7 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import test from "node:test";
 
+import type { CSSProperties } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { CANONICAL_VERSIFICATION_ID, type CanonicalRangeV1 } from "@/lib/contracts/range-v1";
@@ -561,6 +562,34 @@ test("ConnectionsPanel: each visible row renders type, evidenceLabel, both range
     rationaleField[0].props.children,
     connection.rationale,
     "the rationale must reach the DOM verbatim -- no summarizing, no rewording",
+  );
+});
+
+test("CRIMSONACCENT-001: a rendered connection row carries a visible --crimson accent, never on the rationale body text", () => {
+  const connection = sampleConnection({
+    rationale: "My own reasoning, unedited, exactly as I typed it into the Connect form.",
+  });
+  const tree = ConnectionsPanel({ connections: [connection], activeType: null, onSelectType: () => {} });
+
+  const rows = byTestId(tree, "connection-row");
+  assert.equal(rows.length, 1);
+  const rowStyle = rows[0].props.style as CSSProperties | undefined;
+  assert.ok(rowStyle, "connection row must carry a style prop");
+  assert.equal(
+    rowStyle?.borderLeft,
+    "3px solid var(--crimson)",
+    `expected the row's own borderLeft to reference var(--crimson), got: ${JSON.stringify(rowStyle)}`,
+  );
+
+  // The rationale is the learner's own body text -- it must keep using
+  // --page-ink (inherited from ConnectionsPanel's own panelStyle `color`),
+  // never --crimson, which BUILD_PLAN reserves as an accent only.
+  const rationaleField = byField(tree, "rationale");
+  assert.equal(rationaleField.length, 1);
+  const rationaleStyle = rationaleField[0].props.style as CSSProperties | undefined;
+  assert.ok(
+    rationaleStyle === undefined || !JSON.stringify(rationaleStyle).includes("--crimson"),
+    `the rationale text must never reference --crimson for its own color, got: ${JSON.stringify(rationaleStyle)}`,
   );
 });
 
