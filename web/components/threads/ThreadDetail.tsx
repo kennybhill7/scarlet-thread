@@ -6,8 +6,10 @@ import { useEffect, useState } from "react";
 
 import { humanizeToken, optionsFrom } from "@/components/study/ClaimComposer";
 import { Chip } from "@/components/ui/Chip";
-import { formatCanonicalRangeKey } from "@/lib/bible/range";
-import type { Entry, Thread } from "@/lib/contracts";
+import { formatCanonicalRangeKey, parseVerseKeyStrict } from "@/lib/bible/range";
+import { chapterKey } from "@/lib/bible/reference";
+import type { Entry, Stage, Thread } from "@/lib/contracts";
+import type { CanonicalRangeV1 } from "@/lib/contracts/range-v1";
 import { CONNECTION_TYPES, type ConnectionType, type UserConnection } from "@/lib/contracts/study-v2";
 import { syncNow } from "@/lib/sync/client";
 import { nextTimestamp } from "@/lib/sync/time";
@@ -38,12 +40,12 @@ import styles from "./thread-detail.module.css";
  * scoping alone").
  *
  * OUT OF SCOPE, stated plainly per this task's own spec:
- *   - Filtering by doctrine, person, or stage. Doctrine/person as
- *     v2-connection-linked concepts do not exist yet, and a real "stage"
- *     filter needs BUILD_PLAN's ascent/descent chapter staging cross-
- *     referenced against a connection's range -- more design work than this
- *     task should improvise. ConnectionType is the one filter this task
- *     fully builds (`ConnectionsPanel` below).
+ *   - Filtering by doctrine or person. Doctrine has no curated content to
+ *     filter against yet (grepped `graph_edges`/`GraphEdge`/doctrine tables
+ *     again for STAGEFILTER-001 -- still nothing beyond the one naming-
+ *     ambiguity comment in `lib/contracts/study-v2.ts`), and person has no
+ *     defined relationship to a `UserConnection` anywhere in this codebase's
+ *     data model. Both stay deferred, not attempted here.
  *   - The `Mountain` component (`components/climb/Mountain.tsx`) visual
  *     upgrade named in the same BUILD_PLAN bullet. This task touches
  *     `ThreadDetail`/the thread page only.
@@ -66,6 +68,16 @@ type ThreadDetailProps = {
    * other source in this component.
    */
   workspaceId: string;
+  /**
+   * STAGEFILTER-001 -- a SECOND server-resolved prop, same discipline as
+   * `workspaceId` above: `app/(app)/threads/[slug]/page.tsx` queries the
+   * global `stages` table server-side (`resolveThreadStages`, matching
+   * `app/(app)/page.tsx`'s own precedent) and hands the rows down here
+   * unchanged. `ThreadDetail` never queries or reorders this itself -- it
+   * only passes it to `ConnectionsPanel`, which derives filter chips and
+   * natural display order from it (see that component's own comment).
+   */
+  stages: Stage[];
 };
 
 type Loaded = {
@@ -123,6 +135,110 @@ export function filterConnectionsByType(
 ): UserConnection[] {
   if (type === null) return connections;
   return connections.filter((connection) => connection.type === type);
+}
+
+// ---------------------------------------------------------------------------
+// Stage filter (STAGEFILTER-001, acceptance criteria 2/4/5) -- range-to-stage
+// lookup plus the combined (type AND stage) filter. Both exported and pure,
+// same discipline as `selectConnectionsForThread`/`filterConnectionsByType`
+// above: no DOM, callable directly from tests, and the ONLY place that
+// decides which connections a learner sees once both filters are active.
+// ---------------------------------------------------------------------------
+
+/**
+ * Derives a stage-lookup key ("book.chapter", e.g. "1.3") from a
+ * `CanonicalRangeV1` boundary ("book.chapter.verse", e.g. "1.3.15") --
+ * `db/schema.ts`'s `stages.chapters` column stores book.chapter keys, never
+ * book.chapter.verse (confirmed against that table's own definition before
+ * writing this). Reuses `lib/bible/range.ts`'s `parseVerseKeyStrict` (the
+ * same strict parser range validation itself uses) and
+ * `lib/bible/reference.ts`'s `chapterKey` to reassemble the result -- no new
+ * parsing invented for this task. Returns `null` for a malformed key rather
+ * than throwing: a stored range should always be well-formed, but a range-
+ * to-stage lookup must never be the thing that crashes the render if one
+ * somehow isn't.
+ */
+export function refKeyToChapterKey(refKey: string): string | null {
+  const parsed = parseVerseKeyStrict(refKey);
+  if (!parsed) return null;
+  return chapterKey(parsed.book, parsed.chapter);
+}
+
+/**
+ * Maps ONE end of a connection's range (its `start`) to the stage whose
+ * `chapters` array contains that chapter's key, or `null` when either the
+ * key itself is malformed OR no known stage covers that chapter (data for a
+ * chapter outside the current stage map, or a legacy/malformed range) --
+ * both collapse to the same "no known stage" signal on purpose: neither
+ * case should crash the render, and neither should have a stage invented
+ * for it that it does not actually belong to.
+ */
+export function stageSlugForRange(range: CanonicalRangeV1, stages: Stage[]): string | null {
+  const chapter = refKeyToChapterKey(range.start);
+  if (chapter === null) return null;
+  const stage = stages.find((candidate) => candidate.chapters.includes(chapter));
+  return stage?.slug ?? null;
+}
+
+/**
+ * MAPPING DECISION (acceptance criterion 2): matches when EITHER endpoint's
+ * stage equals the selected one -- not `fromRange` alone.
+ *
+ * Reasoning: `fromRange`/`toRange` record which passage the learner started
+ * FROM and compared TO in the Connect form -- an artifact of data-entry
+ * order, not a claim about narrative primacy. `ConnectionsPanel` already
+ * renders both ranges side by side in every row (the `connection-ranges`
+ * block below) as one symmetric pair, so the stage filter honors that same
+ * symmetry: a learner filtering to a stage is asking "show me connections
+ * that touch this part of the mountain," not "show me only connections that
+ * happened to start here." A promise/fulfillment connection whose fromRange
+ * sits in an early ascent stage and whose toRange sits in its descent
+ * mirror (`Stage.mirror`) is exactly the kind of connection this filter
+ * exists to surface -- restricting to `fromRange` alone would make it
+ * silently vanish the moment a learner filtered by its `toRange`'s stage,
+ * which is precisely the "silently disappear" failure acceptance criterion
+ * 5 warns against.
+ */
+export function filterConnectionsByStage(
+  connections: UserConnection[],
+  stageSlug: string | null,
+  stages: Stage[],
+): UserConnection[] {
+  if (stageSlug === null) return connections;
+  return connections.filter((connection) => {
+    const fromSlug = stageSlugForRange(connection.fromRange, stages);
+    const toSlug = stageSlugForRange(connection.toRange, stages);
+    return fromSlug === stageSlug || toSlug === stageSlug;
+  });
+}
+
+/**
+ * The one function that decides which connections a learner sees once BOTH
+ * filters are in play -- composes `filterConnectionsByType` then
+ * `filterConnectionsByStage`, i.e. AND, never OR (acceptance criterion 4).
+ * `ConnectionsPanel` calls this and nothing else to compute its visible
+ * list, so a filter added here can never be bypassed by the render body
+ * reimplementing the intersection itself.
+ *
+ * UNMATCHED-STAGE HANDLING (acceptance criterion 5): a connection whose
+ * range maps to no known stage on either end (`stageSlugForRange` returns
+ * `null` for both) never equals any real `stageSlug`, so it is excluded
+ * from every SPECIFIC stage filter -- there is no separate "unclassified"
+ * bucket chip, it simply never matches one. It is never excluded when
+ * `stageSlug` is `null` (no stage filter active), so it always stays
+ * visible in the unfiltered view; only `filterConnectionsByType` can remove
+ * it there, exactly as before this task.
+ */
+export function filterConnections(
+  connections: UserConnection[],
+  filters: { type: ConnectionType | null; stageSlug: string | null },
+  stages: Stage[],
+): UserConnection[] {
+  return filterConnectionsByStage(
+    filterConnectionsByType(connections, filters.type),
+    filters.stageSlug,
+    stages,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -217,12 +333,29 @@ const rangesRowStyle: CSSProperties = {
 export interface ConnectionsPanelProps {
   /** This thread's own connections, already scoped (`selectConnectionsForThread`). */
   connections: UserConnection[];
+  /** Server-resolved global stages (`ThreadDetailProps.stages`), passed straight through. */
+  stages: Stage[];
   activeType: ConnectionType | null;
   onSelectType: (type: ConnectionType | null) => void;
+  activeStageSlug: string | null;
+  onSelectStage: (stageSlug: string | null) => void;
 }
 
-export function ConnectionsPanel({ connections, activeType, onSelectType }: ConnectionsPanelProps) {
-  const visible = filterConnectionsByType(connections, activeType);
+export function ConnectionsPanel({
+  connections,
+  stages,
+  activeType,
+  onSelectType,
+  activeStageSlug,
+  onSelectStage,
+}: ConnectionsPanelProps) {
+  const visible = filterConnections(connections, { type: activeType, stageSlug: activeStageSlug }, stages);
+  // Natural stage order (acceptance criterion 3) -- `stages` arrives from a
+  // plain `db.select().from(stagesTable)` with no `ORDER BY` (see
+  // `app/(app)/threads/[slug]/page.tsx`'s header), so this sorts by the
+  // table's own `stage` column, the same key `app/(app)/page.tsx`'s
+  // `buildMountainStages` already sorts by for the identical reason.
+  const orderedStages = [...stages].sort((a, b) => a.stage - b.stage);
   return (
     <section aria-label="Connections" data-testid="thread-connections" style={panelStyle}>
       <h2>Connections</h2>
@@ -256,13 +389,37 @@ export function ConnectionsPanel({ connections, activeType, onSelectType }: Conn
         ))}
       </div>
 
+      <div aria-label="Filter by stage" data-testid="connection-stage-filter" role="group" style={chipsRowStyle}>
+        <Chip
+          active={activeStageSlug === null}
+          aria-pressed={activeStageSlug === null}
+          data-field="connectionStage"
+          data-value="all"
+          onClick={() => onSelectStage(null)}
+        >
+          All stages
+        </Chip>
+        {orderedStages.map((stage) => (
+          <Chip
+            active={activeStageSlug === stage.slug}
+            aria-pressed={activeStageSlug === stage.slug}
+            data-field="connectionStage"
+            data-value={stage.slug}
+            key={stage.slug}
+            onClick={() => onSelectStage(stage.slug)}
+          >
+            {stage.title}
+          </Chip>
+        ))}
+      </div>
+
       {connections.length === 0 ? (
         <p data-testid="connections-empty" style={noticeStyle}>
           No connections recorded for this thread yet. Compare a passage from Connect and link it here.
         </p>
       ) : visible.length === 0 ? (
         <p data-testid="connections-empty-filtered" style={noticeStyle}>
-          No connections of this type for this thread yet -- try a different filter.
+          No connections match these filters for this thread yet -- try different filters.
         </p>
       ) : (
         <ul data-testid="connections-list" style={listStyle}>
@@ -286,7 +443,7 @@ export function ConnectionsPanel({ connections, activeType, onSelectType }: Conn
   );
 }
 
-export function ThreadDetail({ slug, workspaceId }: ThreadDetailProps) {
+export function ThreadDetail({ slug, workspaceId, stages }: ThreadDetailProps) {
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [ready, setReady] = useState(false);
   const [definition, setDefinition] = useState("");
@@ -295,6 +452,7 @@ export function ThreadDetail({ slug, workspaceId }: ThreadDetailProps) {
   const [message, setMessage] = useState("");
   const [loadError, setLoadError] = useState(false);
   const [activeConnectionType, setActiveConnectionType] = useState<ConnectionType | null>(null);
+  const [activeStageSlug, setActiveStageSlug] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -450,9 +608,12 @@ export function ThreadDetail({ slug, workspaceId }: ThreadDetailProps) {
       </section>
 
       <ConnectionsPanel
+        activeStageSlug={activeStageSlug}
         activeType={activeConnectionType}
         connections={loaded.connections}
+        onSelectStage={setActiveStageSlug}
         onSelectType={setActiveConnectionType}
+        stages={stages}
       />
     </main>
   );
