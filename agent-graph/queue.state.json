@@ -548,6 +548,14 @@
       "lastRunId": "interactive-2026-08-26-wave22",
       "lastEvidence": "MERGED to master in c577939 after independent verification. 958/958, 0 skipped; typecheck/lint/build clean. A left border carries --crimson on each connection row, matching this file own existing thin-accent idiom (rowHeaderStyle brass label). color stays unset on the row so the rationale text keeps inheriting page-ink and its own verified contrast guarantee. VERIFIED INDEPENDENTLY: I removed the border and the named test failed; restored byte-identical, green.",
       "notes": "Merged. Last disclosed Phase 2 loose end from the theme/connection-explorer waves closed."
+    },
+    "STAGEFILTER-001": {
+      "status": "building",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": "interactive-2026-08-27-wave23",
+      "notes": "Seeded 2026-08-27, 'continue' -- the one filter dimension of BUILD_PLAN's Connection Explorer bullet with real existing data and a clear precedent to extend (app/(app)/page.tsx's own stages-query pattern). Doctrine (no curated content) and person (no data-model relationship) stay explicitly deferred."
     }
   }
 }

@@ -2059,6 +2059,42 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "STAGEFILTER-001",
+      "title": "Phase 2: filter the Connection Explorer by stage",
+      "objective": "CONNECTIONEXPLORER-001 built ConnectionType filtering and explicitly deferred doctrine/person/stage filtering as needing more design work than that task should improvise. Of the three, stage is the one with real, existing data and a clear precedent to extend: db/schema.ts's stages table (global reference data, chapters: text[]) and app/(app)/page.tsx's own established pattern for a server component querying it and passing the result down as a prop (read that file's getStages/buildMountainStages before writing anything -- do not invent a second stages-access pattern). Doctrine and person remain out of scope -- doctrine has no curated content to filter against yet (still true, verify with a grep before assuming otherwise), and person has no defined relationship to a UserConnection anywhere in this codebase's data model; both stay deferred, not attempted here.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/app/(app)/threads/[slug]/page.tsx",
+        "web/components/threads/ThreadDetail.tsx",
+        "web/tests/thread-detail.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/app/(app)/page.tsx",
+        "web/db/schema.ts",
+        "web/lib/db/workspaces.ts",
+        "web/lib/contracts/study-v2.ts",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "app/(app)/threads/[slug]/page.tsx queries the stages table server-side, the SAME way app/(app)/page.tsx already does (db.select().from(stagesTable) -- read-only reference data, no workspace scoping needed, matching that file's own precedent), and passes the result down to ThreadDetail as a new prop. Do not build a second stages-access pattern.",
+        "Decide and defend the range-to-stage mapping: a stage's chapters array lists book.chapter keys; a UserConnection's fromRange/toRange each carry a start RefKey (book.chapter.verse). Derive the book.chapter key from a range's start and look it up against each stage's chapters array. A connection's two ranges can map to two different stages -- decide whether the stage filter matches when EITHER endpoint's stage matches the selected stage, or only the fromRange's stage, and state your reasoning plainly in the commit. There is no existing precedent for this exact mapping anywhere in the codebase, so this is a real design call, not a lookup.",
+        "A stage filter control sits alongside the existing ConnectionType filter (built by CONNECTIONEXPLORER-001, same file) -- consistent placement and interaction pattern, not a second, differently-styled control. Options are derived from the real stages passed down, in their natural stage order, never a hand-typed list.",
+        "The two filters compose -- a learner can narrow by ConnectionType AND stage at once, and the existing ConnectionType-only filtering (and its own tests) must keep working exactly as before when no stage filter is active.",
+        "A connection whose range's book.chapter does not match ANY known stage (data exists for chapters outside the stage map, or a malformed/legacy range) is handled explicitly and honestly -- decide whether it is excluded from every specific stage filter (falls into a 'no stage' bucket, or simply never matches any stage chip) and say so; it must never crash the render or silently disappear from the unfiltered view.",
+        "Testable without a DOM per this repo's established pattern: the range-to-stage lookup and the combined filter logic live in pure, exported functions the render body calls.",
+        "All existing tests in tests/thread-detail.test.ts keep passing completely unweakened, including CONNECTIONEXPLORER-001's and CRIMSONACCENT-001's own coverage.",
+        "Mutation-prove: the range-to-stage lookup itself (breaking it so a connection maps to the wrong stage, or none, must fail a NAMED test), and the combined-filter composition (breaking it so the stage filter alone stops narrowing the list must fail a NAMED test)."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }
