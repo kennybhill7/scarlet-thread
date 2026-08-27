@@ -1,7 +1,10 @@
 import { notFound, redirect } from "next/navigation";
 
+import { stages as stagesTable } from "@/db/schema";
+import type { Stage } from "@/lib/contracts";
 import { ThreadDetail } from "@/components/threads/ThreadDetail";
 import { auth } from "@/lib/auth/config";
+import { db } from "@/lib/db";
 import { listThreads } from "@/lib/db/threads";
 import { getOrCreatePersonalWorkspace } from "@/lib/db/workspaces";
 
@@ -44,6 +47,22 @@ import { getOrCreatePersonalWorkspace } from "@/lib/db/workspaces";
  * on this device at all) entirely client-side, against the local IndexedDB
  * vault, exactly as it did before this task -- that half of this page is
  * unchanged.
+ *
+ * STAGEFILTER-001 -- adds a SECOND server-resolved prop, `stages`, alongside
+ * `workspaceId`. `stages` is global reference data (`db/schema.ts`'s
+ * `stages` table), not workspace-scoped, so it is queried the SAME way
+ * `app/(app)/page.tsx` already does it -- `db.select().from(stagesTable)`,
+ * no `WHERE`, no wrapper module (that file's own header comment explains why
+ * a one-call `lib/db/stages.ts` wrapper isn't worth inventing for a table
+ * this small; this task follows that same precedent rather than starting a
+ * second one). Resolved by its own `resolveThreadStages`, parallel to (not
+ * merged into) `resolveThreadWorkspace` below -- kept separate so this
+ * task's addition never touches `resolveThreadWorkspace`'s own already-
+ * tested return shape. Any failure to load stages (dead database, etc.)
+ * collapses this page to the SAME "setup-incomplete" screen as a failed
+ * workspace lookup, matching `app/(app)/page.tsx`'s own habit of collapsing
+ * to one honest "can't reach your data" screen rather than trying to render
+ * a partially degraded page.
  */
 
 type ThreadPageProps = {
@@ -114,11 +133,11 @@ export async function resolveSessionState(
 // every other page in this route group.
 // ---------------------------------------------------------------------------
 
-export type ThreadPageDeps = {
+export type ThreadWorkspaceDeps = {
   resolveWorkspaceId: (userId: string) => Promise<string>;
 };
 
-const defaultThreadPageDeps: ThreadPageDeps = {
+const defaultThreadWorkspaceDeps: ThreadWorkspaceDeps = {
   resolveWorkspaceId: getOrCreatePersonalWorkspace,
 };
 
@@ -128,11 +147,46 @@ export type ThreadWorkspaceResolution =
 
 export async function resolveThreadWorkspace(
   userId: string,
-  deps: ThreadPageDeps = defaultThreadPageDeps,
+  deps: ThreadWorkspaceDeps = defaultThreadWorkspaceDeps,
 ): Promise<ThreadWorkspaceResolution> {
   try {
     const workspaceId = await deps.resolveWorkspaceId(userId);
     return { status: "ready", workspaceId };
+  } catch {
+    return { status: "setup-incomplete" };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Stage resolution (STAGEFILTER-001) -- the second server-resolved prop,
+// same shape/discipline as `resolveThreadWorkspace` above, deliberately kept
+// as its own function with its own minimal deps type rather than folded into
+// `ThreadWorkspaceDeps` (see this file's header comment) -- so a caller (or
+// test) that only cares about workspace resolution never has to also supply
+// an unrelated `getStages`. `stages` is global reference data, so unlike
+// `resolveWorkspaceId` this needs no `userId` at all.
+// ---------------------------------------------------------------------------
+
+export type ThreadStagesDeps = {
+  getStages: () => Promise<Stage[]>;
+};
+
+const defaultThreadStagesDeps: ThreadStagesDeps = {
+  // Global reference data, unscoped -- matches app/(app)/page.tsx's own
+  // `getStages: () => db.select().from(stagesTable)` exactly.
+  getStages: () => db.select().from(stagesTable),
+};
+
+export type ThreadStagesResolution =
+  | { status: "setup-incomplete" }
+  | { status: "ready"; stages: Stage[] };
+
+export async function resolveThreadStages(
+  deps: ThreadStagesDeps = defaultThreadStagesDeps,
+): Promise<ThreadStagesResolution> {
+  try {
+    const stages = await deps.getStages();
+    return { status: "ready", stages };
   } catch {
     return { status: "setup-incomplete" };
   }
@@ -175,13 +229,18 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
   // line.
   if (sessionState.status !== "authenticated") redirect("/sign-in");
 
-  const resolution = await resolveThreadWorkspace(sessionState.userId);
+  const [resolution, stagesResolution] = await Promise.all([
+    resolveThreadWorkspace(sessionState.userId),
+    resolveThreadStages(),
+  ]);
 
-  if (resolution.status === "setup-incomplete") {
+  if (resolution.status === "setup-incomplete" || stagesResolution.status === "setup-incomplete") {
     return (
       <SetupIncomplete detail="Thread couldn't reach your data. This is a configuration problem, not a missing thread — check the database connection and try again." />
     );
   }
 
-  return <ThreadDetail slug={slug} workspaceId={resolution.workspaceId} />;
+  return (
+    <ThreadDetail slug={slug} stages={stagesResolution.stages} workspaceId={resolution.workspaceId} />
+  );
 }

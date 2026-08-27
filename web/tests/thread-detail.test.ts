@@ -4,6 +4,17 @@
  * Connection Explorer: `selectConnectionsForThread`, `filterConnectionsByType`,
  * and the hookless `ConnectionsPanel`).
  *
+ * STAGEFILTER-001 -- extends both files with a second, composable filter
+ * dimension: `resolveThreadStages` (page.tsx, parallel to
+ * `resolveThreadWorkspace`) and `refKeyToChapterKey`/`stageSlugForRange`/
+ * `filterConnectionsByStage`/`filterConnections` (ThreadDetail.tsx). Because
+ * `resolveThreadStages`'s default deps now call the REAL `db.select().from(
+ * stagesTable)` (page.tsx now statically imports `@/db/schema` and
+ * `@/lib/db` for the first time), this file seeds fakes for both, following
+ * `tests/climb-setup-state.test.ts`'s own precedent for the identical
+ * `app/(app)/page.tsx` query -- a tiny chainable `{ select: () => ({ from:
+ * () => stubs.getStages() }) }` stand-in, never a real Neon connection.
+ *
  * TEST-ENVIRONMENT NOTE (same discipline as tests/study-page.test.ts,
  * tests/connect-pane.test.ts, and tests/review-setup-state.test.ts, all read
  * as precedent before writing this file): this repo's test script is
@@ -51,6 +62,7 @@ import test from "node:test";
 import type { CSSProperties } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
+import type { Stage } from "@/lib/contracts";
 import { CANONICAL_VERSIFICATION_ID, type CanonicalRangeV1 } from "@/lib/contracts/range-v1";
 import {
   CONNECTION_TYPES,
@@ -112,22 +124,63 @@ class NotFoundSignal extends Error {
 
 type SessionLike = { user?: { id?: string | null } | null } | null;
 
+// Fixture stages -- deliberately out of `.stage` order in the array itself,
+// so any test relying on natural-order sorting actually exercises it rather
+// than getting it for free from insertion order. Chapters chosen to line up
+// with `sampleConnection`'s own fromRange/toRange starts below (Genesis
+// 3:15 -> "1.3", John 3:16 -> "43.3") so the range-to-stage mapping tests
+// have a real, non-coincidental match to assert against.
+const genesisStage: Stage = {
+  slug: "genesis-the-fall",
+  title: "Genesis 3 — The Fall",
+  stage: 1,
+  side: "ascent",
+  mirror: "john-the-gospel",
+  chapters: ["1.1", "1.2", "1.3"],
+  summary: "",
+};
+
+const exodusStage: Stage = {
+  slug: "exodus-the-rescue",
+  title: "Exodus 1–2 — The Rescue",
+  stage: 2,
+  side: "ascent",
+  mirror: null,
+  chapters: ["2.1", "2.2"],
+  summary: "",
+};
+
+const johnStage: Stage = {
+  slug: "john-the-gospel",
+  title: "John 3 — The Gospel",
+  stage: 7,
+  side: "descent",
+  mirror: "genesis-the-fall",
+  chapters: ["43.3"],
+  summary: "",
+};
+
+const threeStages: Stage[] = [johnStage, genesisStage, exodusStage];
+
 type Stubs = {
   auth: () => Promise<SessionLike>;
   listThreads: (userId: string) => Promise<unknown[]>;
   getOrCreatePersonalWorkspace: (userId: string) => Promise<string>;
+  getStages: () => Promise<Stage[]>;
 };
 
 const stubs: Stubs = {
   auth: async () => ({ user: { id: "owner-1" } }),
   listThreads: async () => [],
   getOrCreatePersonalWorkspace: async () => "workspace-legit",
+  getStages: async () => threeStages,
 };
 
 function resetStubs() {
   stubs.auth = async () => ({ user: { id: "owner-1" } });
   stubs.listThreads = async () => [];
   stubs.getOrCreatePersonalWorkspace = async () => "workspace-legit";
+  stubs.getStages = async () => threeStages;
 }
 
 seedModule("next/navigation", {
@@ -143,6 +196,22 @@ seedModule("@/lib/db/threads", { listThreads: (userId: string) => stubs.listThre
 seedModule("@/lib/db/workspaces", {
   getOrCreatePersonalWorkspace: (userId: string) => stubs.getOrCreatePersonalWorkspace(userId),
 });
+// `app/(app)/threads/[slug]/page.tsx` now queries `stages` directly, the
+// same way `app/(app)/page.tsx` does -- `db.select().from(stagesTable)`.
+// Faked exactly like `tests/climb-setup-state.test.ts` fakes the identical
+// call for that sibling page: `@/db/schema` need only supply a tagged
+// placeholder for `stagesTable` (never consulted for identity, only passed
+// through `.from()`), and `@/lib/db` need only supply a `db` whose
+// `.select().from()` chain resolves to the stubbed rows -- never a real
+// Neon connection.
+seedModule("@/db/schema", { stages: { __tag: "stages-table" } });
+seedModule("@/lib/db", {
+  db: {
+    select: () => ({
+      from: () => stubs.getStages(),
+    }),
+  },
+});
 
 // ---------------------------------------------------------------------------
 // Load the REAL ThreadDetail module first (see header note 2) -- captures
@@ -152,8 +221,11 @@ seedModule("@/lib/db/workspaces", {
 const threadDetailModule = nodeRequire("@/components/threads/ThreadDetail.tsx") as {
   ConnectionsPanel: (props: {
     connections: UserConnection[];
+    stages: Stage[];
     activeType: ConnectionType | null;
     onSelectType: (type: ConnectionType | null) => void;
+    activeStageSlug: string | null;
+    onSelectStage: (stageSlug: string | null) => void;
   }) => unknown;
   selectConnectionsForThread: (
     connections: UserConnection[],
@@ -163,8 +235,28 @@ const threadDetailModule = nodeRequire("@/components/threads/ThreadDetail.tsx") 
     connections: UserConnection[],
     type: ConnectionType | null,
   ) => UserConnection[];
+  refKeyToChapterKey: (refKey: string) => string | null;
+  stageSlugForRange: (range: CanonicalRangeV1, stages: Stage[]) => string | null;
+  filterConnectionsByStage: (
+    connections: UserConnection[],
+    stageSlug: string | null,
+    stages: Stage[],
+  ) => UserConnection[];
+  filterConnections: (
+    connections: UserConnection[],
+    filters: { type: ConnectionType | null; stageSlug: string | null },
+    stages: Stage[],
+  ) => UserConnection[];
 };
-const { ConnectionsPanel, selectConnectionsForThread, filterConnectionsByType } = threadDetailModule;
+const {
+  ConnectionsPanel,
+  selectConnectionsForThread,
+  filterConnectionsByType,
+  refKeyToChapterKey,
+  stageSlugForRange,
+  filterConnectionsByStage,
+  filterConnections,
+} = threadDetailModule;
 
 // ---------------------------------------------------------------------------
 // Load the real page module. Its own `import { ThreadDetail } from
@@ -176,8 +268,9 @@ const pageModule = nodeRequire("@/app/(app)/threads/[slug]/page.tsx") as {
   default: (props: { params: Promise<{ slug: string }> }) => Promise<unknown>;
   resolveSessionState: typeof import("../app/(app)/threads/[slug]/page").resolveSessionState;
   resolveThreadWorkspace: typeof import("../app/(app)/threads/[slug]/page").resolveThreadWorkspace;
+  resolveThreadStages: typeof import("../app/(app)/threads/[slug]/page").resolveThreadStages;
 };
-const { resolveSessionState, resolveThreadWorkspace } = pageModule;
+const { resolveSessionState, resolveThreadWorkspace, resolveThreadStages } = pageModule;
 const ThreadPage = pageModule.default;
 
 /** Renders the real page component, or reports what it threw/signalled. */
@@ -258,6 +351,24 @@ test("HOSTILE: resolveThreadWorkspace is called with the AUTHENTICATED caller's 
 });
 
 // ===========================================================================
+// B2. `resolveThreadStages` -- pure, direct calls (STAGEFILTER-001,
+//     acceptance criterion 1), same shape as `resolveThreadWorkspace` above
+//     but with its own minimal deps type -- no `userId` involved.
+// ===========================================================================
+
+test("resolveThreadStages resolves the real stage rows unchanged", async () => {
+  const resolution = await resolveThreadStages({ getStages: async () => threeStages });
+  assert.deepEqual(resolution, { status: "ready", stages: threeStages });
+});
+
+test("resolveThreadStages collapses a failed lookup to setup-incomplete, never a thrown error", async () => {
+  const resolution = await resolveThreadStages({
+    getStages: thrower("connect ECONNREFUSED 127.0.0.1:5432"),
+  });
+  assert.deepEqual(resolution, { status: "setup-incomplete" });
+});
+
+// ===========================================================================
 // C. RENDER -- the real page component's default export, auth guard and
 //    workspace resolution (acceptance criteria 2).
 // ===========================================================================
@@ -310,6 +421,17 @@ test("RENDER: a workspace-lookup failure renders setup-incomplete", async () => 
   assert.equal(result.kind, "html");
   if (result.kind !== "html") return;
   assert.ok(result.html.includes(SETUP_HEADLINE));
+});
+
+test("RENDER: a stages-lookup failure ALSO renders setup-incomplete (STAGEFILTER-001) -- the workspace lookup succeeding is not enough on its own", async () => {
+  resetStubs();
+  stubs.getStages = thrower("connect ECONNREFUSED 127.0.0.1:5432");
+
+  const result = await renderPage({ slug: "seed-of-the-woman" });
+
+  assert.equal(result.kind, "html");
+  if (result.kind !== "html") return;
+  assert.ok(result.html.includes(SETUP_HEADLINE), `expected the setup-incomplete screen:\n${result.html}`);
 });
 
 test("NOT FOUND: a malformed slug never reaches the session check at all", async () => {
@@ -448,6 +570,160 @@ test("MUTATION-TARGET criterion 4: filterConnectionsByType narrows to EXACTLY th
 });
 
 // ===========================================================================
+// E2. Stage filter -- pure logic (STAGEFILTER-001, acceptance criteria
+//     2/4/5). `threeStages` (defined above, alongside the page-level stubs)
+//     is reused here directly -- it is the SAME fixture the render tests use,
+//     never a second hand-rolled set, and its chapters were chosen to line
+//     up with `sampleConnection`'s own fromRange/toRange starts below.
+// ===========================================================================
+
+function range(start: string, end = start): CanonicalRangeV1 {
+  return { versificationId: CANONICAL_VERSIFICATION_ID, start, end };
+}
+
+test("refKeyToChapterKey derives book.chapter from a book.chapter.verse key", () => {
+  assert.equal(refKeyToChapterKey("19.23.4"), "19.23");
+  assert.equal(refKeyToChapterKey("1.3.15"), "1.3");
+});
+
+test("refKeyToChapterKey returns null for a malformed key, never throwing", () => {
+  assert.equal(refKeyToChapterKey("1.3"), null, "a chapter-only key is not a valid range boundary");
+  assert.equal(refKeyToChapterKey("1.3.15.2"), null, "too many components");
+  assert.equal(refKeyToChapterKey("not-a-key"), null);
+  assert.equal(refKeyToChapterKey(""), null);
+});
+
+test("MUTATION-TARGET (range-to-stage lookup): stageSlugForRange maps a range's start to the STAGE THAT ACTUALLY COVERS ITS CHAPTER, not just the first stage in the array", () => {
+  // `threeStages` is seeded out of `.stage` order (john, genesis, exodus) --
+  // a mutant that returned `stages[0].slug` unconditionally would return
+  // "john-the-gospel" here, not "genesis-the-fall", and this test would
+  // catch it.
+  assert.equal(stageSlugForRange(range("1.3.15"), threeStages), "genesis-the-fall");
+  assert.equal(stageSlugForRange(range("43.3.16"), threeStages), "john-the-gospel");
+  assert.equal(stageSlugForRange(range("2.1.5"), threeStages), "exodus-the-rescue");
+});
+
+test("stageSlugForRange returns null (not a crash) for a chapter no known stage covers", () => {
+  assert.equal(stageSlugForRange(range("3.1.1"), threeStages), null);
+});
+
+test("stageSlugForRange returns null (not a crash) for a malformed range start", () => {
+  assert.equal(stageSlugForRange(range("not-a-key"), threeStages), null);
+});
+
+test("filterConnectionsByStage(null) returns every connection unchanged -- the pre-STAGEFILTER-001 behaviour", () => {
+  const connections = [sampleConnection({ id: "a" }), sampleConnection({ id: "b" })];
+  assert.deepEqual(filterConnectionsByStage(connections, null, threeStages), connections);
+});
+
+test("MUTATION-TARGET (range-to-stage lookup, mapping decision): filterConnectionsByStage matches a connection whose FROM range is in the selected stage", () => {
+  // sampleConnection()'s fromRange is "1.3.15" -> genesis-the-fall.
+  const connection = sampleConnection({ id: "from-match" });
+  const result = filterConnectionsByStage([connection], "genesis-the-fall", threeStages);
+  assert.deepEqual(result.map((c) => c.id), ["from-match"]);
+});
+
+test("MUTATION-TARGET (mapping decision, EITHER endpoint): filterConnectionsByStage ALSO matches a connection whose TO range (not fromRange) is in the selected stage", () => {
+  // sampleConnection()'s toRange is "43.3.16" -> john-the-gospel. If the
+  // implementation only ever consulted fromRange, this would wrongly return
+  // an empty list -- the exact regression this test exists to catch.
+  const connection = sampleConnection({ id: "to-match" });
+  const result = filterConnectionsByStage([connection], "john-the-gospel", threeStages);
+  assert.deepEqual(
+    result.map((c) => c.id),
+    ["to-match"],
+    "a connection whose TO range sits in the selected stage must not silently disappear",
+  );
+});
+
+test("filterConnectionsByStage excludes a connection whose neither range end is in the selected stage", () => {
+  const connection = sampleConnection({ id: "no-match" });
+  // sampleConnection() never touches exodus-the-rescue (chapters 2.1/2.2).
+  const result = filterConnectionsByStage([connection], "exodus-the-rescue", threeStages);
+  assert.deepEqual(result, []);
+});
+
+test("UNMATCHED-STAGE HANDLING (acceptance criterion 5): a connection whose range matches NO known stage stays visible when no stage filter is active, but disappears under every specific stage filter", () => {
+  const orphan = sampleConnection({
+    id: "orphan",
+    fromRange: range("3.1.1"),
+    toRange: range("3.1.1"),
+  });
+
+  // Never silently vanishes from the unfiltered view.
+  assert.deepEqual(filterConnectionsByStage([orphan], null, threeStages).map((c) => c.id), ["orphan"]);
+
+  // Excluded from every real, specific stage filter -- it never matches a chip.
+  for (const stage of threeStages) {
+    assert.deepEqual(
+      filterConnectionsByStage([orphan], stage.slug, threeStages),
+      [],
+      `an unmatched-stage connection must not appear under the "${stage.slug}" filter`,
+    );
+  }
+});
+
+test("MUTATION-TARGET (combined-filter composition): filterConnections composes ConnectionType AND stage -- a connection must satisfy BOTH, not either", () => {
+  const genesisQuotation = sampleConnection({ id: "genesis-quotation", type: "quotation" }); // from: genesis, to: john
+  const exodusQuotation = sampleConnection({
+    id: "exodus-quotation",
+    type: "quotation",
+    fromRange: range("2.1.1"),
+    toRange: range("2.1.1"),
+  }); // from/to: exodus
+  const genesisMotif = sampleConnection({ id: "genesis-motif", type: "motif" }); // from: genesis, to: john
+
+  const result = filterConnections(
+    [genesisQuotation, exodusQuotation, genesisMotif],
+    { type: "quotation", stageSlug: "genesis-the-fall" },
+    threeStages,
+  );
+
+  assert.deepEqual(
+    result.map((c) => c.id),
+    ["genesis-quotation"],
+    "must return only the connection matching BOTH the type AND the stage filter -- an AND mutated into an OR would leak the other two",
+  );
+});
+
+test("MUTATION-TARGET (combined-filter composition): filterConnections narrows by STAGE ALONE when no ConnectionType filter is active -- the stage filter must not be a no-op just because type is null", () => {
+  const genesisConnection = sampleConnection({ id: "genesis" }); // from: genesis, to: john
+  const exodusConnection = sampleConnection({
+    id: "exodus",
+    fromRange: range("2.1.1"),
+    toRange: range("2.1.1"),
+  });
+
+  const result = filterConnections(
+    [genesisConnection, exodusConnection],
+    { type: null, stageSlug: "genesis-the-fall" },
+    threeStages,
+  );
+
+  assert.deepEqual(
+    result.map((c) => c.id),
+    ["genesis"],
+    "with no type filter active, the stage filter alone must still narrow the list",
+  );
+});
+
+test("filterConnections(type: null, stageSlug: null) returns every connection unchanged -- ConnectionType-only filtering keeps working exactly as before this task", () => {
+  const connections = [
+    sampleConnection({ id: "a", type: "quotation" }),
+    sampleConnection({ id: "b", type: "motif" }),
+  ];
+  assert.deepEqual(
+    filterConnections(connections, { type: null, stageSlug: null }, threeStages),
+    connections,
+  );
+  assert.deepEqual(
+    filterConnections(connections, { type: "quotation", stageSlug: null }, threeStages),
+    filterConnectionsByType(connections, "quotation"),
+    "with no stage filter active, filterConnections must behave identically to the original filterConnectionsByType",
+  );
+});
+
+// ===========================================================================
 // F. `ConnectionsPanel` -- hookless, called directly (acceptance criteria
 //    4, 5, 6, 7).
 // ===========================================================================
@@ -480,26 +756,48 @@ function byField(tree: unknown, field: string): RElement[] {
   return findAll(tree, (el) => el.props["data-field"] === field);
 }
 
+// ---------------------------------------------------------------------------
+// STAGEFILTER-001 -- default `ConnectionsPanel` args for every test below
+// that does not care about the stage filter itself (i.e. every test carried
+// over unweakened from CONNECTIONEXPLORER-001/CRIMSONACCENT-001): `stages`
+// defaults to the real fixture set, `activeStageSlug` defaults to `null`
+// ("all stages", the pre-STAGEFILTER-001 behaviour), so those tests keep
+// exercising the exact same effective filtering they did before this task.
+// ---------------------------------------------------------------------------
+
+type ConnectionsPanelArgs = Parameters<typeof ConnectionsPanel>[0];
+
+function panel(overrides: Partial<ConnectionsPanelArgs> = {}): ReturnType<typeof ConnectionsPanel> {
+  return ConnectionsPanel({
+    connections: [],
+    stages: threeStages,
+    activeType: null,
+    onSelectType: () => {},
+    activeStageSlug: null,
+    onSelectStage: () => {},
+    ...overrides,
+  });
+}
+
 test("ConnectionsPanel: an honest empty state when this thread has zero connections", () => {
-  const tree = ConnectionsPanel({ connections: [], activeType: null, onSelectType: () => {} });
+  const tree = panel({ connections: [] });
   assert.equal(byTestId(tree, "connections-empty").length, 1);
   assert.equal(byTestId(tree, "connections-list").length, 0);
   assert.equal(byTestId(tree, "connections-empty-filtered").length, 0);
 });
 
 test("ConnectionsPanel: a distinct empty state when the type filter excludes every real connection", () => {
-  const tree = ConnectionsPanel({
+  const tree = panel({
     connections: [sampleConnection({ type: "quotation" })],
     activeType: "motif",
-    onSelectType: () => {},
   });
   assert.equal(byTestId(tree, "connections-empty-filtered").length, 1);
   assert.equal(byTestId(tree, "connections-empty").length, 0, "must not claim there are NO connections at all -- there are, just none of this type");
 });
 
 test("ConnectionsPanel: the curated-connections notice renders honestly, in every state -- never a fabricated curated row (acceptance criterion 5)", () => {
-  const empty = ConnectionsPanel({ connections: [], activeType: null, onSelectType: () => {} });
-  const withRows = ConnectionsPanel({ connections: [sampleConnection()], activeType: null, onSelectType: () => {} });
+  const empty = panel({ connections: [] });
+  const withRows = panel({ connections: [sampleConnection()] });
   for (const tree of [empty, withRows]) {
     const notice = byTestId(tree, "connections-no-curated-notice");
     assert.equal(notice.length, 1);
@@ -507,7 +805,7 @@ test("ConnectionsPanel: the curated-connections notice renders honestly, in ever
 });
 
 test("ConnectionsPanel: renders a filter chip for every CONNECTION_TYPES value plus All, wired to the active type", () => {
-  const tree = ConnectionsPanel({ connections: [], activeType: "motif", onSelectType: () => {} });
+  const tree = panel({ connections: [], activeType: "motif" });
   const chips = findAll(tree, (el) => el.props["data-field"] === "connectionType");
   assert.equal(chips.length, CONNECTION_TYPES.length + 1, "one chip per CONNECTION_TYPES value, plus All");
   const values = chips.map((c) => c.props["data-value"]);
@@ -520,9 +818,8 @@ test("ConnectionsPanel: renders a filter chip for every CONNECTION_TYPES value p
 
 test("ConnectionsPanel: clicking a chip calls onSelectType with that chip's own type", () => {
   const seen: (ConnectionType | null)[] = [];
-  const tree = ConnectionsPanel({
+  const tree = panel({
     connections: [],
-    activeType: null,
     onSelectType: (type) => seen.push(type),
   });
   const chips = findAll(tree, (el) => el.props["data-field"] === "connectionType");
@@ -539,7 +836,7 @@ test("ConnectionsPanel: each visible row renders type, evidenceLabel, both range
     evidenceLabel: "explicit",
     rationale: "My own reasoning, unedited, exactly as I typed it into the Connect form.",
   });
-  const tree = ConnectionsPanel({ connections: [connection], activeType: null, onSelectType: () => {} });
+  const tree = panel({ connections: [connection] });
 
   const rows = byTestId(tree, "connection-row");
   assert.equal(rows.length, 1);
@@ -569,7 +866,7 @@ test("CRIMSONACCENT-001: a rendered connection row carries a visible --crimson a
   const connection = sampleConnection({
     rationale: "My own reasoning, unedited, exactly as I typed it into the Connect form.",
   });
-  const tree = ConnectionsPanel({ connections: [connection], activeType: null, onSelectType: () => {} });
+  const tree = panel({ connections: [connection] });
 
   const rows = byTestId(tree, "connection-row");
   assert.equal(rows.length, 1);
@@ -599,9 +896,89 @@ test("ConnectionsPanel: only connections passing the active type filter are rend
     sampleConnection({ id: "b", type: "motif" }),
     sampleConnection({ id: "c", type: "quotation" }),
   ];
-  const tree = ConnectionsPanel({ connections, activeType: "quotation", onSelectType: () => {} });
+  const tree = panel({ connections, activeType: "quotation" });
   const rows = byTestId(tree, "connection-row");
   assert.equal(rows.length, 2);
+});
+
+// ===========================================================================
+// F2. ConnectionsPanel's stage filter chips (STAGEFILTER-001, acceptance
+//     criterion 3) -- same interaction pattern as the ConnectionType chips
+//     tested above, consistent placement (same panel, second `role="group"`
+//     row), options derived from the real `stages` prop.
+// ===========================================================================
+
+test("ConnectionsPanel: renders one stage chip per stage passed down, plus 'All stages', in NATURAL STAGE ORDER (never array/insertion order)", () => {
+  // threeStages is seeded [john(7), genesis(1), exodus(2)] -- natural order
+  // by the `stage` field is genesis(1), exodus(2), john(7).
+  const tree = panel({ connections: [], stages: threeStages });
+  const chips = findAll(tree, (el) => el.props["data-field"] === "connectionStage");
+  assert.equal(chips.length, threeStages.length + 1, "one chip per stage, plus All stages");
+  const values = chips.map((c) => c.props["data-value"]);
+  assert.deepEqual(
+    values,
+    ["all", "genesis-the-fall", "exodus-the-rescue", "john-the-gospel"],
+    "stage chips must render in ascending `.stage` order, regardless of the order `stages` arrived in",
+  );
+});
+
+test("ConnectionsPanel: a stage chip's label is the real stage's own title, never a hand-typed list", () => {
+  const tree = panel({ connections: [], stages: threeStages });
+  const chips = findAll(tree, (el) => el.props["data-field"] === "connectionStage");
+  const genesisChip = chips.find((c) => c.props["data-value"] === "genesis-the-fall");
+  assert.equal(genesisChip?.props.children, "Genesis 3 — The Fall");
+});
+
+test("ConnectionsPanel: the active stage chip is wired to activeStageSlug, same pattern as ConnectionType", () => {
+  const tree = panel({ connections: [], stages: threeStages, activeStageSlug: "exodus-the-rescue" });
+  const chips = findAll(tree, (el) => el.props["data-field"] === "connectionStage");
+  const exodusChip = chips.find((c) => c.props["data-value"] === "exodus-the-rescue");
+  assert.equal(exodusChip?.props["aria-pressed"], true);
+  const allChip = chips.find((c) => c.props["data-value"] === "all");
+  assert.equal(allChip?.props["aria-pressed"], false);
+});
+
+test("ConnectionsPanel: clicking a stage chip calls onSelectStage with that chip's own slug", () => {
+  const seen: (string | null)[] = [];
+  const tree = panel({ connections: [], stages: threeStages, onSelectStage: (slug) => seen.push(slug) });
+  const chips = findAll(tree, (el) => el.props["data-field"] === "connectionStage");
+  const exodusChip = chips.find((c) => c.props["data-value"] === "exodus-the-rescue");
+  (exodusChip?.props.onClick as () => void)?.();
+  const allChip = chips.find((c) => c.props["data-value"] === "all");
+  (allChip?.props.onClick as () => void)?.();
+  assert.deepEqual(seen, ["exodus-the-rescue", null]);
+});
+
+test("ConnectionsPanel: the two filters COMPOSE -- only rows passing BOTH the active type and the active stage are rendered", () => {
+  const genesisQuotation = sampleConnection({ id: "genesis-quotation", type: "quotation" }); // genesis/john
+  const exodusQuotation = sampleConnection({
+    id: "exodus-quotation",
+    type: "quotation",
+    fromRange: { versificationId: CANONICAL_VERSIFICATION_ID, start: "2.1.1", end: "2.1.1" },
+    toRange: { versificationId: CANONICAL_VERSIFICATION_ID, start: "2.1.1", end: "2.1.1" },
+  });
+  const genesisMotif = sampleConnection({ id: "genesis-motif", type: "motif" }); // genesis/john
+
+  const tree = panel({
+    connections: [genesisQuotation, exodusQuotation, genesisMotif],
+    stages: threeStages,
+    activeType: "quotation",
+    activeStageSlug: "genesis-the-fall",
+  });
+
+  const rows = byTestId(tree, "connection-row");
+  assert.equal(rows.length, 1, "only the connection matching BOTH filters may render");
+});
+
+test("ConnectionsPanel: ConnectionType-only filtering (no stage filter active) still narrows the list exactly as it did before STAGEFILTER-001", () => {
+  const connections = [
+    sampleConnection({ id: "a", type: "quotation" }),
+    sampleConnection({ id: "b", type: "motif" }),
+    sampleConnection({ id: "c", type: "quotation" }),
+  ];
+  const tree = panel({ connections, activeType: "quotation", activeStageSlug: null });
+  const rows = byTestId(tree, "connection-row");
+  assert.equal(rows.length, 2, "activeStageSlug: null must never additionally narrow the type-only filter");
 });
 
 // ===========================================================================
@@ -620,7 +997,7 @@ test("ASSERTION-LINE: no ConnectionsPanel copy asserts a passage's meaning as fa
   for (const type of CONNECTION_TYPES as readonly ConnectionType[]) {
     for (const evidenceLabel of EVIDENCE_LABELS as readonly EvidenceLabel[]) {
       const connection = sampleConnection({ id: `${type}-${evidenceLabel}`, type, evidenceLabel, rationale });
-      const tree = ConnectionsPanel({ connections: [connection], activeType: null, onSelectType: () => {} });
+      const tree = panel({ connections: [connection] });
       const html = renderToStaticMarkup(tree as never);
       assert.doesNotMatch(
         html,
@@ -633,14 +1010,11 @@ test("ASSERTION-LINE: no ConnectionsPanel copy asserts a passage's meaning as fa
 });
 
 test("ASSERTION-LINE: the empty and filtered-empty states never assert a passage's meaning either", () => {
-  const emptyHtml = renderToStaticMarkup(
-    ConnectionsPanel({ connections: [], activeType: null, onSelectType: () => {} }) as never,
-  );
+  const emptyHtml = renderToStaticMarkup(panel({ connections: [] }) as never);
   const filteredHtml = renderToStaticMarkup(
-    ConnectionsPanel({
+    panel({
       connections: [sampleConnection({ type: "quotation" })],
       activeType: "motif",
-      onSelectType: () => {},
     }) as never,
   );
   for (const html of [emptyHtml, filteredHtml]) {
