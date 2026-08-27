@@ -550,12 +550,13 @@
       "notes": "Merged. Last disclosed Phase 2 loose end from the theme/connection-explorer waves closed."
     },
     "STAGEFILTER-001": {
-      "status": "building",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "agent/STAGEFILTER-001-local",
+      "commitSha": "21254d6",
       "attempts": 0,
       "lastRunId": "interactive-2026-08-27-wave23",
-      "notes": "Seeded 2026-08-27, 'continue' -- the one filter dimension of BUILD_PLAN's Connection Explorer bullet with real existing data and a clear precedent to extend (app/(app)/page.tsx's own stages-query pattern). Doctrine (no curated content) and person (no data-model relationship) stay explicitly deferred."
+      "lastEvidence": "MERGED to master in f17ad2a after independent verification. 980/980, 0 skipped; typecheck/lint/build clean. | Extends ConnectionType filtering with a second composable dimension - stage - querying the stages table server-side via the SAME precedent app/(app)/page.tsx already established. Real design call: a connections fromRange/toRange can map to different stages; decided EITHER endpoint matches, reasoned that from/to record data-entry order not narrative primacy and the panel already renders both ranges symmetrically. An unmatched-stage connection stays visible unfiltered, never crashes. | VERIFIED INDEPENDENTLY, comprehensively: I broke the range-to-stage lookup and SEVEN tests failed across every angle the criteria named. I broke the two-filter composition separately and three more failed. Restored byte-identical both times, green.",
+      "notes": "Merged. Doctrine (no curated content) and person (no data-model relationship) remain correctly deferred, re-verified by grep rather than assumed."
     }
   }
 }
