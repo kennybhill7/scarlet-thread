@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Archivo:wght@600;700&family=Inter:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #e8b465; }
+    a:hover { color: #d99a58; }
+    .wrap {
+      width: 900px;
+      min-height: 640px;
+      background: #0d1420;
+      font-family: 'Inter', system-ui, sans-serif;
+      padding: 28px 30px 34px;
+      box-sizing: border-box;
+      color: #e8e6e0;
+    }
+    .eyebrow {
+      font-family: 'Archivo', system-ui, sans-serif;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #e8b465;
+      margin: 0 0 6px;
+    }
+    .title {
+      font-family: 'Fraunces', Georgia, serif;
+      font-weight: 600;
+      font-size: 22px;
+      margin: 0 0 6px;
+      color: #e8e6e0;
+    }
+    .rationale {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #8b97ab;
+      max-width: 640px;
+      margin: 0 0 20px;
+    }
+    .rationale strong { color: #d5dbe6; font-weight: 500; }
+    .stage {
+      background: #131d2e;
+      border: 1px solid #22314a;
+      border-radius: 18px;
+      padding: 4px 20px 0;
+    }
+    .label {
+      font-family: 'Archivo', system-ui, sans-serif;
+      font-weight: 600;
+      font-size: 11px;
+      fill: #d5dbe6;
+    }
+    .legend {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      margin-top: 14px;
+      font-size: 11.5px;
+      color: #8b97ab;
+    }
+    .legendItem { display: flex; align-items: center; gap: 7px; }
+    .swatch { width: 22px; height: 2px; border-radius: 2px; }
+  </style>
+</helmet>
+<div class="wrap">
+  <p class="eyebrow">Direction 4 of 4 — Connection Explorer / Mountain</p>
+  <h1 class="title">Traveling Path</h1>
+  <p class="rationale">
+    Round crimson dashes, larger and more spaced than the gray structural ties, suggesting
+    footsteps or a walked route rather than a fixed edge. <strong>Reads as a journey between two
+    points in the reading</strong>, which fits how a learner actually experiences finding a
+    connection — not all at once. Risk: dashed-on-dashed (this over the existing gray mirror
+    ties) needs enough contrast in size/spacing to stay legible; closest of the four to the
+    "network-diagram edge" look BUILD_PLAN explicitly warns against, so it needs the most care to
+    not just look like a wireframe connector.
+  </p>
+  <div class="stage">
+    <svg viewBox="0 0 820 360" width="100%" height="360" role="img" aria-label="Mountain with two example learner connections, traveling-path treatment">
+      <polygon points="60,172 60,172 130,126 200,80 270,34 340,80 410,126 480,172 480,172" fill="#e8b465" fill-opacity="0.05" />
+
+      <line x1="60" y1="172" x2="480" y2="172" stroke="#33405a" stroke-width="1" stroke-dasharray="3 4" />
+      <line x1="130" y1="126" x2="410" y2="126" stroke="#33405a" stroke-width="1" stroke-dasharray="3 4" />
+      <line x1="200" y1="80" x2="340" y2="80" stroke="#33405a" stroke-width="1" stroke-dasharray="3 4" />
+
+      <polyline points="60,172 130,126 200,80 270,34 340,80 410,126 480,172" fill="none" stroke="#33405a" stroke-width="2" />
+
+      <path d="M130,126 Q200,9 270,34" fill="none" stroke="#d9615f" stroke-width="3" stroke-linecap="round" stroke-dasharray="0.5 11" />
+      <path d="M60,172 Q235,101 410,126" fill="none" stroke="#d9615f" stroke-width="3" stroke-linecap="round" stroke-dasharray="0.5 11" />
+
+      <circle cx="60" cy="172" r="11" fill="#0d1420" stroke="#33405a" stroke-width="2" />
+      <circle cx="130" cy="126" r="13" fill="#e8b465" stroke="#d99a58" stroke-width="2" />
+      <circle cx="200" cy="80" r="10" fill="#0d1420" stroke="#33405a" stroke-width="2" />
+      <circle cx="270" cy="34" r="14" fill="#e8b465" stroke="#d99a58" stroke-width="2" />
+      <circle cx="340" cy="80" r="12" fill="#e8b465" stroke="#d99a58" stroke-width="2" />
+      <circle cx="410" cy="126" r="10" fill="#0d1420" stroke="#33405a" stroke-width="2" />
+      <circle cx="480" cy="172" r="11" fill="#e8b465" stroke="#d99a58" stroke-width="2" />
+
+      <text x="60" y="197" text-anchor="middle" class="label">Gen 1-2</text>
+      <text x="130" y="151" text-anchor="middle" class="label">Gen 3-11</text>
+      <text x="200" y="105" text-anchor="middle" class="label">Gen 12-36</text>
+      <text x="270" y="59" text-anchor="middle" class="label">Gen 37-50</text>
+      <text x="340" y="105" text-anchor="middle" class="label">Matt 1-7</text>
+      <text x="410" y="151" text-anchor="middle" class="label">Matt 8-20</text>
+      <text x="480" y="197" text-anchor="middle" class="label">Matt 21-28</text>
+    </svg>
+    <div class="legend">
+      <div class="legendItem"><span class="swatch" style="background:#33405a; border-top:1px dashed #33405a; height:0;"></span> Mirror stage (structural)</div>
+      <div class="legendItem"><span class="swatch" style="background:#d9615f;"></span> Learner connection</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 900, "h": 640 },
+    { "file": "SoftGlow.dc.html", "x": 980, "y": 0, "w": 900, "h": 640 },
+    { "file": "WovenRibbon.dc.html", "x": 1960, "y": 0, "w": 900, "h": 640 },
+    { "file": "TravelingPath.dc.html", "x": 2940, "y": 0, "w": 900, "h": 640 }
+  ],
+  "launch": { "view": "canvas" }
+}
