@@ -137,21 +137,18 @@ offline navigation, parallel-text rendering, importer fidelity, and staged raw j
 | Sync | IndexedDB (`idb`) local-first → Postgres, last-write-wins on `updatedAt`. Built and tested |
 | Notes | All text lives in the app. Apple Notes is ONLY for ink/sketches, linked by URL |
 | Seed bridge | `web/data/seed/*.json` (gitignored — contains real personal content) is the vault import. NOT in `web/public` — see "Seed bridge" below |
+| Mountain orientation | Gospels stays the peak (stage 6), Creation stays the ascent's foot (stage 1) — the live frontmatter/`elevationOf()` reading is correct. `Gen 01-02 — Creation.md`'s "top of the left side" prose describes the diagram's left column, not literal elevation; no code change needed. Ratified 2026-09-01 alongside the Mountain redesign work in `design/` |
+| Mountain redesign scope | The reimagined Mountain (`design/MOUNTAIN_JOURNEY_BRIEF.md`) stays the daily navigation surface, not a Sunday-only overview. A learner's own `UserConnection` rows appear on it as a distinct layer — visually unmistakable from the curated thread-as-road (e.g. a thin stitched filament above the ground, never merged into the road itself) |
 
 ## Open — needs Ken
 
-1. **Mountain orientation.** Still unresolved. `Gen 01-02 — Creation.md` prose says Creation is
-   "top of the left side," frontmatter says `stage: 1, side: ascent` (bottom-left, climbing to
-   Jesus at the peak). The live Climb screen was built from the frontmatter reading — geometry is
-   isolated in one function, `elevationOf()` in `components/climb/Mountain.tsx`, exactly so this
-   stays a one-line change if Ken means it the other way.
-2. **GitHub push.** `gh` is authenticated as `kennybhill7` (repo + workflow scope). Not pushed —
+1. **GitHub push.** `gh` is authenticated as `kennybhill7` (repo + workflow scope). Not pushed —
    personal journal to a third-party server is Ken's call. The index currently stages 502 files,
    including the raw vault and ZIP, and 25 newer Track B files are untracked. Do not push this
    state. A reviewed code-only index or an explicitly approved private-backup model is required.
-3. **Vercel account + Neon integration + Google OAuth credentials.** Blocks going live. Everything
+2. **Vercel account + Neon integration + Google OAuth credentials.** Blocks going live. Everything
    that doesn't need them is done and verified locally.
-4. **Deep gear book 5** — 1 Samuel or Acts. Not needed until the reading-plan screen (not built yet).
+3. **Deep gear book 5** — 1 Samuel or Acts. Not needed until the reading-plan screen (not built yet).
 
 ## Seed bridge — read before touching `web/data/seed/` or `web/lib/vault/seed.ts`
 

@@ -162,6 +162,49 @@ Real tokens from `web/app/globals.css`, current as of 2026-08-26 (THEMESYSTEM-00
 
 ---
 
+## Status (2026-09-01) — first Claude Design round-trip, decisions ratified
+
+Claude Design's first pass is in `design/scarlet-thread-app/` — `The Climb.dc.html` (a working
+11-stage interactive prototype), `Scarlet Thread App.dc.html` (a full 14-section app-wide redesign
+proposal), `Mountain Journey Directions.dc.html` (three camera concepts for the terrain redesign),
+and `github.md` (its own sync manifest — it already treats this repo as its read/write target).
+
+**Three open questions it asked, now ratified by Ken:**
+
+1. **Peak placement — settled, no change needed.** Gospels stays the peak (stage 6), Creation
+   stays the ascent's foot (stage 1). This matches the live `elevationOf()` build already, so
+   there's nothing to change in code. See `PROGRESS.md`'s "Decisions locked" table.
+2. **Daily vs. weekly surface.** The redesigned Mountain stays the **daily navigation surface** —
+   how a learner gets to today's passage every time they open the app, not an occasional overview.
+3. **Learner connections on the Mountain.** A learner's own `UserConnection` rows **do** appear on
+   this surface, but as a visually distinct layer from the curated thread-as-road — e.g. a thin
+   stitched filament in the air above the terrain (the earlier Stitched Thread sketch's ticks),
+   never merged into or rendered the same way as the curated road itself. Curated structure is the
+   ground everyone walks; a learner's own connection is never ground.
+
+**A real defect found in this round, not yet fixed:** every `.dc.html` scene slot carries a
+`placeholder` attribute describing what SHOULD render there. Five of the 11 stage images (01, 05,
+06, 09, 11) are the mood-reference stills and fit their captions well. The other six — 02, 03, 04,
+07, 08, 10 — do NOT match their own placeholder captions. Worst case: stage 8's placeholder reads
+"a merchant city on the water, smoke rising over the harbour" (Babylon, Revelation 1–18) but the
+actual image is the identical golden heavenly-city render used for stage 11 (Paradise Restored) —
+so the judged false empire and the true eternal city currently look like the same place, which
+undercuts the exact contrast the mirror-pair structure exists to teach. **Regenerate all six
+mismatched scene images before any of this ships** — 02 (Sin Enters — needs fig leaves/flaming
+sword, not a dark ridge), 03 (The Flood — needs an ark/dove/rainbow, not a calm valley), 04 (Babel
+— needs a brick tower/scaffolding, not a desert tent), 07 (The Church — needs lamplit houses/a
+ship, not a dawn valley), 08 (Babylon — needs a merchant city/smoke, not the paradise city), 10
+(Satan Cast Out — needs a key/chain/throne, not a bare ridge).
+
+**Camera direction — not yet picked.** Three options in `Mountain Journey Directions.dc.html`: 1a
+The Switchback (valley view, thread as a switchback cut into the face, peak-as-midpoint made
+physical), 1b The Traverse (side-on panorama, thread as a horizontal road, both mirror faces
+visible at once — cheapest to build, safest), 1c On the Road (first-person, standing on the
+thread — most literal "Yellow Brick Road" reading, highest risk). Claude Design's own
+recommendation is 1a as the strongest match to the brief, 1b as the fastest to ship. Still open.
+
+---
+
 ## What this brief is asking Claude Design for
 
 Not a finished implementation — a real creative direction: what does "realistic mountain, cinematic

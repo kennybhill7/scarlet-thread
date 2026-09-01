@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script src="./image-slot.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600&family=Archivo+Narrow:wght@600;700&family=Inter:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; background: #05080f; }
+    a { color: #e8b465; text-decoration: none; }
+    a:hover { color: #f0cd94; }
+  </style>
+</helmet>
+
+<div style="width:1672px; height:941px; background:radial-gradient(120% 90% at 50% 0%, #0e1524 0%, #05080f 62%, #03050a 100%); font-family:'Inter',system-ui,sans-serif; display:flex; align-items:center; justify-content:center; box-sizing:border-box; padding:28px;">
+
+  <div style="width:1592px; border-radius:34px; border:1px solid #1b2540; background:linear-gradient(180deg,#0b111e 0%,#080d18 100%); box-shadow:0 40px 120px rgba(0,0,0,0.6), inset 0 1px 0 rgba(232,180,101,0.06); display:flex; flex-direction:column; box-sizing:border-box; padding:0 26px 0;">
+
+    <div style="height:104px; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; padding:0 8px;">
+      <div style="display:flex; align-items:center;">
+        <div role="button" tabindex="0" aria-label="Scarlet Thread home" style="width:52px; height:52px; border-radius:14px; border:1px solid #6b5324; background:rgba(232,180,101,0.05); display:flex; align-items:center; justify-content:center;" style-hover="border-color:#a8823c; background:rgba(232,180,101,0.1);">
+          <svg width="26" height="22" viewBox="0 0 26 22" fill="none" aria-hidden="true">
+            <path d="M2 19 L9.5 6 L14 13 L17 8.5 L24 19 Z" stroke="#e8b465" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M7.6 9.2 L11.4 9.2" stroke="#e8b465" stroke-width="1.2"/>
+          </svg>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+        <svg width="58" height="14" viewBox="0 0 58 14" fill="none" aria-hidden="true">
+          <path d="M6 12 L18 3 L26 9.5 L34 3 L52 12" stroke="#c99a4e" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+        <div style="display:flex; align-items:center; gap:20px;">
+          <span style="display:block; width:150px; height:1px; background:linear-gradient(90deg,rgba(201,154,78,0) 0%,#c99a4e 100%);"></span>
+          <h1 style="font-family:'Fraunces',Georgia,serif; font-weight:500; font-size:36px; line-height:1; margin:0; color:#f4e3c3; letter-spacing:0.01em;">The Climb</h1>
+          <span style="display:block; width:150px; height:1px; background:linear-gradient(90deg,#c99a4e 0%,rgba(201,154,78,0) 100%);"></span>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; justify-content:flex-end;">
+        <div role="button" tabindex="0" aria-label="Menu" style="width:52px; height:52px; border-radius:999px; border:1px solid #6b5324; background:rgba(232,180,101,0.05); display:flex; align-items:center; justify-content:center;" style-hover="border-color:#a8823c; background:rgba(232,180,101,0.1);">
+          <svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true">
+            <path d="M1 1.5 H19 M1 7 H19 M1 12.5 H19" stroke="#e8b465" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div style="position:relative; width:100%; aspect-ratio:1531 / 645; border-radius:20px; overflow:hidden; border:1px solid #23304c; background:#0a0f1a;">
+      <image-slot id="climb-vista" shape="rect" fit="cover" src="./assets/climb-vista.png" placeholder="Drop the rendered Climb vista (2x, no waypoints baked in)"></image-slot>
+
+      <div onMouseOver="{{ onOver }}" onMouseOut="{{ onOut }}" onClick="{{ onPick }}" style="position:absolute; inset:0;">
+
+        <div data-stage="1" data-screen-label="Stage 01" role="link" tabindex="0" aria-label="Stage 1, Creation, Genesis 1 to 2" style="position:absolute; left:5.81%; top:84.2%; width:52px; height:52px; margin:-26px 0 0 -26px; border-radius:999px; cursor:pointer;"></div>
+        <div data-stage="2" data-screen-label="Stage 02" role="link" tabindex="0" aria-label="Stage 2, Sin Enters, Genesis 3 to 5" style="position:absolute; left:14.0%; top:76.6%; width:52px; height:52px; margin:-26px 0 0 -26px; border-radius:999px; cursor:pointer;"></div>
+        <div data-stage="3" data-screen-label="Stage 03" role="link" tabindex="0" aria-label="Stage 3, The Flood, Genesis 6 to 9" style="position:absolute; left:21.7%; top:62.2%; width:52px; height:52px; margin:-26px 0 0 -26px; border-radius:999px; cursor:pointer;"></div>
+        <div data-stage="4" data-screen-label="Stage 04" role="link" tabindex="0" aria-label="Stage 4, Babel, Genesis 10 to 11" style="position:absolute; left:28.9%; top:54.1%; width:52px; height:52px; margin:-26px 0 0 -26px; border-radius:999px; cursor:pointer;"></div>
+        <div data-stage="5" data-screen-label="Stage 05" role="link" tabindex="0" aria-label="Stage 5, Israel, Genesis 12 to Malachi" style="position:absolute; left:43.0%; top:31.2%; width:52px; height:52px; margin:-26px 0 0 -26px; border-radius:999px; cursor:pointer;"></div>
+        <div data-stage="6" data-screen-label="Stage 06" role="link" tabindex="0" aria-label="Stage 6, Jesus Christ, the Gospels" style="position:absolute; left:50.0%; top:19.8%; width:58px; height:58px; margin:-29px 0 0 -29px; border-radius:999px; cursor:pointer;"></div>
+        <div data-stage="7" data-screen-label="Stage 07" role="link" tabindex="0" aria-label="Stage 7, The Church, Acts to Jude" style="position:absolute; left:56.9%; top:34.9%; width:52px; height:52px; margin:-26px 0 0 -26px; border-radius:999px; cursor:pointer;"></div>
+        <div data-stage="8" data-screen-label="Stage 08" role="link" tabindex="0" aria-label="Stage 8, Babylon, Revelation 1 to 18" style="position:absolute; left:64.1%; top:47.0%; width:52px; height:52px; margin:-26px 0 0 -26px; border-radius:999px; cursor:pointer;"></div>
+        <div data-stage="9" data-screen-label="Stage 09" role="link" tabindex="0" aria-label="Stage 9, The World Judged, Revelation 6 to 19" style="position:absolute; left:72.0%; top:57.1%; width:52px; height:52px; margin:-26px 0 0 -26px; border-radius:999px; cursor:pointer;"></div>
+        <div data-stage="10" data-screen-label="Stage 10" role="link" tabindex="0" aria-label="Stage 10, Satan Cast Out, Revelation 20" style="position:absolute; left:88.9%; top:76.6%; width:52px; height:52px; margin:-26px 0 0 -26px; border-radius:999px; cursor:pointer;"></div>
+        <div data-stage="11" data-screen-label="Stage 11" role="link" tabindex="0" aria-label="Stage 11, Paradise Restored, Revelation 20 to 22" style="position:absolute; left:96.1%; top:84.5%; width:52px; height:52px; margin:-26px 0 0 -26px; border-radius:999px; cursor:pointer;"></div>
+
+        {{ halo }}
+        {{ card }}
+      </div>
+
+      <sc-if value="{{ scene1 }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; background:#070c14;">
+          <image-slot id="scene-01" shape="rect" fit="cover" src="./assets/scenes/01-creation.jpg" placeholder="Creation — light over the waters, a garden planted eastward"></image-slot>
+          <div style="position:absolute; inset:0; background:linear-gradient(90deg,rgba(5,9,16,0.95) 0%,rgba(5,9,16,0.8) 32%,rgba(5,9,16,0.12) 62%,rgba(5,9,16,0) 100%); pointer-events:none;"></div>
+          <div style="position:absolute; left:112px; top:0; bottom:110px; width:530px; display:flex; flex-direction:column; justify-content:center; gap:16px; pointer-events:none;">
+            <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color:#e8b465;">Stage 01 · Ascent</span>
+            <h2 style="font-family:'Fraunces',Georgia,serif; font-weight:500; font-size:58px; line-height:1.02; margin:0; color:#f7ecd8; letter-spacing:-0.01em;">Creation</h2>
+            <p style="margin:0; font-family:'Fraunces',Georgia,serif; font-size:21px; color:#d9bb84;">Genesis 1–2</p>
+            <div style="display:flex; flex-direction:column; gap:7px; margin-top:8px; border-left:2px solid rgba(232,180,101,0.5); padding-left:16px;">
+              <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#8b97ab;">What the text puts in front of you</span>
+              <p style="margin:0; font-size:16px; line-height:1.55; color:#e2e6ee; text-wrap:pretty;">Light divided from darkness. Waters gathered into one place. A garden planted eastward, four rivers named. A man formed from dust, a rib, a seventh day set apart.</p>
+            </div>
+            <div style="display:flex; gap:32px; margin-top:6px;">
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Your writing here</span>
+                <span style="font-size:14px; color:#e2e6ee;">6 observations · 2 questions · 3 threads</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Mirrors</span>
+                <span style="font-size:14px; color:#d9615f;">Rev 20–22 · Paradise Restored</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:14px; pointer-events:auto;">
+              <div role="button" tabindex="0" style="height:50px; padding:0 24px; border-radius:999px; border:1px solid #a8823c; background:rgba(232,180,101,0.12); display:flex; align-items:center; font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:13.5px; letter-spacing:0.12em; text-transform:uppercase; color:#f4e3c3; cursor:pointer;" style-hover="background:rgba(232,180,101,0.22); border-color:#e8b465;">Read Genesis 1 →</div>
+              <div role="button" tabindex="0" style="height:50px; padding:0 22px; border-radius:999px; border:1px solid #33405a; display:flex; align-items:center; font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:13.5px; letter-spacing:0.12em; text-transform:uppercase; color:#8b97ab; cursor:pointer;" style-hover="border-color:#4a5a78; color:#d5dbe6;">Open the thread map</div>
+            </div>
+          </div>
+          {{ sceneNav }}
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ scene2 }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; background:#070c14;">
+          <image-slot id="scene-02" shape="rect" fit="cover" src="./assets/scenes/02-sin-enters.png" placeholder="Sin Enters — fig leaves, a field, a flaming sword east of the garden"></image-slot>
+          <div style="position:absolute; inset:0; background:linear-gradient(90deg,rgba(5,9,16,0.95) 0%,rgba(5,9,16,0.8) 32%,rgba(5,9,16,0.12) 62%,rgba(5,9,16,0) 100%); pointer-events:none;"></div>
+          <div style="position:absolute; left:112px; top:0; bottom:110px; width:530px; display:flex; flex-direction:column; justify-content:center; gap:16px; pointer-events:none;">
+            <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color:#e8b465;">Stage 02 · Ascent</span>
+            <h2 style="font-family:'Fraunces',Georgia,serif; font-weight:500; font-size:58px; line-height:1.02; margin:0; color:#f7ecd8; letter-spacing:-0.01em;">Sin Enters</h2>
+            <p style="margin:0; font-family:'Fraunces',Georgia,serif; font-size:21px; color:#d9bb84;">Genesis 3–5</p>
+            <div style="display:flex; flex-direction:column; gap:7px; margin-top:8px; border-left:2px solid rgba(232,180,101,0.5); padding-left:16px;">
+              <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#8b97ab;">What the text puts in front of you</span>
+              <p style="margin:0; font-size:16px; line-height:1.55; color:#e2e6ee; text-wrap:pretty;">A question about what God said. Fig leaves. Ground cursed with thorns. A garden shut behind a flaming sword. Two brothers, an altar, a field, a first grave.</p>
+            </div>
+            <div style="display:flex; gap:32px; margin-top:6px;">
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Your writing here</span>
+                <span style="font-size:14px; color:#e2e6ee;">9 observations · 4 questions · 5 threads</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Mirrors</span>
+                <span style="font-size:14px; color:#d9615f;">Rev 20 · Satan Cast Out</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:14px; pointer-events:auto;">
+              <div role="button" tabindex="0" style="height:50px; padding:0 24px; border-radius:999px; border:1px solid #a8823c; background:rgba(232,180,101,0.12); display:flex; align-items:center; font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:13.5px; letter-spacing:0.12em; text-transform:uppercase; color:#f4e3c3; cursor:pointer;" style-hover="background:rgba(232,180,101,0.22); border-color:#e8b465;">Read Genesis 3 →</div>
+            </div>
+          </div>
+          {{ sceneNav }}
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ scene3 }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; background:#070c14;">
+          <image-slot id="scene-03" shape="rect" fit="cover" src="./assets/scenes/03-flood.png" placeholder="The Flood — an ark on risen water, a dove, a bow in the cloud"></image-slot>
+          <div style="position:absolute; inset:0; background:linear-gradient(90deg,rgba(5,9,16,0.95) 0%,rgba(5,9,16,0.8) 32%,rgba(5,9,16,0.12) 62%,rgba(5,9,16,0) 100%); pointer-events:none;"></div>
+          <div style="position:absolute; left:112px; top:0; bottom:110px; width:530px; display:flex; flex-direction:column; justify-content:center; gap:16px; pointer-events:none;">
+            <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color:#e8b465;">Stage 03 · Ascent</span>
+            <h2 style="font-family:'Fraunces',Georgia,serif; font-weight:500; font-size:58px; line-height:1.02; margin:0; color:#f7ecd8; letter-spacing:-0.01em;">The Flood</h2>
+            <p style="margin:0; font-family:'Fraunces',Georgia,serif; font-size:21px; color:#d9bb84;">Genesis 6–9</p>
+            <div style="display:flex; flex-direction:column; gap:7px; margin-top:8px; border-left:2px solid rgba(232,180,101,0.5); padding-left:16px;">
+              <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#8b97ab;">What the text puts in front of you</span>
+              <p style="margin:0; font-size:16px; line-height:1.55; color:#e2e6ee; text-wrap:pretty;">Gopher wood and pitch. Measured cubits. Rain for forty days, the deep broken open. A raven, then a dove, then an olive leaf. An altar on drying ground, and a bow set in the cloud.</p>
+            </div>
+            <div style="display:flex; gap:32px; margin-top:6px;">
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Your writing here</span>
+                <span style="font-size:14px; color:#e2e6ee;">7 observations · 2 questions · 3 threads</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Mirrors</span>
+                <span style="font-size:14px; color:#d9615f;">Rev 6–19 · The World Judged</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:14px; pointer-events:auto;">
+              <div role="button" tabindex="0" style="height:50px; padding:0 24px; border-radius:999px; border:1px solid #a8823c; background:rgba(232,180,101,0.12); display:flex; align-items:center; font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:13.5px; letter-spacing:0.12em; text-transform:uppercase; color:#f4e3c3; cursor:pointer;" style-hover="background:rgba(232,180,101,0.22); border-color:#e8b465;">Read Genesis 6 →</div>
+            </div>
+          </div>
+          {{ sceneNav }}
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ scene4 }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; background:#070c14;">
+          <image-slot id="scene-04" shape="rect" fit="cover" src="./assets/scenes/04-babel.png" placeholder="Babel — a brick tower on the plain of Shinar, scaffolding abandoned"></image-slot>
+          <div style="position:absolute; inset:0; background:linear-gradient(90deg,rgba(5,9,16,0.95) 0%,rgba(5,9,16,0.8) 32%,rgba(5,9,16,0.12) 62%,rgba(5,9,16,0) 100%); pointer-events:none;"></div>
+          <div style="position:absolute; left:112px; top:0; bottom:110px; width:530px; display:flex; flex-direction:column; justify-content:center; gap:16px; pointer-events:none;">
+            <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color:#e8b465;">Stage 04 · Ascent</span>
+            <h2 style="font-family:'Fraunces',Georgia,serif; font-weight:500; font-size:58px; line-height:1.02; margin:0; color:#f7ecd8; letter-spacing:-0.01em;">Babel</h2>
+            <p style="margin:0; font-family:'Fraunces',Georgia,serif; font-size:21px; color:#d9bb84;">Genesis 10–11</p>
+            <div style="display:flex; flex-direction:column; gap:7px; margin-top:8px; border-left:2px solid rgba(232,180,101,0.5); padding-left:16px;">
+              <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#8b97ab;">What the text puts in front of you</span>
+              <p style="margin:0; font-size:16px; line-height:1.55; color:#e2e6ee; text-wrap:pretty;">A table of seventy nations. Brick used for stone, tar for mortar. A city and a tower on a plain, built so a name would not be scattered. One language becoming many, and the work left standing.</p>
+            </div>
+            <div style="display:flex; gap:32px; margin-top:6px;">
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Your writing here</span>
+                <span style="font-size:14px; color:#8b97ab;">Nothing written here yet.</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Mirrors</span>
+                <span style="font-size:14px; color:#d9615f;">Rev 1–18 · Babylon</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:14px; pointer-events:auto;">
+              <div role="button" tabindex="0" style="height:50px; padding:0 24px; border-radius:999px; border:1px solid #a8823c; background:rgba(232,180,101,0.12); display:flex; align-items:center; font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:13.5px; letter-spacing:0.12em; text-transform:uppercase; color:#f4e3c3; cursor:pointer;" style-hover="background:rgba(232,180,101,0.22); border-color:#e8b465;">Read Genesis 10 →</div>
+            </div>
+          </div>
+          {{ sceneNav }}
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ scene5 }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; background:#070c14;">
+          <image-slot id="scene-05" shape="rect" fit="cover" src="./assets/scenes/05-israel.jpg" placeholder="Israel — a tent and an altar, the long desert road"></image-slot>
+          <div style="position:absolute; inset:0; background:linear-gradient(90deg,rgba(5,9,16,0.95) 0%,rgba(5,9,16,0.8) 32%,rgba(5,9,16,0.12) 62%,rgba(5,9,16,0) 100%); pointer-events:none;"></div>
+          <div style="position:absolute; left:112px; top:0; bottom:110px; width:530px; display:flex; flex-direction:column; justify-content:center; gap:16px; pointer-events:none;">
+            <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color:#e8b465;">Stage 05 · Ascent · the longest stretch</span>
+            <h2 style="font-family:'Fraunces',Georgia,serif; font-weight:500; font-size:58px; line-height:1.02; margin:0; color:#f7ecd8; letter-spacing:-0.01em;">Israel</h2>
+            <p style="margin:0; font-family:'Fraunces',Georgia,serif; font-size:21px; color:#d9bb84;">Genesis 12 – Malachi · 39 books</p>
+            <div style="display:flex; flex-direction:column; gap:7px; margin-top:8px; border-left:2px solid rgba(232,180,101,0.5); padding-left:16px;">
+              <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#8b97ab;">What the text puts in front of you</span>
+              <p style="margin:0; font-size:16px; line-height:1.55; color:#e2e6ee; text-wrap:pretty;">A tent, an altar, a promise about stars. A bush that burns and is not consumed. A sea divided, bread on the ground, a tabernacle carried. Kings, a temple, prophets, exile, and a wall rebuilt with one hand on a sword.</p>
+            </div>
+            <div style="display:flex; gap:32px; margin-top:6px;">
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Your writing here</span>
+                <span style="font-size:14px; color:#8b97ab;">Nothing written here yet.</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Mirrors</span>
+                <span style="font-size:14px; color:#d9615f;">Acts–Jude · The Church</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:14px; pointer-events:auto;">
+              <div role="button" tabindex="0" style="height:50px; padding:0 24px; border-radius:999px; border:1px solid #a8823c; background:rgba(232,180,101,0.12); display:flex; align-items:center; font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:13.5px; letter-spacing:0.12em; text-transform:uppercase; color:#f4e3c3; cursor:pointer;" style-hover="background:rgba(232,180,101,0.22); border-color:#e8b465;">Read Genesis 12 →</div>
+            </div>
+          </div>
+          {{ sceneNav }}
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ scene6 }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; background:#070c14;">
+          <image-slot id="scene-06" shape="rect" fit="cover" src="./assets/scenes/06-gospels.jpg" placeholder="The Gospels — the summit, three crosses, the thread arriving"></image-slot>
+          <div style="position:absolute; inset:0; background:linear-gradient(90deg,rgba(5,9,16,0.95) 0%,rgba(5,9,16,0.8) 32%,rgba(5,9,16,0.12) 62%,rgba(5,9,16,0) 100%); pointer-events:none;"></div>
+          <div style="position:absolute; left:112px; top:0; bottom:110px; width:530px; display:flex; flex-direction:column; justify-content:center; gap:16px; pointer-events:none;">
+            <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color:#e8b465;">Stage 06 · The peak</span>
+            <h2 style="font-family:'Fraunces',Georgia,serif; font-weight:500; font-size:58px; line-height:1.02; margin:0; color:#f7ecd8; letter-spacing:-0.01em;">Jesus Christ</h2>
+            <p style="margin:0; font-family:'Fraunces',Georgia,serif; font-size:21px; color:#d9bb84;">The Gospels</p>
+            <div style="display:flex; flex-direction:column; gap:7px; margin-top:8px; border-left:2px solid rgba(232,180,101,0.5); padding-left:16px;">
+              <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#8b97ab;">What the text puts in front of you</span>
+              <p style="margin:0; font-size:16px; line-height:1.55; color:#e2e6ee; text-wrap:pretty;">A genealogy, a manger, a river baptism. Twelve called away from boats and tables. A sermon on a hillside, bread for a crowd, a storm told to stop. A borrowed colt, a torn curtain, a sealed stone rolled back.</p>
+            </div>
+            <div style="display:flex; gap:32px; margin-top:6px;">
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Your writing here</span>
+                <span style="font-size:14px; color:#8b97ab;">Nothing written here yet.</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Mirrors</span>
+                <span style="font-size:14px; color:#8b97ab;">The summit — every stage pairs across it</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:14px; pointer-events:auto;">
+              <div role="button" tabindex="0" style="height:50px; padding:0 24px; border-radius:999px; border:1px solid #a8823c; background:rgba(232,180,101,0.12); display:flex; align-items:center; font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:13.5px; letter-spacing:0.12em; text-transform:uppercase; color:#f4e3c3; cursor:pointer;" style-hover="background:rgba(232,180,101,0.22); border-color:#e8b465;">Read Matthew 1 →</div>
+            </div>
+          </div>
+          {{ sceneNav }}
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ scene7 }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; background:#070c14;">
+          <image-slot id="scene-07" shape="rect" fit="cover" src="./assets/scenes/07-church.png" placeholder="The Church — the descent begins, lamplight in houses, a ship at sea"></image-slot>
+          <div style="position:absolute; inset:0; background:linear-gradient(90deg,rgba(5,9,16,0.95) 0%,rgba(5,9,16,0.8) 32%,rgba(5,9,16,0.12) 62%,rgba(5,9,16,0) 100%); pointer-events:none;"></div>
+          <div style="position:absolute; left:112px; top:0; bottom:110px; width:530px; display:flex; flex-direction:column; justify-content:center; gap:16px; pointer-events:none;">
+            <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color:#e8b465;">Stage 07 · Descent</span>
+            <h2 style="font-family:'Fraunces',Georgia,serif; font-weight:500; font-size:58px; line-height:1.02; margin:0; color:#f7ecd8; letter-spacing:-0.01em;">The Church</h2>
+            <p style="margin:0; font-family:'Fraunces',Georgia,serif; font-size:21px; color:#d9bb84;">Acts – Jude</p>
+            <div style="display:flex; flex-direction:column; gap:7px; margin-top:8px; border-left:2px solid rgba(232,180,101,0.5); padding-left:16px;">
+              <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#8b97ab;">What the text puts in front of you</span>
+              <p style="margin:0; font-size:16px; line-height:1.55; color:#e2e6ee; text-wrap:pretty;">A rushing wind and tongues of fire. A road to Damascus. Meetings in houses and upper rooms, letters carried by hand between cities, a shipwreck, a chain, a household baptised at midnight.</p>
+            </div>
+            <div style="display:flex; gap:32px; margin-top:6px;">
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Your writing here</span>
+                <span style="font-size:14px; color:#8b97ab;">Nothing written here yet.</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Mirrors</span>
+                <span style="font-size:14px; color:#d9615f;">Gen 12–Mal · Israel</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:14px; pointer-events:auto;">
+              <div role="button" tabindex="0" style="height:50px; padding:0 24px; border-radius:999px; border:1px solid #a8823c; background:rgba(232,180,101,0.12); display:flex; align-items:center; font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:13.5px; letter-spacing:0.12em; text-transform:uppercase; color:#f4e3c3; cursor:pointer;" style-hover="background:rgba(232,180,101,0.22); border-color:#e8b465;">Read Acts 1 →</div>
+            </div>
+          </div>
+          {{ sceneNav }}
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ scene8 }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; background:#070c14;">
+          <image-slot id="scene-08" shape="rect" fit="cover" src="./assets/scenes/08-babylon.png" placeholder="Babylon — a merchant city on the water, smoke rising over the harbour"></image-slot>
+          <div style="position:absolute; inset:0; background:linear-gradient(90deg,rgba(5,9,16,0.95) 0%,rgba(5,9,16,0.8) 32%,rgba(5,9,16,0.12) 62%,rgba(5,9,16,0) 100%); pointer-events:none;"></div>
+          <div style="position:absolute; left:112px; top:0; bottom:110px; width:530px; display:flex; flex-direction:column; justify-content:center; gap:16px; pointer-events:none;">
+            <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color:#e8b465;">Stage 08 · Descent</span>
+            <h2 style="font-family:'Fraunces',Georgia,serif; font-weight:500; font-size:58px; line-height:1.02; margin:0; color:#f7ecd8; letter-spacing:-0.01em;">Babylon</h2>
+            <p style="margin:0; font-family:'Fraunces',Georgia,serif; font-size:21px; color:#d9bb84;">Revelation 1–18</p>
+            <div style="display:flex; flex-direction:column; gap:7px; margin-top:8px; border-left:2px solid rgba(232,180,101,0.5); padding-left:16px;">
+              <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#8b97ab;">What the text puts in front of you</span>
+              <p style="margin:0; font-size:16px; line-height:1.55; color:#e2e6ee; text-wrap:pretty;">Seven lampstands and seven letters. A sealed scroll. A city of merchants, cargo lists read aloud, and merchants standing off at a distance watching the smoke of her burning.</p>
+            </div>
+            <div style="display:flex; gap:32px; margin-top:6px;">
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Your writing here</span>
+                <span style="font-size:14px; color:#8b97ab;">Nothing written here yet.</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Mirrors</span>
+                <span style="font-size:14px; color:#d9615f;">Gen 10–11 · Babel</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:14px; pointer-events:auto;">
+              <div role="button" tabindex="0" style="height:50px; padding:0 24px; border-radius:999px; border:1px solid #a8823c; background:rgba(232,180,101,0.12); display:flex; align-items:center; font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:13.5px; letter-spacing:0.12em; text-transform:uppercase; color:#f4e3c3; cursor:pointer;" style-hover="background:rgba(232,180,101,0.22); border-color:#e8b465;">Read Revelation 1 →</div>
+            </div>
+          </div>
+          {{ sceneNav }}
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ scene9 }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; background:#070c14;">
+          <image-slot id="scene-09" shape="rect" fit="cover" src="./assets/scenes/09-world-judged.jpg" placeholder="The World Judged — the thread along a canyon wall under storm light"></image-slot>
+          <div style="position:absolute; inset:0; background:linear-gradient(90deg,rgba(5,9,16,0.95) 0%,rgba(5,9,16,0.8) 32%,rgba(5,9,16,0.12) 62%,rgba(5,9,16,0) 100%); pointer-events:none;"></div>
+          <div style="position:absolute; left:112px; top:0; bottom:110px; width:530px; display:flex; flex-direction:column; justify-content:center; gap:16px; pointer-events:none;">
+            <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color:#e8b465;">Stage 09 · Descent</span>
+            <h2 style="font-family:'Fraunces',Georgia,serif; font-weight:500; font-size:58px; line-height:1.02; margin:0; color:#f7ecd8; letter-spacing:-0.01em;">The World Judged</h2>
+            <p style="margin:0; font-family:'Fraunces',Georgia,serif; font-size:21px; color:#d9bb84;">Revelation 6–19</p>
+            <div style="display:flex; flex-direction:column; gap:7px; margin-top:8px; border-left:2px solid rgba(232,180,101,0.5); padding-left:16px;">
+              <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#8b97ab;">What the text puts in front of you</span>
+              <p style="margin:0; font-size:16px; line-height:1.55; color:#e2e6ee; text-wrap:pretty;">Seals opened one at a time. Trumpets, hail and fire, a third of the sea. Bowls poured out. A sickle and a harvest, a winepress outside the city, a rider on a white horse.</p>
+            </div>
+            <div style="display:flex; gap:32px; margin-top:6px;">
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Your writing here</span>
+                <span style="font-size:14px; color:#8b97ab;">Nothing written here yet.</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Mirrors</span>
+                <span style="font-size:14px; color:#d9615f;">Gen 6–9 · The Flood</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:14px; pointer-events:auto;">
+              <div role="button" tabindex="0" style="height:50px; padding:0 24px; border-radius:999px; border:1px solid #a8823c; background:rgba(232,180,101,0.12); display:flex; align-items:center; font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:13.5px; letter-spacing:0.12em; text-transform:uppercase; color:#f4e3c3; cursor:pointer;" style-hover="background:rgba(232,180,101,0.22); border-color:#e8b465;">Read Revelation 6 →</div>
+            </div>
+          </div>
+          {{ sceneNav }}
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ scene10 }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; background:#070c14;">
+          <image-slot id="scene-10" shape="rect" fit="cover" src="./assets/scenes/10-satan-cast-out.png" placeholder="Satan Cast Out — a key, a chain, a sealed pit, a great white throne"></image-slot>
+          <div style="position:absolute; inset:0; background:linear-gradient(90deg,rgba(5,9,16,0.95) 0%,rgba(5,9,16,0.8) 32%,rgba(5,9,16,0.12) 62%,rgba(5,9,16,0) 100%); pointer-events:none;"></div>
+          <div style="position:absolute; left:112px; top:0; bottom:110px; width:530px; display:flex; flex-direction:column; justify-content:center; gap:16px; pointer-events:none;">
+            <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color:#e8b465;">Stage 10 · Descent</span>
+            <h2 style="font-family:'Fraunces',Georgia,serif; font-weight:500; font-size:58px; line-height:1.02; margin:0; color:#f7ecd8; letter-spacing:-0.01em;">Satan Cast Out</h2>
+            <p style="margin:0; font-family:'Fraunces',Georgia,serif; font-size:21px; color:#d9bb84;">Revelation 20</p>
+            <div style="display:flex; flex-direction:column; gap:7px; margin-top:8px; border-left:2px solid rgba(232,180,101,0.5); padding-left:16px;">
+              <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#8b97ab;">What the text puts in front of you</span>
+              <p style="margin:0; font-size:16px; line-height:1.55; color:#e2e6ee; text-wrap:pretty;">An angel with a key and a great chain. A pit shut and sealed. Thrones, a thousand years, a camp surrounded. A great white throne, books opened, and another book.</p>
+            </div>
+            <div style="display:flex; gap:32px; margin-top:6px;">
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Your writing here</span>
+                <span style="font-size:14px; color:#8b97ab;">Nothing written here yet.</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Mirrors</span>
+                <span style="font-size:14px; color:#d9615f;">Gen 3–5 · Sin Enters</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:14px; pointer-events:auto;">
+              <div role="button" tabindex="0" style="height:50px; padding:0 24px; border-radius:999px; border:1px solid #a8823c; background:rgba(232,180,101,0.12); display:flex; align-items:center; font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:13.5px; letter-spacing:0.12em; text-transform:uppercase; color:#f4e3c3; cursor:pointer;" style-hover="background:rgba(232,180,101,0.22); border-color:#e8b465;">Read Revelation 20 →</div>
+            </div>
+          </div>
+          {{ sceneNav }}
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ scene11 }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; background:#070c14;">
+          <image-slot id="scene-11" shape="rect" fit="cover" src="./assets/scenes/11-paradise-restored.jpg" placeholder="Paradise Restored — the city above the clouds, journey's end"></image-slot>
+          <div style="position:absolute; inset:0; background:linear-gradient(90deg,rgba(5,9,16,0.95) 0%,rgba(5,9,16,0.8) 32%,rgba(5,9,16,0.12) 62%,rgba(5,9,16,0) 100%); pointer-events:none;"></div>
+          <div style="position:absolute; left:112px; top:0; bottom:110px; width:530px; display:flex; flex-direction:column; justify-content:center; gap:16px; pointer-events:none;">
+            <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color:#e8b465;">Stage 11 · Descent · journey's end</span>
+            <h2 style="font-family:'Fraunces',Georgia,serif; font-weight:500; font-size:58px; line-height:1.02; margin:0; color:#f7ecd8; letter-spacing:-0.01em;">Paradise Restored</h2>
+            <p style="margin:0; font-family:'Fraunces',Georgia,serif; font-size:21px; color:#d9bb84;">Revelation 20–22</p>
+            <div style="display:flex; flex-direction:column; gap:7px; margin-top:8px; border-left:2px solid rgba(232,180,101,0.5); padding-left:16px;">
+              <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#8b97ab;">What the text puts in front of you</span>
+              <p style="margin:0; font-size:16px; line-height:1.55; color:#e2e6ee; text-wrap:pretty;">A city coming down, measured, with twelve gates and no temple in it. A river down the middle of the street. The tree, with leaves for the healing of the nations. No lamp, no sun, and no night at all.</p>
+            </div>
+            <div style="display:flex; gap:32px; margin-top:6px;">
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Your writing here</span>
+                <span style="font-size:14px; color:#8b97ab;">Nothing written here yet.</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:#7f8ba0;">Mirrors</span>
+                <span style="font-size:14px; color:#d9615f;">Gen 1–2 · Creation</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:14px; pointer-events:auto;">
+              <div role="button" tabindex="0" style="height:50px; padding:0 24px; border-radius:999px; border:1px solid #a8823c; background:rgba(232,180,101,0.12); display:flex; align-items:center; font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:13.5px; letter-spacing:0.12em; text-transform:uppercase; color:#f4e3c3; cursor:pointer;" style-hover="background:rgba(232,180,101,0.22); border-color:#e8b465;">Read Revelation 20 →</div>
+            </div>
+          </div>
+          {{ sceneNav }}
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="height:84px; display:flex; align-items:center; gap:26px; padding:0 14px;">
+      <span style="font-family:'Fraunces',Georgia,serif; font-size:19px; color:#d9bb84; white-space:nowrap;">Genesis</span>
+      <div style="flex:1 1 auto; position:relative; height:20px; display:flex; align-items:center;">
+        <span style="position:absolute; left:0; right:0; top:50%; height:1px; background:linear-gradient(90deg,rgba(201,154,78,0.05) 0%,rgba(201,154,78,0.42) 12%,rgba(201,154,78,0.42) 88%,rgba(201,154,78,0.05) 100%);"></span>
+        <div style="position:relative; flex:1 1 auto; display:flex; align-items:center; justify-content:space-between;">
+          <span style="width:9px; height:9px; border-radius:999px; background:#e8b465;"></span>
+          <span style="width:9px; height:9px; border-radius:999px; background:#e8b465;"></span>
+          <span style="width:9px; height:9px; border-radius:999px; background:#e8b465;"></span>
+          <span style="width:7px; height:7px; border-radius:999px; background:#7a6437;"></span>
+          <span style="width:7px; height:7px; border-radius:999px; background:#7a6437;"></span>
+          <span style="width:7px; height:7px; border-radius:999px; background:#7a6437;"></span>
+          <span style="width:7px; height:7px; border-radius:999px; background:#7a6437;"></span>
+          <span style="width:7px; height:7px; border-radius:999px; background:#7a6437;"></span>
+          <span style="width:7px; height:7px; border-radius:999px; background:#7a6437;"></span>
+          <span style="width:7px; height:7px; border-radius:999px; background:#7a6437;"></span>
+          <span style="width:7px; height:7px; border-radius:999px; background:#7a6437;"></span>
+        </div>
+      </div>
+      <span style="font-family:'Fraunces',Georgia,serif; font-size:19px; color:#d9bb84; white-space:nowrap;">Revelation</span>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1672,&quot;height&quot;:941}}">
+const STAGES = {
+  1:  { n: 1,  title: "Creation",          ref: "Genesis 1–2",        mirror: "Rev 20–22 · Paradise Restored", obs: 6, q: 2, threads: 3, begun: true,  x: 5.81, y: 84.2, side: "Ascent" },
+  2:  { n: 2,  title: "Sin Enters",        ref: "Genesis 3–5",        mirror: "Rev 20 · Satan Cast Out",       obs: 9, q: 4, threads: 5, begun: true,  x: 14.0, y: 76.6, side: "Ascent" },
+  3:  { n: 3,  title: "The Flood",         ref: "Genesis 6–9",        mirror: "Rev 6–19 · The World Judged",   obs: 7, q: 2, threads: 3, begun: true,  x: 21.7, y: 62.2, side: "Ascent" },
+  4:  { n: 4,  title: "Babel",             ref: "Genesis 10–11",      mirror: "Rev 1–18 · Babylon",            obs: 0, q: 0, threads: 0, begun: false, x: 28.9, y: 54.1, side: "Ascent" },
+  5:  { n: 5,  title: "Israel",            ref: "Genesis 12 – Malachi", mirror: "Acts–Jude · The Church",      obs: 0, q: 0, threads: 0, begun: false, x: 43.0, y: 31.2, side: "Ascent" },
+  6:  { n: 6,  title: "Jesus Christ",      ref: "The Gospels",        mirror: null,                            obs: 0, q: 0, threads: 0, begun: false, x: 50.0, y: 19.8, side: "The peak" },
+  7:  { n: 7,  title: "The Church",        ref: "Acts – Jude",        mirror: "Gen 12–Mal · Israel",           obs: 0, q: 0, threads: 0, begun: false, x: 56.9, y: 34.9, side: "Descent" },
+  8:  { n: 8,  title: "Babylon",           ref: "Revelation 1–18",    mirror: "Gen 10–11 · Babel",             obs: 0, q: 0, threads: 0, begun: false, x: 64.1, y: 47.0, side: "Descent" },
+  9:  { n: 9,  title: "The World Judged",  ref: "Revelation 6–19",    mirror: "Gen 6–9 · The Flood",           obs: 0, q: 0, threads: 0, begun: false, x: 72.0, y: 57.1, side: "Descent" },
+  10: { n: 10, title: "Satan Cast Out",    ref: "Revelation 20",      mirror: "Gen 3–5 · Sin Enters",          obs: 0, q: 0, threads: 0, begun: false, x: 88.9, y: 76.6, side: "Descent" },
+  11: { n: 11, title: "Paradise Restored", ref: "Revelation 20–22",   mirror: "Gen 1–2 · Creation",            obs: 0, q: 0, threads: 0, begun: false, x: 96.1, y: 84.5, side: "Descent" },
+};
+
+const GOLD = "#e8b465";
+
+class Component extends DCLogic {
+  state = { active: null, pinned: null, scene: null };
+
+  goScene(n) {
+    if (n < 1 || n > 11) return;
+    this.setState({ scene: n, active: null });
+  }
+
+  stageFrom(event) {
+    const el = event.target.closest ? event.target.closest("[data-stage]") : null;
+    return el ? Number(el.getAttribute("data-stage")) : null;
+  }
+
+  renderVals() {
+    const onOver = (event) => {
+      const n = this.stageFrom(event);
+      if (n && n !== this.state.active) this.setState({ active: n });
+    };
+    const onOut = (event) => {
+      const n = this.stageFrom(event);
+      if (n && n === this.state.active) this.setState({ active: null });
+    };
+    const onPick = (event) => {
+      const n = this.stageFrom(event);
+      if (n) this.goScene(n);
+    };
+
+    const open = this.state.scene;
+    const shown = open ? null : this.state.active;
+    const s = shown ? STAGES[shown] : null;
+
+    const round = (extra) => Object.assign({
+      width: 54, height: 54, borderRadius: 999, border: "1px solid rgba(232,180,101,0.45)",
+      background: "rgba(7,12,20,0.62)", color: "#f4e3c3", cursor: "pointer",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontFamily: "'Fraunces', Georgia, serif", fontSize: 22, lineHeight: 1,
+      pointerEvents: "auto", position: "absolute",
+    }, extra);
+
+    const railDot = (n) =>
+      React.createElement("span", {
+        key: "d" + n,
+        onClick: () => this.goScene(n),
+        title: STAGES[n].title,
+        style: {
+          width: n === open ? 11 : 8, height: n === open ? 11 : 8, borderRadius: 999,
+          background: n === open ? "#e8b465" : "rgba(232,180,101,0.3)",
+          cursor: "pointer", flex: "0 0 auto",
+        },
+      });
+
+    const sceneNav = open
+      ? React.createElement("div", { style: { position: "absolute", inset: 0, pointerEvents: "none" } }, [
+          React.createElement("div", {
+            key: "close", role: "button", tabIndex: 0, "aria-label": "Back to the mountain",
+            onClick: () => this.setState({ scene: null }),
+            style: round({ top: 26, right: 26 }),
+          }, "×"),
+          open > 1
+            ? React.createElement("div", {
+                key: "prev", role: "button", tabIndex: 0, "aria-label": "Previous stage",
+                onClick: () => this.goScene(open - 1),
+                style: round({ top: "50%", left: 26, marginTop: -27, fontSize: 18 }),
+              }, "‹")
+            : null,
+          open < 11
+            ? React.createElement("div", {
+                key: "next", role: "button", tabIndex: 0, "aria-label": "Next stage",
+                onClick: () => this.goScene(open + 1),
+                style: round({ top: "50%", right: 26, marginTop: -27, fontSize: 18 }),
+              }, "›")
+            : null,
+          React.createElement("div", {
+            key: "rail",
+            style: {
+              position: "absolute", bottom: 26, left: "50%", transform: "translateX(-50%)",
+              display: "flex", alignItems: "center", gap: 12, padding: "12px 18px",
+              borderRadius: 999, background: "rgba(7,12,20,0.6)",
+              border: "1px solid rgba(232,180,101,0.22)", pointerEvents: "auto",
+            },
+          }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(railDot)),
+        ])
+      : null;
+
+    const halo = s
+      ? React.createElement("span", {
+          key: "halo",
+          style: {
+            position: "absolute", left: s.x + "%", top: s.y + "%",
+            width: 74, height: 74, margin: "-37px 0 0 -37px", borderRadius: 999,
+            border: "1px solid rgba(232,180,101,0.85)",
+            boxShadow: "0 0 0 6px rgba(232,180,101,0.1), 0 0 34px 6px rgba(232,180,101,0.28)",
+            pointerEvents: "none",
+          },
+        })
+      : null;
+
+    const label = (text) =>
+      React.createElement("span", {
+        style: {
+          fontFamily: "'Archivo Narrow', system-ui, sans-serif", fontWeight: 700,
+          fontSize: 10.5, letterSpacing: "0.15em", textTransform: "uppercase", color: "#8b97ab",
+        },
+      }, text);
+
+    const card = s
+      ? React.createElement("div", {
+          key: "card",
+          style: {
+            position: "absolute", left: Math.min(Math.max(s.x, 11.4), 88.6) + "%", top: s.y + "%",
+            transform: s.y < 42 ? "translate(-50%, 46px)" : "translate(-50%, calc(-100% - 46px))",
+            width: 286, padding: "16px 18px 17px", borderRadius: 18,
+            background: "rgba(19,29,46,0.94)", border: "1px solid #33405a",
+            boxShadow: "0 18px 44px rgba(0,0,0,0.55)",
+            pointerEvents: "none", display: "flex", flexDirection: "column", gap: 7,
+          },
+        }, [
+          React.createElement("div", { key: "t", style: { display: "flex", justifyContent: "space-between", alignItems: "baseline" } }, [
+            React.createElement("span", { key: "a", style: { fontFamily: "'Archivo Narrow', system-ui, sans-serif", fontWeight: 700, fontSize: 10.5, letterSpacing: "0.15em", textTransform: "uppercase", color: GOLD } }, "Stage " + String(s.n).padStart(2, "0") + " · " + s.side),
+            React.createElement("span", { key: "b", style: { fontFamily: "'Archivo Narrow', system-ui, sans-serif", fontWeight: 700, fontSize: 10.5, letterSpacing: "0.12em", color: s.begun ? "#d9615f" : "#7f8ba0" } }, s.begun ? "BEGUN" : "NOT YET"),
+          ]),
+          React.createElement("p", { key: "h", style: { margin: 0, fontFamily: "'Fraunces', Georgia, serif", fontWeight: 500, fontSize: 21, color: "#f4e3c3", lineHeight: 1.15 } }, s.title),
+          React.createElement("p", { key: "r", style: { margin: 0, fontSize: 13, color: "#d5dbe6" } }, s.ref),
+          React.createElement("p", { key: "c", style: { margin: "2px 0 0", fontSize: 12.5, color: "#8b97ab" } },
+            s.begun ? s.obs + " observations · " + s.q + " open questions · " + s.threads + (s.threads === 1 ? " thread" : " threads") : "Nothing written here yet."),
+          s.mirror
+            ? React.createElement("div", { key: "m", style: { marginTop: 4, paddingTop: 9, borderTop: "1px solid #22314a", display: "flex", flexDirection: "column", gap: 3 } }, [
+                label("Mirrors"),
+                React.createElement("span", { key: "mv", style: { fontSize: 12.5, color: "#d5dbe6" } }, s.mirror),
+              ])
+            : React.createElement("div", { key: "m", style: { marginTop: 4, paddingTop: 9, borderTop: "1px solid #22314a" } }, label("The summit · no mirror")),
+        ])
+      : null;
+
+    return {
+      onOver, onOut, onPick, halo, card, sceneNav,
+      scene1: open === 1, scene2: open === 2, scene3: open === 3, scene4: open === 4,
+      scene5: open === 5, scene6: open === 6, scene7: open === 7, scene8: open === 8,
+      scene9: open === 9, scene10: open === 10, scene11: open === 11,
+    };
+  }
+}
+</script>
+</body>
+</html>

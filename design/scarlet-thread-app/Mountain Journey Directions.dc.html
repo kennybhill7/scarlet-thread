@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="design_doc_mode" content="canvas">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600&family=Archivo+Narrow:wght@600;700&family=Inter:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; background: #080d16; }
+    a { color: #e8b465; text-decoration: none; }
+    a:hover { color: #d99a58; }
+    @keyframes drift { from { transform: translateX(-18px); } to { transform: translateX(18px); } }
+    @keyframes walk { to { stroke-dashoffset: -240; } }
+    @media (prefers-reduced-motion: reduce) {
+      [data-motion] { animation: none !important; }
+    }
+  </style>
+</helmet>
+
+<section style="padding:56px 60px 90px; background:#080d16; color:#e8e6e0; font-family:'Inter',system-ui,sans-serif;">
+
+  <div style="max-width:1330px; display:flex; flex-direction:column; gap:14px; margin-bottom:44px;">
+    <p style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:#e8b465; margin:0;">Scarlet Thread · The Mountain, reimagined · turn 1</p>
+    <h1 style="font-family:'Fraunces',Georgia,serif; font-weight:500; font-size:44px; line-height:1.06; margin:0; letter-spacing:-0.01em;">Three ways to make the mountain a place</h1>
+    <p style="font-size:15px; line-height:1.6; color:#8b97ab; max-width:76ch; margin:0; text-wrap:pretty;">All three keep the real data model exactly as it is — 11 <strong style="color:#d5dbe6; font-weight:500;">stages</strong>, ascent 1–6 to the peak at Gospels, descent 6–11, curated mirror pairs, per-stage <strong style="color:#d5dbe6; font-weight:500;">observationCount / questionCount / threadCount</strong> driving visual weight. What differs is the camera: where you stand relative to the terrain, and therefore what "traveling from Genesis to Revelation" physically feels like. Each is buildable as layered SVG + CSS transforms on a mid-range phone.</p>
+  </div>
+
+  <div style="display:flex; gap:24px; max-width:1330px; margin-bottom:48px; flex-wrap:wrap;">
+    <div style="flex:1 1 300px; background:#131d2e; border:1px solid #22314a; border-radius:18px; padding:20px 22px;">
+      <p style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.14em; text-transform:uppercase; color:#d9615f; margin:0 0 8px;">Token bug, not inherited</p>
+      <p style="font-size:13px; line-height:1.6; color:#8b97ab; margin:0; text-wrap:pretty;">None of these use <code style="color:#d5dbe6;">var(--crimson)</code>. The shell needs its own fixed value: <strong style="color:#e8e6e0; font-weight:500;">--shell-crimson: #d9615f</strong>, declared in the <code style="color:#d5dbe6;">:root</code> shell layer beside <code style="color:#d5dbe6;">--gold</code> and never touched by <code style="color:#d5dbe6;">[data-reading]</code>. Measured 5.12:1 against <code style="color:#d5dbe6;">--shell-bg</code> #0d1420 — clears AA for normal text, so it is safe for the thread and for its labels. The parchment value #a13333 measures 2.67:1 on the shell and must never reach it.</p>
+    </div>
+    <div style="flex:1 1 300px; background:#131d2e; border:1px solid #22314a; border-radius:18px; padding:20px 22px;">
+      <p style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.14em; text-transform:uppercase; color:#e8b465; margin:0 0 8px;">Curated vs. learner, kept legible</p>
+      <p style="font-size:13px; line-height:1.6; color:#8b97ab; margin:0; text-wrap:pretty;">Proposal for the open question: the scarlet thread <em style="color:#d5dbe6;">is the ground</em> — a road you walk, curated, identical for everyone. A learner's own <code style="color:#d5dbe6;">UserConnection</code> is never ground. It is a thin hand-stitched filament in the <em style="color:#d5dbe6;">air</em> above the terrain, with the perpendicular ticks from the earlier Stitched Thread sketch. Walkable vs. stitched — two different physical categories, unmistakable even at thumbnail size.</p>
+    </div>
+    <div style="flex:1 1 300px; background:#131d2e; border:1px solid #22314a; border-radius:18px; padding:20px 22px;">
+      <p style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.14em; text-transform:uppercase; color:#e8b465; margin:0 0 8px;">Where the cinema comes from</p>
+      <p style="font-size:13px; line-height:1.6; color:#8b97ab; margin:0; text-wrap:pretty;">Not GPU effects. Four things a slow phone can do: atmospheric perspective (distant ranges lighter and hazier), a sky that shifts hue across the journey, 3–5 parallax layers on <code style="color:#d5dbe6;">translate3d</code> only, and the thread drawing itself ahead of you via <code style="color:#d5dbe6;">stroke-dashoffset</code>. No per-frame JS, no canvas, no video. Everything below degrades to a static image under <code style="color:#d5dbe6;">prefers-reduced-motion</code>.</p>
+    </div>
+  </div>
+
+  <div style="display:flex; gap:36px; flex-wrap:wrap; align-items:flex-start;">
+
+    <div id="1a" style="width:390px; display:flex; flex-direction:column; gap:18px;">
+      <div style="display:flex; align-items:baseline; gap:10px;">
+        <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:11px; letter-spacing:0.12em; color:#241a08; background:#e8b465; padding:4px 9px; border-radius:999px;">1a</span>
+        <h2 style="font-family:'Fraunces',Georgia,serif; font-weight:500; font-size:26px; margin:0;">The Switchback</h2>
+      </div>
+
+      <div style="width:390px; height:740px; border-radius:30px; overflow:hidden; border:1px solid #22314a; position:relative; background:#0d1420;">
+        <svg viewBox="0 0 390 740" width="390" height="740" role="img" aria-label="Direction 1a: the mountain seen from the valley floor, the scarlet thread switchbacking up the face">
+          <defs>
+            <linearGradient id="skyA" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#060a12"/><stop offset="0.42" stop-color="#0f1828"/>
+              <stop offset="0.72" stop-color="#1a2340"/><stop offset="1" stop-color="#22304e"/>
+            </linearGradient>
+            <radialGradient id="glowA" cx="0.5" cy="0.5" r="0.5">
+              <stop offset="0" stop-color="#e8b465" stop-opacity="0.26"/>
+              <stop offset="0.55" stop-color="#d99a58" stop-opacity="0.08"/>
+              <stop offset="1" stop-color="#d99a58" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="massifA" x1="0.1" y1="0" x2="0.9" y2="1">
+              <stop offset="0" stop-color="#1b2438"/><stop offset="0.5" stop-color="#121a29"/><stop offset="1" stop-color="#0b1220"/>
+            </linearGradient>
+            <linearGradient id="hazeA" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#2b3a55" stop-opacity="0"/><stop offset="1" stop-color="#2b3a55" stop-opacity="0.5"/>
+            </linearGradient>
+          </defs>
+
+          <rect width="390" height="740" fill="url(#skyA)"/>
+          <ellipse cx="208" cy="205" rx="230" ry="170" fill="url(#glowA)"/>
+          <g fill="#e8e6e0" opacity="0.5">
+            <circle cx="46" cy="72" r="1"/><circle cx="112" cy="46" r="0.8"/><circle cx="196" cy="88" r="0.9"/>
+            <circle cx="284" cy="54" r="1.1"/><circle cx="340" cy="112" r="0.8"/><circle cx="66" cy="156" r="0.8"/>
+            <circle cx="356" cy="38" r="0.9"/><circle cx="148" cy="120" r="0.7"/>
+          </g>
+
+          <path d="M0,352 L34,318 L62,338 L96,300 L132,330 L164,296 L196,320 L232,286 L268,318 L302,292 L338,324 L390,300 L390,420 L0,420 Z" fill="#33405a" opacity="0.34"/>
+          <path d="M0,392 L40,362 L78,384 L118,344 L152,376 L190,338 L226,368 L264,336 L306,372 L346,344 L390,378 L390,470 L0,470 Z" fill="#2a3752" opacity="0.5"/>
+          <rect data-motion x="-20" y="330" width="430" height="120" fill="url(#hazeA)" opacity="0.55" style="animation:drift 26s ease-in-out infinite alternate;"/>
+
+          <path d="M-24,740 L-24,528 C34,486 66,444 100,376 C136,304 164,224 208,156 C246,214 268,268 300,330 C334,396 366,442 416,498 L416,740 Z" fill="url(#massifA)"/>
+          <path d="M208,156 C246,214 268,268 300,330 C334,396 366,442 416,498" fill="none" stroke="#4a5a78" stroke-width="1.4" opacity="0.75"/>
+          <path d="M208,156 C222,178 230,192 240,210 C226,214 214,212 200,206 C202,188 204,172 208,156 Z" fill="#cfd6e2" opacity="0.16"/>
+          <path d="M-24,740 L-24,528 C34,486 66,444 100,376 C136,304 164,224 208,156" fill="none" stroke="#232f47" stroke-width="1"/>
+          <path d="M96,392 C126,404 150,436 168,470" fill="none" stroke="#3a4763" stroke-width="0.9" opacity="0.5"/>
+          <path d="M258,300 C272,330 276,362 272,398" fill="none" stroke="#3a4763" stroke-width="0.9" opacity="0.45"/>
+
+          <path d="M-12,740 L-12,648 C58,622 118,646 190,628 C262,610 332,634 402,616 L402,740 Z" fill="#080d16"/>
+
+          <path d="M212,752 C156,712 104,668 138,626 C182,594 262,600 272,570 C280,540 178,528 172,496 C166,462 262,452 264,420 C266,386 176,374 178,342 C180,306 254,296 246,262 C242,238 216,220 210,192 C206,176 207,168 208,158" fill="none" stroke="#5c1f26" stroke-width="9" stroke-linecap="round" opacity="0.85"/>
+          <path d="M212,752 C156,712 104,668 138,626 C182,594 262,600 272,570 C280,540 178,528 172,496 C166,462 262,452 264,420 C266,386 176,374 178,342 C180,306 254,296 246,262 C242,238 216,220 210,192 C206,176 207,168 208,158" fill="none" stroke="#d9615f" stroke-width="5" stroke-linecap="round"/>
+          <path data-motion d="M212,752 C156,712 104,668 138,626 C182,594 262,600 272,570 C280,540 178,528 172,496 C166,462 262,452 264,420 C266,386 176,374 178,342 C180,306 254,296 246,262 C242,238 216,220 210,192 C206,176 207,168 208,158" fill="none" stroke="#f0938c" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="14 26" opacity="0.85" style="animation:walk 9s linear infinite;"/>
+
+          <g stroke="#d9615f" stroke-width="1.3" stroke-linecap="round" opacity="0.88" fill="none">
+            <path d="M272,570 C310,542 300,500 172,496"/>
+            <path d="M288,556 L292,564 M300,528 L308,530 M262,504 L262,513 M216,499 L216,508"/>
+          </g>
+
+          <g font-family="'Archivo Narrow',system-ui,sans-serif" font-weight="700" font-size="11" letter-spacing="0.06em">
+            <circle cx="138" cy="626" r="8" fill="#e8b465" stroke="#241a08" stroke-width="1.5"/>
+            <text x="122" y="630" text-anchor="end" fill="#d5dbe6">GEN 3–5</text>
+            <circle cx="272" cy="570" r="12" fill="#e8b465" stroke="#241a08" stroke-width="1.5"/>
+            <text x="290" y="574" fill="#d5dbe6">GEN 6–9</text>
+            <circle cx="172" cy="496" r="7" fill="#0d1420" stroke="#8b97ab" stroke-width="2"/>
+            <text x="156" y="500" text-anchor="end" fill="#8b97ab">GEN 10–11</text>
+            <circle cx="264" cy="420" r="7" fill="#0d1420" stroke="#8b97ab" stroke-width="2"/>
+            <text x="282" y="424" fill="#8b97ab">GEN 12–MAL</text>
+            <circle cx="208" cy="158" r="9" fill="#0d1420" stroke="#e8b465" stroke-width="2.5"/>
+            <text x="208" y="138" text-anchor="middle" fill="#e8b465" font-size="12">GOSPELS</text>
+          </g>
+
+          <g transform="translate(24,44)">
+            <rect x="0" y="0" width="342" height="1" fill="#33405a" opacity="0"/>
+            <text x="0" y="0" font-family="'Archivo Narrow',system-ui,sans-serif" font-weight="700" font-size="10.5" letter-spacing="0.16em" fill="#8b97ab">THE CLIMB · STAGE 3 OF 11</text>
+            <text x="0" y="26" font-family="'Fraunces',Georgia,serif" font-weight="500" font-size="21" fill="#e8e6e0">The Flood</text>
+          </g>
+
+          <g transform="translate(24,660)">
+            <rect x="-6" y="-8" width="354" height="64" rx="18" fill="#131d2e" fill-opacity="0.92" stroke="#22314a"/>
+            <text x="12" y="10" font-family="'Archivo Narrow',system-ui,sans-serif" font-weight="700" font-size="9.5" letter-spacing="0.16em" fill="#7f8ba0">GENESIS → REVELATION</text>
+            <path d="M14,44 C60,38 106,26 152,16 C198,26 244,38 290,44" fill="none" stroke="#33405a" stroke-width="1.2"/>
+            <g fill="#e8b465">
+              <circle cx="14" cy="44" r="3"/><circle cx="42" cy="39" r="3"/><circle cx="70" cy="32" r="3.8"/>
+            </g>
+            <g fill="#0d1420" stroke="#4a5a78" stroke-width="1.4">
+              <circle cx="97" cy="25" r="2.6"/><circle cx="124" cy="19" r="2.6"/><circle cx="152" cy="16" r="3.2"/>
+              <circle cx="180" cy="19" r="2.6"/><circle cx="207" cy="25" r="2.6"/><circle cx="235" cy="32" r="2.6"/>
+              <circle cx="262" cy="39" r="2.6"/><circle cx="290" cy="44" r="2.6"/>
+            </g>
+            <text x="318" y="34" text-anchor="middle" font-family="'Archivo Narrow',system-ui,sans-serif" font-weight="700" font-size="13" letter-spacing="0.04em" fill="#e8b465">3/11</text>
+          </g>
+        </svg>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <p style="font-size:13.5px; line-height:1.62; color:#8b97ab; margin:0; text-wrap:pretty;"><strong style="color:#e8e6e0; font-weight:500;">You stand in the valley and look up.</strong> Scrolling up is climbing: the terrain slides down past you, the ranges behind move slower, the peak stays high and far. The thread is a switchback road cut into the face — you can see the whole route above you and how much is left, which is the emotional core of "front to back."</p>
+        <p style="font-size:13.5px; line-height:1.62; color:#8b97ab; margin:0; text-wrap:pretty;"><strong style="color:#d5dbe6; font-weight:500;">Data mapping.</strong> Distance along the road is proportional to the stage's real chapter count — so Gen 12–Malachi is a long, lonely traverse and the Gospels arrive suddenly at the top. Cairn size comes from <code style="color:#d5dbe6;">threadCount</code>; gold-filled means <code style="color:#d5dbe6;">observationCount &gt; 0</code>, hollow means unwritten. Labels resolve only for reached stages plus the next one; the rest stay bare markers.</p>
+        <p style="font-size:13.5px; line-height:1.62; color:#8b97ab; margin:0; text-wrap:pretty;"><strong style="color:#d5dbe6; font-weight:500;">The peak is the midpoint, not the end.</strong> Past the Gospels the same scroll keeps going and you are descending the far face — sky warming toward Revelation's morning, ranges reversing direction. Mirror pairs read as matching altitude across the two faces. The ribbon at the bottom is the whole 11-stage arc, always visible.</p>
+        <p style="font-size:13.5px; line-height:1.62; color:#8b97ab; margin:0; text-wrap:pretty;"><strong style="color:#d5dbe6; font-weight:500;">Risk.</strong> A tall scroll surface on a phone is a lot of pixels of terrain to author, and the switchback geometry has to be generated from stage lengths rather than hand-drawn, which is real work.</p>
+      </div>
+    </div>
+
+    <div id="1b" style="width:390px; display:flex; flex-direction:column; gap:18px;">
+      <div style="display:flex; align-items:baseline; gap:10px;">
+        <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:11px; letter-spacing:0.12em; color:#241a08; background:#e8b465; padding:4px 9px; border-radius:999px;">1b</span>
+        <h2 style="font-family:'Fraunces',Georgia,serif; font-weight:500; font-size:26px; margin:0;">The Traverse</h2>
+      </div>
+
+      <div style="width:390px; height:740px; border-radius:30px; overflow:hidden; border:1px solid #22314a; position:relative; background:#0d1420;">
+        <svg viewBox="0 0 390 740" width="390" height="740" role="img" aria-label="Direction 1b: a panoramic side-on mountain travelled horizontally, the thread as a road across the terrain">
+          <defs>
+            <linearGradient id="skyB" x1="0" y1="0" x2="1" y2="0.5">
+              <stop offset="0" stop-color="#0a111d"/><stop offset="0.45" stop-color="#152036"/>
+              <stop offset="0.78" stop-color="#2b2c3f"/><stop offset="1" stop-color="#42323a"/>
+            </linearGradient>
+            <linearGradient id="massifB" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#3b4763"/><stop offset="0.45" stop-color="#212c42"/><stop offset="1" stop-color="#0c1320"/>
+            </linearGradient>
+            <linearGradient id="fadeB" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#080d16" stop-opacity="0.92"/><stop offset="0.18" stop-color="#080d16" stop-opacity="0"/>
+              <stop offset="0.82" stop-color="#080d16" stop-opacity="0"/><stop offset="1" stop-color="#080d16" stop-opacity="0.92"/>
+            </linearGradient>
+          </defs>
+
+          <rect width="390" height="740" fill="#0d1420"/>
+
+          <g transform="translate(0,116)">
+            <rect y="0" width="390" height="392" fill="url(#skyB)"/>
+            <ellipse cx="346" cy="236" rx="120" ry="96" fill="url(#glowA)" opacity="0.5"/>
+            <path d="M0,262 L36,238 L70,254 L104,224 L142,248 L176,220 L212,244 L250,214 L286,242 L322,218 L358,246 L390,228 L390,392 L0,392 Z" fill="#33405a" opacity="0.32"/>
+            <path d="M0,292 L44,266 L86,286 L126,252 L168,280 L208,246 L248,276 L292,244 L336,278 L390,250 L390,392 L0,392 Z" fill="#2a3752" opacity="0.48"/>
+            <rect data-motion x="-20" y="250" width="430" height="80" fill="#2b3a55" opacity="0.3" style="animation:drift 30s ease-in-out infinite alternate;"/>
+
+            <path d="M-30,392 L-30,330 C10,306 46,278 84,236 C118,196 148,148 182,110 C206,146 230,182 252,206 C266,222 278,238 292,232 C308,226 320,252 338,274 C362,300 398,314 430,328 L430,392 Z" fill="url(#massifB)"/>
+            <path d="M182,110 C206,146 230,182 252,206 C266,222 278,238 292,232 C308,226 320,252 338,274 C362,300 398,314 430,328" fill="none" stroke="#55658a" stroke-width="1.5" opacity="0.8"/>
+            <path d="M182,110 C194,128 204,144 216,160 C198,168 176,166 158,156 C166,140 174,124 182,110 Z" fill="#cfd6e2" opacity="0.15"/>
+            <path d="M84,236 C108,256 126,286 136,318" fill="none" stroke="#3a4763" stroke-width="0.9" opacity="0.5"/>
+            <path d="M252,206 C262,238 264,282 258,318" fill="none" stroke="#3a4763" stroke-width="0.9" opacity="0.4"/>
+            <path d="M338,274 C346,296 348,312 346,330" fill="none" stroke="#3a4763" stroke-width="0.9" opacity="0.35"/>
+
+            <path d="M-30,392 L-30,352 C40,340 96,352 150,344 C206,336 256,346 312,338 C356,332 400,340 430,334 L430,392 Z" fill="#0b1220"/>
+
+            <path d="M-30,344 C22,330 58,318 90,286 C124,252 150,178 182,130 C208,166 232,198 254,222 C270,238 280,252 294,246 C310,240 322,266 340,288 C362,312 400,322 430,314" fill="none" stroke="#5c1f26" stroke-width="10" stroke-linecap="round" opacity="0.85"/>
+            <path d="M-30,344 C22,330 58,318 90,286 C124,252 150,178 182,130 C208,166 232,198 254,222 C270,238 280,252 294,246 C310,240 322,266 340,288 C362,312 400,322 430,314" fill="none" stroke="#d9615f" stroke-width="5.5" stroke-linecap="round"/>
+            <path data-motion d="M-30,344 C22,330 58,318 90,286 C124,252 150,178 182,130 C208,166 232,198 254,222 C270,238 280,252 294,246 C310,240 322,266 340,288 C362,312 400,322 430,314" fill="none" stroke="#f0938c" stroke-width="1.7" stroke-dasharray="12 28" stroke-linecap="round" opacity="0.85" style="animation:walk 11s linear infinite;"/>
+
+            <g stroke="#d9615f" stroke-width="1.3" fill="none" opacity="0.9">
+              <path d="M90,286 C140,214 262,196 294,246"/>
+              <path d="M128,238 L124,230 M180,213 L180,204 M238,204 L240,195 M282,228 L288,222"/>
+            </g>
+
+            <g font-family="'Archivo Narrow',system-ui,sans-serif" font-weight="700" font-size="10.5" letter-spacing="0.06em">
+              <circle cx="48" cy="320" r="9" fill="#e8b465" stroke="#241a08" stroke-width="1.5"/>
+              <text x="34" y="346" fill="#d5dbe6">GEN 1–2</text>
+              <circle cx="90" cy="286" r="11" fill="#e8b465" stroke="#241a08" stroke-width="1.5"/>
+              <text x="90" y="312" text-anchor="middle" fill="#d5dbe6">GEN 6–9</text>
+              <circle cx="140" cy="212" r="6.5" fill="#0d1420" stroke="#8b97ab" stroke-width="2"/>
+              <circle cx="182" cy="130" r="9" fill="#0d1420" stroke="#e8b465" stroke-width="2.5"/>
+              <text x="182" y="108" text-anchor="middle" fill="#e8b465" font-size="11.5">GOSPELS</text>
+              <circle cx="232" cy="198" r="6.5" fill="#0d1420" stroke="#8b97ab" stroke-width="2"/>
+              <circle cx="294" cy="246" r="6.5" fill="#0d1420" stroke="#8b97ab" stroke-width="2"/>
+              <text x="298" y="272" text-anchor="middle" fill="#8b97ab">REV 1–18</text>
+            </g>
+            <rect y="0" width="390" height="392" fill="url(#fadeB)"/>
+          </g>
+
+          <g transform="translate(24,52)">
+            <text x="0" y="0" font-family="'Archivo Narrow',system-ui,sans-serif" font-weight="700" font-size="10.5" letter-spacing="0.16em" fill="#8b97ab">THE CLIMB</text>
+            <text x="0" y="30" font-family="'Fraunces',Georgia,serif" font-weight="500" font-size="26" fill="#e8e6e0">Genesis → Revelation</text>
+            <text x="0" y="52" font-family="'Inter',sans-serif" font-size="12.5" fill="#7f8ba0">Drag the range to travel. 3 of 11 stages begun.</text>
+          </g>
+
+          <g transform="translate(0,530)">
+            <rect x="24" y="0" width="342" height="86" rx="18" fill="#131d2e" stroke="#22314a"/>
+            <text x="44" y="26" font-family="'Archivo Narrow',system-ui,sans-serif" font-weight="700" font-size="10" letter-spacing="0.14em" fill="#e8b465">STAGE 3 · ASCENT</text>
+            <text x="44" y="50" font-family="'Fraunces',Georgia,serif" font-weight="500" font-size="19" fill="#e8e6e0">The Flood · Gen 6–9</text>
+            <text x="44" y="70" font-family="'Inter',sans-serif" font-size="12" fill="#8b97ab">7 observations · 2 questions · 3 threads</text>
+            <text x="346" y="50" text-anchor="end" font-family="'Fraunces',Georgia,serif" font-size="19" fill="#8b97ab">→</text>
+          </g>
+          <g transform="translate(0,630)">
+            <rect x="24" y="0" width="342" height="62" rx="18" fill="#0d1420" stroke="#22314a"/>
+            <text x="44" y="24" font-family="'Archivo Narrow',system-ui,sans-serif" font-weight="700" font-size="10" letter-spacing="0.14em" fill="#7f8ba0">MIRRORS</text>
+            <text x="44" y="46" font-family="'Inter',sans-serif" font-size="13" fill="#d5dbe6">Rev 6–19 · The World Judged</text>
+            <path d="M320,32 C332,20 344,20 352,32" fill="none" stroke="#33405a" stroke-width="1.2" stroke-dasharray="3 4"/>
+          </g>
+        </svg>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <p style="font-size:13.5px; line-height:1.62; color:#8b97ab; margin:0; text-wrap:pretty;"><strong style="color:#e8e6e0; font-weight:500;">You see the whole range side-on and travel across it.</strong> The mountain is one continuous panorama, roughly four screens wide, dragged horizontally. Both faces are in frame at once, so the mirror structure is spatially obvious without a single dashed tie line — Creation and Paradise Restored simply sit at the same altitude on opposite sides.</p>
+        <p style="font-size:13.5px; line-height:1.62; color:#8b97ab; margin:0; text-wrap:pretty;"><strong style="color:#d5dbe6; font-weight:500;">Time-travel is in the light.</strong> The sky gradient runs left-to-right across the full panorama: cold blue-black at Genesis, warm brass at the peak, a red-gold dawn at Revelation. You do not read that as a chart axis — you feel the hours passing as you drag. Four parallax layers at different rates give the depth.</p>
+        <p style="font-size:13.5px; line-height:1.62; color:#8b97ab; margin:0; text-wrap:pretty;"><strong style="color:#d5dbe6; font-weight:500;">Cheapest to build and cheapest to run.</strong> One fixed-height SVG band, one horizontal scroll container, layers on <code style="color:#d5dbe6;">translate3d(x,0,0)</code>. No generated geometry: the terrain can be hand-authored once because it never changes. The panel below the range is the existing tooltip promoted into a real card, with the mirror always shown.</p>
+        <p style="font-size:13.5px; line-height:1.62; color:#8b97ab; margin:0; text-wrap:pretty;"><strong style="color:#d5dbe6; font-weight:500;">Risk.</strong> Horizontal drag inside a vertically-scrolling app needs care, and the mountain reads a little more as a diorama than a place you are inside — the least "cinematic" of the three, in exchange for being the most legible.</p>
+      </div>
+    </div>
+
+    <div id="1c" style="width:390px; display:flex; flex-direction:column; gap:18px;">
+      <div style="display:flex; align-items:baseline; gap:10px;">
+        <span style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:11px; letter-spacing:0.12em; color:#241a08; background:#e8b465; padding:4px 9px; border-radius:999px;">1c</span>
+        <h2 style="font-family:'Fraunces',Georgia,serif; font-weight:500; font-size:26px; margin:0;">On the Road</h2>
+      </div>
+
+      <div style="width:390px; height:740px; border-radius:30px; overflow:hidden; border:1px solid #22314a; position:relative; background:#0d1420;">
+        <svg viewBox="0 0 390 740" width="390" height="740" role="img" aria-label="Direction 1c: a first-person view from on the scarlet road, the peak ahead in the distance">
+          <defs>
+            <linearGradient id="skyC" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#0a1120"/><stop offset="0.4" stop-color="#1a2338"/>
+              <stop offset="0.72" stop-color="#3a3244"/><stop offset="1" stop-color="#6a4a42"/>
+            </linearGradient>
+            <linearGradient id="roadC" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#a8474b"/><stop offset="0.4" stop-color="#c85a5a"/><stop offset="1" stop-color="#d9615f"/>
+            </linearGradient>
+            <linearGradient id="massifC" x1="0.2" y1="0" x2="0.8" y2="1">
+              <stop offset="0" stop-color="#46536f"/><stop offset="0.4" stop-color="#2a3448"/><stop offset="1" stop-color="#141c2c"/>
+            </linearGradient>
+            <linearGradient id="bandFadeC" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#101828" stop-opacity="1"/>
+              <stop offset="0.5" stop-color="#0d1522" stop-opacity="0.7"/>
+              <stop offset="1" stop-color="#0a1120" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="band2FadeC" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#0b121e" stop-opacity="1"/>
+              <stop offset="0.55" stop-color="#0b121e" stop-opacity="0.6"/>
+              <stop offset="1" stop-color="#0b121e" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="roadFadeC" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#1e2a3e" stop-opacity="0.95"/>
+              <stop offset="0.55" stop-color="#1e2a3e" stop-opacity="0.5"/>
+              <stop offset="1" stop-color="#1e2a3e" stop-opacity="0"/>
+            </linearGradient>
+            <radialGradient id="glowC" cx="0.5" cy="0.5" r="0.5">
+              <stop offset="0" stop-color="#e8b465" stop-opacity="0.3"/><stop offset="1" stop-color="#e8b465" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+
+          <rect width="390" height="740" fill="url(#skyC)"/>
+          <ellipse cx="212" cy="300" rx="200" ry="150" fill="url(#glowC)"/>
+
+          <path d="M0,318 L34,296 L68,312 L104,284 L140,306 L176,278 L212,300 L250,272 L284,300 L320,278 L356,304 L390,286 L390,420 L0,420 Z" fill="#33405a" opacity="0.3"/>
+          <path d="M-10,420 L-10,336 C36,320 74,300 112,268 C152,234 180,196 214,164 C250,196 280,234 318,268 C356,300 392,320 400,336 L400,420 Z" fill="url(#massifC)"/>
+          <path d="M214,164 C250,196 280,234 318,268 C356,300 392,320 400,336" fill="none" stroke="#5c6d92" stroke-width="1.6" opacity="0.85"/>
+          <path d="M214,164 C228,180 240,196 254,214 C232,222 206,222 182,212 C192,194 202,178 214,164 Z" fill="#e4e6ea" opacity="0.16"/>
+          <path d="M112,268 C138,290 156,320 166,352" fill="none" stroke="#43506e" stroke-width="1" opacity="0.55"/>
+          <path d="M292,254 C310,284 318,318 316,352" fill="none" stroke="#43506e" stroke-width="1" opacity="0.5"/>
+          <rect data-motion x="-20" y="330" width="430" height="66" fill="#2b3a55" opacity="0.34" style="animation:drift 24s ease-in-out infinite alternate;"/>
+
+          <path d="M-10,742 L-10,398 C50,384 96,402 150,392 C206,382 256,398 312,388 C356,380 400,392 400,384 L400,742 Z" fill="url(#bandFadeC)"/>
+          <path d="M-10,742 L-10,462 C60,442 130,468 202,452 C274,436 340,462 400,446 L400,742 Z" fill="url(#band2FadeC)"/>
+
+          <path d="M95,742 L207,394 L219,394 L266,742 Z" fill="url(#roadC)"/>
+          <path d="M95,742 L207,394" fill="none" stroke="#6d2329" stroke-width="3"/>
+          <path d="M266,742 L219,394" fill="none" stroke="#6d2329" stroke-width="3"/>
+          <g stroke="#8f3239" stroke-linecap="round" opacity="0.75">
+            <path d="M100,724 L262,724" stroke-width="3.4"/>
+            <path d="M112,684 L254,684" stroke-width="3"/>
+            <path d="M124,640 L246,640" stroke-width="2.6"/>
+            <path d="M136,596 L239,596" stroke-width="2.2"/>
+            <path d="M149,548 L231,548" stroke-width="1.8"/>
+            <path d="M162,500 L227,500" stroke-width="1.5"/>
+            <path d="M175,456 L223,456" stroke-width="1.2"/>
+            <path d="M190,420 L219,420" stroke-width="1"/>
+          </g>
+          <path data-motion d="M181,742 L213,394" fill="none" stroke="#f6b3ab" stroke-width="2" stroke-dasharray="20 34" opacity="0.6" style="animation:walk 7s linear infinite;"/>
+          <rect x="-10" y="344" width="410" height="140" fill="url(#roadFadeC)"/>
+
+          <path d="M-20,742 L-20,436 C34,462 66,524 86,590 C102,646 96,700 92,742 Z" fill="#070c14"/>
+          <path d="M410,742 L410,452 C356,478 322,536 302,600 C288,652 294,704 298,742 Z" fill="#070c14"/>
+
+          <g stroke="#d9615f" stroke-width="1.4" fill="none" opacity="0.85">
+            <path d="M240,560 C300,520 330,470 318,430"/>
+            <path d="M268,536 L276,540 M296,504 L304,506 M318,470 L326,470"/>
+          </g>
+
+          <g font-family="'Archivo Narrow',system-ui,sans-serif" font-weight="700" letter-spacing="0.06em">
+            <circle cx="160" cy="520" r="7" fill="#e8b465" stroke="#241a08" stroke-width="1.5"/>
+            <text x="148" y="524" text-anchor="end" font-size="11" fill="#d5dbe6">GEN 12–MAL</text>
+            <circle cx="228" cy="446" r="5.5" fill="#0d1420" stroke="#8b97ab" stroke-width="1.8"/>
+            <text x="240" y="450" font-size="10.5" fill="#8b97ab">GOSPELS</text>
+            <circle cx="214" cy="164" r="7" fill="#0d1420" stroke="#e8b465" stroke-width="2.5"/>
+          </g>
+
+          <g transform="translate(24,54)">
+            <text x="0" y="0" font-family="'Archivo Narrow',system-ui,sans-serif" font-weight="700" font-size="10.5" letter-spacing="0.16em" fill="#8b97ab">ON THE ROAD · STAGE 5 OF 11</text>
+            <text x="0" y="30" font-family="'Fraunces',Georgia,serif" font-weight="500" font-size="26" fill="#e8e6e0">Israel</text>
+            <text x="0" y="54" font-family="'Inter',sans-serif" font-size="12.5" fill="#7f8ba0">Gen 12 – Malachi · the long approach</text>
+          </g>
+
+          <g transform="translate(0,626)">
+            <rect x="24" y="0" width="342" height="84" rx="18" fill="#131d2e" fill-opacity="0.94" stroke="#22314a"/>
+            <text x="44" y="26" font-family="'Archivo Narrow',system-ui,sans-serif" font-weight="700" font-size="10" letter-spacing="0.14em" fill="#e8b465">NEXT WAYPOINT</text>
+            <text x="44" y="50" font-family="'Fraunces',Georgia,serif" font-weight="500" font-size="18" fill="#e8e6e0">Gospels · Jesus Christ</text>
+            <text x="44" y="70" font-family="'Inter',sans-serif" font-size="12" fill="#8b97ab">The peak. 4 stages behind you.</text>
+          </g>
+        </svg>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <p style="font-size:13.5px; line-height:1.62; color:#8b97ab; margin:0; text-wrap:pretty;"><strong style="color:#e8e6e0; font-weight:500;">You are standing on the thread.</strong> The road comes out from under your feet at the bottom of the screen and runs away into the distance toward the peak. This is the most literal reading of the Yellow Brick Road: not a route you inspect, a route you are on. The scarlet is unmissable because it occupies the foreground.</p>
+        <p style="font-size:13.5px; line-height:1.62; color:#8b97ab; margin:0; text-wrap:pretty;"><strong style="color:#d5dbe6; font-weight:500;">Travel = the road's texture moving.</strong> Scrolling advances you: the weave rungs slide toward the bottom of the screen and grow, the peak grows fractionally, foreground rock walls sweep past. Waypoints arrive from the vanishing point, pass you, and are gone. Cheap — it is one translate on a repeating rung group.</p>
+        <p style="font-size:13.5px; line-height:1.62; color:#8b97ab; margin:0; text-wrap:pretty;"><strong style="color:#d5dbe6; font-weight:500;">Cost of the camera.</strong> From on the road you cannot see the whole 11-stage structure or the mirror pairs at all — that is the trade for immersion. It needs a companion overview (1b's panorama makes a good "map" gesture from here, so these two are not necessarily rivals).</p>
+        <p style="font-size:13.5px; line-height:1.62; color:#8b97ab; margin:0; text-wrap:pretty;"><strong style="color:#d5dbe6; font-weight:500;">Risk.</strong> A faked perspective corridor is the easiest of the three to make look cheap or video-game-ish, and it is the furthest from the app's quiet, contemplative register. It lives or dies on restraint in the sky and the haze.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="max-width:1330px; margin-top:52px; background:#131d2e; border:1px solid #22314a; border-radius:18px; padding:24px 26px;">
+    <p style="font-family:'Archivo Narrow',system-ui,sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.14em; text-transform:uppercase; color:#e8b465; margin:0 0 10px;">Where I'd go, and what I need from you</p>
+    <p style="font-size:13.5px; line-height:1.65; color:#8b97ab; margin:0 0 10px; max-width:92ch; text-wrap:pretty;"><a href="#1a">1a</a> is the strongest single answer to the brief as written — it is a real mountain, the thread is genuinely the road, and the peak-as-midpoint gives the Genesis-to-Revelation shape a physical meaning that no chart can. <a href="#1b">1b</a> is the safest and would ship soonest, and its side-on panorama is the only direction where the curated mirror pairs stay visible for free. <a href="#1c">1c</a> is the biggest emotional swing and the biggest risk.</p>
+    <p style="font-size:13.5px; line-height:1.65; color:#8b97ab; margin:0; max-width:92ch; text-wrap:pretty;">Three things would let me commit: does the peak sit at the <strong style="color:#d5dbe6; font-weight:500;">Gospels</strong> as the frontmatter says, or does Creation belong at the top (the open <code style="color:#d5dbe6;">elevationOf()</code> question in PROGRESS.md)? Should the Mountain be the same surface a learner <em style="color:#d5dbe6;">navigates from</em> daily, or a place they visit on Sundays to see the whole shape? And do you want a learner's own connections on this surface at all, or held back for the Review screen?</p>
+  </div>
+
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>
