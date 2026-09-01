@@ -137,6 +137,28 @@ This reorders the waves below: covenant rail, timeline rail, and Teach mode buil
 The Israel sub-arc gets a prototype-and-test step before full commitment. Typology/promise-line
 build as opt-in, off by default.
 
+## Market strategy constraint (2026-09-01, `design/MARKET_STRATEGY.md`)
+
+A separate strategy document lands the same instinct as Ken's risk-weighted priority above, at
+product-architecture scale: a three-rung progressive-disclosure ladder (Orientation → Pattern →
+Synthesis), where typology/promise-line/Israel-sub-arc/Mirror-Split are Rung-3 "go deeper"
+features, never front-loaded — this directly confirms the opt-in-toggle decision above rather than
+adding a new one. **Standing constraint for every future wave:** understanding itself is never
+paywalled — the mountain, all 11 stages, threads, the covenant/timeline rails, typology, the
+promise line, and the Israel sub-arc are free forever, no account required to start. Monetization
+(when it's ever built — not scoped yet) lives only in the Teach/export layer, group/church
+licensing, and physical goods (the woven-year poster). No feature-gating decision in this project
+should silently contradict that without Ken explicitly revisiting it.
+
+New build items the strategy doc surfaces, not yet scoped into a wave: **rope-thickens-with-use
+rendering** (the Mountain's thread visually thickens/saturates per-stage based on real
+`observationCount`/`threadCount` — reuses data already driving pin size today, just needs applying
+to line weight once a real terrain redesign exists), a **session-end "watch the mountain change"
+moment** (after the daily loop, show the mountain zoomed to the stage just worked, with the new
+thread visibly added — replaces a streak-counter reward), and **Mirror Split** (Genesis 3 beside
+Revelation 20, scroll-locked at matching beats — first proposed in Section 13 of
+`design/scarlet-thread-app/Scarlet Thread App.dc.html`, item 1).
+
 ## Build sequencing
 
 **Wave 1 — visual language foundation (building now, no new content needed).** The stone/scarlet
