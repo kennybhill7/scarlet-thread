@@ -113,6 +113,30 @@ Built into `design/scarlet-thread-app/Scarlet Thread App.dc.html` (section 14, a
 
 ---
 
+## Risk-weighted priority (Ken, 2026-09-01)
+
+The six additions aren't equally load-bearing:
+
+- **Clear wins, low risk — ship with confidence:** the timeline rail and covenant rail cost the
+  user almost nothing (no new interaction, no new screen to learn) and answer real confusion
+  every reader silently struggles with. Teach mode is the same category — it's just a reordering
+  of data already captured, no new concept for the person writing.
+- **Real win, real cost — prototype and user-test before committing:** the Israel sub-arc fixes a
+  genuine structural imbalance, but adds a second level of navigation depth. Done poorly, "tap
+  Israel → tap a phase → tap a chapter" starts to feel like drilling into a file system instead of
+  climbing a mountain. The riskiest of the six; deserves the most scrutiny before it's wired into
+  the live data model.
+- **Depends on the person — make it opt-in, not default:** typology-as-arrow and the promise-line
+  toggle are correct theologically and will delight someone who already thinks this way, but they
+  add vocabulary a casual user has to learn (type vs. thread vs. promise line — three connective
+  concepts where they currently have one). For the target user doing the daily loop, not writing a
+  commentary, this is a power feature, not a default. Ship it behind an opt-in "deeper" toggle;
+  watch usage data before promoting it to always-on.
+
+This reorders the waves below: covenant rail, timeline rail, and Teach mode build with confidence.
+The Israel sub-arc gets a prototype-and-test step before full commitment. Typology/promise-line
+build as opt-in, off by default.
+
 ## Build sequencing
 
 **Wave 1 — visual language foundation (building now, no new content needed).** The stone/scarlet
@@ -121,21 +145,28 @@ thread tag, DailyLoop's row → rope of knots) that Ken already scoped as the tw
 in `Scarlet Thread App.dc.html`. Everything below assumes this visual language exists first.
 
 **Wave 2 — connection-type visual registers (buildable now, no new content needed).** Differentiate
-the already-existing `CONNECTION_TYPES` into Ken's four registers at the rendering layer:
-`covenant_development` gets the fixed-rail treatment, `type_antitype` gets the directional arrow,
-`promise_fulfillment` gets the isolatable-strand treatment, `motif` keeps today's scarlet-tag
-treatment. The seven remaining types need an explicit mapping decision (flagged above) before this
-is fully spec'd — reasonable default: `quotation`/`explicit_reference`/`allusion` join the motif
-register (they're all textual-echo noticing, same as today), `parallel`/`contrast_reversal` join
-the covenant/structural register (they're both about the canon's macro-shape, same family as the
-existing mirror ties), `doctrinal_synthesis`/`personal_resonance` stay their own thing (closer to
-the Theology/Conviction claim kinds already in the workspace than to any of the four).
+the already-existing `CONNECTION_TYPES` into Ken's four registers at the rendering layer.
+`covenant_development` gets the fixed-rail treatment — ship with confidence, low risk. `motif`
+keeps today's scarlet-tag treatment — no change needed. `type_antitype` (directional arrow) and
+`promise_fulfillment` (isolatable strand) ship **behind an opt-in "deeper" toggle, off by
+default** — per Ken's 2026-09-01 risk read: theologically correct but adds vocabulary (type vs.
+thread vs. promise line) a casual daily-loop user doesn't need by default. The seven remaining
+types need an explicit mapping decision before this is fully spec'd — reasonable default:
+`quotation`/`explicit_reference`/`allusion` join the motif register (textual-echo noticing, same
+as today), `parallel`/`contrast_reversal` join the covenant/structural register (both about the
+canon's macro-shape, same family as the existing mirror ties), `doctrinal_synthesis`/
+`personal_resonance` stay their own thing (closer to the Theology/Conviction claim kinds already
+in the workspace than to any of the four).
 
-**Wave 3 — the Israel sub-arc.** A real new feature: nested sub-stages under stage 5 (and stage 7,
-smaller). The six-phase boundary Ken already gave (Patriarchs/Exodus/Conquest/Kingdom/Exile/Return
-with real chapter ranges) is usable as real content, not fabricated — it's standard, uncontested
-Bible structure, not an interpretive claim. Needs a schema decision (self-referencing FK on
-`stages`, or a new `subStages` table) before building.
+**Wave 3 — the Israel sub-arc: prototype and test before committing.** The riskiest of the six per
+Ken's 2026-09-01 risk read — a real structural win, but it adds a second navigation depth that,
+done poorly, turns "climb a mountain" into "drill into a file system." Sequence: build a
+clickable prototype (design-only or a feature-flagged real build Ken can try locally) BEFORE
+wiring it into the live data model — do not commit to the schema shape until the navigation feel
+is tested. The six-phase boundary Ken already gave (Patriarchs/Exodus/Conquest/Kingdom/Exile/
+Return with real chapter ranges) is usable as real content, not fabricated — standard,
+uncontested Bible structure, not an interpretive claim. Schema decision (self-referencing FK on
+`stages`, or a new `subStages` table) comes after the prototype is approved, not before.
 
 **Wave 4 — the timeline rail.** The mechanism is Wave-3-adjacent engineering. The DATA — which
 king reigned when, which prophet spoke to which reign — needs real sourcing before it's complete
