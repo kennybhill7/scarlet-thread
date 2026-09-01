@@ -40,7 +40,10 @@ export function ClimbHero({ stagesWithWork, totalStages, threadCount, openQuesti
       </div>
 
       <Link href="/read/1/1" className={styles.cta}>
-        Begin at Genesis 1 →
+        <span>Begin at Genesis 1</span>
+        <span className={styles.ctaArrow} aria-hidden="true">
+          →
+        </span>
       </Link>
     </div>
   );

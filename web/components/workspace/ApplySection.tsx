@@ -522,7 +522,13 @@ export function ApplySection({ workspaceId, session, unlocked, claims, onSaved }
       >
         {status === "saving" ? "Saving…" : "Save draft"}
       </Button>
-      <Button data-action="finalize" disabled={!finalReadiness.ready || disabled} onClick={() => submit("finalized")} type="button">
+      <Button
+        data-action="finalize"
+        disabled={!finalReadiness.ready || disabled}
+        onClick={() => submit("finalized")}
+        type="button"
+        variant="actionRow"
+      >
         Finalize
       </Button>
       {needsCautionsOnly ? (

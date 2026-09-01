@@ -724,7 +724,7 @@ export function TeachOutlinePanel({
           <p aria-live="polite" data-state={addStatus}>
             {addMessage}
           </p>
-          <Button disabled={!sectionReadiness.ready || disabled} type="submit">
+          <Button disabled={!sectionReadiness.ready || disabled} type="submit" variant="actionRow">
             {addStatus === "saving" ? "Saving…" : "Add to outline"}
           </Button>
         </footer>
@@ -968,7 +968,7 @@ export function TeachSection({ workspaceId, session, unlocked, onSaved }: TeachS
           <p aria-live="polite" data-state={status}>
             {message}
           </p>
-          <Button disabled={!readiness.ready || status === "saving"} type="submit">
+          <Button disabled={!readiness.ready || status === "saving"} type="submit" variant="actionRow">
             {status === "saving" ? "Saving…" : "Save teaching draft"}
           </Button>
         </footer>

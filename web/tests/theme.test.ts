@@ -361,3 +361,109 @@ test("subscribeThemePreferenceChange returns a working no-op unsubscribe outside
 test("commitThemePreference does not throw when storage/window are unavailable", () => {
   assert.doesNotThrow(() => commitThemePreference(undefined, "midnight"));
 });
+
+// --- Shell contrast proof (SCARLETTHREAD-001: stone/scarlet token swap) ----
+// Same discipline as PARCHMENT_BODY_TOKENS/MIDNIGHT_BODY_TOKENS above --
+// hand-transcribed from app/globals.css (no CSS parser in this project's
+// dependencies), pinned against the file's own text below so this snapshot
+// cannot silently drift. There is no exported SHELL_BODY_TOKENS in lib/theme.ts
+// (the shell has no parchment/midnight variants to keep in sync against each
+// other the way the page does), so the literals live here instead. Every
+// ratio below was independently computed with this file's own contrastRatio
+// -- not copied from design/scarlet-thread-app/Scarlet Thread App.dc.html's
+// stated ratios, which do not match (see the task report).
+
+const SHELL_TOKENS = {
+  shellBg: "#07080a",
+  shellText: "#eae7e1",
+  shellText2: "#b9bcc2",
+  shellMuted: "#7c828b",
+  shellMuted2: "#8f959e",
+  shellCrimson: "#cf2027",
+  shellCrimsonText: "#e04a45",
+  gold: "#e8c88a",
+} as const;
+
+test("Shell: shell-text on shell-bg meets WCAG AA normal text", () => {
+  const ratio = contrastRatio(SHELL_TOKENS.shellText, SHELL_TOKENS.shellBg);
+  assert.ok(meetsAA(ratio), `expected >= 4.5:1, got ${ratio.toFixed(3)}:1`);
+});
+
+test("Shell: shell-text-2 on shell-bg meets WCAG AA normal text", () => {
+  const ratio = contrastRatio(SHELL_TOKENS.shellText2, SHELL_TOKENS.shellBg);
+  assert.ok(meetsAA(ratio), `expected >= 4.5:1, got ${ratio.toFixed(3)}:1`);
+});
+
+test("Shell: shell-muted on shell-bg meets WCAG AA normal text", () => {
+  const ratio = contrastRatio(SHELL_TOKENS.shellMuted, SHELL_TOKENS.shellBg);
+  assert.ok(meetsAA(ratio), `expected >= 4.5:1, got ${ratio.toFixed(3)}:1`);
+});
+
+// MUTATION-PROOF TARGET (shell-muted-2's place in the brightness ladder):
+// shell-muted-2 has no swatch of its own in the design file -- it must stay
+// dimmer than shell-text-2 and brighter than shell-muted, or the four-step
+// ladder the old palette had (muted < muted-2 < text-2 < text) breaks.
+test("Shell: shell-muted-2 on shell-bg meets WCAG AA normal text, and sits between shell-muted and shell-text-2", () => {
+  const muted = contrastRatio(SHELL_TOKENS.shellMuted, SHELL_TOKENS.shellBg);
+  const muted2 = contrastRatio(SHELL_TOKENS.shellMuted2, SHELL_TOKENS.shellBg);
+  const text2 = contrastRatio(SHELL_TOKENS.shellText2, SHELL_TOKENS.shellBg);
+  assert.ok(meetsAA(muted2), `expected >= 4.5:1, got ${muted2.toFixed(3)}:1`);
+  assert.ok(muted < muted2, "shell-muted-2 must be brighter than shell-muted");
+  assert.ok(muted2 < text2, "shell-muted-2 must be dimmer than shell-text-2");
+});
+
+test("Shell: shell-crimson-text on shell-bg meets WCAG AA normal text (small crimson text use)", () => {
+  const ratio = contrastRatio(SHELL_TOKENS.shellCrimsonText, SHELL_TOKENS.shellBg);
+  assert.ok(meetsAA(ratio), `expected >= 4.5:1, got ${ratio.toFixed(3)}:1`);
+});
+
+// MUTATION-PROOF TARGET (shell-crimson's text-vs-non-text floor): proves why
+// Button's actionRow arrow and DailyLoop-adjacent shell UI may use
+// shell-crimson for a glyph/graphic but must reach for shell-crimson-text
+// for actual prose. If this ever silently clears 4.5:1, the code comment in
+// globals.css explaining the two-token split goes stale without warning.
+test("Shell: shell-crimson on shell-bg clears the 3:1 large-text/UI floor but NOT the 4.5:1 normal-text floor (non-text use only)", () => {
+  const ratio = contrastRatio(SHELL_TOKENS.shellCrimson, SHELL_TOKENS.shellBg);
+  assert.ok(meetsAA(ratio, true), `expected >= 3:1, got ${ratio.toFixed(3)}:1`);
+  assert.ok(
+    !meetsAA(ratio),
+    "shell-crimson is intentionally below the normal-text floor -- it must never be used as small body text",
+  );
+});
+
+test("Shell: gold (the design's --light) on shell-bg meets WCAG AA normal text", () => {
+  const ratio = contrastRatio(SHELL_TOKENS.gold, SHELL_TOKENS.shellBg);
+  assert.ok(meetsAA(ratio), `expected >= 4.5:1, got ${ratio.toFixed(3)}:1`);
+});
+
+test("SHELL_TOKENS is byte-identical to app/globals.css's :root shell block", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const shellStart = css.indexOf(":root {");
+  const shellEnd = css.indexOf("--- Page: Notecards");
+  assert.ok(shellStart > -1 && shellEnd > shellStart, "the shell block must exist before the page block");
+  const shellBlock = css.slice(shellStart, shellEnd);
+
+  assert.match(shellBlock, /--shell-bg:\s*#07080a;/);
+  assert.match(shellBlock, /--shell-surface:\s*#0e1013;/);
+  assert.match(shellBlock, /--shell-surface-hi:\s*#16191e;/);
+  assert.match(shellBlock, /--shell-border:\s*#23272d;/);
+  assert.match(shellBlock, /--shell-border-hi:\s*#3a3f47;/);
+  assert.match(shellBlock, /--shell-text:\s*#eae7e1;/);
+  assert.match(shellBlock, /--shell-text-2:\s*#b9bcc2;/);
+  assert.match(shellBlock, /--shell-muted:\s*#7c828b;/);
+  assert.match(shellBlock, /--shell-muted-2:\s*#8f959e;/);
+  assert.match(shellBlock, /--gold:\s*#e8c88a;/);
+  assert.match(shellBlock, /--shell-crimson:\s*#cf2027;/);
+  assert.match(shellBlock, /--shell-crimson-text:\s*#e04a45;/);
+});
+
+test("shell-crimson tokens live in the shell block and are never redefined by [data-reading] parchment/midnight selectors", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const midnightStart = css.indexOf('[data-reading="midnight"]');
+  const midnightBlock = css.slice(midnightStart);
+  assert.doesNotMatch(
+    midnightBlock,
+    /--shell-crimson/,
+    "a page-theme block must never redefine a shell-scoped token -- that is exactly the bug this token split guards against",
+  );
+});

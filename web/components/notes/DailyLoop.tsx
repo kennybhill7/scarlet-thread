@@ -23,6 +23,25 @@ const stepLabels: { key: keyof DailyLog["steps"]; label: string }[] = [
   { key: "pray", label: "Pray" },
 ];
 
+/**
+ * The rope's one scarlet OUTLINE knot marks the next actionable step -- the
+ * first not-yet-done step, in the fixed read/observe/link/ask/pray order
+ * (SCARLETTHREAD-001, DailyLoop's steps -> rope-of-knots rebuild). Exported
+ * as a plain function, separate from the pure-decoration knot markup, so it
+ * is unit-testable without rendering the component (DailyLoop's real state
+ * only loads client-side, after a useEffect that never fires under the
+ * renderToStaticMarkup SSR technique this repo's other component tests use
+ * -- see tests/thread-detail.test.ts's header comment on that limitation).
+ * Returns undefined once every step is done: no step is "next" when the
+ * loop is finished, matching the reassurance copy ("an unfinished day is
+ * never a reset") -- a finished day has no more "next" either.
+ */
+export function nextIncompleteStepKey(
+  steps: DailyLog["steps"],
+): keyof DailyLog["steps"] | undefined {
+  return stepLabels.find((step) => !steps[step.key])?.key;
+}
+
 function emptyLog(date: string, chapter: string | null): DailyLog {
   return {
     date,
@@ -145,6 +164,8 @@ export function DailyLoop({ date, chapter, onChange }: DailyLoopProps) {
     );
   }
 
+  const nextIncompleteKey = nextIncompleteStepKey(log.steps);
+
   return (
     <form className={styles.card} onSubmit={submit}>
       <header>
@@ -156,19 +177,29 @@ export function DailyLoop({ date, chapter, onChange }: DailyLoopProps) {
       </header>
 
       <div className={styles.steps} aria-label="Study steps">
-        {stepLabels.map((step, index) => (
-          <button
-            aria-pressed={log.steps[step.key]}
-            data-complete={log.steps[step.key] || undefined}
-            disabled={saving}
-            key={step.key}
-            onClick={() => toggleStep(step.key)}
-            type="button"
-          >
-            <span>{index + 1}</span>
-            {step.label}
-          </button>
-        ))}
+        <span className={styles.rail} aria-hidden="true" />
+        {stepLabels.map((step) => {
+          const done = log.steps[step.key];
+          const isCurrent = !done && step.key === nextIncompleteKey;
+          const state = done ? "done" : isCurrent ? "current" : "upcoming";
+          return (
+            <button
+              aria-pressed={done}
+              className={styles.step}
+              data-complete={done || undefined}
+              data-state={state}
+              disabled={saving}
+              key={step.key}
+              onClick={() => toggleStep(step.key)}
+              type="button"
+            >
+              <span className={styles.knotWrap} aria-hidden="true">
+                <span className={styles.knot} />
+              </span>
+              <span className={styles.stepLabel}>{step.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       <div className={styles.fields}>

@@ -813,7 +813,7 @@ export function ClaimComposer({ workspaceId, range, session, onSaved, offeredKin
         <p aria-live="polite" data-state={status}>
           {message}
         </p>
-        <Button disabled={!readiness.ready || status === "saving"} type="submit">
+        <Button disabled={!readiness.ready || status === "saving"} type="submit" variant="actionRow">
           {status === "saving" ? "Saving…" : "Save claim"}
         </Button>
       </footer>

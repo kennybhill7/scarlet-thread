@@ -32,45 +32,101 @@
   font-size: 0.85rem;
 }
 
+/* Read . Observe . Link . Ask . Pray, tied down a length of rope --
+   design/scarlet-thread-app/Scarlet Thread App.dc.html's "Tap the knots"
+   prototype. Each step is still a real toggle <button> (aria-pressed,
+   data-complete, disabled -- unchanged, see DailyLoop.tsx); only the visual
+   layout changed, from a 5-up grid of circles to a vertical rope of knots.
+   Uses the existing PAGE-scoped --crimson (not the new --shell-crimson* shell
+   tokens) because this card is, and remains, a page-context "notecard"
+   (background: var(--page-card) below) -- --crimson already tracks
+   parchment/midnight correctly, which a shell token would not. */
 .steps {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0.4rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
-.steps button {
+/* The vertical line running behind all five knots. Anchored to the knot
+   column's centre (24px column, 2px rail -> (24 - 2) / 2 = 11px) and inset
+   top/bottom so it starts at the first knot and ends at the last, not the
+   row padding beyond them. */
+.rail {
+  position: absolute;
+  left: 11px;
+  top: 22px;
+  bottom: 22px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--page-border-soft);
+}
+
+.step {
+  position: relative;
+  z-index: 1;
   display: grid;
-  place-items: center;
-  gap: 0.25rem;
-  min-width: 0;
-  padding: 0.45rem 0.2rem;
-  border: 1px solid var(--page-border);
-  border-radius: var(--r-md);
+  grid-template-columns: 1.5rem 1fr;
+  column-gap: 0.7rem;
+  align-items: start;
+  width: 100%;
+  padding: 0.6rem 0.2rem;
+  text-align: left;
   color: var(--page-ink-3);
   font-size: 0.68rem;
   font-weight: 650;
 }
 
-.steps button span {
-  display: grid;
-  width: 1.45rem;
-  height: 1.45rem;
-  place-items: center;
+.knotWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.4rem;
+}
+
+.knot {
+  display: block;
   border-radius: 50%;
-  background: var(--page-bg);
-  font-size: 0.7rem;
+  background: transparent;
+  border: 1px solid var(--page-border-soft);
+  width: 0.65rem;
+  height: 0.65rem;
 }
 
-.steps button[data-complete] {
-  border-color: var(--green-soft-border);
-  background: var(--green-soft-bg);
-  color: var(--green);
+.stepLabel {
+  padding-top: 0.15rem;
+  font-size: 0.78rem;
+  line-height: 1.3;
 }
 
-.steps button[data-complete] span {
-  background: var(--green);
-  color: var(--page-card);
+/* Complete: filled scarlet disc with a soft halo. */
+.step[data-state="done"] .knot {
+  width: 1rem;
+  height: 1rem;
+  border: none;
+  background: var(--crimson);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--crimson) 18%, transparent);
 }
+
+.step[data-state="done"] .stepLabel {
+  color: var(--page-ink);
+}
+
+/* The next actionable step: a scarlet OUTLINE knot, not filled -- it is the
+   one the UI insists on (step three, Link, is "the one everyone skips"). */
+.step[data-state="current"] .knot {
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 2px solid var(--crimson);
+  background: transparent;
+}
+
+.step[data-state="current"] .stepLabel {
+  color: var(--page-ink);
+  font-weight: 750;
+}
+
+/* Remaining steps stay a plain gray outline knot -- never red, never a
+   broken streak (the design's own rule for an unfinished day). */
 
 .fields {
   display: grid;
@@ -120,10 +176,6 @@
 }
 
 @media (max-width: 28rem) {
-  .steps {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
   .footer {
     align-items: stretch;
     flex-direction: column;

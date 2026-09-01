@@ -45,3 +45,37 @@
 .ghost:hover {
   color: var(--shell-text, var(--page-ink));
 }
+
+/* "Primary action is type, not a pill" — shell-only, see Button.tsx's own
+   comment. Full-width row above the tab bar: hairline top border, no fill,
+   56px tall, label right up against a trailing scarlet arrow. */
+.actionRow {
+  width: 100%;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  padding: 0 2px;
+  border-radius: 0;
+  border-top: 1px solid var(--shell-border);
+  background: transparent;
+  color: var(--shell-text);
+  font-family: var(--font-narrow);
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.actionRow:active {
+  /* The base .button:active scale-down reads oddly on a full-width row with
+     no fill to anchor it visually — the label alone shifting is enough. */
+  transform: none;
+  opacity: 0.75;
+}
+
+.arrow {
+  flex: 0 0 auto;
+  color: var(--shell-crimson);
+  font-size: 15px;
+  line-height: 1;
+}

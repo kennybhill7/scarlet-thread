@@ -6,10 +6,22 @@
   font-weight: 500;
   font-size: 12.5px;
   padding: 6px 13px;
-  border-radius: var(--r-sm);
+  /* "Tags are square (2px radius)" -- design/scarlet-thread-app/Scarlet
+     Thread App.dc.html's "Thread lens" redline, and the shell's own general
+     surface rule ("Radius is 0-4px on the shell"). Chip is one shared
+     component with no shell/page CSS-variable branch (unlike Button), so
+     this geometry change reaches every call site, including the reading
+     pane's night/parallel toggle (ChapterReader.tsx) -- same colours there,
+     just squarer corners; see the task report for why that was judged fine
+     rather than forking a page-only pill variant. */
+  border-radius: 2px;
   border: 1px solid transparent;
   min-height: 32px;
   transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.count {
+  opacity: 0.7;
 }
 
 .gold {

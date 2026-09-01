@@ -516,7 +516,7 @@ export function ConnectSection({ workspaceId, session, unlocked, onSaved, fetchI
           <p aria-live="polite" data-state={status}>
             {message}
           </p>
-          <Button disabled={!readiness.ready || status === "saving"} type="submit">
+          <Button disabled={!readiness.ready || status === "saving"} type="submit" variant="actionRow">
             {status === "saving" ? "Saving…" : "Save connection"}
           </Button>
         </footer>

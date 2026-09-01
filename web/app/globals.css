@@ -12,6 +12,21 @@
  * The shell's own tokens (--shell-*) never change with this preference; only
  * the --page-* (and --green/--brass/--crimson) layer below does.
  *
+ * SCARLETTHREAD-001 (2026-08-26): the shell's palette is stone, sampled from
+ * the films, not navy — `--shell-bg`/`--shell-surface`/`--shell-surface-hi`
+ * are `--ink`/`--stone-1`/`--stone-2` from
+ * `design/scarlet-thread-app/Scarlet Thread App.dc.html`'s palette swatch,
+ * `--shell-border`/`--shell-border-hi` are its `--edge` hairline and the
+ * `#3a3f47` hover-state border sampled from that same file's interactive
+ * mockups. `--gold` keeps its old ROLE (light, used sparingly — the "you are
+ * here" colour) but takes the new file's `--light` value; it does not gain
+ * new call sites here. `--shell-crimson`/`--shell-crimson-text` are new —
+ * see the comment at their declaration below for why they exist as their
+ * own tokens rather than a reuse of `--crimson`. Every value below was
+ * independently recomputed against `lib/theme.ts`'s `contrastRatio` (see
+ * tests/theme.test.ts's shell-contrast block), not trusted from the design
+ * file's own stated ratios.
+ *
  * THEMESYSTEM-001: this preference is System / Midnight / Parchment, but
  * "System" is resolved client-side (lib/theme.ts#resolveReading) into one of
  * the two real CSS variants below — it is never a data-reading value itself.
@@ -30,24 +45,69 @@
   color-scheme: dark;
 
   /* --- Shell: The Climb -------------------------------------------------- */
-  --shell-bg: #0d1420;
-  --shell-surface: #131d2e;
-  --shell-surface-hi: #182338;
-  --shell-border: #22314a;
-  --shell-border-hi: #33405a;
+  /* Stone, not navy — --ink/--stone-1/--stone-2 from the redesign's palette
+     swatch. Verified 2026-08-26: stone-1-on-ink is 1.05:1 and stone-2-on-ink
+     is 1.14:1 — deliberately near-invisible; these are surface layers, not
+     text, and the design's own rule is "separation comes from a hairline,
+     not a lighter box." */
+  --shell-bg: #07080a;
+  --shell-surface: #0e1013;
+  --shell-surface-hi: #16191e;
+  /* --edge, the hairline. Also low-contrast on purpose (1.34:1 on --shell-bg)
+     — see the surface comment above. --shell-border-hi is the file's own
+     hover-state border (`style-hover="border-color:#3a3f47"` throughout its
+     interactive mockups: tab bar, thread-lens toggle), not a text color —
+     no AA floor applies to either. */
+  --shell-border: #23272d;
+  --shell-border-hi: #3a3f47;
 
-  --shell-text: #e8e6e0;
-  --shell-text-2: #d5dbe6;
-  --shell-muted: #7f8ba0;
-  --shell-muted-2: #8b97ab;
+  /* Verified against --shell-bg with lib/theme.ts's contrastRatio (see
+     tests/theme.test.ts): shell-text 16.234:1, shell-text-2 10.528:1,
+     shell-muted 5.174:1 — all clear the 4.5:1 normal-text floor.
+     shell-muted-2 (8f959e, 6.641:1) sits between --shell-muted and
+     --shell-text-2, preserving the old palette's four-step brightness
+     ladder (muted < muted-2 < text-2 < text); the design file names only
+     three neutral text tones (text/second/muted), so this one has no direct
+     swatch equivalent and was chosen to hold that ordering, not copied. */
+  --shell-text: #eae7e1;
+  --shell-text-2: #b9bcc2;
+  --shell-muted: #7c828b;
+  --shell-muted-2: #8f959e;
 
   /* Gold is the "you are here" colour. Used sparingly — progress, the current
-     stage, the primary action. If everything is gold, nothing is. */
-  --gold: #e8b465;
-  --gold-deep: #d99a58;
+     stage, the primary action. If everything is gold, nothing is.
+     --gold is the design's --light ("sun on rock"), verified 12.460:1 on
+     --shell-bg. --gold-ink is unchanged — #241a08 already matched the
+     design's own on-light ink color exactly (verified 10.650:1 on the new
+     --gold). --gold-deep/--gold-dim-bg/--gold-dim-border have no swatch of
+     their own in the design file (gold stops being a button fill there) —
+     each is derived from --gold at the same ratio/blend the old palette
+     used relative to its own --gold, so gradients and dim badges (Mountain's
+     current-stage stroke, BookPicker's CTA, Chip's gold tone, review-page
+     badges) keep working with no swatch to mismatch. */
+  --gold: #e8c88a;
+  --gold-deep: #d9ab78;
   --gold-ink: #241a08;
-  --gold-dim-bg: #1c1a12;
-  --gold-dim-border: #4a3d28;
+  --gold-dim-bg: #1e1b17;
+  --gold-dim-border: #544f44;
+
+  /* The rope — the redesign's identity colour, and the one new shell token
+     this task adds. Declared here, inside the SHELL block, specifically so
+     it can never be reached by the `[data-reading]` parchment/midnight
+     selectors below (a prior draft of this task flagged the risk of a
+     shell-scoped crimson use accidentally inheriting the page-scoped
+     --crimson instead — see that token's own comment). Two tones, because
+     the design uses two: `--shell-crimson` (#cf2027, "the rope") for
+     non-text fills, discs, dividers and icon glyphs — verified 3.710:1 on
+     --shell-bg, clearing the 3:1 large-text/UI floor but not the 4.5:1
+     normal-text one, which is correct for a glyph/graphic, not prose.
+     `--shell-crimson-text` (#e04a45, "thread on dark") is for actual small
+     text set in the accent colour — verified 4.994:1 on --shell-bg, clearing
+     the 4.5:1 normal-text floor (use it on --shell-bg or --shell-surface;
+     it measures 4.39:1 on --shell-surface-hi, just under the floor, so avoid
+     it as body text on raised/hi panels). */
+  --shell-crimson: #cf2027;
+  --shell-crimson-text: #e04a45;
 
   /* --- Page: Notecards (parchment) --------------------------------------- */
   --page-bg: #f3f0e8;
