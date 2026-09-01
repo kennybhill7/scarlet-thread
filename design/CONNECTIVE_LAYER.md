@@ -161,10 +161,19 @@ Revelation 20, scroll-locked at matching beats — first proposed in Section 13 
 
 ## Build sequencing
 
-**Wave 1 — visual language foundation (building now, no new content needed).** The stone/scarlet
-token swap and the three component replacements (Button → type-only action row, Chip → square
-thread tag, DailyLoop's row → rope of knots) that Ken already scoped as the two structural changes
-in `Scarlet Thread App.dc.html`. Everything below assumes this visual language exists first.
+**Wave 1 — visual language foundation. DONE (2026-09-01, `8c5475c`).** Stone/scarlet token swap
+(`--shell-bg`/`--shell-surface`/`--shell-border` family repointed from navy to stone; new
+`--shell-crimson`/`--shell-crimson-text` declared inside the shell block, never reachable by
+`[data-reading]`) and the three component replacements (Button's new `actionRow` variant, Chip's
+square 2px-radius geometry, DailyLoop's rope-of-knots). Verified independently before merge:
+every contrast ratio in the builder's report was recomputed from scratch (not trusted), one
+mutation proof re-run by the orchestrator (the `[data-reading]` isolation guard — confirmed a
+shell-crimson leak into the midnight block fails exactly the dedicated test), full suite green
+(1006 tests) after cherry-picking onto current master alongside TEACHMODE-001. Two things to
+know: `--shell-crimson` (3.71:1) is icon/glyph-only (the trailing action-row arrow) — never body
+text; `Mountain.tsx` was left untouched but automatically inherits the new stone palette through
+`--shell-*`, so it now sits on the new background without being redesigned itself. Everything
+below assumes this visual language exists first.
 
 **Wave 2 — connection-type visual registers (buildable now, no new content needed).** Differentiate
 the already-existing `CONNECTION_TYPES` into Ken's four registers at the rendering layer.
