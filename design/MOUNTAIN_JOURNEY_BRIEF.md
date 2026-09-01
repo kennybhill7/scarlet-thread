@@ -30,6 +30,46 @@ visualization into a place.
 
 ---
 
+## Mood reference (Ken, 2026-09-01)
+
+Two AI-generated reference clips are in `design/reference/mood/` (`journey-canyon-variant.mp4`,
+`journey-desert-crosses-variant.mp4`, ~10 s / 1280×720 each), with compressed key-frame stills
+from both in `design/reference/mood/stills/`. **These are the actual visual target for "realistic
+mountain" and "cinematic journey"** — treat them as closer to ground truth than any word in this
+brief. Both share the same opening and closing beat and differ in the middle:
+
+1. **Opening (both clips)** — an aerial dawn shot over a real mountain range: snow-capped peaks,
+   a rising sun, layered clouds, mist in the valley. The scarlet thread runs through the valley
+   floor as a glowing red river/road, winding past a lake and tree line toward the peaks.
+   (`stills/01-dawn-valley-thread-as-river.jpg`)
+2. **Middle, canyon variant** — flying low along a canyon rim in stormy light; the thread runs
+   along the cliff edge as a woven red rope/road, canyon dropping away on one side.
+   (`stills/02-canyon-cliff-thread-as-road.jpg`)
+3. **Middle, desert/crosses variant** — a robed figure at a lit tent under a night sky thick with
+   stars, the thread as a thick woven rope leading out across the dunes from his feet.
+   (`stills/03-desert-tent-thread-as-rope.jpg`) Then a rocky peak under a dark, breaking sky with
+   three crosses at the summit, the thread winding up the rock face to meet them.
+   (`stills/04-three-crosses-thread-ascending.jpg`)
+4. **Closing (both clips)** — a lone robed figure stands on a rock outcropping above a sea of
+   clouds, the thread continuing from their feet up into the sky to a glowing golden city on the
+   clouds — towers, spires, light pouring from within. (`stills/05-heavenly-city-journeys-end.jpg`)
+
+Notice what stays constant across every shot: **the thread is never a thin drawn line.** It's
+always a thick, dimensional, woven/braided rope with real material presence — texture, shadow,
+sheen — laid ONTO the terrain like a physical road, not overlaid on top of it like a chart
+annotation. That's the single most important visual takeaway for translating this to the
+Mountain: whatever ships needs that same sense of the thread as a real object resting on real
+ground, at every one of the 11 stages, not just in establishing shots.
+
+These are mood/tone reference, not a literal storyboard to reproduce beat-for-beat — there's no
+video pipeline in this app's stack (see "Constraints" below), and the app's real structure is 11
+fixed stages with mirror pairings, not an open-ended cinematic flythrough. The job for Claude
+Design is translating this FEELING (realistic terrain, the thread as a physical road, dramatic
+directional light, a sense of real distance and elevation) into something that can render as
+SVG/CSS at 11 fixed waypoints.
+
+---
+
 ## What exists today (the actual, current implementation)
 
 `web/components/climb/Mountain.tsx` + `Mountain.module.css` — an abstract SVG line chart:
