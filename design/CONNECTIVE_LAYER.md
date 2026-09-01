@@ -199,7 +199,12 @@ enough to build and test the mechanism against, not enough to ship a complete ra
 authorship is Ken's call, same as the Genesis 1–12/Matthew 1–7 curriculum content flagged
 elsewhere in this project as something not to fabricate.
 
-**Wave 5 — Teach mode toggle.** Bounded engineering, no new schema strictly needed — a client-side
-reordering/subset rule over the existing `TEACHING_SECTION_KINDS`, mapped to "for me" vs. "for the
-room" per the mockup's two assemblies. Conviction-section content never appears in "for the room"
-output unless explicitly promoted — same rule as the existing export/sharing boundary.
+**Wave 5 — Teach mode toggle. DONE (2026-09-01, `f4c8b5c`).** Shipped as a pure, presentation-only
+reorder of the existing `TeachingSection` rows (`reorderForRoom`/`FOR_ROOM_KIND_ORDER` in
+`web/components/workspace/TeachSection.tsx`) — no schema change, `sortOrder` never touched.
+Verified independently (typecheck/lint/build/992 tests green, one mutation proof re-run by the
+orchestrator, not just the builder) before merge. **Real gap surfaced, not yet resolved:** the
+mockup's "For the room" view relabels sections as Where/Tension/Image, which has no
+correspondence to `TEACHING_SECTION_KINDS` — this wave deliberately shipped the reordering-only
+version and left that relabeling as an open product question. Deciding whether the section-kind
+vocabulary itself should change is Ken's call, not scoped into any wave yet.
