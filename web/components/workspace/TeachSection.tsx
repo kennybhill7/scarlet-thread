@@ -119,6 +119,63 @@ import { bodyStyle, noticeStyle } from "./styles";
  * own environment note).
  * ---------------------------------------------------------------------------
  *
+ * TEACHMODE-001 (this task) — the "For me" / "For the room" display-order
+ * toggle on top of the SAME `activeSectionsForDraft` rows above. This is
+ * PRESENTATION-ONLY: no new sync entity, no new schema field, no write of
+ * any kind (`TeachingSection.sortOrder` is never touched), and the exact
+ * same discipline the rest of this file follows: a plain exported pure
+ * function (`reorderForRoom`) plus one `useState<TeachViewMode>` in the
+ * stateful shell (`TeachSection`), never a hook or DOM dependency inside
+ * `TeachOutlinePanel` itself.
+ *
+ * DEFAULT ("for me"): identical to every prior wave's ONLY behavior —
+ * `activeSectionsForDraft`'s own `sortOrder` order, completely unchanged.
+ * `TeachSection` seeds `useState<TeachViewMode>("for-me")`, so nothing about
+ * today's outline changes for a learner who never touches the new toggle.
+ *
+ * "FOR THE ROOM" ORDER (`reorderForRoom`, `FOR_ROOM_KIND_ORDER`): groups the
+ * SAME rows by `kind` into the sequence a listener needs context before the
+ * teacher's own discovery — `context`, then `connection`/`theology`, then
+ * `illustration`, then `application`/`discussion`, then `objection`/
+ * `not_justified` last (a listener needs the teacher's own case laid out
+ * before hearing what the teacher decided NOT to run with). Within each
+ * kind, original relative `sortOrder` is preserved via an explicit index
+ * tie-break in the sort comparator, not bare reliance on the sort engine
+ * being stable — provable without depending on V8's own guarantees.
+ *
+ * `outline` and `prayer` are NOT named in TEACHMODE-001's own ordering rule
+ * (only "wherever they naturally fall, pick a stable, documented
+ * position") — this file places `outline` FIRST and `prayer` LAST. Reasoning:
+ * `outline` is a roadmap ("here's where this teaching is going"), exactly
+ * the kind of context-before-content signal "for the room" mode exists to
+ * front-load — the same reason `context` itself sits near the front rather
+ * than in the middle. `prayer` closes a teaching in essentially every
+ * convention this app's own users teach in; opening mid-`context` or
+ * -`connection` with a prayer this task has no basis to place there would be
+ * the odd editorial choice, closing in one is not. Neither placement is
+ * claimed as THE single correct answer — it is one defensible, DOCUMENTED
+ * convention, exactly the standard this file already holds
+ * `FORMAT_PRESETS`'s minute values to.
+ *
+ * NO NEW COPY (assertion-line safety): `reorderForRoom` returns the SAME
+ * `TeachingSection` objects, unmodified — same `id`, `kind`, `body`,
+ * `sortOrder` field (its stored value is preserved even though display order
+ * no longer matches it), everything. It only changes ARRAY ORDER. No label,
+ * description, or summary is added anywhere by this task;
+ * `tests/teach-pane.test.ts`'s TEACHMODE-001 tests prove this directly
+ * (every section from the input appears exactly once in the output, with an
+ * unmodified `body`) alongside the existing ASSERTION-LINE suite.
+ *
+ * OUT OF SCOPE (explicitly, per this task's own instructions): the "Where /
+ * Tension / Image" relabeling shown in Claude Design's mockup
+ * (`design/scarlet-thread-app/Scarlet Thread App.dc.html`, "6 — Teach mode —
+ * for me, vs. for the room") invents category labels ("Where"/"Tension"/
+ * "Image") with no correspondence to `TEACHING_SECTION_KINDS` at all —
+ * reconciling that is a bigger, undecided product/content question this
+ * task does not attempt. `reorderForRoom` reorders the EXISTING ten kinds;
+ * it does not rename, relabel, merge, or reinterpret any of them.
+ * ---------------------------------------------------------------------------
+ *
  * THE ASSERTION LINE (docs/decisions/2026-08-18-teaching-not-theology.md) —
  * every free-text prompt below asks the LEARNER what THEY will teach, to
  * whom, and how THEY connect it to the gospel (or, for the outline, what
@@ -322,6 +379,69 @@ export function activeSectionsForDraft(sections: readonly TeachingSection[], dra
     .sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
+// ---------------------------------------------------------------------------
+// "For me" / "For the room" display-order toggle — see this file's header,
+// TEACHMODE-001. Presentation-only: no sortOrder write, no new entity.
+// ---------------------------------------------------------------------------
+
+export type TeachViewMode = "for-me" | "for-room";
+
+/** The toggle's own two options, in display order — the ONE place these labels live. */
+export const TEACH_VIEW_MODES: readonly { key: TeachViewMode; label: string }[] = [
+  { key: "for-me", label: "For me" },
+  { key: "for-room", label: "For the room" },
+];
+
+/**
+ * The "for the room" kind-group order — see this file's header for the full
+ * reasoning behind each group's position, and specifically why `outline`
+ * sits first and `prayer` sits last. Every member of `TEACHING_SECTION_KINDS`
+ * appears here exactly once (`tests/teach-pane.test.ts` proves this directly
+ * against the live `TEACHING_SECTION_KINDS` array, not a copy of it).
+ */
+export const FOR_ROOM_KIND_ORDER: readonly TeachingSectionKind[] = [
+  "outline",
+  "context",
+  "connection",
+  "theology",
+  "illustration",
+  "application",
+  "discussion",
+  "objection",
+  "not_justified",
+  "prayer",
+];
+
+function forRoomRank(kind: TeachingSectionKind): number {
+  const index = FOR_ROOM_KIND_ORDER.indexOf(kind);
+  // Every TeachingSectionKind appears exactly once in FOR_ROOM_KIND_ORDER
+  // (proven by a dedicated test) -- this fallback only guards a future kind
+  // being added to TEACHING_SECTION_KINDS without a matching update here,
+  // sending it to the end rather than throwing.
+  return index === -1 ? FOR_ROOM_KIND_ORDER.length : index;
+}
+
+/**
+ * "For the room" display-order transform — PRESENTATION ONLY (this file's
+ * header, TEACHMODE-001). Takes `activeSectionsForDraft`'s own output
+ * (already filtered to one draft's non-deleted rows, sorted by `sortOrder`)
+ * and returns a NEW array in `FOR_ROOM_KIND_ORDER` order. Every record
+ * returned is the SAME object, untouched — no field is read except `kind`
+ * for ranking, and `sortOrder` itself is never rewritten. Ties (same kind)
+ * keep their original relative order via an explicit index tie-break in the
+ * comparator, not bare reliance on `Array.prototype.sort` being stable.
+ */
+export function reorderForRoom(sections: readonly TeachingSection[]): TeachingSection[] {
+  return sections
+    .map((section, index) => ({ section, index }))
+    .sort((a, b) => {
+      const rankDelta = forRoomRank(a.section.kind) - forRoomRank(b.section.kind);
+      if (rankDelta !== 0) return rankDelta;
+      return a.index - b.index;
+    })
+    .map((entry) => entry.section);
+}
+
 /**
  * Pure record builder — the only place a `TeachingSection` is assembled.
  * Throws rather than silently building an incomplete record, exactly
@@ -477,6 +597,9 @@ export interface TeachOutlinePanelProps {
   onRemove: (sectionId: string) => void;
   addStatus: "idle" | "saving" | "saved" | "error";
   addMessage: string;
+  /** "for-me" (default) vs "for-room" — see this file's header, TEACHMODE-001. `sections` above is already in the caller's chosen display order; this panel only renders the toggle, it never reorders. */
+  viewMode: TeachViewMode;
+  onViewModeChange: (mode: TeachViewMode) => void;
 }
 
 export function TeachOutlinePanel({
@@ -490,13 +613,40 @@ export function TeachOutlinePanel({
   onRemove,
   addStatus,
   addMessage,
+  viewMode,
+  onViewModeChange,
 }: TeachOutlinePanelProps) {
+  // Move up/down swap `sortOrder` between what the caller's `onMove` treats
+  // as ADJACENT rows -- i.e. adjacent in the real "for me" order (see
+  // `TeachSection`'s own `moveSection`, which always reorders
+  // `orderedSections`, never this panel's `sections` prop). In "for the
+  // room" view, two visually-adjacent rows are often NOT adjacent in that
+  // real order, so a Move button here would silently act on a different
+  // pair than the one the learner sees next to it. Disabling reorder (never
+  // Remove, and never the add-outline-point form below) while viewing "for
+  // the room" avoids that mismatch rather than leaving a control that lies
+  // about what it's about to do.
+  const moveControlsDisabled = viewMode === "for-room";
   return (
     <section aria-label="Teaching outline" data-testid="teach-outline-panel">
       <p style={noticeStyle}>
         Build your teaching out section by section. Each part is your own reasoning, in your own words — nothing
         here is supplied or suggested by the app.
       </p>
+
+      <div aria-label="Outline view" data-testid="teach-view-mode-toggle" role="group">
+        {TEACH_VIEW_MODES.map((mode) => (
+          <Chip
+            active={viewMode === mode.key}
+            aria-pressed={viewMode === mode.key}
+            data-view-mode={mode.key}
+            key={mode.key}
+            onClick={() => onViewModeChange(mode.key)}
+          >
+            {mode.label}
+          </Chip>
+        ))}
+      </div>
 
       {sections.length === 0 ? (
         <p style={noticeStyle} data-testid="teach-outline-empty">
@@ -510,7 +660,7 @@ export function TeachOutlinePanel({
               <p data-testid="teach-outline-item-body">{section.body}</p>
               <div aria-label="Reorder or remove this outline point" role="group">
                 <Button
-                  disabled={disabled || index === 0}
+                  disabled={disabled || moveControlsDisabled || index === 0}
                   onClick={() => onMove(section.id, "up")}
                   type="button"
                   variant="secondary"
@@ -518,7 +668,7 @@ export function TeachOutlinePanel({
                   Move up
                 </Button>
                 <Button
-                  disabled={disabled || index === sections.length - 1}
+                  disabled={disabled || moveControlsDisabled || index === sections.length - 1}
                   onClick={() => onMove(section.id, "down")}
                   type="button"
                   variant="secondary"
@@ -609,6 +759,10 @@ export function TeachSection({ workspaceId, session, unlocked, onSaved }: TeachS
   const [addMessage, setAddMessage] = useState("");
   const [outlineActionStatus, setOutlineActionStatus] = useState<"idle" | "busy" | "error">("idle");
   const [outlineActionMessage, setOutlineActionMessage] = useState("");
+  // Display-order preference only -- see this file's header, TEACHMODE-001.
+  // Defaults to "for-me" (today's only behavior); never persisted, never
+  // written through the vault, never touches `sortOrder`.
+  const [viewMode, setViewMode] = useState<TeachViewMode>("for-me");
 
   // Loads this device's existing TeachingDraft/TeachingSection rows so a
   // reload shows real, persisted state rather than starting the outline
@@ -647,6 +801,11 @@ export function TeachSection({ workspaceId, session, unlocked, onSaved }: TeachS
   const readiness = teachDraftReadiness(fields);
   const currentDraft = pickCurrentDraft(drafts, session.id);
   const orderedSections = currentDraft ? activeSectionsForDraft(sections, currentDraft.id) : [];
+  // "for-room" is a pure reorder of `orderedSections` -- see this file's
+  // header, TEACHMODE-001. Move/remove actions above always operate on
+  // `orderedSections` (the real, sortOrder-based display), never on this
+  // derived view, so a reorder-for-room never disturbs the actual outline.
+  const displaySections = viewMode === "for-room" ? reorderForRoom(orderedSections) : orderedSections;
   const sectionReadiness = sectionFieldsReadiness(sectionFields);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -839,8 +998,10 @@ export function TeachSection({ workspaceId, session, unlocked, onSaved }: TeachS
             onFieldsChange={setSectionFields}
             onMove={(sectionId, direction) => void moveSection(sectionId, direction)}
             onRemove={(sectionId) => void removeSection(sectionId)}
+            onViewModeChange={setViewMode}
             sectionReadiness={sectionReadiness}
-            sections={orderedSections}
+            sections={displaySections}
+            viewMode={viewMode}
           />
         </>
       )}

@@ -147,6 +147,7 @@ interface ReorderResult {
   updated: [TeachingSection, TeachingSection];
 }
 type SaveSection = (section: TeachingSection) => Promise<void>;
+type TeachViewMode = "for-me" | "for-room";
 
 const teachModule = nodeRequire("@/components/workspace/TeachSection.tsx") as {
   FORMAT_PRESETS: readonly FormatPreset[];
@@ -173,6 +174,9 @@ const teachModule = nodeRequire("@/components/workspace/TeachSection.tsx") as {
     now: string;
   }) => TeachingSection;
   activeSectionsForDraft: (sections: readonly TeachingSection[], draftId: string) => TeachingSection[];
+  TEACH_VIEW_MODES: readonly { key: TeachViewMode; label: string }[];
+  FOR_ROOM_KIND_ORDER: readonly TeachingSectionKind[];
+  reorderForRoom: (sections: readonly TeachingSection[]) => TeachingSection[];
   swapSectionOrder: (
     ordered: readonly TeachingSection[],
     sectionId: string,
@@ -208,6 +212,8 @@ const teachModule = nodeRequire("@/components/workspace/TeachSection.tsx") as {
     onRemove: (sectionId: string) => void;
     addStatus: "idle" | "saving" | "saved" | "error";
     addMessage: string;
+    viewMode: TeachViewMode;
+    onViewModeChange: (mode: TeachViewMode) => void;
   }) => unknown;
   TeachSection: (props: {
     workspaceId: string;
@@ -229,6 +235,9 @@ const {
   nextSectionSortOrder,
   buildTeachingSectionRecord,
   activeSectionsForDraft,
+  TEACH_VIEW_MODES,
+  FOR_ROOM_KIND_ORDER,
+  reorderForRoom,
   swapSectionOrder,
   buildRemovedSectionRecord,
   persistNewSection,
@@ -966,6 +975,8 @@ function outlinePanelProps(
     newSectionFields: NewSectionFields;
     addStatus: "idle" | "saving" | "saved" | "error";
     addMessage: string;
+    viewMode: TeachViewMode;
+    onViewModeChange: (mode: TeachViewMode) => void;
   }> = {},
 ) {
   const newSectionFields = overrides.newSectionFields ?? BLANK_SECTION_FIELDS;
@@ -980,6 +991,8 @@ function outlinePanelProps(
     onRemove: () => {},
     addStatus: overrides.addStatus ?? "idle",
     addMessage: overrides.addMessage ?? "",
+    viewMode: overrides.viewMode ?? "for-me",
+    onViewModeChange: overrides.onViewModeChange ?? (() => {}),
   };
 }
 
@@ -1001,7 +1014,21 @@ test("NOTHING DEFAULTS (acceptance criterion 7): with BLANK_SECTION_FIELDS, no o
   const html = renderToStaticMarkup(
     createElement(TeachOutlinePanel as never, outlinePanelProps({ newSectionFields: BLANK_SECTION_FIELDS })),
   );
-  assert.doesNotMatch(html, /aria-pressed="true"/, `a kind was pre-selected with nothing chosen:\n${html}`);
+  // Scoped to the kind-picker's own chips (`data-field="kind"`), not a
+  // blanket scan of the whole panel's HTML: TEACHMODE-001 added a SEPARATE,
+  // intentionally-pressed "For me" view-mode chip elsewhere in this same
+  // markup (a display preference, not a section field -- see this file's
+  // own TEACHMODE-001 section), so a bare `doesNotMatch(html,
+  // /aria-pressed="true"/)` would now false-fail on that unrelated control.
+  // The guarantee this test exists to prove -- no KIND gets pre-selected --
+  // is unchanged and, if anything, checked more precisely than before (an
+  // explicit per-chip scan plus a count check, not a single whole-document
+  // regex).
+  const kindChipButtons = html.match(/<button[^>]*data-field="kind"[^>]*>/g) ?? [];
+  assert.equal(kindChipButtons.length, TEACHING_SECTION_KINDS.length, "expected one chip per TEACHING_SECTION_KINDS entry");
+  for (const chip of kindChipButtons) {
+    assert.ok(!chip.includes('aria-pressed="true"'), `a kind chip was pre-selected with nothing chosen: ${chip}`);
+  }
 });
 
 test("RENDER TeachOutlinePanel: with sections, each renders its own kind and its own body text, in the given order", () => {
@@ -1111,6 +1138,202 @@ test("ASSERTION-LINE: rendering one section per TEACHING_SECTION_KINDS kind (inc
 test("TeachOutlinePanel's add-outline-point field asks the learner what THEY will say, in their own words -- not a passage assertion", () => {
   const html = renderToStaticMarkup(createElement(TeachOutlinePanel as never, outlinePanelProps()));
   assert.match(html, /what will you say|your own reasoning|your own words/i);
+});
+
+// ===========================================================================
+// Q. TEACHMODE-001 -- "For me" / "For the room" display-order toggle. Pure
+//    function coverage (`reorderForRoom`, `FOR_ROOM_KIND_ORDER`,
+//    `TEACH_VIEW_MODES`) plus the toggle's own render coverage on the
+//    hookless `TeachOutlinePanel`. See TeachSection.tsx's own header for the
+//    full ordering rationale (why `outline` sits first and `prayer` last)
+//    this section proves against. `TeachSection`'s own `useState` wiring is
+//    NOT independently exercised here -- its `useEffect` vault load never
+//    fires under `renderToStaticMarkup` (this file's own environment note,
+//    section D/O), so `currentDraft` is always null and the outline panel
+//    never mounts inside a rendered `TeachSection` in this test file, the
+//    same limitation every other `orderedSections`-derived behavior already
+//    has. The pure function plus the panel's own props-driven render is the
+//    testable surface, exactly this file's existing precedent.
+// ===========================================================================
+
+test("FOR_ROOM_KIND_ORDER is exactly a permutation of the live TEACHING_SECTION_KINDS -- no kind added, dropped, or duplicated", () => {
+  assert.equal(FOR_ROOM_KIND_ORDER.length, TEACHING_SECTION_KINDS.length);
+  assert.deepEqual(
+    [...FOR_ROOM_KIND_ORDER].sort(),
+    [...TEACHING_SECTION_KINDS].sort(),
+    "FOR_ROOM_KIND_ORDER must contain exactly the same kinds as TEACHING_SECTION_KINDS, just reordered",
+  );
+});
+
+test("TEACH_VIEW_MODES names exactly the two documented view modes, in order, with their exact labels", () => {
+  assert.deepEqual(
+    TEACH_VIEW_MODES.map((mode) => mode.key),
+    ["for-me", "for-room"],
+  );
+  assert.deepEqual(
+    TEACH_VIEW_MODES.map((mode) => mode.label),
+    ["For me", "For the room"],
+  );
+});
+
+test("reorderForRoom: groups sections by kind into the documented sequence -- outline first, context, then connection/theology, then illustration, then application/discussion, then objection/not_justified, prayer last", () => {
+  // Fed in an order that is NEITHER the target order NOR
+  // TEACHING_SECTION_KINDS's own declaration order, so a pass here cannot be
+  // an accident of input order.
+  const kindsInWeirdOrder: TeachingSectionKind[] = [
+    "prayer",
+    "not_justified",
+    "objection",
+    "discussion",
+    "application",
+    "illustration",
+    "theology",
+    "connection",
+    "context",
+    "outline",
+  ];
+  const sections = kindsInWeirdOrder.map((kind, index) =>
+    sampleSection({ id: `weird-${kind}`, kind, sortOrder: index, body: `Body for ${kind}` }),
+  );
+  const result = reorderForRoom(sections);
+  assert.deepEqual(result.map((s) => s.kind), [
+    "outline",
+    "context",
+    "connection",
+    "theology",
+    "illustration",
+    "application",
+    "discussion",
+    "objection",
+    "not_justified",
+    "prayer",
+  ]);
+});
+
+test("reorderForRoom: within one kind, preserves the original relative order -- it groups by kind, it does not re-sort by raw sortOrder value", () => {
+  const ctx = sampleSection({ id: "ctx-1", kind: "context", sortOrder: 0, body: "context" });
+  const app1 = sampleSection({ id: "app-1", kind: "application", sortOrder: 1, body: "first application" });
+  const app2 = sampleSection({ id: "app-2", kind: "application", sortOrder: 5, body: "second application" });
+  // Input already in true display order (ctx, app-1, app-2) -- proves the
+  // two "application" rows keep app-1-before-app-2 after grouping, not just
+  // a coincidence of numeric sortOrder already ascending.
+  const result = reorderForRoom([ctx, app1, app2]);
+  assert.deepEqual(result.map((s) => s.id), ["ctx-1", "app-1", "app-2"]);
+});
+
+test("reorderForRoom: an empty input returns an empty array", () => {
+  assert.deepEqual(reorderForRoom([]), []);
+});
+
+test("MUTATION-TARGET: reorderForRoom never drops, duplicates, or alters any section -- output is exactly a REORDERING of the SAME objects (identity-checked), one per input kind", () => {
+  const sections = TEACHING_SECTION_KINDS.map((kind, index) =>
+    sampleSection({ id: `mut-${kind}`, kind, sortOrder: index, body: `My own reasoning for ${kind}, unchanged.` }),
+  );
+  const result = reorderForRoom(sections);
+  assert.equal(result.length, sections.length, "no section dropped or duplicated");
+  // Every input section appears in the output EXACTLY once, as the SAME
+  // object reference (not a clone with same-looking fields) -- proves
+  // reorderForRoom does not rebuild, relabel, or otherwise touch a record.
+  for (const original of sections) {
+    const matches = result.filter((s) => s === original);
+    assert.equal(matches.length, 1, `section ${original.id} must appear exactly once, by reference`);
+  }
+  const outputIds = new Set(result.map((s) => s.id));
+  assert.equal(outputIds.size, sections.length, "output must be a genuine permutation, not repeated references");
+});
+
+test("ASSERTION-LINE: reorderForRoom adds no new label, description, or interpretive copy -- every body/kind/sortOrder round-trips byte-identical, across all ten kinds including objection/not_justified", () => {
+  const sections = TEACHING_SECTION_KINDS.map((kind, index) =>
+    sampleSection({
+      id: `assertion-room-${kind}`,
+      kind,
+      sortOrder: index,
+      body: `My own reasoning for the ${kind} part, in my own words.`,
+    }),
+  );
+  const result = reorderForRoom(sections);
+  const byId = new Map(sections.map((s) => [s.id, s]));
+  for (const section of result) {
+    const original = byId.get(section.id);
+    assert.ok(original, `unexpected section ${section.id} in reorderForRoom output`);
+    assert.equal(section.body, original!.body, "body text must be byte-identical -- reorderForRoom must never rewrite content");
+    assert.equal(section.kind, original!.kind);
+    assert.equal(section.sortOrder, original!.sortOrder, "sortOrder itself must be untouched -- only array order changes");
+  }
+});
+
+test("RENDER TeachOutlinePanel: the view-mode toggle renders both 'For me' and 'For the room', with the current mode pressed and the other not", () => {
+  const html = renderToStaticMarkup(
+    createElement(TeachOutlinePanel as never, outlinePanelProps({ viewMode: "for-room" })),
+  );
+  assert.ok(html.includes('data-testid="teach-view-mode-toggle"'));
+  assert.ok(html.includes('data-view-mode="for-me"'));
+  assert.ok(html.includes('data-view-mode="for-room"'));
+  assert.match(html, />For me</);
+  assert.match(html, />For the room</);
+  const forMeChip = html.match(/<button[^>]*data-view-mode="for-me"[^>]*>/)?.[0];
+  const forRoomChip = html.match(/<button[^>]*data-view-mode="for-room"[^>]*>/)?.[0];
+  assert.ok(forMeChip?.includes('aria-pressed="false"'), "For me chip must not be pressed while viewMode is for-room");
+  assert.ok(forRoomChip?.includes('aria-pressed="true"'), "For the room chip must be pressed while viewMode is for-room");
+});
+
+test("RENDER TeachOutlinePanel: defaults to 'For me' pressed when no override is given, matching TeachSection's own useState default", () => {
+  const html = renderToStaticMarkup(createElement(TeachOutlinePanel as never, outlinePanelProps()));
+  const forMeChip = html.match(/<button[^>]*data-view-mode="for-me"[^>]*>/)?.[0];
+  assert.ok(forMeChip?.includes('aria-pressed="true"'));
+});
+
+test("RENDER TeachOutlinePanel: renders exactly the order given in its 'sections' prop -- the panel itself never reorders, it only renders whatever order its caller already chose", () => {
+  const sections = [
+    sampleSection({ id: "s1", kind: "not_justified", sortOrder: 0, body: "first in given order" }),
+    sampleSection({ id: "s2", kind: "context", sortOrder: 1, body: "second in given order" }),
+  ];
+  const html = renderToStaticMarkup(
+    createElement(TeachOutlinePanel as never, outlinePanelProps({ sections, viewMode: "for-room" })),
+  );
+  const items = outlineItemsHtml(html);
+  assert.equal(items.length, 2);
+  assert.ok(
+    items[0].includes("first in given order"),
+    "panel must render its sections prop's own order, not re-derive one from viewMode itself",
+  );
+  assert.ok(items[1].includes("second in given order"));
+});
+
+test("RENDER TeachOutlinePanel: viewMode 'for-room' disables Move up/down on every item regardless of position, but leaves Remove and the kind-picker chips enabled", () => {
+  const sections = [
+    sampleSection({ id: "s1", sortOrder: 0 }),
+    sampleSection({ id: "s2", sortOrder: 1 }),
+    sampleSection({ id: "s3", sortOrder: 2 }),
+  ];
+  const html = renderToStaticMarkup(
+    createElement(TeachOutlinePanel as never, outlinePanelProps({ sections, viewMode: "for-room" })),
+  );
+  const items = outlineItemsHtml(html);
+  for (const item of items) {
+    assert.ok(buttonHtml(item, "Move up").includes("disabled"), "Move up must be disabled in 'for the room' view");
+    assert.ok(buttonHtml(item, "Move down").includes("disabled"), "Move down must be disabled in 'for the room' view");
+    assert.ok(!buttonHtml(item, "Remove").includes("disabled"), "Remove must stay enabled in 'for the room' view");
+  }
+  const kindChipButtons = html.match(/<button[^>]*data-field="kind"[^>]*>/g) ?? [];
+  assert.ok(kindChipButtons.length > 0, "kind chips must still be present");
+  for (const chip of kindChipButtons) {
+    assert.ok(!chip.includes("disabled"), "kind chips in the add-outline-point form must stay enabled in 'for the room' view");
+  }
+});
+
+test("RENDER TeachOutlinePanel: viewMode 'for-me' (the default) leaves Move up/down governed only by position, exactly today's pre-TEACHMODE-001 behavior", () => {
+  const sections = [
+    sampleSection({ id: "s1", sortOrder: 0 }),
+    sampleSection({ id: "s2", sortOrder: 1 }),
+    sampleSection({ id: "s3", sortOrder: 2 }),
+  ];
+  const html = renderToStaticMarkup(
+    createElement(TeachOutlinePanel as never, outlinePanelProps({ sections, viewMode: "for-me" })),
+  );
+  const items = outlineItemsHtml(html);
+  assert.ok(!buttonHtml(items[1], "Move up").includes("disabled"), "middle item's Move up must stay enabled in 'for me' view");
+  assert.ok(!buttonHtml(items[1], "Move down").includes("disabled"), "middle item's Move down must stay enabled in 'for me' view");
 });
 
 // ===========================================================================
