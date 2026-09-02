@@ -3,7 +3,16 @@ import styles from "./Chip.module.css";
 
 interface ChipProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   active?: boolean;
-  tone?: "gold" | "green";
+  /**
+   * "structural" (CONNREGISTERS-001) — a deeper, bolder gold than the
+   * default "gold" tone: `--gold-deep` text/border on the same
+   * `--gold-dim-bg` portable badge background, so it stays a real, visible
+   * step up from the plain gold every other chip already uses by default,
+   * never confusable with it. See `Chip.module.css`'s `.structural` for the
+   * verified contrast (recomputed independently, not eyeballed — see that
+   * task's report).
+   */
+  tone?: "gold" | "green" | "structural";
   /**
    * How many OTHER chapters this tag's thread appears in (the design's
    * "Thread tag — ... count always shown", `design/scarlet-thread-app/

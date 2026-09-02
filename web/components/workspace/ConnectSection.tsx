@@ -18,6 +18,7 @@ import {
   type UserConnection,
 } from "@/lib/contracts/study-v2";
 import { saveLocalStudySession, saveLocalUserConnection } from "@/lib/sync/store";
+import { registerForType } from "@/lib/workspace/connectionRegisters";
 import {
   BLANK_CONNECTION_SELECTION,
   buildNoWarrantYetUpdate,
@@ -476,6 +477,13 @@ export function ConnectSection({ workspaceId, session, unlocked, onSaved, fetchI
 
         <fieldset style={fieldsetStyle}>
           <legend style={legendStyle}>What kind of connection is this?</legend>
+          {/* CONNREGISTERS-001 -- a light styling touch only (structural
+              register types pick up the same `tone="structural"` Chip now
+              carries in ThreadDetail's browse/filter view, for visual
+              consistency between composing and browsing a connection). The
+              set of options offered and the selection logic below are both
+              completely untouched -- out of scope for that task, per its own
+              header. */}
           <div style={chipsRowStyle} role="group">
             {optionsFrom(CONNECTION_TYPES).map((option) => (
               <Chip
@@ -486,6 +494,7 @@ export function ConnectSection({ workspaceId, session, unlocked, onSaved, fetchI
                 disabled={status === "saving"}
                 key={option.value}
                 onClick={() => setSelection(selectConnectionType(selection, option.value))}
+                tone={registerForType(option.value) === "structural" ? "structural" : "gold"}
               >
                 {option.label}
               </Chip>

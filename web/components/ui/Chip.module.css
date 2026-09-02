@@ -36,6 +36,22 @@
   border-color: var(--green-soft-border);
 }
 
+/* CONNREGISTERS-001 -- structural/covenant register (covenant_development,
+   parallel, contrast_reversal). Same portable dark badge background as
+   .gold (`--gold-dim-bg`) so it stays WCAG-safe under BOTH page themes
+   (parchment and midnight) with no [data-reading] branch of its own -- see
+   that task's report for the independently-recomputed contrast ratios
+   (--gold-deep on --gold-dim-bg: 8.206:1, clears the 4.5:1 normal-text
+   floor). --gold-deep text/border plus bold weight is a real, always-visible
+   step up from .gold's lighter text and thin muted border -- never just the
+   same look under a different name. */
+.structural {
+  color: var(--gold-deep);
+  background: var(--gold-dim-bg);
+  border-color: var(--gold-deep);
+  font-weight: 700;
+}
+
 .chip.active {
   border-color: currentColor;
 }

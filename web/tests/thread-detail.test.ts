@@ -71,6 +71,14 @@ import {
   type EvidenceLabel,
   type UserConnection,
 } from "@/lib/contracts/study-v2";
+import {
+  registerForType,
+  typologyDirection,
+  MOTIF_REGISTER_TYPES,
+  STRUCTURAL_REGISTER_TYPES,
+  TYPOLOGY_REGISTER_TYPES,
+  PROMISE_LINE_REGISTER_TYPES,
+} from "@/lib/workspace/connectionRegisters";
 
 const nodeRequire = createRequire(__filename);
 
@@ -226,7 +234,10 @@ const threadDetailModule = nodeRequire("@/components/threads/ThreadDetail.tsx") 
     onSelectType: (type: ConnectionType | null) => void;
     activeStageSlug: string | null;
     onSelectStage: (stageSlug: string | null) => void;
+    showDeeperConnections: boolean;
+    onToggleDeeperConnections: () => void;
   }) => unknown;
+  renderConnectionTypeField: (connection: UserConnection, showDeeperConnections: boolean) => unknown;
   selectConnectionsForThread: (
     connections: UserConnection[],
     params: { threadSlug: string; workspaceId: string },
@@ -250,6 +261,7 @@ const threadDetailModule = nodeRequire("@/components/threads/ThreadDetail.tsx") 
 };
 const {
   ConnectionsPanel,
+  renderConnectionTypeField,
   selectConnectionsForThread,
   filterConnectionsByType,
   refKeyToChapterKey,
@@ -775,6 +787,14 @@ function panel(overrides: Partial<ConnectionsPanelArgs> = {}): ReturnType<typeof
     onSelectType: () => {},
     activeStageSlug: null,
     onSelectStage: () => {},
+    // CONNREGISTERS-001 -- off by default, same as every real caller
+    // (`ThreadDetail`'s own `useState(false)`). Every test above this point
+    // in the file (carried over unweakened from CONNECTIONEXPLORER-001/
+    // STAGEFILTER-001) keeps exercising the exact pre-CONNREGISTERS-001
+    // rendering as a result -- see the dedicated CONNREGISTERS-001 block
+    // below for the toggle's own ON-state tests.
+    showDeeperConnections: false,
+    onToggleDeeperConnections: () => {},
     ...overrides,
   });
 }
@@ -1020,4 +1040,164 @@ test("ASSERTION-LINE: the empty and filtered-empty states never assert a passage
   for (const html of [emptyHtml, filteredHtml]) {
     assert.doesNotMatch(html, VERDICT_LANGUAGE, `verdict-language leak:\n${html}`);
   }
+});
+
+// ===========================================================================
+// H. CONNREGISTERS-001 -- the four visual registers (`lib/workspace/
+//    connectionRegisters.ts`) and their two render sites in this file:
+//    the type-filter chip row (`tone`) and each row's own `data-field="type"`
+//    element (`renderConnectionTypeField`).
+// ===========================================================================
+
+test("registerForType partitions CONNECTION_TYPES exactly -- every real type lands in exactly one bucket, nothing left over, nothing double-counted", () => {
+  const buckets: Record<string, ConnectionType[]> = {
+    motif: [],
+    structural: [],
+    typology: [],
+    promise: [],
+    none: [],
+  };
+  for (const type of CONNECTION_TYPES as readonly ConnectionType[]) {
+    buckets[registerForType(type)].push(type);
+  }
+  assert.deepEqual(new Set(buckets.motif), new Set(MOTIF_REGISTER_TYPES));
+  assert.deepEqual(new Set(buckets.structural), new Set(STRUCTURAL_REGISTER_TYPES));
+  assert.deepEqual(new Set(buckets.typology), new Set(TYPOLOGY_REGISTER_TYPES));
+  assert.deepEqual(new Set(buckets.promise), new Set(PROMISE_LINE_REGISTER_TYPES));
+  assert.deepEqual(new Set(buckets.none), new Set(["doctrinal_synthesis", "personal_resonance"]));
+  const total =
+    buckets.motif.length + buckets.structural.length + buckets.typology.length + buckets.promise.length + buckets.none.length;
+  assert.equal(total, CONNECTION_TYPES.length, "every CONNECTION_TYPES value must be classified exactly once");
+});
+
+test("MUTATION-TARGET: registerForType maps each of Ken's four named examples to the correct register, not a neighboring one", () => {
+  assert.equal(registerForType("covenant_development"), "structural");
+  assert.equal(registerForType("parallel"), "structural");
+  assert.equal(registerForType("contrast_reversal"), "structural");
+  assert.equal(registerForType("type_antitype"), "typology");
+  assert.equal(registerForType("promise_fulfillment"), "promise");
+  assert.equal(registerForType("motif"), "motif");
+  assert.equal(registerForType("doctrinal_synthesis"), "none");
+  assert.equal(registerForType("personal_resonance"), "none");
+});
+
+test("MUTATION-TARGET: typologyDirection reads fromRange-earlier as the shadow, toRange-earlier as the fulfillment, via the real compareRefs canonical order", () => {
+  // sampleConnection()'s default fromRange starts in Genesis (book 1), toRange in John (book 43) -- OT before NT.
+  assert.equal(typologyDirection(sampleConnection()), "from-is-shadow");
+
+  // Swap them: now fromRange is the LATER (NT) range -- toRange is earlier.
+  const swapped = sampleConnection({
+    fromRange: range("43.3.16"),
+    toRange: range("1.3.15"),
+  });
+  assert.equal(typologyDirection(swapped), "to-is-shadow");
+
+  // Tie (identical start on both ends) resolves deterministically to from-is-shadow, per the documented rule.
+  const tie = sampleConnection({ fromRange: range("1.3.15"), toRange: range("1.3.15") });
+  assert.equal(typologyDirection(tie), "from-is-shadow");
+});
+
+test("ConnectionsPanel: structural-register type-filter chips carry tone='structural'; every other type-filter chip carries tone='gold'", () => {
+  const tree = panel({ connections: [] });
+  const chips = findAll(tree, (el) => el.props["data-field"] === "connectionType" && el.props["data-value"] !== "all");
+  assert.equal(chips.length, CONNECTION_TYPES.length);
+  for (const chip of chips) {
+    const type = chip.props["data-value"] as ConnectionType;
+    const expectedTone = registerForType(type) === "structural" ? "structural" : "gold";
+    assert.equal(chip.props.tone, expectedTone, `type-filter chip for "${type}" carries the wrong tone`);
+  }
+});
+
+test("renderConnectionTypeField: structural register (register 2) renders a distinct gold-deep badge, ALWAYS -- regardless of the deeper-connections toggle", () => {
+  for (const showDeeperConnections of [false, true]) {
+    const connection = sampleConnection({ type: "covenant_development" });
+    const field = renderConnectionTypeField(connection, showDeeperConnections) as RElement;
+    assert.equal(field.props["data-field"], "type");
+    assert.equal(field.props["data-register"], "structural", `toggle=${showDeeperConnections}`);
+    const style = field.props.style as CSSProperties;
+    assert.equal(style.color, "var(--gold-deep)");
+    assert.equal(style.background, "var(--gold-dim-bg)");
+    assert.equal(field.props.children, "Covenant development");
+  }
+});
+
+test("MUTATION-TARGET (OFF-state byte-identical guarantee): renderConnectionTypeField(showDeeperConnections: false) returns the EXACT pre-CONNREGISTERS-001 element for every typology/promise/unregistered type", () => {
+  const untouchedRegisters: ConnectionType[] = [
+    ...TYPOLOGY_REGISTER_TYPES,
+    ...PROMISE_LINE_REGISTER_TYPES,
+    "doctrinal_synthesis",
+    "personal_resonance",
+  ];
+  for (const type of untouchedRegisters) {
+    const connection = sampleConnection({ type });
+    const field = renderConnectionTypeField(connection, false) as RElement;
+    assert.equal(field.props["data-field"], "type");
+    assert.equal(field.props["data-register"], undefined, `type=${type} must carry no data-register when the toggle is off`);
+    assert.equal(field.props.style, undefined, `type=${type} must carry no style override when the toggle is off`);
+    assert.equal(
+      field.props.children,
+      type
+        .split("_")
+        .map((word, i) => (i === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word))
+        .join(" "),
+      `type=${type} must render the plain humanized label, unchanged`,
+    );
+  }
+});
+
+test("renderConnectionTypeField: typology ON shows 'Shadow of ↦' when fromRange is the earlier (OT) reference", () => {
+  const connection = sampleConnection({ type: "type_antitype" }); // fromRange: Genesis, toRange: John
+  const field = renderConnectionTypeField(connection, true) as RElement;
+  assert.equal(field.props["data-register"], "typology");
+  assert.equal(field.props.children, "Shadow of ↦");
+});
+
+test("renderConnectionTypeField: typology ON shows 'Fulfills ↤' when toRange is the earlier reference", () => {
+  const connection = sampleConnection({
+    type: "type_antitype",
+    fromRange: range("43.3.16"),
+    toRange: range("1.3.15"),
+  });
+  const field = renderConnectionTypeField(connection, true) as RElement;
+  assert.equal(field.props["data-register"], "typology");
+  assert.equal(field.props.children, "Fulfills ↤");
+});
+
+test("renderConnectionTypeField: promise-line ON gets its own gold badge (--gold, not structural's --gold-deep) plus a marker glyph, distinct from the structural register", () => {
+  const connection = sampleConnection({ type: "promise_fulfillment" });
+  const field = renderConnectionTypeField(connection, true) as RElement;
+  assert.equal(field.props["data-register"], "promise");
+  const style = field.props.style as CSSProperties;
+  assert.equal(style.color, "var(--gold)");
+  assert.notEqual(style.color, "var(--gold-deep)", "promise must render visibly differently from the structural register");
+  const html = renderToStaticMarkup(field as never);
+  assert.ok(html.includes("Promise fulfillment"), `expected the humanized label in the badge:\n${html}`);
+  assert.ok(html.includes("&#10022;") || html.includes("✦"), `expected the marker glyph in the badge:\n${html}`);
+});
+
+test("ConnectionsPanel: the 'Show deeper connections' toggle chip reflects showDeeperConnections and calls onToggleDeeperConnections on click", () => {
+  let toggled = 0;
+  const tree = panel({ showDeeperConnections: false, onToggleDeeperConnections: () => { toggled += 1; } });
+  const toggle = byTestId(tree, "deeper-connections-chip");
+  assert.equal(toggle.length, 1);
+  assert.equal(toggle[0].props["aria-pressed"], false);
+  (toggle[0].props.onClick as () => void)?.();
+  assert.equal(toggled, 1);
+
+  const onTree = panel({ showDeeperConnections: true });
+  const onToggle = byTestId(onTree, "deeper-connections-chip");
+  assert.equal(onToggle[0].props["aria-pressed"], true);
+});
+
+test("ConnectionsPanel: a full row respects the toggle end-to-end -- promise_fulfillment renders plain when the toggle is off and badged when it is on, in the SAME panel", () => {
+  const connection = sampleConnection({ type: "promise_fulfillment" });
+
+  const offTree = panel({ connections: [connection], showDeeperConnections: false });
+  const offField = byField(offTree, "type")[0];
+  assert.equal(offField.props["data-register"], undefined);
+  assert.equal(offField.props.children, "Promise fulfillment");
+
+  const onTree = panel({ connections: [connection], showDeeperConnections: true });
+  const onField = byField(onTree, "type")[0];
+  assert.equal(onField.props["data-register"], "promise");
 });

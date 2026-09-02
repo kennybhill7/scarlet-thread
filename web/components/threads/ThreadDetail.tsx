@@ -19,6 +19,7 @@ import {
   listLocalV2Entities,
   saveLocalThread,
 } from "@/lib/sync/store";
+import { registerForType, typologyDirection } from "@/lib/workspace/connectionRegisters";
 
 import styles from "./thread-detail.module.css";
 
@@ -56,6 +57,60 @@ import styles from "./thread-detail.module.css";
  *     honest "no curated connections yet" notice (matching the precedent
  *     `CLAIMPANES-001`/`CONNECTPANE-001` already set for other not-yet-
  *     curated content), never fabricated fake curated rows.
+ *
+ * CONNREGISTERS-001 (2026-09-01) -- differentiates `CONNECTION_TYPES` into
+ * Ken's four visual "registers" (`design/CONNECTIVE_LAYER.md`) at exactly
+ * two render sites below: the type-filter chip row and each connection
+ * row's own `data-field="type"` label. The register taxonomy itself
+ * (`registerForType`, `typologyDirection`) lives in `lib/workspace/
+ * connectionRegisters.ts` -- a plain, dependency-free module both this file
+ * AND `ConnectSection.tsx`'s type-picker import, so the two surfaces can
+ * never disagree about which type belongs to which register. Four
+ * treatments, only two of which change anything a learner sees today:
+ *
+ *   1. Motif (quotation, explicit_reference, allusion, motif) -- NO visual
+ *      change. Wave 1's square-tag Chip redesign already covers these; this
+ *      task only confirms the grouping as a real, checkable constant.
+ *   2. Structural/covenant (covenant_development, parallel,
+ *      contrast_reversal) -- ALWAYS ON. `--gold`/`--gold-deep`, never bare
+ *      inline text color: this component renders on the PAGE surface
+ *      (`--page-*`, parchment by default, midnight by choice), and `--gold`/
+ *      `--gold-deep` are verified ONLY against the always-dark shell
+ *      (`app/globals.css`'s own comment, `tests/theme.test.ts`'s shell-
+ *      contrast block) -- independently recomputed here (this task's own
+ *      report) at 1.608:1 / 2.090:1 against parchment's white card, an
+ *      outright WCAG FAIL. The self-contained badge both render sites use
+ *      instead (its own `--gold-dim-bg` background, exactly `components/
+ *      motif-radar.tsx`'s existing gold-badge pattern, and `Chip.module.css`'s
+ *      own new `.structural` tone) carries its own dark backing regardless
+ *      of the surrounding page theme, so it stays AA-safe under both
+ *      (`--gold-deep` on `--gold-dim-bg`: 8.206:1) -- see this file's
+ *      `structuralTypeBadgeStyle` below.
+ *   3. Typology (type_antitype only) -- OPT-IN, off by default, gated by
+ *      `showDeeperConnections` (the "Show deeper connections" toggle,
+ *      `ThreadDetail`'s own `useState`, same local-preference pattern as
+ *      `TeachSection.tsx`'s `TeachViewMode`). OFF renders byte-identical to
+ *      before this task -- the plain, unstyled type label. ON replaces it
+ *      with a directional phrase ("Shadow of ↦" / "Fulfills ↤"),
+ *      never a color change -- see `typologyDirection`'s own header comment
+ *      in `connectionRegisters.ts` for the ordering rule and its documented
+ *      limits.
+ *   4. Promise line (promise_fulfillment only) -- OPT-IN, same toggle as
+ *      typology. OFF renders unchanged. ON gets its own gold badge, `--gold`
+ *      (not structural's `--gold-deep`) plus a marker glyph, so it reads as
+ *      a third, distinguishable treatment from the structural register
+ *      rather than a re-skin of it.
+ *
+ * `doctrinal_synthesis`/`personal_resonance` stay exactly as they render
+ * today -- `registerForType` returns `"none"` for both, deliberately, per
+ * `connectionRegisters.ts`'s own header.
+ *
+ * OUT OF SCOPE for this task, stated plainly: the covenant rail, the
+ * timeline rail, the Israel sub-arc, Mirror Split, and the promise-line
+ * "isolate this strand and dim everything else" interaction (needs the
+ * Mountain visualization to exist first) -- all separate, later waves per
+ * `design/CONNECTIVE_LAYER.md`'s own build sequencing. `Mountain.tsx`/
+ * `.module.css` are read-only reference here, never edited.
  */
 
 type ThreadDetailProps = {
@@ -330,6 +385,95 @@ const rangesRowStyle: CSSProperties = {
   color: "var(--page-ink-3)",
 };
 
+// ---------------------------------------------------------------------------
+// CONNREGISTERS-001 register badges (structural, register 2, ALWAYS on; and
+// promise, register 4, opt-in). Both are self-contained "portable badges" --
+// their own `--gold-dim-bg` background carries the contrast, exactly
+// `components/motif-radar.tsx`'s existing gold-badge pattern and this file's
+// header comment above -- never bare `color: var(--gold*)` inline text,
+// which fails WCAG AA against this component's own `--page-card` background
+// (independently recomputed, see the header comment). Typology (register 3)
+// gets no badge/color of its own by design -- its differentiator is the
+// directional PHRASE itself ("Shadow of" / "Fulfills"), not a color, so it
+// intentionally keeps inheriting rowHeaderStyle's plain --brass text.
+// ---------------------------------------------------------------------------
+
+const structuralTypeBadgeStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  padding: "1px 7px",
+  borderRadius: 2,
+  border: "1px solid var(--gold-deep)",
+  background: "var(--gold-dim-bg)",
+  color: "var(--gold-deep)",
+  fontWeight: 700,
+};
+
+const promiseTypeBadgeStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "0.3em",
+  padding: "1px 7px",
+  borderRadius: 2,
+  border: "1px solid var(--gold)",
+  background: "var(--gold-dim-bg)",
+  color: "var(--gold)",
+  fontWeight: 600,
+};
+
+/**
+ * Decides what a connection row's own `data-field="type"` element renders,
+ * per `registerForType` and the `showDeeperConnections` toggle. Exported
+ * (not just inlined in `ConnectionsPanel`'s `.map`) so
+ * `tests/thread-detail.test.ts` can call it directly with a synthetic
+ * connection and inspect the real returned element tree, the same "no DOM"
+ * discipline every other pure helper in this file already follows.
+ *
+ * OFF-state guarantee (typology and promise registers): when
+ * `showDeeperConnections` is `false`, this returns EXACTLY the same element
+ * this file rendered before CONNREGISTERS-001 existed --
+ * `<span data-field="type">{humanizeToken(connection.type)}</span>`, nothing
+ * wrapped, nothing recolored -- for every type in both opt-in registers.
+ * `tests/thread-detail.test.ts`'s pre-existing "each visible row renders
+ * type..." test (type_antitype, no toggle passed) and every test built on
+ * `sampleConnection()`'s default type (`promise_fulfillment`) prove this
+ * without having to be rewritten for this task.
+ */
+export function renderConnectionTypeField(
+  connection: UserConnection,
+  showDeeperConnections: boolean,
+) {
+  const register = registerForType(connection.type);
+
+  if (register === "structural") {
+    return (
+      <span data-field="type" data-register="structural" style={structuralTypeBadgeStyle}>
+        {humanizeToken(connection.type)}
+      </span>
+    );
+  }
+
+  if (register === "typology" && showDeeperConnections) {
+    const direction = typologyDirection(connection);
+    return (
+      <span data-field="type" data-register="typology">
+        {direction === "from-is-shadow" ? "Shadow of ↦" : "Fulfills ↤"}
+      </span>
+    );
+  }
+
+  if (register === "promise" && showDeeperConnections) {
+    return (
+      <span data-field="type" data-register="promise" style={promiseTypeBadgeStyle}>
+        <span aria-hidden="true">&#10022;</span>
+        {humanizeToken(connection.type)}
+      </span>
+    );
+  }
+
+  return <span data-field="type">{humanizeToken(connection.type)}</span>;
+}
+
 export interface ConnectionsPanelProps {
   /** This thread's own connections, already scoped (`selectConnectionsForThread`). */
   connections: UserConnection[];
@@ -339,6 +483,16 @@ export interface ConnectionsPanelProps {
   onSelectType: (type: ConnectionType | null) => void;
   activeStageSlug: string | null;
   onSelectStage: (stageSlug: string | null) => void;
+  /**
+   * CONNREGISTERS-001 -- "Show deeper connections", the opt-in toggle gating
+   * the typology (register 3) and promise-line (register 4) treatments
+   * together, off by default. Local UI preference only (`ThreadDetail`'s own
+   * `useState`, same pattern as `TeachSection.tsx`'s `TeachViewMode`) -- this
+   * panel only renders the toggle and reads its current value, it never owns
+   * or persists it.
+   */
+  showDeeperConnections: boolean;
+  onToggleDeeperConnections: () => void;
 }
 
 export function ConnectionsPanel({
@@ -348,6 +502,8 @@ export function ConnectionsPanel({
   onSelectType,
   activeStageSlug,
   onSelectStage,
+  showDeeperConnections,
+  onToggleDeeperConnections,
 }: ConnectionsPanelProps) {
   const visible = filterConnections(connections, { type: activeType, stageSlug: activeStageSlug }, stages);
   // Natural stage order (acceptance criterion 3) -- `stages` arrives from a
@@ -383,10 +539,27 @@ export function ConnectionsPanel({
             data-value={option.value}
             key={option.value}
             onClick={() => onSelectType(option.value)}
+            tone={registerForType(option.value) === "structural" ? "structural" : "gold"}
           >
             {option.label}
           </Chip>
         ))}
+      </div>
+
+      {/* CONNREGISTERS-001 -- "Show deeper connections" gates the typology
+          (register 3) and promise-line (register 4) treatments together,
+          off by default. Label echoes `design/CONNECTIVE_LAYER.md`'s own
+          Wave 2 language verbatim ("ship behind an opt-in 'deeper' toggle")
+          rather than inventing new vocabulary Ken didn't already choose. */}
+      <div aria-label="Deeper connections toggle" data-testid="deeper-connections-toggle" role="group" style={chipsRowStyle}>
+        <Chip
+          active={showDeeperConnections}
+          aria-pressed={showDeeperConnections}
+          data-testid="deeper-connections-chip"
+          onClick={onToggleDeeperConnections}
+        >
+          Show deeper connections
+        </Chip>
       </div>
 
       <div aria-label="Filter by stage" data-testid="connection-stage-filter" role="group" style={chipsRowStyle}>
@@ -426,7 +599,7 @@ export function ConnectionsPanel({
           {visible.map((connection) => (
             <li data-testid="connection-row" key={connection.id} style={rowStyle}>
               <div style={rowHeaderStyle}>
-                <span data-field="type">{humanizeToken(connection.type)}</span>
+                {renderConnectionTypeField(connection, showDeeperConnections)}
                 <span data-field="evidenceLabel">{humanizeToken(connection.evidenceLabel)}</span>
               </div>
               <div data-testid="connection-ranges" style={rangesRowStyle}>
@@ -453,6 +626,11 @@ export function ThreadDetail({ slug, workspaceId, stages }: ThreadDetailProps) {
   const [loadError, setLoadError] = useState(false);
   const [activeConnectionType, setActiveConnectionType] = useState<ConnectionType | null>(null);
   const [activeStageSlug, setActiveStageSlug] = useState<string | null>(null);
+  // CONNREGISTERS-001 -- "Show deeper connections", off by default (see
+  // ConnectionsPanelProps' own comment). A plain viewing preference, not
+  // vault data -- never persisted, never synced, same category as
+  // `TeachSection.tsx`'s `viewMode` state.
+  const [showDeeperConnections, setShowDeeperConnections] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -613,6 +791,8 @@ export function ThreadDetail({ slug, workspaceId, stages }: ThreadDetailProps) {
         connections={loaded.connections}
         onSelectStage={setActiveStageSlug}
         onSelectType={setActiveConnectionType}
+        onToggleDeeperConnections={() => setShowDeeperConnections((prev) => !prev)}
+        showDeeperConnections={showDeeperConnections}
         stages={stages}
       />
     </main>
