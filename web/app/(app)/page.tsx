@@ -83,6 +83,7 @@ function buildMountainStages(stageRows: Stage[], entryRows: Entry[]): MountainSt
         side: stage.side,
         mirror: stage.mirror,
         firstChapter: stage.chapters[0] ?? null,
+        chapterCount: stage.chapters.length,
         threadCount: threadsByStage.get(stage.slug)?.size ?? 0,
         observationCount: obsByStage.get(stage.slug) ?? 0,
         questionCount: qByStage.get(stage.slug) ?? 0,

@@ -113,6 +113,9 @@ export interface MountainStage {
   mirror: string | null;
   /** RefKey of the stage's opening chapter, e.g. "1.3" -- Mountain links here. */
   firstChapter: string | null;
+  /** Real chapter count for this stage (stage.chapters.length) -- drives the
+   * switchback road's proportional spacing (MOUNTAINSWITCHBACK-001). */
+  chapterCount: number;
   threadCount: number;
   observationCount: number;
   questionCount: number;
@@ -167,6 +170,7 @@ export async function getMountain(): Promise<MountainStage[]> {
         side: stage.side,
         mirror: stage.mirror,
         firstChapter: stage.chapters[0] ?? null,
+        chapterCount: stage.chapters.length,
         threadCount: threadsByStage.get(stage.slug)?.size ?? 0,
         observationCount: obsByStage.get(stage.slug) ?? 0,
         questionCount: qByStage.get(stage.slug) ?? 0,

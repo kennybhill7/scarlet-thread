@@ -1,61 +1,56 @@
 .wrap {
+  position: relative;
   padding: 4px var(--pad-page) 0;
+  /* Static/no-JS/first-paint default: fully drawn, no parallax offset. The
+     scroll listener in Mountain.tsx overwrites this on the client once
+     mounted (unless prefers-reduced-motion, in which case it never does). */
+  --mountain-progress: 1;
 }
 
-.scroll {
-  overflow-x: auto;
+/* Requirement 8 — the one and only motion path is gated at its source (the
+   scroll listener never attaches under this preference); this rule is an
+   independent, `!important` guarantee of the same resting state in case
+   anything upstream ever sets the variable anyway. Not a second animation. */
+@media (prefers-reduced-motion: reduce) {
+  .wrap {
+    --mountain-progress: 1 !important;
+  }
 }
 
-.ridge {
-  fill: none;
-  stroke: var(--shell-border-hi);
-  stroke-width: 2;
+.sky {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* Fallback for browsers without color-mix() support -- see the layer
+     below; an unsupported color-mix() makes the whole gradient declaration
+     invalid, so the cascade falls back to this flat, always-real token. */
+  background: var(--shell-bg);
+  /* Requirement 5 -- a real, visible hue shift across the whole journey:
+     cool/dark at Genesis (top) through the shell's own stone tones, warming
+     into gold toward Revelation's morning (bottom). Every stop is either a
+     shipped shell/gold token or a color-mix() blend of two shipped tokens
+     -- no invented hex values. */
+  background: linear-gradient(
+    to bottom,
+    var(--shell-bg) 0%,
+    var(--shell-surface) 18%,
+    var(--shell-surface-hi) 42%,
+    color-mix(in srgb, var(--shell-surface-hi) 60%, var(--gold-deep) 40%) 68%,
+    color-mix(in srgb, var(--gold-deep) 35%, var(--gold) 65%) 100%
+  );
 }
 
-.ridgeFill {
-  fill: var(--gold);
-  fill-opacity: 0.05;
-}
-
-.tie {
-  stroke: var(--shell-border-hi);
-  stroke-width: 1;
-  stroke-dasharray: 3 4;
-}
-
-.node {
-  cursor: pointer;
-  outline: none;
-}
-
-.node circle {
-  stroke-width: 2;
-  transition: r 0.12s ease;
-}
-
-.node:hover circle,
-.node:focus-visible circle {
-  stroke: var(--gold);
-}
-
-.nodeFilled {
-  fill: var(--gold);
-  stroke: var(--gold-deep);
-}
-
-.nodeHollow {
-  fill: var(--shell-bg);
-  stroke: var(--shell-border-hi);
-}
-
-.label {
-  font-family: var(--font-narrow);
-  font-weight: 600;
-  font-size: 11px;
-  fill: var(--shell-text-2);
+.scene {
+  position: relative;
+  z-index: 1;
 }
 
 .tip {
+  position: relative;
+  z-index: 1;
   margin-top: 6px;
   padding: 14px 16px;
   background: var(--shell-surface);
@@ -74,4 +69,15 @@
 .tipBody {
   font-size: 12.5px;
   color: var(--shell-muted-2);
+}
+
+.ribbonWrap {
+  position: sticky;
+  bottom: 10px;
+  z-index: 2;
+  margin-top: 10px;
+  padding: 6px 14px;
+  background: var(--shell-surface);
+  border: 1px solid var(--shell-border-hi);
+  border-radius: var(--r-lg);
 }
