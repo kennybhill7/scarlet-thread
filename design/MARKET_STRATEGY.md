@@ -93,7 +93,7 @@ The existing design already rejects streaks and badges — correctly, for this a
 
 1. **Now:** ship the current core (Climb, reader with thread lens, daily loop, workspace, threads, Sunday review) — this is already good and should go to real users, not stay in design forever.
 2. **Months 1–2:** rope-thickens-with-use rendering, session-end "watch the mountain change" moment, kings/prophets timeline rail, covenant rail. These are cheap, structural, and make the free tier feel alive.
-3. **Months 2–4:** promise-line isolation, typology arrows, Mirror Split. These are your demo moments and your paywall line — build the paywall around them.
+3. **Months 2–4:** promise-line isolation, typology arrows, Mirror Split. These are your demo moments, and they stay free; build paid Teach/export and group features around the audience that those moments create, not around access to understanding.
 4. **Months 4–6:** Israel sub-arc (user-test heavily before shipping — this is the riskiest UX bet in the whole plan), Teach pack v1.
 5. **Months 6–9:** two-person mirror, church/group licensing dashboard, woven-year render.
 6. **Months 9–12:** the question queue, third-sighting prompt (the quiet AI-adjacent-but-not-AI pattern-matching features) — save these for last because they're the easiest to get wrong (false positives feel like surveillance) and the least urgent for revenue.

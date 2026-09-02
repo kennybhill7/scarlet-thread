@@ -108,16 +108,11 @@ Real tokens from `web/app/globals.css`, current as of 2026-08-26 (THEMESYSTEM-00
   reading-theme preference: `--shell-bg: #0d1420`, `--shell-surface: #131d2e`,
   `--shell-border-hi: #33405a`, `--shell-text: #e8e6e0`, `--shell-muted-2: #8b97ab`.
 - `--gold: #e8b465` / `--gold-deep: #d99a58` — currently used for filled/active stage nodes.
-- `--crimson` — added by THEMESYSTEM-001 specifically for "crimson marks active thread
-  connections" (BUILD_PLAN section 4), but **defined under the PAGE token layer, which follows the
-  reading-theme preference (parchment `#a13333` / midnight `#d9615f`), not the shell.** The shell
-  is always dark independent of that preference. **This is a real, unresolved bug waiting to
-  happen**: using `var(--crimson)` directly in a shell-context component (the Mountain) would make
-  the thread's color silently shift whenever the reader changes their READING preference, which is
-  supposed to only affect the page/reading surface, never the shell. Whoever builds the real
-  version needs to either give the shell its own fixed crimson value, or restructure the token so
-  shell consumers get a stable one regardless of reading preference. Flag this to Claude Design
-  explicitly — it should not inherit this bug by using `var(--crimson)` as-is.
+- `--shell-crimson: #cf2027` / `--shell-crimson-text: #e04a45` — added by
+  SCARLETTHREAD-001 after this brief first flagged the bug. Shell-context Mountain work should use
+  these fixed shell tokens for the road/thread and small crimson text, not page-scoped `--crimson`,
+  so the Mountain does not change color when the learner switches the reading surface between
+  parchment and midnight.
 - Fonts: `--font-display` (Fraunces, serif, headings), `--font-narrow` (Archivo Narrow, labels),
   `--font-ui` (Inter, body/UI).
 - Both real themes (parchment and midnight — the reading surface, not the shell) currently pass

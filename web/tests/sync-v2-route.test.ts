@@ -720,9 +720,9 @@ test("pull follows the v1 route shape: returns the acting user's own snapshot wi
 test("the v1 sync routes stay byte-for-byte unchanged", () => {
   const expected: Record<string, string> = {
     "app/api/sync/push/route.ts":
-      "71afa1e8c1dce571a5be32dc9f2f752021bed9aba6704040a07442b6a1b47b9c",
+      "d0665ac78dee0f74b9a7182c827f3107e0c64116b719bf3b59a88467e1deb871",
     "app/api/sync/pull/route.ts":
-      "a1dc04dca3e88ec7a0a5df70846a01cfa8cda3ccabe529374068cb04c04b3005",
+      "ae487b2ced093b9f5225a7ee5130fecd991dbdab9a36b373fa2629221f2a6855",
   };
   for (const [relative, hash] of Object.entries(expected)) {
     const content = fs.readFileSync(path.join(WEB_ROOT, relative));

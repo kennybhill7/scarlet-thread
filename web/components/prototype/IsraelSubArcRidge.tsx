@@ -67,6 +67,9 @@ export function IsraelSubArcRidge({ phases, selectedSlug, onSelect }: IsraelSubA
       role="img"
       aria-label="The six phases of the Israel sub-arc, Patriarchs through Return, with Kingdom at the peak"
     >
+      <style>
+        {`.israel-sub-arc-phase:focus .israel-sub-arc-focus-ring { opacity: 1; }`}
+      </style>
       <polygon points={fillPoints} fill="var(--gold)" fillOpacity={0.05} />
       <polyline points={ridge} fill="none" stroke="var(--shell-border-hi)" strokeWidth={2} />
       {points.map((point) => {
@@ -76,8 +79,10 @@ export function IsraelSubArcRidge({ phases, selectedSlug, onSelect }: IsraelSubA
         return (
           <g
             key={point.phase.slug}
+            className="israel-sub-arc-phase"
             role="button"
             tabIndex={0}
+            focusable="true"
             aria-label={`${point.phase.name} — ${point.phase.range}${isPeak ? ", the sub-arc's peak" : ""}`}
             aria-pressed={isSelected}
             style={{ cursor: "pointer", outline: "none" }}
@@ -89,6 +94,16 @@ export function IsraelSubArcRidge({ phases, selectedSlug, onSelect }: IsraelSubA
               }
             }}
           >
+            <circle
+              className="israel-sub-arc-focus-ring"
+              cx={point.x}
+              cy={point.y}
+              r={radius + 7}
+              fill="none"
+              stroke="var(--shell-crimson-text)"
+              strokeWidth={2}
+              opacity={0}
+            />
             <circle
               cx={point.x}
               cy={point.y}

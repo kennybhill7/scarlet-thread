@@ -147,8 +147,19 @@ test("RENDER IsraelSubArcRidge: every point is a focusable, labeled button -- ke
   );
   const roleButtonCount = (html.match(/role="button"/g) ?? []).length;
   const tabIndexCount = (html.match(/tabindex="0"/g) ?? []).length;
+  const focusableCount = (html.match(/focusable="true"/g) ?? []).length;
   assert.equal(roleButtonCount, 6);
   assert.equal(tabIndexCount, 6);
+  assert.equal(focusableCount, 6);
+});
+
+test("RENDER IsraelSubArcRidge: keyboard focus has a visible ring, not only a hidden outline", () => {
+  const html = renderToStaticMarkup(
+    createElement(IsraelSubArcRidge, { phases: ISRAEL_SUB_ARC_PHASES, selectedSlug: null, onSelect: noop }),
+  );
+  assert.ok(html.includes(".israel-sub-arc-phase:focus .israel-sub-arc-focus-ring"));
+  assert.equal((html.match(/class="israel-sub-arc-focus-ring"/g) ?? []).length, 6);
+  assert.equal((html.match(/stroke="var\(--shell-crimson-text\)"/g) ?? []).length, 6);
 });
 
 test("RENDER IsraelSubArcRidge: the selected phase (and only it) renders aria-pressed=true", () => {
