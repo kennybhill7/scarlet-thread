@@ -2247,6 +2247,62 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "DEP-001",
+      "title": "Remediate current npm high-severity advisories",
+      "objective": "Update the dependency resolution and lockfile so both production-only and full npm audits report zero high-severity vulnerabilities without broad or incompatible upgrades.",
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/package.json",
+        "web/package-lock.json"
+      ],
+      "readOnlyPaths": [
+        "web/lib/contracts.ts"
+      ],
+      "acceptanceCriteria": [
+        "The production PostCSS path resolves nanoid at 3.3.17 or later; the audited target is 3.3.18 unless a newer compatible 3.x release is deliberately chosen.",
+        "The development tree resolves brace-expansion above 5.0.8 and js-yaml above 4.3.0 without changing application runtime dependencies unnecessarily.",
+        "package.json and package-lock.json agree; npm ci in a disposable dependency tree does not reproduce stale vulnerable versions.",
+        "npm audit --omit=dev --audit-level=high and npm audit --audit-level=high both report zero high-severity vulnerabilities.",
+        "No audit result is inferred from npm ls alone, and the current registry receipt is recorded because advisory state is time-sensitive."
+      ],
+      "verification": [
+        "cd web; npm.cmd audit --omit=dev --audit-level=high",
+        "cd web; npm.cmd audit --audit-level=high",
+        "cd web; npm.cmd test",
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "SYNC-001",
+      "title": "Fix always-rejected progress sync ops (P0-001 finding F4)",
+      "objective": "Make reading-progress sync ops apply server-side: syncProgressSchema carries no updatedAt while parsePayload unconditionally rejects payloads whose updatedAt differs from the op's, so applyProgress is unreachable and reading progress never syncs. Task added by Claude from P0-001 finding F4 (commit 415763e pins it with a test); definition pending Codex review.",
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/lib/api/sync.ts",
+        "web/lib/db/sync.ts",
+        "web/tests/"
+      ],
+      "readOnlyPaths": [
+        "web/lib/contracts.ts"
+      ],
+      "acceptanceCriteria": [
+        "A progress sync op round-trips: pushed, accepted, applied, and returned by sync pull.",
+        "The F4 pin test in tenant-isolation.test.ts is updated to prove application instead of rejection.",
+        "The updatedAt cross-check remains enforced for every payload schema that carries updatedAt; the fix must not weaken conflict resolution for entries, threads, people, or logs.",
+        "The full 82-test suite including the isolation attack matrix stays green.",
+        "No contract (lib/contracts.ts) change; the v1 ReadingProgress shape is preserved."
+      ],
+      "verification": [
+        "cd web; npm.cmd test",
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint"
+      ],
+      "humanGates": []
     }
   ]
 }
