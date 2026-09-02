@@ -189,15 +189,17 @@ canon's macro-shape, same family as the existing mirror ties), `doctrinal_synthe
 `personal_resonance` stay their own thing (closer to the Theology/Conviction claim kinds already
 in the workspace than to any of the four).
 
-**Wave 3 — the Israel sub-arc: prototype and test before committing.** The riskiest of the six per
-Ken's 2026-09-01 risk read — a real structural win, but it adds a second navigation depth that,
-done poorly, turns "climb a mountain" into "drill into a file system." Sequence: build a
-clickable prototype (design-only or a feature-flagged real build Ken can try locally) BEFORE
-wiring it into the live data model — do not commit to the schema shape until the navigation feel
-is tested. The six-phase boundary Ken already gave (Patriarchs/Exodus/Conquest/Kingdom/Exile/
-Return with real chapter ranges) is usable as real content, not fabricated — standard,
-uncontested Bible structure, not an interpretive claim. Schema decision (self-referencing FK on
-`stages`, or a new `subStages` table) comes after the prototype is approved, not before.
+**Wave 3 — the Israel sub-arc prototype. BUILT, awaiting Ken's test (2026-09-02, `fa36b03`).** A
+real, isolated, clickable prototype at `/prototype/israel-sub-arc` — linked from nowhere in the
+real nav, no schema/data-model change, verified (typecheck/lint/build/1021 tests green) and
+merged to master, but explicitly NOT a shipped feature. Ken needs to actually click through it —
+tap a phase, judge whether backing out feels like climbing or like drilling into a menu — before
+any schema decision (self-referencing FK on `stages` vs. a new `subStages` table) gets made. Uses
+the app's own `Sheet` component (the existing bottom-sheet convention) for the tap-in/tap-out
+interaction rather than inventing a new modal pattern, so the ridge stays visible underneath.
+Kingdom (Samuel–Kings, Psalms) renders as the sub-arc's own peak. The six-phase boundary Ken
+supplied (Patriarchs/Exodus/Conquest/Kingdom/Exile/Return with real chapter ranges) is the only
+content used — standard, uncontested Bible structure, not fabricated.
 
 **Wave 4 — the timeline rail.** The mechanism is Wave-3-adjacent engineering. The DATA — which
 king reigned when, which prophet spoke to which reign — needs real sourcing before it's complete
