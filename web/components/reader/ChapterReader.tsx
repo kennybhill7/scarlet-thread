@@ -12,6 +12,7 @@ import { Sheet } from "@/components/ui/Sheet";
 import { Chip } from "@/components/ui/Chip";
 import { StudySession } from "@/components/notes/StudySession";
 import { StudyEntryControl } from "./StudyEntry";
+import { CovenantTimelineStrip } from "./CovenantTimelineStrip";
 import styles from "./ChapterReader.module.css";
 
 interface ChapterReaderProps {
@@ -312,6 +313,18 @@ export function ChapterReader({ book, chapter, workspaceId }: ChapterReaderProps
           ›
         </button>
       </header>
+
+      {/*
+        COVENANTTIMELINE-001 — covenant rail + timeline rail. Placed right
+        under the sticky chapter header (book/chapter/version), above the
+        Spanish-divergence note and the verse text, so it's the first
+        context a reader sees for this chapter before they start reading --
+        matching the header's own "here's what chapter you're on" role
+        rather than competing with the toolbar below. Purely a function of
+        book/chapter (both already resolved props), so it needs no loading
+        state of its own the way the async panes above/below it do.
+      */}
+      <CovenantTimelineStrip book={book} chapter={chapter} />
 
       {noteText ? <p className={styles.note}>{noteText}</p> : null}
 

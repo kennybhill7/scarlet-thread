@@ -106,6 +106,11 @@ const { composerRenderState } = studySessionModule;
 // import of StudySession resolves to the real module already cached above.
 // ---------------------------------------------------------------------------
 seedModule("@/components/reader/ChapterReader.module.css", { default: cssProxy });
+// COVENANTTIMELINE-001 — ChapterReader.tsx now also renders
+// CovenantTimelineStrip, which pulls in its own CSS Module; stubbed for the
+// same reason as ChapterReader's own (not parseable outside a bundler). The
+// component itself is left real — it has no other browser-only dependency.
+seedModule("@/components/reader/CovenantTimelineStrip.module.css", { default: cssProxy });
 seedModule("@/components/ui/Sheet", { Sheet: () => null });
 seedModule("@/components/ui/Chip", { Chip: () => null });
 

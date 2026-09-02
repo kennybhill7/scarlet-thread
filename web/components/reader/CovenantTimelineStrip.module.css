@@ -1,0 +1,172 @@
+/* COVENANTTIMELINE-001 — the covenant rail + timeline rail strip.
+   Reuses ChapterReader.module.css's page-theme tokens (--page-*, --brass,
+   --green-soft-*, --crimson, --r-sm/--r-md, --pad-page, --font-*) rather
+   than inventing a parallel palette, so this strip sits visually inside the
+   existing reading view, not bolted onto it. */
+
+.strip {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 10px var(--pad-page) 0;
+}
+
+.covenantBadge,
+.timelineCard {
+  padding: 12px 14px;
+  background: var(--page-card);
+  border: 1px solid var(--page-border);
+  border-radius: var(--r-md);
+}
+
+.railLabel {
+  margin: 0 0 6px;
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.stageNote {
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--page-ink-3);
+}
+
+.covenantSequence {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.covenantFact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 6px;
+  row-gap: 2px;
+  padding: 6px 8px;
+  background: var(--green-soft-bg);
+  border: 1px solid var(--green-soft-border);
+  border-radius: var(--r-sm);
+}
+
+.covenantName {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--page-ink);
+}
+
+.covenantStatus {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green);
+}
+
+.covenantNote {
+  flex-basis: 100%;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--page-ink-2);
+}
+
+.confidenceTag {
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  color: var(--page-muted);
+}
+
+.kingdom {
+  margin: 0 0 6px;
+  font-size: 12.5px;
+  color: var(--page-ink-2);
+}
+
+.kings {
+  margin: 0 0 6px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--page-ink-2);
+}
+
+.kingsLabel {
+  font-weight: 600;
+  color: var(--page-ink);
+}
+
+.dateRange {
+  margin: 0 0 6px;
+  font-size: 12.5px;
+  color: var(--page-ink-2);
+}
+
+.disputed {
+  margin: 6px 0;
+  padding: 8px 10px;
+  background: color-mix(in srgb, var(--crimson) 10%, var(--page-card));
+  border: 1px solid var(--crimson);
+  border-radius: var(--r-sm);
+}
+
+.disputedHeading {
+  margin: 0 0 6px;
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: var(--crimson);
+}
+
+.disputedList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.disputedWindow {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 6px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.disputedLabel {
+  font-weight: 600;
+  color: var(--page-ink);
+}
+
+.disputedRange {
+  color: var(--page-ink-2);
+}
+
+.disputedBasis {
+  flex-basis: 100%;
+  color: var(--page-ink-3);
+}
+
+.notes {
+  margin: 6px 0 6px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--page-ink-2);
+}
+
+.attribution {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--page-muted);
+}
