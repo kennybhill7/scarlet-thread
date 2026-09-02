@@ -1,0 +1,112 @@
+.column {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  background: var(--shell-bg);
+}
+
+.plates {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Contiguous, no gaps -- the design doc's art-brief point 4 ("five slices
+   whose heights sum to the source height exactly"). Height is set inline
+   per-band from lib/climb/plateGeometry.ts's real, reflowed heightPx. */
+.plate {
+  position: relative;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.plateImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Layer 2 -- the rope. See MountainPlates.tsx's header for the
+   preserveAspectRatio="none" reasoning. */
+.rope {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Layer 3 -- waypoints. Positioned by inline left/top percentage (set from
+   plateGeometry.ts's computed x/y, not by CSS), so this class only carries
+   the tap target and marker treatment. */
+.waypoints {
+  position: absolute;
+  inset: 0;
+}
+
+.waypoint {
+  position: absolute;
+  /* >=44px padded transparent tap target (Apple guideline, also this app's
+     own global `button{min-height:44px}` rule in app/globals.css -- here we
+     add matching min-width so both axes clear it, since the visible marker
+     itself is much smaller). */
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  margin: -22px 0 0 -22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.dot {
+  display: block;
+  border-radius: 50%;
+  transition: transform 0.12s ease;
+}
+
+.waypoint:hover .dot,
+.waypoint.hovered .dot,
+.waypoint:focus-visible .dot {
+  transform: scale(1.12);
+}
+
+/* Sizes/colors pulled directly from the design doc's own Layer 3 example
+   (Scarlet Thread App.dc.html section 15): dormant 12px translucent bone,
+   begun 15px solid bone, current 22px scarlet with a bone ring + glow. */
+.dot.dormant {
+  width: 12px;
+  height: 12px;
+  background: rgba(244, 230, 200, 0.42);
+  box-shadow: 0 0 0 3px rgba(7, 8, 10, 0.5);
+}
+
+.dot.begun {
+  width: 15px;
+  height: 15px;
+  background: #f4e6c8;
+  box-shadow: 0 0 0 3px rgba(7, 8, 10, 0.55);
+}
+
+.dot.current {
+  width: 22px;
+  height: 22px;
+  background: var(--shell-crimson);
+  border: 2px solid #f4e6c8;
+  box-shadow:
+    0 0 0 5px rgba(207, 32, 39, 0.28),
+    0 0 24px rgba(207, 32, 39, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot {
+    transition: none;
+  }
+}

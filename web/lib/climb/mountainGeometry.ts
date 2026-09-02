@@ -162,7 +162,15 @@ export function computeLabeledSlugs(stages: readonly MountainStage[]): Set<strin
   return labeled;
 }
 
-function segmentPx(stage: MountainStage): number {
+/**
+ * Exported for MOUNTAINPLATES-001's lib/climb/plateGeometry.ts, which sums
+ * this same per-stage value across each plate's member stages to get that
+ * plate's real (reflowing) rendered height — the identical formula, not a
+ * reimplementation, so a chapterCount change moves both the switchback road
+ * (this file) and the plate stack (plateGeometry.ts) by the same amount.
+ * Behavior is unchanged from before this export existed.
+ */
+export function segmentPx(stage: MountainStage): number {
   return Math.max(MIN_SEGMENT_PX, stage.chapterCount * PX_PER_CHAPTER);
 }
 

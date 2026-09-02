@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { MountainStage } from "@/lib/vault/seed";
 import { buildMountainGeometry, buildRibbonTicks, scrollProgressFor } from "@/lib/climb/mountainGeometry";
-import { MountainScene } from "./MountainScene";
+import { buildPlateGeometry } from "@/lib/climb/plateGeometry";
+import { MountainPlates } from "./MountainPlates";
 import { MountainRibbon } from "./MountainRibbon";
 import styles from "./Mountain.module.css";
 
@@ -14,45 +15,53 @@ interface MountainProps {
 }
 
 /**
- * MOUNTAINSWITCHBACK-001 — "The Switchback" (camera direction 1a, ratified by
- * Ken over 1b/1c 2026-09-01, see design/MOUNTAIN_JOURNEY_BRIEF.md). Replaces
- * the old abstract line-chart rendering; the data contract below it
- * (`MountainStage[]` in, click-to-navigate out) is unchanged, so
- * app/(app)/page.tsx needed no edit beyond the additive `chapterCount` field
- * both of its stage builders now attach.
+ * MOUNTAINPLATES-001 — "The Switchback: real plates, drawn path"
+ * (design/scarlet-thread-app/Scarlet Thread App.dc.html, section 15,
+ * answering design/MOUNTAIN_IMPLEMENTATION_GAP.md). Replaces
+ * MOUNTAINSWITCHBACK-001's fully-procedural SVG terrain (MountainScene.tsx,
+ * now deleted — see plateGeometry.ts/MountainPlates.tsx's own headers) with
+ * Claude Design's real spec: five stacked photographic plate images with a
+ * rope + waypoints drawn on top. The data contract below it (`MountainStage[]`
+ * in, click-to-navigate out) is unchanged, so app/(app)/page.tsx needed no
+ * edit.
  *
- * All the actual geometry — proportional spacing from real chapterCount,
- * the sine-wound switchback path, elevation bands, mirror-pair altitude
- * matching, ridge silhouettes — lives in lib/climb/mountainGeometry.ts as
- * pure, non-React functions, exactly so tests/mountain-geometry.test.ts can
- * exercise it directly under plain `node:test` (no jsdom in this repo's test
- * runner). MountainScene.tsx and MountainRibbon.tsx are hookless render
- * components (props in, markup out) for the same reason, following
- * IsraelSubArcRidge.tsx's precedent. This file is the one place with real
- * hooks: routing, hover state, and the scroll-driven parallax/road-draw.
+ * The plate/rope/waypoint geometry lives in lib/climb/plateGeometry.ts as
+ * pure, non-React functions (same discipline mountainGeometry.ts already
+ * established, exactly so tests can exercise it directly under plain
+ * `node:test` — no jsdom in this repo's test runner). This file still also
+ * calls the ORIGINAL mountainGeometry.ts's `buildMountainGeometry` — kept
+ * exactly as MOUNTAINSWITCHBACK-001 left it, untouched — purely to feed
+ * MountainRibbon's always-visible mini-map strip, which wants a single 1-D
+ * proportional-distance model of the whole 11-stage journey and has no
+ * reason to know about the 5-plate structure. MountainPlates.tsx and
+ * MountainRibbon.tsx are both hookless render components (props in, markup
+ * out), following IsraelSubArcRidge.tsx's precedent. This file is the one
+ * place with real hooks: routing, hover state, and the scroll-driven
+ * parallax/rope-draw.
  *
- * MIRROR-PAIR VISUAL CHOICE (requirement 6): the old code drew a thin dashed
- * `<line>` straight across the canvas connecting each mirror pair — exactly
- * the "network-diagram edge" look BUILD_PLAN.md's own visual-grammar note
- * warns against (search that file for the phrase; design/reference/
- * TravelingPath.dc.html flags the same risk). That line is gone. In its
- * place: each waypoint gets a short "altitude tick" whose length is a pure
- * function of its elevation band (mountainGeometry.ts's `elevationLevelOf`),
- * so a mirror pair's two ticks are drawn identically by construction — a
- * real terrain feature (reads like a topographic contour flag) rather than
- * a connector spanning the whole canvas between two distant nodes. The
- * correspondence is ALSO stated in plain text via each waypoint's
- * aria-label ("mirrors <title>, the same elevation on the far face"), so the
- * relationship survives for a screen-reader user even though nothing is
- * drawn between the two points.
+ * MIRROR-PAIR VISUAL CHOICE (requirement 6): the pre-plates code drew a
+ * short "altitude tick" per waypoint, equal-length by construction for a
+ * mirror pair — never a line spanning the whole canvas between the two
+ * distant nodes (the "network-diagram edge" look BUILD_PLAN.md's own
+ * visual-grammar note warns against; design/reference/TravelingPath.dc.html
+ * flags the same risk). Under the plates model that mechanism is replaced by
+ * something stronger than a drawn tick: plateGeometry.ts puts both halves of
+ * a mirror pair on the SAME plate image, at the SAME y-position (left = the
+ * lower stage number/ascent side, right = the higher/descent side) — see
+ * BAND_STAGE_NUMBERS there. "Matching altitude" stops being an assertion and
+ * becomes a literal fact of the layout: the two waypoints sit on one
+ * physical strip of terrain. The correspondence is ALSO stated in plain text
+ * via each waypoint's aria-label ("mirrors <title>, the same altitude on the
+ * far face"), so it survives for a screen-reader user too.
  *
  * MOTION (requirements 5 and 8): a single scroll-driven number,
  * `--mountain-progress` (0 at the top of the section, 1 once scrolled all
  * the way through it), is written directly onto the wrap element's inline
  * style from a rAF-throttled scroll listener — never through React state,
- * so scrolling never re-renders this component. Every parallax layer and
- * the road's stroke-dashoffset read that one CSS variable via `calc()`.
- * Under `prefers-reduced-motion: reduce` the listener is never attached (an
+ * so scrolling never re-renders this component. MountainPlates.tsx's rope
+ * reveal mask reads that one CSS variable via `calc()` (it does not
+ * redeclare or re-listen for it — see that component's own header). Under
+ * `prefers-reduced-motion: reduce` the listener is never attached (an
  * OS-level toggle mid-session is honored live via a matchMedia change
  * listener) AND Mountain.module.css independently pins the variable to 1
  * with `!important` — two independent guarantees of the same static, fully
@@ -63,8 +72,10 @@ export function Mountain({ stages }: MountainProps) {
   const [hovered, setHovered] = useState<string | null>(null);
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
+  // Kept purely to feed MountainRibbon's mini-map -- see this file's header.
   const geometry = useMemo(() => buildMountainGeometry(stages), [stages]);
   const ribbonTicks = useMemo(() => buildRibbonTicks(geometry), [geometry]);
+  const plateGeometry = useMemo(() => buildPlateGeometry(stages), [stages]);
 
   useEffect(() => {
     const wrapEl = wrapRef.current;
@@ -119,20 +130,20 @@ export function Mountain({ stages }: MountainProps) {
       stop();
       mediaQuery?.removeEventListener?.("change", sync);
     };
-  }, [geometry.totalHeight]);
+  }, [plateGeometry.totalHeight]);
 
   function goTo(href: string) {
     router.push(href);
   }
 
-  const activeWaypoint = hovered ? (geometry.waypoints.find((w) => w.stage.slug === hovered) ?? null) : null;
+  const activeWaypoint = hovered ? (plateGeometry.waypoints.find((w) => w.stage.slug === hovered) ?? null) : null;
 
   // MIRRORSPLIT-001 — the real, always-visible entry point into
   // /mirror/[stageSlug] (not the hover tip above: it unmounts the instant a
-  // pointer leaves the SVG node, and never receives keyboard focus, so a
+  // pointer leaves the waypoint, and never receives keyboard focus, so a
   // link placed inside it would be unreachable — same reasoning as the
-  // pre-Switchback version this was ported from, unaffected by the terrain
-  // rewrite since it renders as a plain list, not inside the SVG scene).
+  // pre-Switchback version this was ported from, unaffected by the plates
+  // rewrite since it renders as a plain list, below the scene entirely).
   // One deduplicated row per pair (5 pairs from 10 of the 11 stages; stage 6,
   // the Gospels, has `mirror: null` and is correctly excluded). Reference-only
   // labels — structural naming, not app-supplied commentary on why the two
@@ -154,11 +165,11 @@ export function Mountain({ stages }: MountainProps) {
 
   return (
     <div className={styles.wrap} ref={wrapRef} data-testid="mountain">
-      <div className={styles.sky} style={{ height: geometry.totalHeight }} aria-hidden="true" />
+      <div className={styles.sky} style={{ height: plateGeometry.totalHeight }} aria-hidden="true" />
 
       <div className={styles.scene}>
-        <MountainScene
-          geometry={geometry}
+        <MountainPlates
+          geometry={plateGeometry}
           hoveredSlug={hovered}
           onHoverChange={setHovered}
           onSelect={(waypoint) => goTo(waypoint.href)}

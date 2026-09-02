@@ -43,6 +43,10 @@ const cssProxy = new Proxy(
 );
 
 seedModule("@/components/climb/Mountain.module.css", { default: cssProxy });
+// MOUNTAINPLATES-001 — Mountain.tsx now also renders MountainPlates.tsx,
+// which imports its own CSS Module; stub it the same proxy way so tsx never
+// tries to `require()` a real .css file as JS.
+seedModule("@/components/climb/MountainPlates.module.css", { default: cssProxy });
 seedModule("next/navigation", {
   useRouter: () => ({ push: () => {} }),
 });
