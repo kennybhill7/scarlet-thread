@@ -1,0 +1,8 @@
+# Force LF for all text files, regardless of core.autocrlf. Fixes a real,
+# reproducible bug: on this Windows machine, `git worktree add` has been
+# observed producing DIFFERENT line endings (LF vs CRLF) for byte-identical
+# checkouts of the SAME commit, depending on the worktree. That silently
+# broke web/tests/sync-v2-route.test.ts's byte-stability hash check twice
+# (once diagnosed and fixed by Codex, once independently reproduced and
+# root-caused here) even though the source files themselves never changed.
+* text=auto eol=lf
