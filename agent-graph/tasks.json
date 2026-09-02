@@ -2415,6 +2415,52 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "MOUNTAINPLATES-001",
+      "title": "Rebuild the Mountain as stacked photographic plates plus SVG rope (real Claude Design spec)",
+      "objective": "Replace the flat procedural-SVG Mountain terrain (MOUNTAINSWITCHBACK-001) with Claude Design's real answer to design/MOUNTAIN_IMPLEMENTATION_GAP.md: five stacked photographic band-plate images (design/scarlet-thread-app/assets/plates/plate-1-summit.jpg .. plate-5-foothills.jpg, currently stand-in crops that still carry old baked-in pins -- explicitly code-interchangeable with the eventual terrain-only re-render per the spec's own sequencing note, so build fully against these now) with the rope and 11 waypoints drawn on top as one three-stroke SVG path sourced from design/scarlet-thread-app/assets/plates/route.json (committed static data: an 11-point pts array in stage order, a bezier d path, and a 6-value bandTops array -- all in a ~1000-wide reference frame). Full technical spec: design/scarlet-thread-app/Scarlet Thread App.dc.html, section 15 (Answering MOUNTAIN_IMPLEMENTATION_GAP.md, starts ~line 1753 of that file) -- read it in full before starting, it has the exact stroke colors/widths/opacities, the mirror-pair-per-plate reasoning, art-brief, and the plate-is-the-reflow-unit semantics.",
+      "ownedPaths": [
+        "web/lib/climb/plateGeometry.ts",
+        "web/components/climb/MountainPlates.tsx",
+        "web/components/climb/MountainPlates.module.css",
+        "web/components/climb/Mountain.tsx",
+        "web/tests/plate-geometry.test.ts",
+        "web/tests/mountain-plates.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/climb/mountainGeometry.ts",
+        "web/lib/vault/seed.ts",
+        "design/scarlet-thread-app/assets/plates/route.json",
+        "design/scarlet-thread-app/assets/plates/plate-1-summit.jpg",
+        "design/scarlet-thread-app/assets/plates/plate-2-upper.jpg",
+        "design/scarlet-thread-app/assets/plates/plate-3-mid.jpg",
+        "design/scarlet-thread-app/assets/plates/plate-4-lower.jpg",
+        "design/scarlet-thread-app/assets/plates/plate-5-foothills.jpg",
+        "design/scarlet-thread-app/Scarlet Thread App.dc.html"
+      ],
+      "acceptanceCriteria": [
+        "Five plate images render stacked vertically, contiguous (no gap), in order plate-1-summit (top) through plate-5-foothills (bottom) -- matching the real file names/order in assets/plates/.",
+        "Each plate's rendered CSS height is the reflow unit: it scales with the combined chapterCount of its two (or three, for the summit plate) member stages, reusing the existing segmentPx/PX_PER_CHAPTER/MIN_SEGMENT_PX proportional-spacing logic from mountainGeometry.ts (imported, not reinvented) summed per band rather than per stage -- never the plate images' own native pixel aspect ratio.",
+        "Band-to-stage assignment is exactly: plate-1-summit = stages 5,6,7 (Israel, Gospels/peak, Church); plate-2-upper = stages 4,8; plate-3-mid = stages 3,9; plate-4-lower = stages 2,10; plate-5-foothills = stages 1,11 -- derived from and verifiable against route.json's own pts[] y-values falling within bandTops-implied boundaries scaled by the real plate pixel heights (240/85/85/86/149 at 1531px width each), not asserted without a check tying it back to that data.",
+        "One absolutely-positioned SVG spans the whole stacked column (viewBox height equals the sum of the real rendered band heights) drawing the rope as three stacked path strokes in this exact order and spec: shadow (#4a0c10, width 11, opacity 0.55, translate 0,3), gradient face (linearGradient stops #f2635c at 0, #e5352f at 0.42, #a8161c at 1, width 8), highlight (#f7877f, width 1.5, opacity 0.5, translate -1,-2) -- all stroke-linecap and stroke-linejoin round.",
+        "The rope path is synthesized (not the raw route.json d string used verbatim) by remapping each of the 11 pts waypoints from the reference frame into real render coordinates -- x scaled uniformly by (real column width divided by 1000), y remapped per-band by preserving each waypoint's fractional position within its own band ((y minus bandRefTop) divided by bandRefHeight) reapplied against that band's real rendered height -- then fitting a smooth Catmull-Rom-style spline through the 11 remapped points. This must visibly reflow (waypoints and path move) when a band's real height changes because its stages' chapterCount changes -- add a test that changes a stage's chapterCount and asserts the computed y positions change proportionally.",
+        "11 waypoints positioned via the remapped x,y from the point above, not hardcoded pixels; three visual states by size/fill: 12px dormant (rgba(244,230,200,0.42) fill), 15px begun, 22px current stage (#cf2027 fill, #f4e6c8 2px ring, glow), each with a 44px-or-larger padded transparent tap target, keeping the existing click-to-navigate (stageHref) and hover behavior from the current Mountain.tsx.",
+        "prefers-reduced-motion: reduce renders the full rope at full length immediately with no pan/draw-on animation, matching the existing reduced-motion discipline already in Mountain.module.css/Mountain.tsx (the same two-guarantee pattern: JS never attaches the motion listener AND CSS pins the resting state).",
+        "The old fully-procedural SVG terrain (ridge layers, sine-wave switchback road, elevationLevelOf-driven altitude ticks) is no longer what renders on screen. If MountainScene.tsx/MountainRibbon.tsx/their tests become genuinely dead code with this change, delete them rather than leaving unused dead code -- but if MountainRibbon (the mini-map strip) or the Mirror pairs list below the scene still make sense against the new visual, keep them; note the judgment call made either way in the commit message. mountainGeometry.ts itself (elevationLevelOf, buildMountainGeometry, segmentPx via its exports) must stay untouched and its existing tests stay green, since chapter-proportional weighting is reused from it.",
+        "Real photographic texture is visibly present when rendered (not a flat vector diagram) -- verify this claim by actually rendering the component (a static harness or dev server) and looking at a real screenshot before calling it done, not by trusting a text description of one; a prior attempt this session shipped without this check and it was visibly wrong.",
+        "No new image assets committed by this task -- the five stand-in plates in design/scarlet-thread-app/assets/plates/ (already in the repo) are the ones used; they carry old baked-in rope/pins by design (explicitly disclosed stand-ins) and that is expected and acceptable for this task per the spec's own sequencing note.",
+        "Mutation-prove every new test in plateGeometry.ts/mountain-plates coverage (temporarily break the logic under test, confirm the test fails, restore it) before calling verification done."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": [
+        "Ken should look at the real rendered result himself before this is considered final-final -- flag that explicitly when reporting done, do not claim the visual gap from MOUNTAIN_IMPLEMENTATION_GAP.md is fully closed on your own authority alone."
+      ]
     }
   ]
 }

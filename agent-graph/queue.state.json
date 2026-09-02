@@ -620,6 +620,15 @@
       "lastRunId": "interactive-2026-09-02-wave5",
       "lastEvidence": "MERGED to master in 76bf109. 1152/1152 tests after full reconciliation, typecheck/lint/build clean. | Preceded by a dedicated research task (not this task) producing design/COVENANT_TIMELINE_RESEARCH.md, 27 real citations, reviewed and committed before any code. | Orchestrator independently cross-checked the shipped covenants.ts/prophetsTimeline.ts data against the research doc's own tables (institution chapters, confidence grades, Obadiah/Joel's disputed-window handling) before merging, not just the builder's self-report. | One mutation proof re-run independently by the orchestrator: reversed the Revelation stage tie-break from first-match-wins to last-match-wins; confirmed exactly the one named tie-break test fails; restored byte-identical, confirmed green again.",
       "notes": "Deliberate judgment call flagged by the builder and accepted: Persian-period entries (Haggai/Zechariah/Malachi/Ezra/Nehemiah) do NOT carry a 'per Thiele's chronology' attribution, since Thiele's 1951 work covers Hebrew-kings regnal years only -- a real, separate attribution is used instead, avoiding a new inaccuracy not present in the research doc."
+    },
+    "MOUNTAINPLATES-001": {
+      "status": "in_progress",
+      "branch": "agent/MOUNTAINPLATES-001-claude",
+      "commitSha": null,
+      "attempts": 1,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Dispatched 2026-09-02 -- real Claude Design plate+route architecture (Scarlet Thread App.dc.html section 15), replacing the flat SVG terrain Ken flagged as looks like crap. See design/MOUNTAIN_IMPLEMENTATION_GAP.md for the gap this closes."
     }
   }
 }
