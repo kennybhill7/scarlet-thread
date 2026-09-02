@@ -2095,6 +2095,158 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "SCARLETTHREAD-001",
+      "title": "Shell visual-language foundation: stone/scarlet tokens + three component replacements",
+      "objective": "Claude Design (a separate design tool Ken commissioned, round-tripped through design/scarlet-thread-app/Scarlet Thread App.dc.html) proposed replacing the shell's navy-and-gold palette with a stone palette sampled from Ken's own cinematic mood reference (design/reference/mood/), and promoting scarlet from a thread-connection accent to the app's identity colour. Ken confirmed the scope directly: the token swap in web/app/globals.css plus three component replacements -- Button to a type-only action row, Chip to a square thread tag, DailyLoop's step row to a vertical rope of knots. This task is the visual-language foundation every later Mountain/connective-layer wave assumes exists.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/app/globals.css",
+        "web/components/ui/Button.tsx",
+        "web/components/ui/Button.module.css",
+        "web/components/ui/Chip.tsx",
+        "web/components/ui/Chip.module.css",
+        "web/components/notes/DailyLoop.tsx",
+        "web/components/notes/daily-loop.module.css",
+        "web/components/climb/ClimbHero.tsx",
+        "web/components/climb/ClimbHero.module.css",
+        "web/components/workspace/ApplySection.tsx",
+        "web/components/workspace/ConnectSection.tsx",
+        "web/components/workspace/TeachSection.tsx",
+        "web/components/study/ClaimComposer.tsx",
+        "web/tests/theme.test.ts",
+        "web/tests/daily-loop-steps.test.ts"
+      ],
+      "readOnlyPaths": [
+        "design/scarlet-thread-app/Scarlet Thread App.dc.html",
+        "web/lib/theme.ts",
+        "web/components/climb/Mountain.tsx",
+        "web/components/climb/Mountain.module.css"
+      ],
+      "acceptanceCriteria": [
+        "--shell-* token values swap from navy to the design file's stone palette (--ink/--stone-1/--stone-2/--edge), keeping the SAME variable names so every existing shell consumer keeps working without edits.",
+        "A genuinely shell-scoped --shell-crimson/--shell-crimson-text pair is declared inside the shell :root block, never reachable by [data-reading] parchment/midnight selectors -- fixes the previously-flagged risk of a shell crimson use silently inheriting the page-scoped, reading-theme-dependent --crimson.",
+        "Every new/changed color pairing used for text is independently verified against lib/theme.ts's contrastRatio, not eyeballed or trusted from the design file's own stated ratios.",
+        "Button gains a new actionRow variant (type-only row, trailing scarlet arrow, 56px tall) without changing what the existing primary/secondary/ghost variants mean elsewhere, including the reading pane which shares the same component.",
+        "Chip becomes square (2px radius) with an optional count prop; existing generic filter-chip call sites are not forced into a fabricated count.",
+        "DailyLoop's five-step row becomes a vertical rope of knots (filled+haloed = complete, outlined = not) with toggleStep/aria-pressed/disabled logic completely unchanged -- a layout rebuild, not a logic change.",
+        "web/components/climb/Mountain.tsx is left untouched (a separate, not-yet-decided wave) -- it inherits the new stone palette automatically through --shell-*."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "TEACHMODE-001",
+      "title": "Teach outline: 'For me' vs 'For the room' display-order toggle",
+      "objective": "Ken (a Bible teacher) pointed out the Teach outline only ever renders in the order he built it, but a listener needs context (covenant location, tension, image) before the teacher's own personal discovery. Add a toggle that reorders the SAME TeachingSection rows for display -- 'For me' (today's only behavior, sortOrder unchanged) vs 'For the room' (grouped by kind: context first, then connection/theology, then illustration, then application/discussion, then objection/not_justified last). Presentation-only: no schema change, no new sync entity, sortOrder itself is never rewritten.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/components/workspace/TeachSection.tsx",
+        "web/tests/teach-pane.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/contracts/study-v2.ts",
+        "docs/decisions/2026-08-18-teaching-not-theology.md"
+      ],
+      "acceptanceCriteria": [
+        "reorderForRoom is a plain, exported, DOM-free function -- the same hookless-panel/pure-logic discipline this file already holds every other transition to.",
+        "Default view mode is 'for-me': byte-identical to pre-task behavior, no learner ever sees a change unless they touch the new toggle.",
+        "'For the room' order groups all ten TEACHING_SECTION_KINDS exactly once each (proven against the live TEACHING_SECTION_KINDS array, not a hand-copied list); outline/prayer placement is a documented judgment call, not silently arbitrary.",
+        "reorderForRoom never drops, duplicates, or alters any section's id/kind/body/sortOrder -- it only changes array order (identity-checked, not just deep-equal).",
+        "Move up/down is disabled while viewing 'for the room' (visual adjacency there no longer matches the real sortOrder adjacency those controls operate on) -- Remove and the add-outline-point form stay enabled.",
+        "ASSERTION-LINE: the reordering adds no new label, description, or interpretive copy anywhere -- ken's teaching-not-theology line holds for the toggle exactly as it already holds for the rest of this file.",
+        "All pre-existing tests in tests/teach-pane.test.ts keep passing unweakened."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "CONNREGISTERS-001",
+      "title": "Differentiate the 11 ConnectionTypes into Ken's four visual registers",
+      "objective": "ConnectSection.tsx and ThreadDetail.tsx render all 11 CONNECTION_TYPES identically today, even though the taxonomy Ken wants (motif / structural-covenant / typology / promise-line) already exists as data in lib/contracts/study-v2.ts's CONNECTION_TYPES -- this is a rendering gap, not a schema gap. Ken's 2026-09-01 risk read set the constraint: structural and motif registers ship always-on (low risk, pure upside); typology and promise-line ship behind a single opt-in 'Show deeper connections' toggle, off by default (theologically correct but adds vocabulary a casual daily-loop user does not need forced on them).",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/lib/workspace/connectionRegisters.ts",
+        "web/components/threads/ThreadDetail.tsx",
+        "web/components/ui/Chip.tsx",
+        "web/components/ui/Chip.module.css",
+        "web/components/workspace/ConnectSection.tsx",
+        "web/tests/thread-detail.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/contracts/study-v2.ts",
+        "web/lib/bible/reference.ts",
+        "web/components/climb/Mountain.module.css",
+        "design/CONNECTIVE_LAYER.md"
+      ],
+      "acceptanceCriteria": [
+        "One pure taxonomy (registerForType) maps all 11 ConnectionTypes to motif/structural/typology/promise/none; both ThreadDetail.tsx and ConnectSection.tsx import the SAME mapping so the two surfaces can never disagree.",
+        "covenant_development + parallel + contrast_reversal (structural) render a distinct gold-deep badge ALWAYS, independent of the opt-in toggle.",
+        "motif + quotation + explicit_reference + allusion keep today's plain rendering, unchanged.",
+        "type_antitype (typology) and promise_fulfillment (promise) render exactly like today's plain span when the opt-in toggle is off; only when the learner explicitly enables 'Show deeper connections' do they get their distinct treatment (a directional 'Shadow of / Fulfills' indicator for typology, a distinct gold-toned badge for promise).",
+        "doctrinal_synthesis and personal_resonance stay unregistered, unchanged from today's rendering.",
+        "Every new color pairing used for text is independently verified against lib/theme.ts's contrast algorithm -- bare gold text on the page's parchment surface must be confirmed to FAIL and is never used; every badge carries its own self-contained background.",
+        "The typology directional rule and its real limitation (canonical book order, not a true historical field) are documented in code, not silently assumed.",
+        "ConnectSection.tsx's type-picker OPTIONS and logic are unchanged -- only its chip styling picks up the new register colors for visual consistency."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "ISRAELPROTO-001",
+      "title": "Israel sub-arc: isolated navigation-feel prototype (not wired into real data)",
+      "objective": "Ken flagged a real structural gap: stage 5 ('Israel,' Genesis 12-Malachi, 39 books) carries the same visual weight as a two-chapter stage like Babel, and should become a six-phase sub-arc (Patriarchs/Exodus/Conquest/Kingdom/Exile/Return). He also flagged it as the riskiest UX bet in the whole redesign -- done badly, drilling into a sub-arc could feel like a nested file-system menu rather than climbing a mountain -- and asked for a prototype to click through BEFORE any schema commitment. This task builds exactly that: a genuinely isolated route, unlinked from real navigation, touching no schema/migration/API route, so Ken can judge the navigation feel with zero risk to the live app.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/app/(app)/prototype/israel-sub-arc/page.tsx",
+        "web/components/prototype/IsraelSubArcPrototype.tsx",
+        "web/components/prototype/IsraelSubArcRidge.tsx",
+        "web/components/prototype/IsraelSubArcDetail.tsx",
+        "web/lib/prototype/israel-sub-arc.ts",
+        "web/tests/israel-sub-arc.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/db/schema.ts",
+        "web/data/seed/stages.json",
+        "web/components/climb/Mountain.tsx",
+        "web/components/ui/Sheet.tsx"
+      ],
+      "acceptanceCriteria": [
+        "No schema change, no migration, no new API route, no write path of any kind -- pure structure and geometry, sitting entirely under a new, isolated URL not linked from any real navigation.",
+        "The six phases (Patriarchs Gen 12-50, Exodus Ex-Deut, Conquest Josh-Judg, Kingdom Sam-Kings+Psalms as the sub-arc's own peak, Exile Kings-Prophets, Return Ezra-Malachi) are the ONLY content used -- real book names Ken supplied directly, no invented king names, dates, or prophet-to-reign correlations (that belongs to a separate, later timeline-rail task).",
+        "Kingdom gets a distinct 'peak' visual treatment matching how the real Mountain treats its own stage-6 peak.",
+        "Tap-in/tap-out uses an existing app convention (the Sheet bottom-sheet component already used elsewhere) rather than inventing a new modal pattern, so the ridge stays visible underneath the detail view.",
+        "Keyboard-accessible: every phase point is a focusable, labeled control, not mouse-only.",
+        "A clear, honest banner states this is a prototype testing navigation feel only, not wired into real study data.",
+        "The full pre-existing test suite stays 100% green -- nothing here can break real functionality, since it is fully isolated."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }
