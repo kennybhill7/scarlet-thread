@@ -150,14 +150,18 @@ promise line, and the Israel sub-arc are free forever, no account required to st
 licensing, and physical goods (the woven-year poster). No feature-gating decision in this project
 should silently contradict that without Ken explicitly revisiting it.
 
-New build items the strategy doc surfaces, not yet scoped into a wave: **rope-thickens-with-use
-rendering** (the Mountain's thread visually thickens/saturates per-stage based on real
-`observationCount`/`threadCount` — reuses data already driving pin size today, just needs applying
-to line weight once a real terrain redesign exists), a **session-end "watch the mountain change"
-moment** (after the daily loop, show the mountain zoomed to the stage just worked, with the new
-thread visibly added — replaces a streak-counter reward), and **Mirror Split** (Genesis 3 beside
-Revelation 20, scroll-locked at matching beats — first proposed in Section 13 of
-`design/scarlet-thread-app/Scarlet Thread App.dc.html`, item 1).
+**Mirror Split — DONE (2026-09-02, `9aac59e`).** Genesis 3 beside Revelation 20, and the other four
+real mirror pairs, at `/mirror/[stageSlug]`, linked from a real "Mirror pairs" list on the Mountain
+itself. Scoped honestly: "scroll-locked at matching beats" (the strategy doc's phrase) implies
+verse-level thematic correlation that doesn't exist anywhere in this codebase — what shipped is
+real, working percentage-through-content scroll sync, documented as such in the code and the
+on-page copy rather than overclaiming precision.
+
+Still not yet scoped into a wave: **rope-thickens-with-use rendering** (the Mountain's road
+visually thickens/saturates per-stage based on real `observationCount`/`threadCount` — the terrain
+redesign this now needs to build on, `MOUNTAINSWITCHBACK-001`, DONE 2026-09-02, exists) and a
+**session-end "watch the mountain change" moment** (after the daily loop, show the mountain zoomed
+to the stage just worked, with the new thread visibly added — replaces a streak-counter reward).
 
 ## Build sequencing
 
@@ -207,14 +211,18 @@ Kingdom (Samuel–Kings, Psalms) renders as the sub-arc's own peak. The six-phas
 supplied (Patriarchs/Exodus/Conquest/Kingdom/Exile/Return with real chapter ranges) is the only
 content used — standard, uncontested Bible structure, not fabricated.
 
-**Wave 4 — the timeline rail.** The mechanism is Wave-3-adjacent engineering. The DATA — which
-king reigned when, which prophet spoke to which reign — needs real sourcing before it's complete
-and defensible; regnal dates for the divided kingdom vary by scholar (a genuine academic
-disagreement, not just Ken being careful). Ken's own critique message supplies a few real,
-uncontested anchor points (Isaiah/Micah under Ahaz/Hezekiah; Jeremiah/Ezekiel under Zedekiah) —
-enough to build and test the mechanism against, not enough to ship a complete rail. Full content
-authorship is Ken's call, same as the Genesis 1–12/Matthew 1–7 curriculum content flagged
-elsewhere in this project as something not to fabricate.
+**Wave 4 — the covenant rail + timeline rail. DONE (2026-09-02, `76bf109`).** Ken lifted the
+"needs Ken's own sourcing" gate directly: "im not a pastor or thelogen so research everything and
+source it." A dedicated research pass (WebSearch/WebFetch, 27 real citations) produced
+`design/COVENANT_TIMELINE_RESEARCH.md` first — committed and reviewed before any code — then this
+wave built directly from it: `web/lib/bible/covenants.ts` (all 11 stages, stage 5 correctly shown
+as a 4-covenant progression, never flattened to one badge) and `web/lib/bible/prophetsTimeline.ts`
+(14 prophetic books + Ezra/Nehemiah), surfaced as a context strip in `ChapterReader.tsx`. Every BC
+year carries a visible "per [X] chronology" attribution; Obadiah and Joel render two labeled,
+genuinely-disputed candidate windows each rather than a single picked date; nothing asserts how
+the five covenants relate to each other (that's live, disputed among real evangelical traditions,
+explicitly out of scope per the research doc's own recommendation). Verified independently before
+merge, including spot-checking the actual data against the research doc's own tables.
 
 **Wave 5 — Teach mode toggle. DONE (2026-09-01, `f4c8b5c`).** Shipped as a pure, presentation-only
 reorder of the existing `TeachingSection` rows (`reorderForRoom`/`FOR_ROOM_KIND_ORDER` in

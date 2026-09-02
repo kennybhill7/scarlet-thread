@@ -191,12 +191,15 @@ sword, not a dark ridge), 03 (The Flood — needs an ark/dove/rainbow, not a cal
 ship, not a dawn valley), 08 (Babylon — needs a merchant city/smoke, not the paradise city), 10
 (Satan Cast Out — needs a key/chain/throne, not a bare ridge).
 
-**Camera direction — not yet picked.** Three options in `Mountain Journey Directions.dc.html`: 1a
-The Switchback (valley view, thread as a switchback cut into the face, peak-as-midpoint made
-physical), 1b The Traverse (side-on panorama, thread as a horizontal road, both mirror faces
-visible at once — cheapest to build, safest), 1c On the Road (first-person, standing on the
-thread — most literal "Yellow Brick Road" reading, highest risk). Claude Design's own
-recommendation is 1a as the strongest match to the brief, 1b as the fastest to ship. Still open.
+**Camera direction — picked and built.** Ken chose 1a, The Switchback (2026-09-02), matching
+Claude Design's own recommendation as the strongest match to this brief. `MOUNTAINSWITCHBACK-001`
+(`be9e59c`) rebuilt `web/components/climb/Mountain.tsx` for real: proportional switchback spacing
+from each stage's real chapter count (stage 5 "Israel" produces a visibly, dramatically longer
+stretch than a two-chapter stage like Babel — the calibration this whole brief was written
+around), layered atmospheric-perspective terrain, a sky that shifts hue across the full journey,
+mirror pairs matched by altitude band rather than a drawn connecting line (the "network-diagram
+edge" this brief warned against, above, is gone), and every bit of motion gated behind
+`prefers-reduced-motion`. The real terrain redesign this brief called for now exists and is live.
 
 ---
 
