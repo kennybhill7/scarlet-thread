@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-02T14:27:44.300Z",
+  "updatedAt": "2026-09-02T16:47:11.145Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -593,6 +593,33 @@
       "lastRunId": "interactive-2026-09-02-wave3",
       "lastEvidence": "MERGED to master in fa36b03 after independent verification. 1021/1021 tests, typecheck/lint/build clean, route table confirms /prototype/israel-sub-arc registered as its own isolated dynamic route. | Confirmed genuinely unlinked from real navigation via a direct grep sweep of the shell/home components before merging. | First attempt hit an infrastructure stall (stream watchdog) with zero partial work; second attempt completed clean in one pass.",
       "notes": "Explicitly NOT a shipped feature -- awaiting Ken's own click-through test of the navigation feel (tap a phase, judge whether backing out feels like climbing or like a nested menu) before any schema decision (self-referencing FK on stages vs. a new subStages table) gets made."
+    },
+    "MOUNTAINSWITCHBACK-001": {
+      "status": "done",
+      "branch": "agent/MOUNTAINSWITCHBACK-001-claude",
+      "commitSha": "be9e59c",
+      "attempts": 1,
+      "lastRunId": "interactive-2026-09-02-wave5",
+      "lastEvidence": "MERGED to master in be9e59c (then reconciled with MIRRORSPLIT-001 in 9aac59e). 1152/1152 tests after full reconciliation, typecheck/lint/build clean. | Real visual check performed: rendered the actual component source via renderToStaticMarkup into a static harness carrying the real shipped tokens, screenshotted via Playwright, found and fixed a real bug (SVG presentation-attribute stroke-dasharray cascade defeating the intended reveal mask) before reporting done. | One mutation proof re-run independently by the orchestrator: removed Math.abs() from elevationLevelOf (breaking mirror-pair altitude symmetry) and confirmed exactly the three named mirror-altitude tests fail; restored byte-identical, confirmed green again.",
+      "notes": "One infrastructure stall during the build (stream watchdog), resumed from real uncommitted progress rather than restarted -- no work lost."
+    },
+    "MIRRORSPLIT-001": {
+      "status": "done",
+      "branch": "agent/MIRRORSPLIT-001-claude",
+      "commitSha": "9aac59e",
+      "attempts": 1,
+      "lastRunId": "interactive-2026-09-02-wave5",
+      "lastEvidence": "Built independently (commit 157f557 on its own branch) against the pre-Switchback Mountain.tsx in the same wave MOUNTAINSWITCHBACK-001 rewrote that exact file. Rather than cherry-pick (which would have conflicted), the orchestrator hand-reconciled: ported the verified pairs-list logic and CSS from the old Mountain.tsx onto the new one, fixed one mechanical fixture (a chapterCount default the Switchback rewrite made required), and independently re-verified all 52 Mirror-Split-specific tests plus the full 1152-test suite green in the reconciled state -- not just merged and trusted. | One mutation proof re-run independently by the orchestrator: broke ScrollSyncGuard's exactly-once consumption (removed the reset after ignoring a scroll event); confirmed exactly the two named guard tests fail; restored byte-identical, confirmed green again.",
+      "notes": "Honest scoping choice on record: 'matching beats' (verse-level correlation) is not implemented or claimed -- only real percentage-through-content scroll sync ships, documented as such in-code and on-page."
+    },
+    "COVENANTTIMELINE-001": {
+      "status": "done",
+      "branch": "agent/COVENANTTIMELINE-001-claude",
+      "commitSha": "76bf109",
+      "attempts": 1,
+      "lastRunId": "interactive-2026-09-02-wave5",
+      "lastEvidence": "MERGED to master in 76bf109. 1152/1152 tests after full reconciliation, typecheck/lint/build clean. | Preceded by a dedicated research task (not this task) producing design/COVENANT_TIMELINE_RESEARCH.md, 27 real citations, reviewed and committed before any code. | Orchestrator independently cross-checked the shipped covenants.ts/prophetsTimeline.ts data against the research doc's own tables (institution chapters, confidence grades, Obadiah/Joel's disputed-window handling) before merging, not just the builder's self-report. | One mutation proof re-run independently by the orchestrator: reversed the Revelation stage tie-break from first-match-wins to last-match-wins; confirmed exactly the one named tie-break test fails; restored byte-identical, confirmed green again.",
+      "notes": "Deliberate judgment call flagged by the builder and accepted: Persian-period entries (Haggai/Zechariah/Malachi/Ezra/Nehemiah) do NOT carry a 'per Thiele's chronology' attribution, since Thiele's 1951 work covers Hebrew-kings regnal years only -- a real, separate attribution is used instead, avoiding a new inaccuracy not present in the research doc."
     }
   }
 }

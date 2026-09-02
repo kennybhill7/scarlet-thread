@@ -2303,6 +2303,118 @@
         "cd web; npm.cmd run lint"
       ],
       "humanGates": []
+    },
+    {
+      "id": "MOUNTAINSWITCHBACK-001",
+      "title": "Rebuild the Mountain as a real switchback road (camera direction 1a)",
+      "objective": "Ken picked camera direction 1a ('The Switchback') from three options Claude Design proposed (design/MOUNTAIN_JOURNEY_BRIEF.md). Replaces the old abstract SVG line-chart Mountain with a real terrain rendering: proportional switchback spacing from each stage's real chapter count, layered atmospheric-perspective ridge silhouettes, a sky that shifts hue across the journey, mirror pairs matched by altitude band instead of a drawn network-diagram edge, and scroll-driven parallax/road-draw gated entirely behind prefers-reduced-motion.",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/lib/climb/mountainGeometry.ts",
+        "web/components/climb/Mountain.tsx",
+        "web/components/climb/Mountain.module.css",
+        "web/components/climb/MountainScene.tsx",
+        "web/components/climb/MountainRibbon.tsx",
+        "web/lib/vault/seed.ts",
+        "web/app/(app)/page.tsx",
+        "web/tests/mountain-geometry.test.ts",
+        "web/tests/mountain-scene.test.ts"
+      ],
+      "readOnlyPaths": [
+        "design/MOUNTAIN_JOURNEY_BRIEF.md",
+        "web/app/globals.css"
+      ],
+      "acceptanceCriteria": [
+        "MountainStage gains one additive field, chapterCount (stage.chapters.length), populated in both places that build it (lib/vault/seed.ts's getMountain, app/(app)/page.tsx's buildMountainStages) -- app/(app)/page.tsx's render call (<Mountain stages={stages} />) stays otherwise untouched.",
+        "Distance along the road is proportional to real chapterCount -- stage 5 (Israel, Genesis 12-Malachi) and stage 7 (The Church) produce a visibly, dramatically longer stretch than a two-chapter stage like Babel, proven by a calibration test, not eyeballed.",
+        "Mirror pairs land on identical elevation bands by construction (elevationLevelOf, symmetric in stage index around the real peak) -- no drawn connector line spanning the canvas, which BUILD_PLAN.md's own visual-grammar note calls a network-diagram edge; the correspondence is stated in each waypoint's aria-label instead.",
+        "All parallax/road-draw motion reads one CSS custom property written by a rAF-throttled scroll listener (never React re-renders); the listener is never attached under prefers-reduced-motion, and Mountain.module.css independently pins the same resting state with !important as a second, defense-in-depth guarantee.",
+        "Click/keyboard navigation to a stage's first chapter is unchanged from the pre-existing component's behavior.",
+        "A mini-map ribbon strip stays visible (sticky) showing the whole 11-stage arc in miniature with real proportional tick positions."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "MIRRORSPLIT-001",
+      "title": "Mirror Split: read a mirror pair side by side, scroll-synced",
+      "objective": "Ken's product strategy doc names Mirror Split (read Genesis 3 beside Revelation 20, etc.) as the second-best demo moment after the promise line. A real, shipped, linked feature (not a hidden prototype) at /mirror/[stageSlug], using the app's real curated mirror-pair data. Built independently against the pre-MOUNTAINSWITCHBACK-001 Mountain.tsx in the same wave that rewrote it; hand-reconciled onto the new Mountain.tsx afterward since a raw cherry-pick would have conflicted -- see the reconciliation commit for that detail.",
+      "baseBranch": null,
+      "dependsOn": [
+        "MOUNTAINSWITCHBACK-001"
+      ],
+      "ownedPaths": [
+        "web/app/(app)/mirror/[stageSlug]/page.tsx",
+        "web/components/mirror/MirrorSplitView.tsx",
+        "web/components/mirror/MirrorSplitView.module.css",
+        "web/lib/mirror/scrollSync.ts",
+        "web/lib/mirror/stagePair.ts",
+        "web/tests/mirror-scroll-sync.test.ts",
+        "web/tests/mirror-split-page.test.ts",
+        "web/tests/mirror-stage-pair.test.ts",
+        "web/tests/mountain-mirror-pairs.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/components/reader/ChapterReader.tsx",
+        "web/db/schema.ts"
+      ],
+      "acceptanceCriteria": [
+        "Honest scoping, not overclaiming: 'scroll-locked at their matching beats' implies verse-level thematic correlation that does not exist anywhere in this codebase. What ships is real percentage-through-content scroll sync (40% down the left pane keeps the right pane at 40% down its own, differently-sized content) -- documented as such in the code and in the on-page copy, never presented as verse-precise.",
+        "Stage 6 (the Gospels, mirror: null) and any stage with a broken/missing mirror partner are handled as explicit, honest non-happy-path states -- never a crash, never half a comparison against a stage that doesn't exist.",
+        "A real, linked entry point exists in the actual app nav (the Mountain's own 'Mirror pairs' list), not an unlinked route only technically reachable.",
+        "No app-supplied commentary about why two passages mirror each other -- structural reference-only labels ('Genesis 3-5 <-> Revelation 20'), holding the same assertion-line discipline as the rest of the app (docs/decisions/2026-08-18-teaching-not-theology.md).",
+        "A feedback-loop guard prevents each pane's programmatic scroll-sync write from re-triggering the other pane's own sync logic."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
+    },
+    {
+      "id": "COVENANTTIMELINE-001",
+      "title": "Covenant rail + timeline rail, sourced and researched, not guessed",
+      "objective": "Ken (not a theologian or historian) asked for the covenant rail and timeline rail content to be properly researched and sourced rather than guessed at: 'im not a pastor or thelogen so research everything and source it.' A dedicated research pass (WebSearch/WebFetch, 27 real citations) produced design/COVENANT_TIMELINE_RESEARCH.md first, reviewed and committed before any code; this task builds directly and only from that document. Surfaced as a context strip in the reader (not the Mountain, to avoid an in-flight file conflict with MOUNTAINSWITCHBACK-001).",
+      "baseBranch": null,
+      "dependsOn": [],
+      "ownedPaths": [
+        "web/lib/bible/covenants.ts",
+        "web/lib/bible/prophetsTimeline.ts",
+        "web/components/reader/CovenantTimelineStrip.tsx",
+        "web/components/reader/CovenantTimelineStrip.module.css",
+        "web/components/reader/ChapterReader.tsx",
+        "web/tests/covenants.test.ts",
+        "web/tests/prophets-timeline.test.ts",
+        "web/tests/covenant-timeline-strip.test.ts"
+      ],
+      "readOnlyPaths": [
+        "design/COVENANT_TIMELINE_RESEARCH.md",
+        "docs/decisions/2026-08-18-teaching-not-theology.md",
+        "web/data/seed/stages.json"
+      ],
+      "acceptanceCriteria": [
+        "Every covenant/king/prophet fact traces directly to design/COVENANT_TIMELINE_RESEARCH.md -- nothing invented or filled in from unstated background knowledge.",
+        "Stage 5 (Israel, Genesis 12-Malachi) shows a real 4-covenant progression (Abrahamic -> Mosaic -> Davidic -> New announced-not-instituted), never flattened to a single badge.",
+        "Nothing asserts how the five covenants relate to one another (covenant-of-grace vs. dispensational vs. progressive-covenantalism framings) -- that is live, disputed among real evangelical traditions and explicitly out of scope per the research doc's own recommendation.",
+        "Obadiah and Joel render two labeled, genuinely-disputed candidate date windows each -- never a single silently-picked date.",
+        "Every BC year carries a visible chronology attribution (Thiele's for the Hebrew-kings period; a separate, correctly-different attribution for the Persian period, since Thiele's work does not cover Persian regnal years at all).",
+        "Timeline data covers exactly the 14 prophetic books + Ezra/Nehemiah the research doc actually researched -- no invented chapter-level correlation within Kings/Chronicles or any other book beyond what was sourced."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }
