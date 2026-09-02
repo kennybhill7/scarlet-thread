@@ -175,19 +175,25 @@ text; `Mountain.tsx` was left untouched but automatically inherits the new stone
 `--shell-*`, so it now sits on the new background without being redesigned itself. Everything
 below assumes this visual language exists first.
 
-**Wave 2 — connection-type visual registers (buildable now, no new content needed).** Differentiate
-the already-existing `CONNECTION_TYPES` into Ken's four registers at the rendering layer.
-`covenant_development` gets the fixed-rail treatment — ship with confidence, low risk. `motif`
-keeps today's scarlet-tag treatment — no change needed. `type_antitype` (directional arrow) and
-`promise_fulfillment` (isolatable strand) ship **behind an opt-in "deeper" toggle, off by
-default** — per Ken's 2026-09-01 risk read: theologically correct but adds vocabulary (type vs.
-thread vs. promise line) a casual daily-loop user doesn't need by default. The seven remaining
-types need an explicit mapping decision before this is fully spec'd — reasonable default:
-`quotation`/`explicit_reference`/`allusion` join the motif register (textual-echo noticing, same
-as today), `parallel`/`contrast_reversal` join the covenant/structural register (both about the
-canon's macro-shape, same family as the existing mirror ties), `doctrinal_synthesis`/
-`personal_resonance` stay their own thing (closer to the Theology/Conviction claim kinds already
-in the workspace than to any of the four).
+**Wave 2 — connection-type visual registers. DONE (2026-09-02, `a541fed`).** All eleven
+`CONNECTION_TYPES` now map through one pure taxonomy, `web/lib/workspace/connectionRegisters.ts`
+(`registerForType`), consumed by both `ThreadDetail.tsx`'s browse/filter list and
+`ConnectSection.tsx`'s composer picker so the two surfaces can never disagree. `covenant_development`
++ `parallel` + `contrast_reversal` (structural register) render a gold-deep badge always, no
+toggle. `motif` + `quotation` + `explicit_reference` + `allusion` keep today's plain scarlet-tag
+rendering unchanged. `type_antitype` (typology, directional "Shadow of ↦" / "Fulfills ↤") and
+`promise_fulfillment` (its own gold-toned badge) render plainly by default and only pick up their
+distinct treatment behind a new "Show deeper connections" toggle, off by default — exactly Ken's
+2026-09-01 risk read. `doctrinal_synthesis`/`personal_resonance` stay unregistered, unchanged.
+Verified independently before merge: every contrast ratio recomputed from scratch (structural and
+promise badges both clear AA on their own `--gold-dim-bg` background; bare gold text on the page's
+parchment surface was confirmed to FAIL, which is why every badge carries its own background
+rather than colored inline text), one mutation proof re-run by the orchestrator (breaking the
+structural-register list correctly failed the partition/mapping/render tests and nothing else),
+full suite green (1032 tests) after merging behind ISRAELPROTO-001. One documented judgment call:
+typology direction is inferred from canonical (66-book) order, since `UserConnection` has no
+chronological field — correct for every OT-type→NT-antitype example in the design doc, but could
+mislabel a same-testament pair; getting it wrong only swaps the label, never hides the connection.
 
 **Wave 3 — the Israel sub-arc prototype. BUILT, awaiting Ken's test (2026-09-02, `fa36b03`).** A
 real, isolated, clickable prototype at `/prototype/israel-sub-arc` — linked from nowhere in the
