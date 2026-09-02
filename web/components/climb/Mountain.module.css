@@ -81,3 +81,43 @@
   border: 1px solid var(--shell-border-hi);
   border-radius: var(--r-lg);
 }
+
+/* MIRRORSPLIT-001 — ported from the pre-Switchback Mountain.module.css
+   unchanged; the entry-point list sits below the scene/ribbon, not inside
+   the SVG, so it needed no adaptation for the new terrain rendering. */
+.pairs {
+  margin-top: 18px;
+}
+
+.pairsHeading {
+  font-family: var(--font-label);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 10.5px;
+  color: var(--shell-muted);
+  margin-bottom: 8px;
+}
+
+.pairsList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pairLink {
+  display: block;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  font-family: var(--font-narrow);
+  font-size: 13.5px;
+  color: var(--shell-text-2);
+}
+
+.pairLink:hover,
+.pairLink:focus-visible {
+  background: var(--shell-surface);
+  border-color: var(--shell-border);
+  color: var(--shell-text);
+}

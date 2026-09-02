@@ -1,0 +1,96 @@
+/* MIRRORSPLIT-001 — page shell and pane scroll containers only. Verse
+   rendering itself (.column, .columnLabel, .hint, .error, .verse, .vnum)
+   comes straight from components/reader/ChapterReader.module.css, imported
+   directly by MirrorSplitView.tsx rather than duplicated here — see that
+   file's header comment. */
+
+.page {
+  min-height: 100dvh;
+  background: var(--page-bg);
+  color: var(--page-ink);
+  display: flex;
+  flex-direction: column;
+}
+
+.top {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: calc(14px + var(--safe-top)) var(--pad-page) 12px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--page-bg);
+  border-bottom: 1px solid var(--page-border);
+}
+
+.backLink {
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--brass);
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
+
+.pairLabel {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--page-ink);
+}
+
+.versionTag {
+  display: inline-block;
+  margin-left: 8px;
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: var(--brass);
+  vertical-align: middle;
+}
+
+.split {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+  background: var(--page-border);
+  overflow: hidden;
+}
+
+@media (min-width: 720px) {
+  .split {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Each pane owns its own scroll container -- this is what makes "sync the
+   two panes' scroll position" a meaningful thing to do at all, on every
+   viewport width, not only the two-column desktop layout. */
+.paneScroll {
+  height: 45dvh;
+  overflow-y: auto;
+  background: var(--page-bg);
+  padding: 14px var(--pad-page) 24px;
+}
+
+@media (min-width: 720px) {
+  .paneScroll {
+    height: calc(100dvh - 128px);
+  }
+}
+
+.honesty {
+  padding: 10px var(--pad-page) calc(16px + var(--safe-bottom));
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--page-muted);
+  text-align: center;
+}

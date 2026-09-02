@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { MountainStage } from "@/lib/vault/seed";
@@ -126,6 +127,31 @@ export function Mountain({ stages }: MountainProps) {
 
   const activeWaypoint = hovered ? (geometry.waypoints.find((w) => w.stage.slug === hovered) ?? null) : null;
 
+  // MIRRORSPLIT-001 — the real, always-visible entry point into
+  // /mirror/[stageSlug] (not the hover tip above: it unmounts the instant a
+  // pointer leaves the SVG node, and never receives keyboard focus, so a
+  // link placed inside it would be unreachable — same reasoning as the
+  // pre-Switchback version this was ported from, unaffected by the terrain
+  // rewrite since it renders as a plain list, not inside the SVG scene).
+  // One deduplicated row per pair (5 pairs from 10 of the 11 stages; stage 6,
+  // the Gospels, has `mirror: null` and is correctly excluded). Reference-only
+  // labels — structural naming, not app-supplied commentary on why the two
+  // passages pair (docs/decisions/2026-08-18-teaching-not-theology.md).
+  const bySlug = useMemo(() => new Map(stages.map((s) => [s.slug, s])), [stages]);
+  const pairs = useMemo(() => {
+    const seen = new Set<string>();
+    const result: { key: string; a: MountainStage; b: MountainStage }[] = [];
+    for (const stage of stages) {
+      if (!stage.mirror) continue;
+      const key = [stage.slug, stage.mirror].sort().join("~");
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const partner = bySlug.get(stage.mirror);
+      if (partner) result.push({ key, a: stage, b: partner });
+    }
+    return result.sort((x, y) => x.a.stage - y.a.stage);
+  }, [stages, bySlug]);
+
   return (
     <div className={styles.wrap} ref={wrapRef} data-testid="mountain">
       <div className={styles.sky} style={{ height: geometry.totalHeight }} aria-hidden="true" />
@@ -159,6 +185,21 @@ export function Mountain({ stages }: MountainProps) {
           }}
         />
       </div>
+
+      {pairs.length > 0 ? (
+        <div className={styles.pairs}>
+          <p className={styles.pairsHeading}>Mirror pairs</p>
+          <ul className={styles.pairsList}>
+            {pairs.map(({ key, a, b }) => (
+              <li key={key}>
+                <Link href={`/mirror/${a.slug}`} className={styles.pairLink}>
+                  {a.reference} ↔ {b.reference}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </div>
   );
 }
