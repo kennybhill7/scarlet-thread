@@ -47,6 +47,9 @@ seedModule("@/components/climb/Mountain.module.css", { default: cssProxy });
 // which imports its own CSS Module; stub it the same proxy way so tsx never
 // tries to `require()` a real .css file as JS.
 seedModule("@/components/climb/MountainPlates.module.css", { default: cssProxy });
+// ISRAELFILTER-001 — Mountain.tsx now also renders a `Sheet` (for the
+// stage-5 sub-arc), which imports its own CSS Module; stub it the same way.
+seedModule("@/components/ui/Sheet.module.css", { default: cssProxy });
 seedModule("next/navigation", {
   useRouter: () => ({ push: () => {} }),
 });

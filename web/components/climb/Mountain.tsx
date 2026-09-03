@@ -6,12 +6,46 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { MountainStage } from "@/lib/vault/seed";
 import { buildMountainGeometry, buildRibbonTicks, scrollProgressFor } from "@/lib/climb/mountainGeometry";
 import { buildPlateGeometry } from "@/lib/climb/plateGeometry";
+import { Sheet } from "@/components/ui/Sheet";
+import { IsraelSubArcPrototype } from "@/components/prototype/IsraelSubArcPrototype";
 import { MountainPlates } from "./MountainPlates";
 import { MountainRibbon } from "./MountainRibbon";
 import styles from "./Mountain.module.css";
 
 interface MountainProps {
   stages: MountainStage[];
+}
+
+/**
+ * ISRAELFILTER-001 — stage 5 ("Israel," Genesis 12 through Malachi, 65% of
+ * the app's total reading content per design/STORY_SPINE_DECISIONS.md
+ * decision 4) is the one stage of 11 broad enough to get a filtered sub-arc
+ * view instead of jumping straight into the chapter reader. Every other
+ * stage's waypoint is completely unaffected — still `goTo(waypoint.href)`,
+ * still `stageHref()`'s own URL, untouched by this task. `isIsraelWaypoint`
+ * is exported (rather than kept as an inline literal) so
+ * tests/israel-sub-arc.test.ts can prove the branch itself, independent of
+ * simulating a real click (this repo's test runner has no jsdom — see that
+ * file's own header).
+ */
+export const ISRAEL_STAGE_NUMBER = 5;
+
+export function isIsraelWaypoint(stage: Pick<MountainStage, "stage">): boolean {
+  return stage.stage === ISRAEL_STAGE_NUMBER;
+}
+
+export type WaypointAction = { kind: "open-israel-sub-arc" } | { kind: "navigate"; href: string };
+
+/**
+ * Pure decision the plates AND ribbon click handlers both funnel through
+ * (via `selectWaypoint` below) — extracted so tests/israel-sub-arc.test.ts
+ * can prove, for every one of the 11 real stage numbers, that stage 5 opens
+ * the sub-arc and every other stage still resolves to `navigate` with `href`
+ * passed through completely unchanged, without simulating a real click
+ * (this repo's test runner has no jsdom).
+ */
+export function resolveWaypointAction(stage: MountainStage, href: string): WaypointAction {
+  return isIsraelWaypoint(stage) ? { kind: "open-israel-sub-arc" } : { kind: "navigate", href };
 }
 
 /**
@@ -70,6 +104,9 @@ interface MountainProps {
 export function Mountain({ stages }: MountainProps) {
   const router = useRouter();
   const [hovered, setHovered] = useState<string | null>(null);
+  // ISRAELFILTER-001 — open when the stage-5 waypoint is selected, instead
+  // of routing away. See isIsraelWaypoint/selectWaypoint below.
+  const [israelOpen, setIsraelOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
   // Kept purely to feed MountainRibbon's mini-map -- see this file's header.
@@ -136,6 +173,19 @@ export function Mountain({ stages }: MountainProps) {
     router.push(href);
   }
 
+  // ISRAELFILTER-001 — the one branch point every waypoint click (plates AND
+  // ribbon) now runs through. Stage 5 opens the sub-arc sheet; every other
+  // stage still calls goTo(href) exactly as before this task -- the decision
+  // itself is resolveWaypointAction above, kept pure and exported for tests.
+  function selectWaypoint(stage: MountainStage, href: string) {
+    const action = resolveWaypointAction(stage, href);
+    if (action.kind === "open-israel-sub-arc") {
+      setIsraelOpen(true);
+      return;
+    }
+    goTo(action.href);
+  }
+
   const activeWaypoint = hovered ? (plateGeometry.waypoints.find((w) => w.stage.slug === hovered) ?? null) : null;
 
   // MIRRORSPLIT-001 — the real, always-visible entry point into
@@ -172,7 +222,7 @@ export function Mountain({ stages }: MountainProps) {
           geometry={plateGeometry}
           hoveredSlug={hovered}
           onHoverChange={setHovered}
-          onSelect={(waypoint) => goTo(waypoint.href)}
+          onSelect={(waypoint) => selectWaypoint(waypoint.stage, waypoint.href)}
         />
       </div>
 
@@ -192,7 +242,7 @@ export function Mountain({ stages }: MountainProps) {
           ticks={ribbonTicks}
           onSelect={(slug) => {
             const waypoint = geometry.waypoints.find((w) => w.stage.slug === slug);
-            if (waypoint) goTo(waypoint.href);
+            if (waypoint) selectWaypoint(waypoint.stage, waypoint.href);
           }}
         />
       </div>
@@ -211,6 +261,14 @@ export function Mountain({ stages }: MountainProps) {
           </ul>
         </div>
       ) : null}
+
+      {/* ISRAELFILTER-001 — stage 5's real entry point. Same component the
+          standalone `/prototype/israel-sub-arc` route renders directly on
+          its own page (see that page's header); here it's the body of a
+          Sheet opened by the stage-5 waypoint instead of navigating away. */}
+      <Sheet open={israelOpen} onClose={() => setIsraelOpen(false)} title="Israel">
+        <IsraelSubArcPrototype />
+      </Sheet>
     </div>
   );
 }

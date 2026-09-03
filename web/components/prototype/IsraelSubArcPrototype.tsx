@@ -3,24 +3,13 @@
 import { useState, type CSSProperties } from "react";
 
 import { Sheet } from "@/components/ui/Sheet";
-import { ISRAEL_SUB_ARC_BANNER, ISRAEL_SUB_ARC_PHASES, phaseBySlug } from "@/lib/prototype/israel-sub-arc";
+import { ISRAEL_SUB_ARC_PHASES, phaseBySlug } from "@/lib/prototype/israel-sub-arc";
 
 import { IsraelSubArcDetail } from "./IsraelSubArcDetail";
 import { IsraelSubArcRidge } from "./IsraelSubArcRidge";
 
 const wrapStyle: CSSProperties = {
   padding: "0 var(--pad-page) calc(24px + var(--safe-bottom))",
-};
-
-const bannerStyle: CSSProperties = {
-  margin: "16px 0 20px",
-  padding: "12px 14px",
-  background: "var(--shell-surface)",
-  border: "1px solid var(--shell-crimson)",
-  borderRadius: "var(--r-lg)",
-  fontSize: 12.5,
-  lineHeight: 1.5,
-  color: "var(--shell-crimson-text)",
 };
 
 const headingStyle: CSSProperties = {
@@ -38,21 +27,33 @@ const subheadStyle: CSSProperties = {
 };
 
 /**
- * ISRAELPROTO-001 — the stateful shell for the prototype. Holds exactly one
- * piece of state (which phase, if any, is tapped in) and nothing else — no
- * fetch, no vault write, no navigation. See `lib/prototype/israel-sub-arc.ts`
- * for why this exists and what it must not touch.
+ * ISRAELPROTO-001 → ISRAELFILTER-001 — the stateful shell for the Israel
+ * sub-arc view. Holds exactly one piece of state (which phase, if any, is
+ * tapped in) and nothing else — no fetch, no vault write. See
+ * `lib/prototype/israel-sub-arc.ts` for the real data this now reads.
+ *
+ * TWO ENTRY POINTS, ONE COMPONENT: this renders directly on the page at
+ * `app/(app)/prototype/israel-sub-arc/page.tsx` (a standalone, type-the-URL
+ * QA surface — see that page's own header), AND is embedded inside
+ * `Mountain.tsx`'s own `Sheet` as the real production entry point: tapping
+ * the Mountain's stage-5 ("Israel") waypoint opens a sheet whose body is
+ * this same component, instead of jumping straight to the chapter reader
+ * the way every other stage's waypoint still does. Both call sites get
+ * identical behavior for free because there is exactly one component, not
+ * two copies that could drift.
  *
  * INTERACTION MODEL: tapping (or Enter/Space-activating) a point on the
  * ridge opens `Sheet` — the SAME bottom-sheet component this app already
  * uses for the version switcher and thread picker (`components/ui/Sheet.tsx`)
- * — over the phase's name, real chapter range, and placeholder note. Closing
- * it (the sheet's own × button, Escape, a backdrop click, or the detail's
- * own "Back to the arc" button) returns to the ridge with nothing else
- * changed. This reuses the app's own existing "drill into a small choice,
- * then back out" convention rather than inventing a new modal pattern, and
- * keeps the ridge itself always visible underneath (never replaced by a
- * separate screen) — the thing Ken specifically asked to be able to judge.
+ * — over the phase's name, real chapter range, and its real chapters (each
+ * a working link into the reader). Closing it (the sheet's own × button,
+ * Escape, a backdrop click, or the detail's own "Back to the arc" button)
+ * returns to the ridge with nothing else changed. This reuses the app's own
+ * existing "drill into a small choice, then back out" convention rather
+ * than inventing a new modal pattern, and keeps the ridge itself always
+ * visible underneath (never replaced by a separate screen) — the thing Ken
+ * specifically flagged as the riskiest UX bet in the whole redesign, and
+ * has not yet clicked through in its real-data, real-navigation form.
  */
 export function IsraelSubArcPrototype() {
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
@@ -64,13 +65,8 @@ export function IsraelSubArcPrototype() {
 
   return (
     <div style={wrapStyle}>
-      <p role="note" style={bannerStyle} data-testid="israel-sub-arc-banner">
-        {ISRAEL_SUB_ARC_BANNER}
-      </p>
       <h1 style={headingStyle}>Israel — six phases</h1>
-      <p style={subheadStyle}>
-        Genesis 12 through Malachi, broken into a sub-arc. Tap a point to see what would live there.
-      </p>
+      <p style={subheadStyle}>Genesis 12 through Malachi, broken into a sub-arc. Tap a point to read its chapters.</p>
       <IsraelSubArcRidge phases={ISRAEL_SUB_ARC_PHASES} selectedSlug={selectedSlug} onSelect={setSelectedSlug} />
       <Sheet open={selectedPhase !== null} onClose={close} title={selectedPhase?.name ?? "Phase"}>
         <IsraelSubArcDetail phase={selectedPhase} onBack={close} />
