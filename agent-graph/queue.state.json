@@ -640,13 +640,13 @@
       "notes": "The real 35-chapter Story Spine data (web/lib/bible/storySpine.ts) plus tests. Book-numbering verified against web/public/bible/index.json and cross-checked RefKeys already in the codebase -- the source doc's own example data shape used invented 3-letter codes that do NOT match the app's real 1-66 numeric scheme, correctly caught and worked around. One documented judgment call: chapter 1 (Genesis 1-9) spans mountain stages 1/2/3, so `stage` is typed number | number[] rather than inventing a 5th/6th addition not sanctioned by the source doc. Stage-5 phase-filter UI explicitly out of scope, not built -- future task."
     },
     "ISRAELFILTER-001": {
-      "status": "in_progress",
+      "status": "done",
       "branch": "agent/ISRAELFILTER-001-claude",
-      "commitSha": null,
+      "commitSha": "c8bd433",
       "attempts": 1,
-      "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Dispatched 2026-09-03 -- promotes ISRAELPROTO-001's interaction pattern (ridge + Sheet drill-in) from an inert, URL-only prototype into a real, wired feature using STORYSPINE-001's real data. Research this session confirmed there is no production 'stage view' to extend and the prototype's own phase taxonomy does not match the real data -- both must be reconciled, not assumed compatible."
+      "lastRunId": "a7bfd325fcb26388c",
+      "lastEvidence": "typecheck/lint/build/test all re-run independently by Claude in the builder's own worktree before merge: tsc clean, eslint clean, next build succeeded, 1187/1187 tests pass. Reviewed the real diff (Mountain.tsx's pure resolveWaypointAction, the phase-taxonomy reconciliation in lib/prototype/israel-sub-arc.ts, the Sheet useId() fix for the nested-sheet id collision) before merging. Merged fast-forward onto master and design/mountain-journey at c8bd433, pushed both.",
+      "notes": "Promotes ISRAELPROTO-001 from an inert, URL-only, hardcoded-data prototype into a real feature wired to STORYSPINE-001's data. Stage 5's Mountain waypoint now opens a Sheet with the real ridge/phase-detail interaction instead of jumping straight to the reader; every other stage unaffected (proven for all 11 stage numbers via resolveWaypointAction). HUMAN GATE STILL OPEN: Ken has not yet click-through-tested this himself. The build specifically flags one real UX judgment call for him -- opening the sub-arc from the Mountain nests one Sheet (Israel overview) inside another (Mountain's own), functionally sound and tested, but only a human can judge whether the double bottom-sheet feels right or jarring. Do not treat this as fully final until that happens."
     }
   }
 }
