@@ -649,13 +649,13 @@
       "notes": "Promotes ISRAELPROTO-001 from an inert, URL-only, hardcoded-data prototype into a real feature wired to STORYSPINE-001's data. Stage 5's Mountain waypoint now opens a Sheet with the real ridge/phase-detail interaction instead of jumping straight to the reader; every other stage unaffected (proven for all 11 stage numbers via resolveWaypointAction). HUMAN GATE STILL OPEN: Ken has not yet click-through-tested this himself. The build specifically flags one real UX judgment call for him -- opening the sub-arc from the Mountain nests one Sheet (Israel overview) inside another (Mountain's own), functionally sound and tested, but only a human can judge whether the double bottom-sheet feels right or jarring. Do not treat this as fully final until that happens."
     },
     "MOUNTAINDESKTOP-001": {
-      "status": "in_progress",
+      "status": "done",
       "branch": "agent/MOUNTAINDESKTOP-001-claude",
-      "commitSha": null,
+      "commitSha": "a9e0ea0",
       "attempts": 1,
-      "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Dispatched 2026-09-03 -- the desktop (>=1100px) Mountain assembly MOUNTAINPLATES-001 didn't cover. Full waypoint percentage table and interaction spec pulled directly from design/scarlet-thread-app/The Climb.dc.html (the real, already-signed-off mockup) and handed to the builder verbatim rather than left to re-derive."
+      "lastRunId": "a41ace26b78fe0bac",
+      "lastEvidence": "typecheck/lint/build/test all re-run independently by Claude in the builder's own worktree before merge: tsc clean, eslint clean, next build succeeded, 1213/1213 tests pass. Confirmed no leftover temp-tooling changes (the builder's own playwright install/uninstall left git status clean). Built my own separate static-harness render + real headless screenshot (served over a local http.server, not file:// -- confirmed the panorama composes seamlessly across all 5 plates with no visible seams, waypoints track the terrain, rope renders with correct shadow/highlight, current/begun/dormant states render distinctly) AND a second render of the SceneTakeover component specifically (real summary text, real observation/question/thread counts, real mirror info, prev/next/close controls, 11-dot progress rail with current stage highlighted) -- both independently verified visually by Claude, not just described. Merged fast-forward onto master and design/mountain-journey at a9e0ea0, pushed both.",
+      "notes": "The desktop (>=1100px) Mountain assembly MOUNTAINPLATES-001 never built. Uses the exact, already-signed-off waypoint percentages from design/scarlet-thread-app/The Climb.dc.html's own STAGES const, composes the same 5 plate images at their real native pixel proportions (not mobile's chapter-reflowed heights) so the panorama recomposes seamlessly. Mobile assembly and its tests confirmed completely unaffected. HUMAN GATE STILL OPEN: Ken has not yet looked at the real desktop view himself. Same discipline as MOUNTAINPLATES-001 -- do not treat as fully final until he has."
     }
   }
 }
