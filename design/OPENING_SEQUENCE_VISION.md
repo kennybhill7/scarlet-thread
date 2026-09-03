@@ -39,23 +39,30 @@ entirely (satellite tiles vs. hand-painted parchment), but it proves the zoom-th
 interaction Ken is describing is not a hypothetical — it's a pattern that already exists and works
 in a browser.
 
-## Open questions, not yet answered
+## Open questions
 
 1. **What is the globe, visually?** A literal rotating 3D Earth (photoreal or stylized)? A painted
    globe matching Style B's parchment hand? Something else? Ken's "kid playing with a globe" image
-   suggests something tactile/handleable, not a passive establishing shot.
+   suggests something tactile/handleable, not a passive establishing shot. Still open.
 2. **How much is one-time vs. re-enterable?** A first-run-only cinematic, or something a returning
    reader can re-trigger (e.g. from a "world" tab) to jump to any of the 25 regions later, once
-   they exist?
-3. **Where does the zoom actually end?** Straight into stage 1 (Creation) on the Mountain, or into
-   a fourth, even-closer beat — an immersive scene of Eden itself, in the register the Fable
-   prototype (`design/` — see the Red Sea crossing experiment, same date) is testing right now?
-   If that prototype lands well, the natural end of this zoom is an immersive Eden moment, not a
-   static image.
+   they exist? Still open.
+3. **Where does the zoom actually end? — ANSWERED, 2026-09-02.** Not a static image. The Fable
+   prototype (`https://claude.ai/code/artifact/1a330b93-f0c0-4c87-8a64-8b58610417c8`, "Between the
+   Walls" — a real-time WebGL scene of Exodus 14: raycast water walls and fire, a depth-sorted
+   crowd of ~2,500 walking past, full 360° drag-to-look including turning around to see the fire
+   behind you, ambient soundscape) was built as a direct test of this exact question and Ken
+   confirmed it live in his own browser: **"works great."** The zoom now has a real, validated
+   destination register to land in — an immersive, explorable moment, not a picture of one. Same
+   technique is the candidate for the actual Eden landing this doc describes, and potentially for
+   any of the 11 major mountain-stage scenes, not just Eden.
 4. **Cost/scope, honestly.** A real 3D or richly-animated globe, a full painted world map, and a
    scripted zoom transition between them is a substantial build on top of everything else already
-   in flight (Mountain plates, the 35-chapter Story Spine, 12-79 commissioned images). Worth being
-   explicit that this is additive scope, not a small addition, before committing to it.
+   in flight (Mountain plates, the 35-chapter Story Spine, 12-79 commissioned images, and now
+   potentially multiple Fable-built immersive scenes). Worth being explicit that this is additive
+   scope, not a small addition, before committing to it. Still open, and now bigger than when this
+   doc was first written — the validated immersive-scene technique makes the *end* of the sequence
+   more ambitious, not less.
 
 ## What this doc is NOT
 
