@@ -32,6 +32,7 @@
 
     <div onClick="{{ go }}" style="display:flex; flex-direction:column; padding:14px 0 30px;">
       <div data-sec="foundations" style="border-left:2px solid {{ bar_foundations }}; padding:10px 22px; cursor:pointer; font-size:13.5px; color:#b9bcc2; display:flex; gap:11px;" style-hover="color:#eae7e1;"><span style="font-family:'Archivo Narrow',sans-serif; font-size:11px; color:#5d636c; width:15px;">00</span>The world</div>
+      <div data-sec="spine" style="border-left:2px solid {{ bar_spine }}; padding:10px 22px; cursor:pointer; font-size:13.5px; color:#e04a45; display:flex; gap:11px;" style-hover="color:#f07a72;"><span style="font-family:'Archivo Narrow',sans-serif; font-size:11px; color:#5d636c; width:15px;">16</span>Story spine</div>
       <div data-sec="switchback" style="border-left:2px solid {{ bar_switchback }}; padding:10px 22px; cursor:pointer; font-size:13.5px; color:#e04a45; display:flex; gap:11px;" style-hover="color:#f07a72;"><span style="font-family:'Archivo Narrow',sans-serif; font-size:11px; color:#5d636c; width:15px;">15</span>The Switchback</div>
       <div data-sec="climb" style="border-left:2px solid {{ bar_climb }}; padding:10px 22px; cursor:pointer; font-size:13.5px; color:#b9bcc2; display:flex; gap:11px;" style-hover="color:#eae7e1;"><span style="font-family:'Archivo Narrow',sans-serif; font-size:11px; color:#5d636c; width:15px;">01</span>The Climb</div>
       <div data-sec="read" style="border-left:2px solid {{ bar_read }}; padding:10px 22px; cursor:pointer; font-size:13.5px; color:#b9bcc2; display:flex; gap:11px;" style-hover="color:#eae7e1;"><span style="font-family:'Archivo Narrow',sans-serif; font-size:11px; color:#5d636c; width:15px;">02</span>Reader</div>
@@ -1750,6 +1751,187 @@
       </div>
     </sc-if>
 
+    <sc-if value="{{ isSpine }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <div style="position:relative; height:404px; overflow:hidden; border-bottom:1px solid #1b1e23;">
+          <img src="./assets/scenes/05-israel.jpg" alt="" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 52%;">
+          <div style="position:absolute; inset:0; background:linear-gradient(180deg,rgba(7,8,10,0.7) 0%,rgba(7,8,10,0.32) 40%,rgba(7,8,10,0.94) 92%,#07080a 100%);"></div>
+          <div style="position:absolute; left:56px; right:56px; bottom:34px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="width:34px; height:3px; border-radius:3px; background:#cf2027;"></span>
+              <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.24em; text-transform:uppercase; color:#e8c88a;">16 · The reading spine</span>
+            </div>
+            <h1 style="margin:12px 0 0; font-family:'Fraunces',Georgia,serif; font-weight:400; font-size:54px; line-height:1.04; color:#f7f2e6;">Thirty-one chapters, and the four that are missing</h1>
+            <p style="margin:12px 0 0; max-width:70ch; font-size:16px; line-height:1.65; color:#cfd2d6;">The Story arranges the Bible into 31 chronological chapters. It is the proven middle layer the mountain lacked — but mapping it against the eleven stages turns up two problems, and one of them breaks three of the five mirrors. Full mapping in <a href="./Scarlet Thread - Story Spine.md">Scarlet Thread - Story Spine.md</a>.</p>
+          </div>
+        </div>
+
+        <div style="padding:48px 56px 40px; max-width:1180px; display:flex; flex-direction:column; gap:22px;">
+          <div style="display:flex; align-items:baseline; gap:16px;">
+            <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:#7c828b;">Finding A · two stages are not in the book</span>
+            <span style="flex:1 1 auto; height:1px; background:#1b1e23;"></span>
+          </div>
+          <p style="margin:0; max-width:76ch; font-size:15.5px; line-height:1.7; color:#b9bcc2;">The Story's chapter 1 ends at Genesis 9 and chapter 2 opens at Genesis 12 — <strong style="color:#f7f2e6; font-weight:500;">Babel is skipped.</strong> Chapter 31 covers Revelation 1–5 and 19–22 — <strong style="color:#f7f2e6; font-weight:500;">Revelation 6–18 is skipped.</strong> That is a fair editorial choice for a narrative reader, but Babel↔Babylon is one of the five mirror pairs and the Flood loses its descent partner. Adopting the 31 unmodified deletes two stages and breaks two mirrors. The fix is four added chapters, numbered so anyone reading alongside the book stays in sync.</p>
+
+          <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 52px;">
+            <div style="padding:16px 0; border-top:1px solid #23272d; display:flex; gap:16px;"><span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.1em; color:#e04a45; width:38px; flex:0 0 auto;">1b</span><div style="display:flex; flex-direction:column; gap:3px;"><span style="font-size:14.5px; color:#f4e6c8;">The Tower · Genesis 10–11</span><span style="font-size:13px; color:#8f959e;">restores stage 4 · Babel, and the ascent side of mirror 4</span></div></div>
+            <div style="padding:16px 0; border-top:1px solid #23272d; display:flex; gap:16px;"><span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.1em; color:#e04a45; width:38px; flex:0 0 auto;">31a</span><div style="display:flex; flex-direction:column; gap:3px;"><span style="font-size:14.5px; color:#f4e6c8;">The Scroll and the Trumpets · Revelation 6–11</span><span style="font-size:13px; color:#8f959e;">restores stage 9 · World Judged</span></div></div>
+            <div style="padding:16px 0; border-top:1px solid #1b1e23; display:flex; gap:16px;"><span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.1em; color:#e04a45; width:38px; flex:0 0 auto;">31b</span><div style="display:flex; flex-direction:column; gap:3px;"><span style="font-size:14.5px; color:#f4e6c8;">The Beast and the City · Revelation 12–18</span><span style="font-size:13px; color:#8f959e;">restores stage 8 · Babylon, and the descent side of mirror 4</span></div></div>
+            <div style="padding:16px 0; border-top:1px solid #1b1e23; display:flex; gap:16px;"><span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.1em; color:#e04a45; width:38px; flex:0 0 auto;">31c</span><div style="display:flex; flex-direction:column; gap:3px;"><span style="font-size:14.5px; color:#f4e6c8;">The Rider and the Chain · Revelation 19–20</span><span style="font-size:13px; color:#8f959e;">restores stage 10 · Satan Cast Out</span></div></div>
+          </div>
+          <p style="margin:6px 0 0; max-width:76ch; font-size:13.5px; line-height:1.7; color:#5d636c;">Three of the five mirrors depend on these four. That is the whole argument for 35 chapters over 31.</p>
+        </div>
+
+        <div style="padding:0 56px 44px; max-width:1180px; display:flex; flex-direction:column; gap:22px;">
+          <div style="display:flex; align-items:baseline; gap:16px;">
+            <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:#7c828b;">Finding B · the weight problem, measured</span>
+            <span style="flex:1 1 auto; height:1px; background:#1b1e23;"></span>
+          </div>
+          <p style="margin:0; max-width:76ch; font-size:15.5px; line-height:1.7; color:#b9bcc2;">Twenty of the thirty-one chapters fall inside stage 5. That is 65% of the reading on one eleventh of the mountain — the "39 books on one pin" problem, now a number. Below is what it looks like laid against the stages, and the six-phase sub-arc that makes it navigable.</p>
+
+          <div style="display:flex; flex-direction:column; gap:3px;">
+            <div style="display:flex; align-items:center; gap:14px;"><span style="width:150px; flex:0 0 auto; font-size:13px; color:#b9bcc2;">1 · Creation</span><span style="width:26px; height:22px; background:rgba(232,200,138,0.5);"></span><span style="font-size:12px; color:#5d636c;">part of ch 1</span></div>
+            <div style="display:flex; align-items:center; gap:14px;"><span style="width:150px; flex:0 0 auto; font-size:13px; color:#b9bcc2;">2 · Sin Enters</span><span style="width:26px; height:22px; background:rgba(232,200,138,0.5);"></span><span style="font-size:12px; color:#5d636c;">part of ch 1</span></div>
+            <div style="display:flex; align-items:center; gap:14px;"><span style="width:150px; flex:0 0 auto; font-size:13px; color:#b9bcc2;">3 · The Flood</span><span style="width:26px; height:22px; background:rgba(232,200,138,0.5);"></span><span style="font-size:12px; color:#5d636c;">part of ch 1</span></div>
+            <div style="display:flex; align-items:center; gap:14px;"><span style="width:150px; flex:0 0 auto; font-size:13px; color:#e04a45;">4 · Babel</span><span style="width:26px; height:22px; border:1px dashed #cf2027;"></span><span style="font-size:12px; color:#e04a45;">nothing — needs 1b</span></div>
+            <div style="display:flex; align-items:center; gap:14px;"><span style="width:150px; flex:0 0 auto; font-size:13px; color:#f7f2e6;">5 · Israel</span><span style="flex:0 0 auto; width:520px; height:22px; background:linear-gradient(180deg,#e5352f,#a8161c);"></span><span style="font-size:12px; color:#f4e6c8;">20 chapters · 65%</span></div>
+            <div style="display:flex; align-items:center; gap:14px;"><span style="width:150px; flex:0 0 auto; font-size:13px; color:#b9bcc2;">6 · Gospels</span><span style="width:156px; height:22px; background:rgba(232,200,138,0.72);"></span><span style="font-size:12px; color:#5d636c;">6 chapters</span></div>
+            <div style="display:flex; align-items:center; gap:14px;"><span style="width:150px; flex:0 0 auto; font-size:13px; color:#b9bcc2;">7 · Church</span><span style="width:78px; height:22px; background:rgba(232,200,138,0.5);"></span><span style="font-size:12px; color:#5d636c;">3 chapters</span></div>
+            <div style="display:flex; align-items:center; gap:14px;"><span style="width:150px; flex:0 0 auto; font-size:13px; color:#e04a45;">8 · Babylon</span><span style="width:26px; height:22px; border:1px dashed #cf2027;"></span><span style="font-size:12px; color:#e04a45;">nothing — needs 31b</span></div>
+            <div style="display:flex; align-items:center; gap:14px;"><span style="width:150px; flex:0 0 auto; font-size:13px; color:#e04a45;">9 · World Judged</span><span style="width:26px; height:22px; border:1px dashed #cf2027;"></span><span style="font-size:12px; color:#e04a45;">Rev 19 only — needs 31a</span></div>
+            <div style="display:flex; align-items:center; gap:14px;"><span style="width:150px; flex:0 0 auto; font-size:13px; color:#e04a45;">10 · Satan Cast Out</span><span style="width:26px; height:22px; border:1px dashed #cf2027;"></span><span style="font-size:12px; color:#e04a45;">shares ch 31 — needs 31c</span></div>
+            <div style="display:flex; align-items:center; gap:14px;"><span style="width:150px; flex:0 0 auto; font-size:13px; color:#b9bcc2;">11 · Paradise Restored</span><span style="width:26px; height:22px; background:rgba(232,200,138,0.5);"></span><span style="font-size:12px; color:#5d636c;">part of ch 31</span></div>
+          </div>
+        </div>
+
+        <div style="padding:0 56px 100px; display:flex; gap:44px; align-items:flex-start; flex-wrap:wrap;">
+          <div style="flex:0 0 auto; display:flex; flex-direction:column; gap:14px;">
+            <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.2em; text-transform:uppercase; color:#7c828b;">Stage 5 opened · the sub-arc</span>
+            <div style="width:390px; height:844px; border-radius:42px; border:8px solid #16191e; background:#07080a; overflow:hidden; box-shadow:0 40px 100px rgba(0,0,0,0.8); display:flex; flex-direction:column; box-sizing:border-box;">
+              <div style="height:46px; flex:0 0 auto; display:flex; align-items:flex-end; justify-content:space-between; padding:0 24px 4px; font-family:'Archivo Narrow',sans-serif; font-weight:600; font-size:12px; color:#eae7e1;"><span>9:41</span><span>ıll ▲ ▮</span></div>
+
+              <div style="padding:10px 24px 12px; display:flex; flex-direction:column; gap:4px; border-bottom:1px solid #23272d;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <span style="color:#7c828b; font-size:17px;">‹</span>
+                  <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:10px; letter-spacing:0.22em; text-transform:uppercase; color:#e8c88a;">Stage 05 · ascent</span>
+                </div>
+                <span style="font-family:'Fraunces',Georgia,serif; font-size:27px; line-height:1.05; color:#f7f2e6;">Israel</span>
+                <span style="font-size:12.5px; color:#7c828b;">Genesis 12 – Malachi · 20 chapters · six phases</span>
+              </div>
+
+              <div style="flex:1 1 auto; overflow:hidden; padding:4px 24px 0; display:flex; flex-direction:column;">
+                <div style="padding:12px 0; border-bottom:1px solid #1b1e23; display:flex; align-items:center; gap:14px;">
+                  <span style="width:3px; height:38px; border-radius:3px; background:rgba(244,230,200,0.28); flex:0 0 auto;"></span>
+                  <div style="flex:1 1 auto; display:flex; flex-direction:column; gap:2px;">
+                    <span style="font-family:'Fraunces',Georgia,serif; font-size:19px; color:#cfd2d6;">Patriarchs</span>
+                    <span style="font-size:12px; color:#5d636c;">Genesis 12–50 · chapters 2–3</span>
+                  </div>
+                  <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:10px; color:#5d636c;">DONE</span>
+                </div>
+                <div style="padding:12px 0; border-bottom:1px solid #23272d; display:flex; align-items:center; gap:14px;">
+                  <span style="width:3px; height:38px; border-radius:3px; background:#cf2027; flex:0 0 auto;"></span>
+                  <div style="flex:1 1 auto; display:flex; flex-direction:column; gap:2px;">
+                    <span style="font-family:'Fraunces',Georgia,serif; font-size:20px; color:#f7f2e6;">Exodus</span>
+                    <span style="font-size:12px; color:#7c828b;">Exodus · Numbers · Deuteronomy · chapters 4–6</span>
+                  </div>
+                  <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:10px; color:#e04a45;">HERE</span>
+                </div>
+
+                <div style="padding:6px 0 2px 17px; display:flex; flex-direction:column;">
+                  <div style="padding:8px 0; border-bottom:1px solid #14171b; display:flex; align-items:baseline; gap:12px;"><span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:10.5px; color:#5d636c; width:16px;">04</span><div style="flex:1 1 auto; display:flex; flex-direction:column; gap:2px;"><span style="font-size:14.5px; color:#cfd2d6;">Deliverance</span><span style="font-size:11.5px; color:#5d636c;">Exodus 1–7; 10–17</span></div><span style="font-size:11px; color:#5d636c;">done</span></div>
+                  <div style="padding:8px 0; border-bottom:1px solid #14171b; display:flex; align-items:baseline; gap:12px;"><span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:10.5px; color:#e8c88a; width:16px;">05</span><div style="flex:1 1 auto; display:flex; flex-direction:column; gap:2px;"><span style="font-size:14.5px; color:#f7f2e6;">New Commands and a New Covenant</span><span style="font-size:11.5px; color:#8f959e;">Exodus 19–20; 24–25; 32–34; 40</span></div><span style="font-size:11px; color:#e04a45;">day 2 of 4</span></div>
+                  <div style="padding:8px 0; display:flex; align-items:baseline; gap:12px;"><span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:10.5px; color:#5d636c; width:16px;">06</span><div style="flex:1 1 auto; display:flex; flex-direction:column; gap:2px;"><span style="font-size:14.5px; color:#cfd2d6;">Wandering</span><span style="font-size:11.5px; color:#5d636c;">Numbers 10–27 · Deuteronomy 1–34</span></div><span style="font-size:11px; color:#5d636c;">next</span></div>
+                </div>
+
+                <div style="padding:12px 0; border-top:1px solid #1b1e23; display:flex; align-items:center; gap:14px;">
+                  <span style="width:3px; height:38px; border-radius:3px; background:rgba(244,230,200,0.14); flex:0 0 auto;"></span>
+                  <div style="flex:1 1 auto; display:flex; flex-direction:column; gap:2px;"><span style="font-family:'Fraunces',Georgia,serif; font-size:19px; color:#cfd2d6;">Conquest</span><span style="font-size:12px; color:#5d636c;">Joshua · Judges · Ruth · chapters 7–9</span></div>
+                </div>
+                <div style="padding:12px 0; border-top:1px solid #1b1e23; display:flex; align-items:center; gap:14px;">
+                  <span style="width:3px; height:38px; border-radius:3px; background:rgba(244,230,200,0.14); flex:0 0 auto;"></span>
+                  <div style="flex:1 1 auto; display:flex; flex-direction:column; gap:2px;"><span style="font-family:'Fraunces',Georgia,serif; font-size:19px; color:#cfd2d6;">Kingdom</span><span style="font-size:12px; color:#5d636c;">1 Samuel – 1 Kings 11 · chapters 10–13</span></div>
+                </div>
+                <div style="padding:12px 0; border-top:1px solid #1b1e23; display:flex; align-items:center; gap:14px;">
+                  <span style="width:3px; height:38px; border-radius:3px; background:rgba(244,230,200,0.14); flex:0 0 auto;"></span>
+                  <div style="flex:1 1 auto; display:flex; flex-direction:column; gap:2px;"><span style="font-family:'Fraunces',Georgia,serif; font-size:19px; color:#cfd2d6;">Divided &amp; Warned</span><span style="font-size:12px; color:#5d636c;">1 Kings 12 – Isaiah · chapters 14–16</span></div>
+                </div>
+                <div style="padding:12px 0; border-top:1px solid #1b1e23; display:flex; align-items:center; gap:14px;">
+                  <span style="width:3px; height:38px; border-radius:3px; background:rgba(244,230,200,0.14); flex:0 0 auto;"></span>
+                  <div style="flex:1 1 auto; display:flex; flex-direction:column; gap:2px;"><span style="font-family:'Fraunces',Georgia,serif; font-size:19px; color:#cfd2d6;">Exile &amp; Return</span><span style="font-size:12px; color:#5d636c;">2 Kings 21 – Malachi · chapters 17–21</span></div>
+                </div>
+              </div>
+
+              <div style="flex:0 0 auto; border-top:1px solid #23272d; padding:0 24px 20px; display:flex; align-items:center; justify-content:space-between; min-height:56px;">
+                <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:12.5px; letter-spacing:0.16em; text-transform:uppercase; color:#f4e6c8;">Continue Exodus 24</span>
+                <span style="color:#cf2027; font-size:16px;">→</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="flex:0 0 auto; display:flex; flex-direction:column; gap:14px;">
+            <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.2em; text-transform:uppercase; color:#7c828b;">Reading day · the Maxwell cadence</span>
+            <div style="width:372px; height:760px; border-radius:40px; border:8px solid #16191e; background:#f3f0e8; overflow:hidden; box-shadow:0 40px 90px rgba(0,0,0,0.75); display:flex; flex-direction:column; box-sizing:border-box;">
+              <div style="height:44px; flex:0 0 auto; display:flex; align-items:flex-end; justify-content:space-between; padding:0 22px 4px; font-family:'Archivo Narrow',sans-serif; font-weight:600; font-size:11.5px; color:#686e69;"><span>6:04</span><span>ıll ▲ ▮</span></div>
+              <div style="flex:1 1 auto; overflow:hidden; padding:14px 22px 0; display:flex; flex-direction:column;">
+                <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:9.5px; letter-spacing:0.2em; text-transform:uppercase; color:#686e69;">Chapter 5 · day 2 of 4 · stage 05</span>
+                <span style="font-family:'Fraunces',Georgia,serif; font-size:23px; line-height:1.12; color:#233029; margin-top:9px;">New Commands and a New Covenant</span>
+
+                <div style="margin-top:16px; border-left:3px solid #cf2027; padding-left:15px; display:flex; flex-direction:column; gap:8px;">
+                  <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:9.5px; letter-spacing:0.2em; text-transform:uppercase; color:#a13333;">Today&rsquo;s anchor</span>
+                  <p style="margin:0; font-family:'Spectral',Georgia,serif; font-size:18px; line-height:1.66; color:#233029; text-wrap:pretty;">Then he took the Book of the Covenant and read it to the people. And they said, “All that the LORD has spoken we will do, and we will be obedient.”</p>
+                  <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.12em; color:#a98b3e;">EXODUS 24:7 · BSB</span>
+                </div>
+
+                <p style="margin:14px 0 0; font-size:14px; line-height:1.7; color:#3a453f; text-wrap:pretty;">The covenant is read aloud before it is agreed to, and the agreement comes before the tablets are cut. Sinai puts the words in the people&rsquo;s ears first — the stone arrives later, in chapter 32, and is broken before it is delivered.</p>
+                <span style="font-size:11.5px; color:#686e69; margin-top:9px;">Today&rsquo;s reading · Exodus 24–25 · about 12 minutes</span>
+
+                <div style="margin-top:auto; padding-bottom:18px; display:flex; flex-direction:column; gap:9px;">
+                  <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:9.5px; letter-spacing:0.2em; text-transform:uppercase; color:#686e69;">One question</span>
+                  <span style="font-family:'Spectral',Georgia,serif; font-size:17px; line-height:1.6; color:#233029;">What did you agree to before you knew what it would cost?</span>
+                  <div style="min-height:60px; border-bottom:1px solid #ddd8c8; margin-top:2px;"></div>
+                </div>
+              </div>
+              <div style="flex:0 0 auto; border-top:1px solid #e6e2d6; padding:0 22px 20px; display:flex; align-items:center; justify-content:space-between; min-height:56px;">
+                <span style="font-size:12px; color:#686e69;">Observe · Link · Ask</span>
+                <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:12.5px; letter-spacing:0.16em; text-transform:uppercase; color:#233029;">Close the day →</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="flex:1 1 340px; min-width:330px; display:flex; flex-direction:column;">
+            <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.2em; text-transform:uppercase; color:#7c828b; padding-bottom:14px;">Redlines</span>
+            <div style="padding:18px 0; border-top:1px solid #23272d; display:flex; flex-direction:column; gap:7px;">
+              <span style="font-size:14.5px; color:#f4e6c8;">The sub-arc is a disclosure, not a new level</span>
+              <span style="font-size:13.5px; line-height:1.65; color:#8f959e;">Six phase rows on the stage screen; tapping one expands its three chapters inline, indented 17px, on a dimmer hairline. Nothing navigates away — no <code style="color:#cfd2d6;">/stage/5/phase/kingdom</code> route unless you want deep links. Only one phase is open at a time, and the open one is the only row with a scarlet rule.</span>
+            </div>
+            <div style="padding:18px 0; border-top:1px solid #23272d; display:flex; flex-direction:column; gap:7px;">
+              <span style="font-size:14.5px; color:#f4e6c8;">Phases exist only inside stage 5</span>
+              <span style="font-size:13.5px; line-height:1.65; color:#8f959e;">Stage 6 has 6 chapters and stage 7 has 3 — both are flat lists. Do not add phases to them for symmetry; a phase layer over three items is scaffolding with nothing to hold. <code style="color:#cfd2d6;">phase</code> is a nullable field, and stage 5 is the only stage that sets it.</span>
+            </div>
+            <div style="padding:18px 0; border-top:1px solid #23272d; display:flex; flex-direction:column; gap:7px;">
+              <span style="font-size:14.5px; color:#f4e6c8;">Plate architecture is untouched</span>
+              <span style="font-size:13.5px; line-height:1.65; color:#8f959e;">Phases get a plate-relative position inside stage 5, not plates of their own. The five plates and the eleven waypoints from §15 stay exactly as built — the sub-arc lives in the list beneath the mountain, never on it. Adding a sixth plate would break every mirror pair.</span>
+            </div>
+            <div style="padding:18px 0; border-top:1px solid #23272d; display:flex; flex-direction:column; gap:7px;">
+              <span style="font-size:14.5px; color:#f4e6c8;">One verse, one idea, one question</span>
+              <span style="font-size:13.5px; line-height:1.65; color:#8f959e;">The Maxwell shape, and the reason it survives 365 repetitions. The anchor verse comes first, before the day's reading, so a 19-chapter Story chapter still has a spine. App-authored copy shares one ~250-word budget per day — past that the user is reading the app instead of the Bible. The layout never varies day to day.</span>
+            </div>
+            <div style="padding:18px 0; border-top:1px solid #23272d; display:flex; flex-direction:column; gap:7px;">
+              <span style="font-size:14.5px; color:#f4e6c8;">One required question, and it closes the day</span>
+              <span style="font-size:13.5px; line-height:1.65; color:#8f959e;">Observe, Link and Ask stay available in the footer, but the day's one obligation is the single question at the bottom. Five required prompts is why loops get abandoned; one is why devotionals get finished. Answering it is what marks the day complete.</span>
+            </div>
+            <div style="padding:18px 0; border-top:1px solid #23272d; border-bottom:1px solid #23272d; display:flex; flex-direction:column; gap:7px;">
+              <span style="font-size:14.5px; color:#f4e6c8;">35 chapters is 18 weeks, not a year</span>
+              <span style="font-size:13.5px; line-height:1.65; color:#8f959e;">At four reading days per chapter the whole mountain is ~20 weeks. Do not stretch it to 365 days for the round number — a finished 18-week climb beats an abandoned annual plan. The 365-day format is Maxwell&rsquo;s constraint, not a target.</span>
+            </div>
+            <div style="margin-top:22px; padding:18px 20px; background:#0e1013; border-left:2px solid #cf2027;">
+              <span style="font-size:13.5px; line-height:1.65; color:#b9bcc2;">Rights: chapter numbering and passage references are structure and ship freely. <strong style="color:#f4e6c8; font-weight:500;">No NIV text and no Maxwell prose ships</strong> — the app reads BSB by default with KJV, ASV and YLT alongside, all public domain and already wired. The chapter <em style="color:#cfd2d6;">titles</em> are Zondervan&rsquo;s wording; the data shape carries an <code style="color:#cfd2d6;">altTitle</code> field so you can rename them and drop the last editorial dependency.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
     <sc-if value="{{ isSwitchback }}" hint-placeholder-val="{{ false }}">
       <div>
         <div style="position:relative; height:360px; overflow:hidden; border-bottom:1px solid #1b1e23;">
@@ -1944,7 +2126,7 @@
 
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1600,&quot;height&quot;:1000}}">
-const KEYS = ["foundations","switchback","climb","read","loop","workspace","notes","threads","review","settings","onboarding","states","components","motion","next","connective"];
+const KEYS = ["foundations","spine","switchback","climb","read","loop","workspace","notes","threads","review","settings","onboarding","states","components","motion","next","connective"];
 const LOOP = ["read","observe","link","ask","pray"];
 
 class Component extends DCLogic {
