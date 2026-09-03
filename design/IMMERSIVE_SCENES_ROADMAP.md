@@ -1,8 +1,12 @@
 # Immersive scenes — how many, which ones, in what order
 
-**Date:** 2026-09-02
-**Status:** Decided. Ken: "go with what u believe is best for us. eventually id like for all of it
-to be immersive but baby steps first."
+**Date:** 2026-09-02, paused 2026-09-03.
+**Status:** PAUSED after Phase 1. Ken, after seeing both Phase 1 scenes live: "im not crazy about
+the quality. lets continue working on the regular version with the pictures." Not resumed without
+his explicit go-ahead — do not build Phase 2/3/4 on the assumption this will pick back up. Full
+effort moves to the static photoreal image track (`Scarlet Thread - Image Commission.md`,
+`design/image-commission/`) instead. Left as-is below (unedited) as a record of the plan that was
+in motion, not a live backlog.
 
 ---
 

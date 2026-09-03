@@ -47,15 +47,13 @@ in a browser.
 2. **How much is one-time vs. re-enterable?** A first-run-only cinematic, or something a returning
    reader can re-trigger (e.g. from a "world" tab) to jump to any of the 25 regions later, once
    they exist? Still open.
-3. **Where does the zoom actually end? — ANSWERED, 2026-09-02.** Not a static image. The Fable
-   prototype (`https://claude.ai/code/artifact/1a330b93-f0c0-4c87-8a64-8b58610417c8`, "Between the
-   Walls" — a real-time WebGL scene of Exodus 14: raycast water walls and fire, a depth-sorted
-   crowd of ~2,500 walking past, full 360° drag-to-look including turning around to see the fire
-   behind you, ambient soundscape) was built as a direct test of this exact question and Ken
-   confirmed it live in his own browser: **"works great."** The zoom now has a real, validated
-   destination register to land in — an immersive, explorable moment, not a picture of one. Same
-   technique is the candidate for the actual Eden landing this doc describes, and potentially for
-   any of the 11 major mountain-stage scenes, not just Eden.
+3. **Where does the zoom actually end? — REOPENED, 2026-09-03.** Briefly answered "an immersive
+   scene" on 2026-09-02 after the Red Sea Fable prototype (Ken: "works great"). That's since been
+   walked back — after seeing a second Fable scene (Eden), Ken: "im not crazy about the quality.
+   lets continue working on the regular version with the pictures." See
+   `IMMERSIVE_SCENES_ROADMAP.md`, now paused after Phase 1. Back to open: the zoom most likely
+   lands on a static photoreal image (the same track this doc's own §2 already ties the world map
+   to) rather than a Fable scene, unless that decision changes again later.
 4. **Cost/scope, honestly.** A real 3D or richly-animated globe, a full painted world map, and a
    scripted zoom transition between them is a substantial build on top of everything else already
    in flight (Mountain plates, the 35-chapter Story Spine, 12-79 commissioned images, and now
