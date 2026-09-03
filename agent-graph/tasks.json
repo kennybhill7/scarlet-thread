@@ -2540,6 +2540,49 @@
       "humanGates": [
         "Ken should click through the real stage-5 experience himself before this is considered fully final -- ISRAELPROTO-001 was originally built explicitly 'awaiting Ken's own click-through judgment' on the navigation feel, and wiring in real data doesn't retroactively grant that approval. Flag this explicitly when reporting done."
       ]
+    },
+    {
+      "id": "MOUNTAINDESKTOP-001",
+      "title": "Desktop (>=1100px) Mountain assembly: plates compose into one wide panorama, horizontal layout, full-bleed scene takeover",
+      "objective": "MOUNTAINPLATES-001 built only the mobile assembly (5 plates stacked vertically, narrow column). The design spec (Scarlet Thread App.dc.html section 15: 'Desktop is the same layers, rotated -- >=1100px, the plates compose back into the landscape panorama... Same plate set, same waypoint coordinates, different assembly. Do not author a second art set for desktop.') calls for a second assembly at >=1100px using the SAME 5 plate images and SAME route.json rope data, composed as one wide panorama instead of a stacked column. design/scarlet-thread-app/The Climb.dc.html (593 lines, read it in full) is the actual signed-off desktop mockup for the waypoint layer, hover/click interaction, and full-bleed per-stage scene takeover -- it predates MOUNTAINPLATES-001 (it placeholders climb-vista.png, which is now understood to be 'a design artifact, not an asset' per that later work) so its CONTAINER (a rounded rect at aspect-ratio 1531/645 showing the composed panorama) should be filled by the REAL plate+rope rendering, not the old flat image -- but its waypoint positions, hover/card/scene-takeover/progress-rail interaction are the real, already-approved spec to build against.",
+      "ownedPaths": [
+        "web/lib/climb/plateGeometry.ts",
+        "web/components/climb/MountainDesktop.tsx",
+        "web/components/climb/MountainDesktop.module.css",
+        "web/components/climb/Mountain.tsx",
+        "web/components/climb/Mountain.module.css",
+        "web/tests/mountain-desktop.test.ts"
+      ],
+      "readOnlyPaths": [
+        "design/scarlet-thread-app/The Climb.dc.html",
+        "design/scarlet-thread-app/Scarlet Thread App.dc.html",
+        "web/components/climb/MountainPlates.tsx",
+        "web/components/climb/MountainPlates.module.css",
+        "web/lib/climb/mountainGeometry.ts",
+        "web/lib/vault/seed.ts",
+        "design/scarlet-thread-app/assets/scenes/*"
+      ],
+      "acceptanceCriteria": [
+        "At viewport width >=1100px, the Mountain renders the desktop assembly instead of the mobile stacked-plates column; below 1100px, the existing mobile MountainPlates assembly (MOUNTAINPLATES-001, already shipped and verified) is completely unchanged -- do not regress it.",
+        "The desktop container is one wide panorama at aspect-ratio 1531/645 (The Climb.dc.html line 55's exact ratio -- matches the real stand-in plates' combined pixel dimensions: 1531 wide, 645 = 240+85+85+86+149 tall) composed from the SAME 5 plate images already in web/public/climb/plates/ and the SAME route.json-derived rope data plateGeometry.ts already computes -- reflowed into this wide horizontal composition (not the mobile vertical stack), not a second art commission and not the old flat climb-vista.png.",
+        "All 11 waypoints use these exact, already-signed-off percentage positions (left%, top%, both relative to the whole 1531x645 composed panorama, from The Climb.dc.html's own STAGES const, lines 434-444) -- these are DIFFERENT from plateGeometry.ts's own per-band mobile fractions (a known, accepted discrepancy between two independently-authored coordinate sets on the same artwork -- use these exact desktop values, do not try to reconcile them with the mobile ones):\n      stage 1: x=5.81  y=84.2\n      stage 2: x=14.0  y=76.6\n      stage 3: x=21.7  y=62.2\n      stage 4: x=28.9  y=54.1\n      stage 5: x=43.0  y=31.2\n      stage 6: x=50.0  y=19.8 (peak)\n      stage 7: x=56.9  y=34.9\n      stage 8: x=64.1  y=47.0\n      stage 9: x=72.0  y=57.1\n      stage 10: x=88.9 y=76.6\n      stage 11: x=96.1 y=84.5",
+        "Hovering a waypoint shows a halo ring around it (The Climb.dc.html lines 533-544: ~74px ring, gold border+glow) and an info card (lines 554-580: stage number/side, title, reference, real observation/question/thread counts and real reached/not-reached state FROM THE REAL MountainStage DATA passed into Mountain -- never the mockup's own hardcoded placeholder numbers -- and the real mirror stage's title/reference if one exists, 'no mirror' if not, e.g. stage 6).",
+        "Clicking a waypoint opens a full-bleed takeover for that one stage: its real assets/scenes/<NN>-<slug>.{jpg,png} image (already in the repo, confirmed needing no re-render), a left-to-right gradient scrim, stage number/side/title/reference and real observation/question/thread copy in the same position/style as The Climb.dc.html's per-scene blocks (lines 76-405 show the real pattern once per stage -- do not hand-copy all 11, derive the shared layout from real MountainStage data), a close (X) button, prev/next arrows (disabled at stage 1/11 respectively), and a bottom rail of 11 small dots for jumping directly between stages while the takeover is open (lines 500-530's sceneNav pattern) -- all using real data and real navigation (stageHref()-equivalent links into /read/[book]/[chapter]), never the mockup's static placeholder text.",
+        "Stage 5 (Israel) still opens the real ISRAELFILTER-001 sub-arc Sheet on click, exactly as it does today on mobile -- do not let this task's new desktop click-handling regress that; the desktop scene takeover's own CTA/next-step for stage 5 should also route into the sub-arc, not straight into a chapter, matching stage 5's existing mobile behavior.",
+        "prefers-reduced-motion: reduce disables any transition/animation added by this task, following the exact same two-guarantee pattern already established in Mountain.tsx/Mountain.module.css (JS never attaches a motion listener under reduced motion AND CSS independently pins the resting state) -- read that existing pattern before adding new motion, don't invent a different one.",
+        "The bottom progress rail (The Climb.dc.html lines 408-427: a Genesis-to-Revelation line with 11 dots) reflects REAL reached/not-reached state per stage, not the mockup's static 3-gold/8-bronze placeholder.",
+        "Do not touch mountainGeometry.ts's exports/behavior, or MountainPlates.tsx's own mobile rendering -- this task adds a parallel desktop assembly and a breakpoint switch in Mountain.tsx, it does not modify the mobile path.",
+        "Mutation-prove new tests: temporarily break the breakpoint switch, a waypoint's x/y position, or the reduced-motion guarantee; confirm the corresponding test fails; revert."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": [
+        "This is a large, highly visual feature built against a real, detailed mockup -- Ken should look at the actual rendered desktop view himself (not just trust a description) before it's considered fully final, same discipline as MOUNTAINPLATES-001. Do an actual visual check yourself first (a static harness render + a real screenshot you personally look at, not a text description) before reporting done, and still flag that Ken's own look is the final word."
+      ]
     }
   ]
 }

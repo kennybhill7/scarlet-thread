@@ -647,6 +647,15 @@
       "lastRunId": "a7bfd325fcb26388c",
       "lastEvidence": "typecheck/lint/build/test all re-run independently by Claude in the builder's own worktree before merge: tsc clean, eslint clean, next build succeeded, 1187/1187 tests pass. Reviewed the real diff (Mountain.tsx's pure resolveWaypointAction, the phase-taxonomy reconciliation in lib/prototype/israel-sub-arc.ts, the Sheet useId() fix for the nested-sheet id collision) before merging. Merged fast-forward onto master and design/mountain-journey at c8bd433, pushed both.",
       "notes": "Promotes ISRAELPROTO-001 from an inert, URL-only, hardcoded-data prototype into a real feature wired to STORYSPINE-001's data. Stage 5's Mountain waypoint now opens a Sheet with the real ridge/phase-detail interaction instead of jumping straight to the reader; every other stage unaffected (proven for all 11 stage numbers via resolveWaypointAction). HUMAN GATE STILL OPEN: Ken has not yet click-through-tested this himself. The build specifically flags one real UX judgment call for him -- opening the sub-arc from the Mountain nests one Sheet (Israel overview) inside another (Mountain's own), functionally sound and tested, but only a human can judge whether the double bottom-sheet feels right or jarring. Do not treat this as fully final until that happens."
+    },
+    "MOUNTAINDESKTOP-001": {
+      "status": "in_progress",
+      "branch": "agent/MOUNTAINDESKTOP-001-claude",
+      "commitSha": null,
+      "attempts": 1,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Dispatched 2026-09-03 -- the desktop (>=1100px) Mountain assembly MOUNTAINPLATES-001 didn't cover. Full waypoint percentage table and interaction spec pulled directly from design/scarlet-thread-app/The Climb.dc.html (the real, already-signed-off mockup) and handed to the builder verbatim rather than left to re-derive."
     }
   }
 }
