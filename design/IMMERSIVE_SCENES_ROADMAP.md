@@ -21,11 +21,25 @@ stay special (this project's own `design/scarlet-thread-app/Scarlet Thread - Str
 commits to restraint over spectacle elsewhere — no streaks, no badges, things earned rather than
 uniform) while still moving toward Ken's real long-term goal: eventually, everything.
 
-### Phase 1 — proof of concept (done / in progress)
+### Phase 1 — proof of concept (done)
 1. **The Red Sea crossing** (Exodus 14) — built, published, confirmed by Ken live: "works great."
-2. **Eden / Creation** — building now. The natural first bookend: the untouched world, before
-   anything has gone wrong. No human figures (matches this project's own existing "Creation" scene
-   brief in the Image Commission doc, which already specifies the moment as empty of anyone).
+   https://claude.ai/code/artifact/1a330b93-f0c0-4c87-8a64-8b58610417c8
+2. **Eden / Creation** — "Eden at First Light," built and published, 2026-09-03.
+   https://claude.ai/code/artifact/1b3c323d-83c2-49cd-8ebc-aed9cde85743 — WebGL2, raymarched
+   terrain/water/mist, a river forking into four (Gen 2:10), no human figures (matches the
+   Image Commission doc's existing Creation scene brief), real animal life (deer, herons, birds)
+   moving without fear, synthesized soundscape. Claude verified directly (not just the build
+   report): the scene genuinely renders — real terrain/water/tree detail visible even under
+   software rendering in a local check — and the two central trees read as visibly different
+   without either looking ominous, matching the "before the Fall, no foreshadowing" brief. One
+   minor finding from that check: a text-encoding glitch (a stray "Â" before "·" in the entry
+   veil) in the raw source file, traced to a missing charset declaration — likely not present in
+   the actual published page (Claude's publish pipeline adds this automatically) but not
+   independently confirmed on the live URL; worth Ken checking directly.
+
+Phase 1 complete. Both pieces of the "narrative skeleton" pair Phase 2 was meant to extend
+(beginning + deliverance) are now real and Ken-reachable. Decide when ready whether to proceed to
+Phase 2 (Sinai, the empty tomb at dawn).
 
 ### Phase 2 — the next two, forming a four-point skeleton of the whole story
 3. **Sinai** — the mountain wrapped in cloud, smoke and fire, the camp below. Already described in
