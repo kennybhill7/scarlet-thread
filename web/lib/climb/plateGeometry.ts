@@ -65,8 +65,37 @@ export const PLATE_SRC: Record<PlateName, string> = {
   "plate-5-foothills": "/climb/plates/plate-5-foothills.jpg",
 };
 
-/** Real committed plate pixel heights, all at 1531px width (see header). */
-const PLATE_REAL_HEIGHTS_PX: readonly number[] = [240, 85, 85, 86, 149];
+/**
+ * MOUNTAINDESKTOP-001 — the scene-takeover's full-bleed images, one per
+ * stage number, mirrored from design/scarlet-thread-app/assets/scenes/ into
+ * web/public/climb/scenes/ (same reason PLATE_SRC's images live under
+ * web/public/climb/plates/: next.config.ts's CSP only allows same-origin
+ * img-src). Filenames transcribed verbatim from The Climb.dc.html's own
+ * `<image-slot>` `src` attributes (lines 78/109/139/169/199/229/259/289/
+ * 319/349/379) — real extensions kept as-is (a mix of .jpg and .png, not
+ * normalized), so this map is the single place a filename could drift out of
+ * sync with what's actually on disk; tests/mountain-desktop.test.ts checks
+ * every one of these 11 files actually exists under web/public/climb/scenes/.
+ */
+export const SCENE_SRC: ReadonlyMap<number, string> = new Map([
+  [1, "/climb/scenes/01-creation.jpg"],
+  [2, "/climb/scenes/02-sin-enters.png"],
+  [3, "/climb/scenes/03-flood.png"],
+  [4, "/climb/scenes/04-babel.png"],
+  [5, "/climb/scenes/05-israel.jpg"],
+  [6, "/climb/scenes/06-gospels.jpg"],
+  [7, "/climb/scenes/07-church.png"],
+  [8, "/climb/scenes/08-babylon.png"],
+  [9, "/climb/scenes/09-world-judged.jpg"],
+  [10, "/climb/scenes/10-satan-cast-out.png"],
+  [11, "/climb/scenes/11-paradise-restored.jpg"],
+]);
+
+/** Real committed plate pixel heights, all at 1531px width (see header).
+ * Exported (additive, MOUNTAINDESKTOP-001) so the desktop geometry below can
+ * reuse these same real numbers for its native-proportion recomposition,
+ * rather than re-typing them a second time. */
+export const PLATE_REAL_HEIGHTS_PX: readonly number[] = [240, 85, 85, 86, 149];
 /** route.json's reference frame is 1000 units wide; the real plates are
  * 1531px wide, so this is the reference-space -> real-pixel scale factor. */
 const PLATE_SCALE = 1531 / 1000;
@@ -377,5 +406,181 @@ export function buildPlateGeometry(stages: readonly MountainStage[]): PlateGeome
     waypoints,
     ropePathD: catmullRomToBezierPath(ropePoints),
     ropeLength: pathLength(ropePoints),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// MOUNTAINDESKTOP-001 — the desktop assembly's geometry: "the plates compose
+// back into the landscape panorama... Same plate set, same waypoint
+// coordinates, different assembly" (design/scarlet-thread-app/Scarlet Thread
+// App.dc.html, section 15). Everything above this line is the MOBILE
+// vertical-stack geometry (reflowed band heights by chapter count, waypoint
+// positions traced from route.json) and is UNCHANGED by this addition.
+//
+// The desktop composition is different in kind, not just in layout: instead
+// of reflowing each band's height to the member stages' chapter count (the
+// mobile column, meant to scroll), the desktop panorama stacks the same five
+// plate images at their REAL, NATIVE pixel-height proportions (240 / 85 / 85
+// / 86 / 149, summing to 645 — PLATE_REAL_HEIGHTS_PX above) inside a
+// container fixed at `aspect-ratio: 1531 / 645` (the plates' own combined
+// pixel dimensions). Because the five plates are literally horizontal slices
+// of ONE photographed mountain, all the same 1531px width, restoring their
+// true native proportions (rather than mobile's content-driven reflow)
+// recomposes the seams back into one continuous image — which is the whole
+// point of "the plates compose back into the landscape panorama" per the
+// design brief. Reflowing THIS geometry by chapter count, the way the mobile
+// column does, would re-introduce visible seams between plates and defeat
+// that recomposition, so it deliberately does not.
+//
+// The 11 waypoint positions are NOT derived from route.json's traced pts (as
+// the mobile STAGE_FRACTIONS above are) — they are hand-placed constants
+// from The Climb.dc.html's own `STAGES` const (lines 434-444), a separately
+// signed-off desktop mockup that predates the plates/rope rendering. Per this
+// task's brief: "these are DIFFERENT from plateGeometry.ts's own per-band
+// mobile waypoint fractions — that's a known, accepted difference between two
+// independently-authored coordinate sets on the same underlying artwork...
+// Use these exact desktop values as given, do not try to reconcile them with
+// the mobile math."
+// ---------------------------------------------------------------------------
+
+/** The panorama container's fixed pixel dimensions — matches the five real
+ * plate images' combined size (1531 wide; 240+85+85+86+149=645 tall) and is
+ * set verbatim as the container's `aspect-ratio` CSS (The Climb.dc.html line
+ * 55: `aspect-ratio:1531 / 645`). */
+export const DESKTOP_PANORAMA_WIDTH = 1531;
+export const DESKTOP_PANORAMA_HEIGHT = PLATE_REAL_HEIGHTS_PX.reduce((sum, h) => sum + h, 0);
+
+/**
+ * Hand-placed desktop waypoint positions, transcribed verbatim from The
+ * Climb.dc.html's `STAGES` const (lines 434-444) — left%/top% relative to
+ * the whole composed panorama. tests/mountain-desktop.test.ts asserts every
+ * one of these 11 values against that source file directly (not just
+ * against this constant), so a typo here is caught, not just re-asserted.
+ */
+export const DESKTOP_STAGE_POSITIONS: ReadonlyMap<number, { x: number; y: number }> = new Map([
+  [1, { x: 5.81, y: 84.2 }],
+  [2, { x: 14.0, y: 76.6 }],
+  [3, { x: 21.7, y: 62.2 }],
+  [4, { x: 28.9, y: 54.1 }],
+  [5, { x: 43.0, y: 31.2 }],
+  [6, { x: 50.0, y: 19.8 }], // peak
+  [7, { x: 56.9, y: 34.9 }],
+  [8, { x: 64.1, y: 47.0 }],
+  [9, { x: 72.0, y: 57.1 }],
+  [10, { x: 88.9, y: 76.6 }],
+  [11, { x: 96.1, y: 84.5 }],
+]);
+
+export interface DesktopPlateBand {
+  name: PlateName;
+  /** Percent of the panorama's total height, top of this band. */
+  topPct: number;
+  /** Percent of the panorama's total height, this band's own height. */
+  heightPct: number;
+}
+
+/** Pure constants (no stage dependency) — the five plates at their real,
+ * native pixel-height proportions, unlike computePlateBands()'s reflowed
+ * mobile bands above. */
+export function computeDesktopPlateBands(): DesktopPlateBand[] {
+  let topPx = 0;
+  return PLATE_NAMES.map((name, i) => {
+    const heightPx = PLATE_REAL_HEIGHTS_PX[i];
+    const band: DesktopPlateBand = {
+      name,
+      topPct: round2((topPx / DESKTOP_PANORAMA_HEIGHT) * 100),
+      heightPct: round2((heightPx / DESKTOP_PANORAMA_HEIGHT) * 100),
+    };
+    topPx += heightPx;
+    return band;
+  });
+}
+
+export interface DesktopWaypoint {
+  stage: MountainStage;
+  /** Percent position, relative to the whole panorama (not per-band). */
+  xPct: number;
+  yPct: number;
+  /** Same position in the DESKTOP_PANORAMA_WIDTH/HEIGHT pixel reference
+   * frame, for the rope SVG's viewBox coordinates. */
+  x: number;
+  y: number;
+  status: WaypointStatus;
+  href: string;
+  ariaLabel: string;
+  mirror: MountainStage | null;
+}
+
+/**
+ * Reuses computeWaypointStatuses (dormant/begun/current) and stageHref —
+ * same "reached" definition, same URL shape as the mobile assembly — so the
+ * two assemblies never disagree about which stages are studied or where a
+ * stage's chapter link goes. Only the x/y source differs (hand-placed
+ * DESKTOP_STAGE_POSITIONS, not route.json-derived STAGE_FRACTIONS).
+ */
+export function computeDesktopWaypoints(stages: readonly MountainStage[]): DesktopWaypoint[] {
+  const statuses = computeWaypointStatuses(stages);
+  const bySlug = new Map(stages.map((s) => [s.slug, s]));
+  const sorted = [...stages].sort((a, b) => a.stage - b.stage);
+
+  const waypoints: DesktopWaypoint[] = [];
+  for (const stage of sorted) {
+    const pos = DESKTOP_STAGE_POSITIONS.get(stage.stage);
+    if (!pos) continue; // stage number outside 1-11 -- no desktop position, skip (matches mobile's own guard).
+    const status = statuses.get(stage.slug) ?? "dormant";
+    const mirror = stage.mirror ? (bySlug.get(stage.mirror) ?? null) : null;
+    const displayTitle = stage.short || stage.title;
+
+    const parts = [`${displayTitle} — go to ${stage.reference}`];
+    if (mirror) parts.push(`mirrors ${mirror.short || mirror.title}, the same altitude on the far face`);
+    parts.push(status === "current" ? "you are here" : status === "begun" ? "studied" : "not yet studied");
+
+    waypoints.push({
+      stage,
+      xPct: pos.x,
+      yPct: pos.y,
+      x: round2((pos.x / 100) * DESKTOP_PANORAMA_WIDTH),
+      y: round2((pos.y / 100) * DESKTOP_PANORAMA_HEIGHT),
+      status,
+      href: stageHref(stage),
+      ariaLabel: parts.join(" — "),
+      mirror,
+    });
+  }
+  return waypoints;
+}
+
+/** design doc's Layer 2 stroke widths, scaled for the desktop panorama's real
+ * 1531-unit-wide pixel reference frame (rather than PLATE_COLUMN_WIDTH's
+ * 320, which the mobile column uses) — see ROPE_REF_STROKE_WIDTHS above. */
+const DESKTOP_ROPE_STROKE_SCALE = DESKTOP_PANORAMA_WIDTH / 1000;
+export const DESKTOP_ROPE_STROKE_WIDTHS = {
+  shadow: round2(ROPE_REF_STROKE_WIDTHS.shadow * DESKTOP_ROPE_STROKE_SCALE),
+  face: round2(ROPE_REF_STROKE_WIDTHS.face * DESKTOP_ROPE_STROKE_SCALE),
+  highlight: round2(ROPE_REF_STROKE_WIDTHS.highlight * DESKTOP_ROPE_STROKE_SCALE),
+};
+
+export interface DesktopPlateGeometry {
+  panoramaWidth: number;
+  panoramaHeight: number;
+  bands: DesktopPlateBand[];
+  waypoints: DesktopWaypoint[];
+  ropePathD: string;
+  ropeLength: number;
+  ropeStrokeWidths: { shadow: number; face: number; highlight: number };
+}
+
+export function buildDesktopPlateGeometry(stages: readonly MountainStage[]): DesktopPlateGeometry {
+  const bands = computeDesktopPlateBands();
+  const waypoints = computeDesktopWaypoints(stages);
+  const ropePoints = waypoints.map((w) => ({ x: w.x, y: w.y }));
+  return {
+    panoramaWidth: DESKTOP_PANORAMA_WIDTH,
+    panoramaHeight: DESKTOP_PANORAMA_HEIGHT,
+    bands,
+    waypoints,
+    ropePathD: catmullRomToBezierPath(ropePoints),
+    ropeLength: pathLength(ropePoints),
+    ropeStrokeWidths: DESKTOP_ROPE_STROKE_WIDTHS,
   };
 }

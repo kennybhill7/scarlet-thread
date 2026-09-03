@@ -43,6 +43,12 @@ const cssProxy = new Proxy(
 );
 
 seedModule("@/components/climb/Mountain.module.css", { default: cssProxy });
+// MOUNTAINDESKTOP-001 — Mountain.tsx now also renders MountainDesktop.tsx
+// (the >=1100px assembly, always mounted -- see Mountain.module.css's
+// `.mobileScene`/`.desktopScene` breakpoint), which imports its own CSS
+// Module; stub it the same proxy way so tsx never tries to `require()` a
+// real .css file as JS.
+seedModule("@/components/climb/MountainDesktop.module.css", { default: cssProxy });
 // MOUNTAINPLATES-001 — Mountain.tsx now also renders MountainPlates.tsx,
 // which imports its own CSS Module; stub it the same proxy way so tsx never
 // tries to `require()` a real .css file as JS.

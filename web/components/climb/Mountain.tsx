@@ -6,9 +6,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { MountainStage } from "@/lib/vault/seed";
 import { buildMountainGeometry, buildRibbonTicks, scrollProgressFor } from "@/lib/climb/mountainGeometry";
 import { buildPlateGeometry } from "@/lib/climb/plateGeometry";
+import {
+  ISRAEL_STAGE_NUMBER,
+  isIsraelWaypoint,
+  resolveWaypointAction,
+  type WaypointAction,
+} from "@/lib/climb/waypointAction";
 import { Sheet } from "@/components/ui/Sheet";
 import { IsraelSubArcPrototype } from "@/components/prototype/IsraelSubArcPrototype";
 import { MountainPlates } from "./MountainPlates";
+import { MountainDesktop } from "./MountainDesktop";
 import { MountainRibbon } from "./MountainRibbon";
 import styles from "./Mountain.module.css";
 
@@ -17,36 +24,22 @@ interface MountainProps {
 }
 
 /**
- * ISRAELFILTER-001 — stage 5 ("Israel," Genesis 12 through Malachi, 65% of
- * the app's total reading content per design/STORY_SPINE_DECISIONS.md
- * decision 4) is the one stage of 11 broad enough to get a filtered sub-arc
- * view instead of jumping straight into the chapter reader. Every other
- * stage's waypoint is completely unaffected — still `goTo(waypoint.href)`,
- * still `stageHref()`'s own URL, untouched by this task. `isIsraelWaypoint`
- * is exported (rather than kept as an inline literal) so
- * tests/israel-sub-arc.test.ts can prove the branch itself, independent of
- * simulating a real click (this repo's test runner has no jsdom — see that
- * file's own header).
+ * ISRAELFILTER-001 / MOUNTAINDESKTOP-001 — stage 5 ("Israel," Genesis 12
+ * through Malachi, 65% of the app's total reading content per
+ * design/STORY_SPINE_DECISIONS.md decision 4) is the one stage of 11 broad
+ * enough to get a filtered sub-arc view instead of jumping straight into the
+ * chapter reader. Every other stage's waypoint is completely unaffected —
+ * still `goTo(waypoint.href)`, still `stageHref()`'s own URL, untouched by
+ * this task. `ISRAEL_STAGE_NUMBER`/`isIsraelWaypoint`/`resolveWaypointAction`
+ * now live in lib/climb/waypointAction.ts (MOUNTAINDESKTOP-001 moved them out
+ * so MountainDesktop.tsx's own waypoint click AND scene-takeover "read on"
+ * CTA can reuse the exact same decision without importing this file — see
+ * that module's header) and are re-exported here unchanged so
+ * tests/israel-sub-arc.test.ts, which imports them from this module's own
+ * path, keeps working without modification.
  */
-export const ISRAEL_STAGE_NUMBER = 5;
-
-export function isIsraelWaypoint(stage: Pick<MountainStage, "stage">): boolean {
-  return stage.stage === ISRAEL_STAGE_NUMBER;
-}
-
-export type WaypointAction = { kind: "open-israel-sub-arc" } | { kind: "navigate"; href: string };
-
-/**
- * Pure decision the plates AND ribbon click handlers both funnel through
- * (via `selectWaypoint` below) — extracted so tests/israel-sub-arc.test.ts
- * can prove, for every one of the 11 real stage numbers, that stage 5 opens
- * the sub-arc and every other stage still resolves to `navigate` with `href`
- * passed through completely unchanged, without simulating a real click
- * (this repo's test runner has no jsdom).
- */
-export function resolveWaypointAction(stage: MountainStage, href: string): WaypointAction {
-  return isIsraelWaypoint(stage) ? { kind: "open-israel-sub-arc" } : { kind: "navigate", href };
-}
+export { ISRAEL_STAGE_NUMBER, isIsraelWaypoint, resolveWaypointAction };
+export type { WaypointAction };
 
 /**
  * MOUNTAINPLATES-001 — "The Switchback: real plates, drawn path"
@@ -218,12 +211,31 @@ export function Mountain({ stages }: MountainProps) {
       <div className={styles.sky} style={{ height: plateGeometry.totalHeight }} aria-hidden="true" />
 
       <div className={styles.scene}>
-        <MountainPlates
-          geometry={plateGeometry}
-          hoveredSlug={hovered}
-          onHoverChange={setHovered}
-          onSelect={(waypoint) => selectWaypoint(waypoint.stage, waypoint.href)}
-        />
+        {/* MOUNTAINDESKTOP-001 — both assemblies always mount; a pure CSS
+            breakpoint (Mountain.module.css's `.mobileScene`/`.desktopScene`,
+            `@media (min-width: 1100px)`) decides which one is visible,
+            exactly the same convention this app's other responsive layouts
+            already use (MirrorSplitView.module.css, ChapterReader.module.css
+            — see those files' own `@media (min-width: ...)` rules). Always
+            mounting both (rather than a JS matchMedia toggle deciding which
+            component to render) means no client/server hydration mismatch
+            and no first-paint "flash" of the wrong assembly while JS boots —
+            the tradeoff is that the hidden assembly's images still load
+            off-screen, acceptable for 5 small photographic plates. Below
+            1100px this renders MountainPlates exactly as MOUNTAINPLATES-001
+            shipped it — same props, same geometry, same onSelect wiring,
+            untouched. */}
+        <div className={styles.mobileScene}>
+          <MountainPlates
+            geometry={plateGeometry}
+            hoveredSlug={hovered}
+            onHoverChange={setHovered}
+            onSelect={(waypoint) => selectWaypoint(waypoint.stage, waypoint.href)}
+          />
+        </div>
+        <div className={styles.desktopScene}>
+          <MountainDesktop stages={stages} onSelect={selectWaypoint} />
+        </div>
       </div>
 
       {activeWaypoint ? (

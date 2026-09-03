@@ -48,6 +48,37 @@
   z-index: 1;
 }
 
+/* MOUNTAINDESKTOP-001 — "The plates compose back into the landscape panorama
+   at desktop widths... Same plate set, same waypoint coordinates, different
+   assembly" (design/scarlet-thread-app/Scarlet Thread App.dc.html, section
+   15). Both MountainPlates (mobile, vertical stack) and MountainDesktop
+   (desktop, wide panorama) always mount inside .scene above; this single
+   breakpoint decides which is visible. Same `min-width` convention this
+   app's other responsive layouts already use (see
+   MirrorSplitView.module.css, ChapterReader.module.css's own `@media
+   (min-width: ...)` rules) — a plain CSS toggle, not a JS-mounted swap, so
+   there is no hydration mismatch and no first-paint flash of the wrong
+   assembly. 1100px matches this task's own brief (the desktop panorama
+   composition, at aspect-ratio 1531/645, needs real width to read as a
+   landscape rather than a squeezed strip). */
+.mobileScene {
+  display: block;
+}
+
+.desktopScene {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .mobileScene {
+    display: none;
+  }
+
+  .desktopScene {
+    display: block;
+  }
+}
+
 .tip {
   position: relative;
   z-index: 1;

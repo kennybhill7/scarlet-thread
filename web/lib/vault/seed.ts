@@ -120,6 +120,15 @@ export interface MountainStage {
   observationCount: number;
   questionCount: number;
   studied: boolean;
+  /** MOUNTAINDESKTOP-001 — real narrative summary for this stage, sourced
+   * from stages.json's own `summary` field (SeedStage.summary, already
+   * imported but previously dropped when building MountainStage below).
+   * Optional so every existing MountainStage fixture across this repo's
+   * tests (none of which set it) keeps type-checking unchanged — this is a
+   * pure addition, not a new requirement on callers. Used by the desktop
+   * scene takeover's "what the text puts in front of you" copy
+   * (MountainDesktop.tsx); falls back to "" when a stage has no summary. */
+  summary?: string;
 }
 
 function splitLabel(title: string): { reference: string; short: string } {
@@ -179,6 +188,7 @@ export async function getMountain(): Promise<MountainStage[]> {
         // under Observation but nothing under My notes, so this is honestly
         // false for all eleven right now. Left explicit rather than guessed.
         studied: false,
+        summary: stage.summary,
       };
     })
     .sort((a, b) => a.stage - b.stage);

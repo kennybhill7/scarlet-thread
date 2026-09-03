@@ -118,6 +118,12 @@ function seedModule(specifier: string, exports: Record<string, unknown>) {
 const cssProxy = new Proxy({}, { get: (_target, key) => (typeof key === "string" ? key : undefined) });
 seedModule("@/components/climb/Mountain.module.css", { default: cssProxy });
 seedModule("@/components/climb/MountainPlates.module.css", { default: cssProxy });
+// MOUNTAINDESKTOP-001 — Mountain.tsx now also renders MountainDesktop.tsx
+// (the >=1100px assembly, always mounted -- see Mountain.module.css's
+// `.mobileScene`/`.desktopScene` breakpoint), which imports its own CSS
+// Module; stub it the same proxy way so tsx never tries to `require()` a
+// real .css file as JS.
+seedModule("@/components/climb/MountainDesktop.module.css", { default: cssProxy });
 // ISRAELFILTER-001 — Mountain.tsx now also renders a `Sheet` (for the
 // stage-5 sub-arc), which imports its own CSS Module; stub it the same way.
 seedModule("@/components/ui/Sheet.module.css", { default: cssProxy });
@@ -131,17 +137,28 @@ test("RENDER Mountain: composes the plates scene and the ribbon together over th
   assert.ok(html.includes('data-testid="mountain"'));
   assert.ok(html.includes('data-testid="mountain-plates"'), "the new plates scene should render inside Mountain");
   // 2 plate waypoints (one per stage, `data-status` only exists on plate
-  // waypoint buttons, not ribbon ticks) + 2 ribbon ticks + 2 Sheet close (×)
-  // buttons = 6 buttons total. The two Sheet buttons are new as of
+  // waypoint buttons, not ribbon ticks or MountainDesktop's own waypoints,
+  // which use `data-waypoint-status` instead -- see MountainDesktop.tsx) +
+  // 2 ribbon ticks + 2 Sheet close (×) buttons + 2 MountainDesktop waypoint
+  // buttons (MOUNTAINDESKTOP-001 -- always mounted alongside MountainPlates;
+  // a pure CSS breakpoint decides which is *visible*, but both render into
+  // the static markup) = 8 buttons total. The two Sheet buttons are from
   // ISRAELFILTER-001: Mountain.tsx now always embeds a `Sheet` (for the
   // stage-5 sub-arc) whose body is `IsraelSubArcPrototype`, which itself
   // embeds a second, nested `Sheet` (for phase detail) -- both `<dialog>`s
   // (and their own close buttons) render into the static markup regardless
   // of open/closed state, since `showModal()`/`close()` are imperative
   // effects that never fire under `renderToStaticMarkup` (no browser commit
-  // phase -- same fact this file already documents below).
+  // phase -- same fact this file already documents below). MountainDesktop's
+  // own hover card / scene takeover / prev-next / dot-rail buttons do NOT
+  // render here -- they're conditional on hover/open state, both null on
+  // this component's initial render.
   assert.equal((html.match(/data-status="/g) ?? []).length, 2, "both stages should render as plate waypoints");
-  assert.equal((html.match(/<button/g) ?? []).length, 6, "2 plate waypoints + 2 ribbon ticks + 2 Sheet close buttons");
+  assert.equal(
+    (html.match(/<button/g) ?? []).length,
+    8,
+    "2 plate waypoints + 2 ribbon ticks + 2 Sheet close buttons + 2 desktop waypoints",
+  );
   assert.ok(html.includes("Genesis 1–2"));
   assert.ok(html.includes("Revelation 20–22"));
   // useEffect never fires under renderToStaticMarkup (no browser commit

@@ -1,0 +1,551 @@
+/* MOUNTAINDESKTOP-001 — see MountainDesktop.tsx's own header. Only visible
+   at >=1100px (Mountain.module.css's `.desktopScene` media query controls
+   that; nothing in here needs its own width guard).
+
+   COLOR SPLIT (same precedent MountainPlates.module.css already set for the
+   rope's exact shadow/highlight colors): the panorama's own art accents —
+   the gold waypoint/halo ring, the mirror-pair crimson — are the literal
+   hex values from The Climb.dc.html's own spec, since those are specific,
+   signed-off design values for this one piece of art, not general app
+   chrome. Everything else (card/takeover backgrounds, borders, body text)
+   uses this app's existing --shell-* design tokens, so the desktop assembly
+   reads as part of the same app, not a pasted-in mockup. */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panorama {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--shell-border-hi);
+  background: var(--shell-bg);
+}
+
+/* Layer 1 -- plates, positioned by top/height percent (band.topPct/heightPct,
+   the plates' REAL native pixel proportions -- see plateGeometry.ts's
+   "MOUNTAINDESKTOP-001" section header for why this differs from the mobile
+   column's reflowed heights). */
+.plates {
+  position: absolute;
+  inset: 0;
+}
+
+.plate {
+  position: absolute;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+}
+
+.plateImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Layer 2 -- the rope. Always fully drawn (no scroll-driven reveal mask --
+   this is a small, self-contained panorama, not a tall scrolling column, so
+   there is nothing to reveal progressively; see MountainDesktop.tsx's own
+   header, "REDUCED MOTION"). */
+.rope {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Layer 3 -- waypoints. */
+.waypoints {
+  position: absolute;
+  inset: 0;
+}
+
+.waypoint {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  margin: -22px 0 0 -22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.waypointPeak {
+  width: 50px;
+  height: 50px;
+  min-width: 50px;
+  margin: -25px 0 0 -25px;
+}
+
+.dot {
+  display: block;
+  border-radius: 50%;
+  transition: transform 0.12s ease;
+}
+
+.waypoint:hover .dot,
+.waypoint:focus-visible .dot {
+  transform: scale(1.12);
+}
+
+/* Same dormant/begun/current sizes/colors as MountainPlates.module.css's own
+   waypoints -- one consistent visual language across both assemblies. */
+.dot.dormant {
+  width: 12px;
+  height: 12px;
+  background: rgba(244, 230, 200, 0.42);
+  box-shadow: 0 0 0 3px rgba(7, 8, 10, 0.5);
+}
+
+.dot.begun {
+  width: 15px;
+  height: 15px;
+  background: #f4e6c8;
+  box-shadow: 0 0 0 3px rgba(7, 8, 10, 0.55);
+}
+
+.dot.current {
+  width: 22px;
+  height: 22px;
+  background: var(--shell-crimson);
+  border: 2px solid #f4e6c8;
+  box-shadow:
+    0 0 0 5px rgba(207, 32, 39, 0.28),
+    0 0 24px rgba(207, 32, 39, 0.5);
+}
+
+/* Hover halo -- The Climb.dc.html lines 533-544, verbatim. */
+.halo {
+  position: absolute;
+  width: 74px;
+  height: 74px;
+  margin: -37px 0 0 -37px;
+  border-radius: 999px;
+  border: 1px solid rgba(232, 180, 101, 0.85);
+  box-shadow:
+    0 0 0 6px rgba(232, 180, 101, 0.1),
+    0 0 34px 6px rgba(232, 180, 101, 0.28);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  animation: halo-in 0.12s ease forwards;
+}
+
+@keyframes halo-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Hover card -- The Climb.dc.html lines 554-580. */
+.card {
+  position: absolute;
+  width: 286px;
+  padding: 16px 18px 17px;
+  border-radius: 18px;
+  background: var(--shell-surface-hi);
+  border: 1px solid var(--shell-border-hi);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  z-index: 3;
+  opacity: 0;
+  animation: card-in 0.12s ease forwards;
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.cardFlipDown {
+  transform: translate(-50%, 46px);
+}
+
+.cardFlipUp {
+  transform: translate(-50%, calc(-100% - 46px));
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.cardEyebrow {
+  font-family: var(--font-narrow);
+  font-weight: 700;
+  font-size: 10.5px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #e8b465;
+}
+
+.cardBadge {
+  font-family: var(--font-narrow);
+  font-weight: 700;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
+.cardBadgeBegun {
+  color: #d9615f;
+}
+
+.cardBadgeNotYet {
+  color: var(--shell-muted-2);
+}
+
+.cardTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 21px;
+  color: var(--shell-text);
+  line-height: 1.15;
+}
+
+.cardRef {
+  margin: 0;
+  font-size: 13px;
+  color: var(--shell-text-2);
+}
+
+.cardCounts {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: var(--shell-muted-2);
+}
+
+.cardMirror {
+  margin-top: 4px;
+  padding-top: 9px;
+  border-top: 1px solid var(--shell-border);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cardLabel {
+  font-family: var(--font-narrow);
+  font-weight: 700;
+  font-size: 10.5px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--shell-muted-2);
+}
+
+.cardMirrorValue {
+  font-size: 12.5px;
+  color: var(--shell-text-2);
+}
+
+/* The scene takeover -- The Climb.dc.html lines 76-405 (shared layout) +
+   sceneNav (500-530). */
+.takeover {
+  position: absolute;
+  inset: 0;
+  background: var(--shell-bg);
+  z-index: 4;
+}
+
+.takeoverImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.takeoverScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(5, 9, 16, 0.95) 0%,
+    rgba(5, 9, 16, 0.8) 32%,
+    rgba(5, 9, 16, 0.12) 62%,
+    rgba(5, 9, 16, 0) 100%
+  );
+  pointer-events: none;
+}
+
+.takeoverBody {
+  position: absolute;
+  left: 7%;
+  top: 0;
+  bottom: 7%;
+  width: min(38%, 420px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+}
+
+.takeoverEyebrow {
+  font-family: var(--font-narrow);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #e8b465;
+}
+
+.takeoverTitle {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(28px, 4vw, 46px);
+  line-height: 1.02;
+  margin: 0;
+  color: #f7ecd8;
+  letter-spacing: -0.01em;
+}
+
+.takeoverRef {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: #d9bb84;
+}
+
+.takeoverSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-left: 2px solid rgba(232, 180, 101, 0.5);
+  padding-left: 14px;
+}
+
+.takeoverSummaryBody {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--shell-text);
+}
+
+.takeoverMeta {
+  display: flex;
+  gap: 26px;
+  flex-wrap: wrap;
+}
+
+.takeoverMetaCol {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.takeoverMetaValue {
+  font-size: 13px;
+  color: var(--shell-text);
+}
+
+.takeoverMetaValueMirror {
+  font-size: 13px;
+  color: #d9615f;
+}
+
+.takeoverActions {
+  margin-top: 6px;
+}
+
+.readOnButton {
+  height: 46px;
+  padding: 0 22px;
+  border-radius: 999px;
+  border: 1px solid #a8823c;
+  background: rgba(232, 180, 101, 0.12);
+  font-family: var(--font-narrow);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #f4e3c3;
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+
+.readOnButton:hover,
+.readOnButton:focus-visible {
+  background: rgba(232, 180, 101, 0.22);
+  border-color: #e8b465;
+}
+
+.closeButton,
+.prevButton,
+.nextButton {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(232, 180, 101, 0.45);
+  background: rgba(7, 12, 20, 0.62);
+  color: #f4e3c3;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.closeButton {
+  top: 20px;
+  right: 20px;
+}
+
+.prevButton {
+  top: 50%;
+  left: 20px;
+  margin-top: -22px;
+  font-size: 17px;
+}
+
+.nextButton {
+  top: 50%;
+  right: 20px;
+  margin-top: -22px;
+  font-size: 17px;
+}
+
+.closeButton:disabled,
+.prevButton:disabled,
+.nextButton:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.sceneNavRail {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(7, 12, 20, 0.6);
+  border: 1px solid rgba(232, 180, 101, 0.22);
+}
+
+.sceneNavDot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(232, 180, 101, 0.3);
+  cursor: pointer;
+  transition: width 0.12s ease, height 0.12s ease, background-color 0.12s ease;
+}
+
+.sceneNavDotActive {
+  width: 11px;
+  height: 11px;
+  background: #e8b465;
+}
+
+/* The bottom progress rail -- The Climb.dc.html lines 408-427. */
+.progressRail {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 6px 14px;
+}
+
+.progressEnd {
+  font-family: var(--font-display);
+  font-size: 15px;
+  color: #d9bb84;
+  white-space: nowrap;
+}
+
+.progressTrack {
+  flex: 1 1 auto;
+  position: relative;
+  height: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.progressLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(201, 154, 78, 0.05) 0%,
+    rgba(201, 154, 78, 0.42) 12%,
+    rgba(201, 154, 78, 0.42) 88%,
+    rgba(201, 154, 78, 0.05) 100%
+  );
+}
+
+.progressDots {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.progressDot {
+  border-radius: 999px;
+  display: block;
+}
+
+.progressDotReached {
+  width: 9px;
+  height: 9px;
+  background: #e8b465;
+}
+
+.progressDotUnreached {
+  width: 7px;
+  height: 7px;
+  background: #7a6437;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot,
+  .readOnButton,
+  .sceneNavDot {
+    transition: none;
+  }
+
+  .halo,
+  .card {
+    animation: none;
+    opacity: 1;
+  }
+}
