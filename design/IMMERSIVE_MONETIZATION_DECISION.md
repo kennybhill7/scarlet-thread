@@ -1,44 +1,36 @@
-# Immersive scenes are a paid enhancement — never a paywall on understanding
+# Immersive scenes stay free — reversed 2026-09-02, same conversation
 
 **Date:** 2026-09-02
-**Status:** Decided by Ken. Companion to `Scarlet Thread - Strategy.md` (Claude Design's own
-doc) — recorded here rather than edited directly into that file, matching how
-`STORY_SPINE_DECISIONS.md` handles the same relationship. Fold into Strategy.md's monetization
-section (§4) on the next design pass.
+**Status:** Decided by Ken, then reconsidered and reversed within the same conversation. Recorded
+as-is, including the reversal, so a future reader sees the real reasoning rather than just the
+final answer.
 
 ---
 
-## The decision
+## The final decision
 
-Static photoreal scenes (the `Image Commission.md` set, all 11 stages + eventual site vistas) stay
-**free forever**, matching Strategy.md §0/§4's existing, non-negotiable commitment. The
-Fable-built **immersive** versions of a curated subset of those same scenes
-(`IMMERSIVE_SCENES_ROADMAP.md` — currently Eden and the Red Sea crossing, with Sinai and the empty
-tomb next) become a paid benefit, folded into the existing Teach tier ($6-9/mo or the one-time
-lifetime option) rather than a new subscription tier.
+**Immersive scenes are free, same as everything else.** No paid tier attached to them. This
+supersedes the paid-Teach-tier proposal below, which Ken considered and then rejected minutes
+later with: "we keep it free then."
 
-## Why this doesn't contradict "understanding is never for sale"
+## What was considered and rejected
 
-The line is presentation, not content. Every fact, connection, passage, covenant/timeline rail,
-and stage is fully accessible for free at every tier — nothing about *understanding* the Bible as
-one story is gated. What's paid is a richer, interactive, atmospheric presentation of a small
-number of moments a reader can already fully read and study for free. This is the same shape as
-the already-approved Teach tier and woven-year poster: real goods adjacent to understanding, not
-understanding itself.
+The original proposal in this doc (now superseded): fold the curated immersive scenes
+(`IMMERSIVE_SCENES_ROADMAP.md`) into the existing paid Teach tier, on the theory that presentation
+could be monetized without paywalling understanding itself, since the static free version would
+remain fully sufficient to actually learn the story.
 
-## The one real risk to watch
+That reasoning wasn't wrong on its own terms, but Ken chose not to take on the risk it flagged —
+the note in the original version of this doc warned that if the immersive set ever grew large, the
+free/paid gap could start to feel like the real app was behind the paywall even without anything
+technically blocked. Rather than manage that risk over time, the simpler and safer choice is to
+just not introduce it: keep the entire learning ladder free, immersive scenes included, exactly as
+`Scarlet Thread - Strategy.md` §0/§4 already commits to for everything else.
 
-Ken's own stated long-term goal is "eventually id like for all of it to be immersive." If the
-immersive set ever grows to cover most or all of the 11 stages while the free tier is still just
-static images throughout, the gap stops feeling like a bonus and starts feeling like the real app
-is behind the paywall — even though nothing is technically blocked. `IMMERSIVE_SCENES_ROADMAP.md`'s
-phased, curated rollout (a handful of signature moments, not all 11 at once) keeps this
-proportionate for now. **Revisit this decision explicitly** if the immersive set ever approaches
-roughly half the stages — that's the point to re-check whether the free/paid balance still holds,
-not something to let drift past unnoticed.
+## What this means going forward
 
-## What this doesn't decide
-
-Exact pricing, exact bundling mechanics, or how a subscriber's immersive access is technically
-gated in the app (account tier check on load, a separate route, etc.) — those are implementation
-details for whenever this actually gets built, not part of this decision.
+`IMMERSIVE_SCENES_ROADMAP.md`'s phased rollout (Eden, Red Sea, then Sinai and the empty tomb, then
+Babylon/New Jerusalem, then everything else over time) is unchanged — only the monetization
+attached to it is gone. No account-tier gating needs building for these scenes. Monetization stays
+exactly where Strategy.md already puts it: the Teach pack, the woven-year poster/export, church and
+group licensing, physical goods — none of which this doc touches.
