@@ -631,13 +631,13 @@
       "notes": "Real photographic plates + drawn SVG rope, replacing MOUNTAINSWITCHBACK-001's flat procedural terrain. Band-to-stage mapping (plate-1-summit=5,6,7; plate-2-upper=4,8; plate-3-mid=3,9; plate-4-lower=2,10; plate-5-foothills=1,11) independently re-derived from route.json by the builder's own test, matching what was handed to it. Visual check done properly this time: builder rendered the real component via a static harness + headless screenshot (no popup window) and viewed the actual image before reporting done; I did the same independently after merge -- confirms real photographic terrain with a visible 3-stroke rope, not a flat diagram. Screenshot kept locally (not in git) at the builder's scratchpad path. Human gate still open: Ken should look at the real rendered app himself -- not yet done as of this entry."
     },
     "STORYSPINE-001": {
-      "status": "in_progress",
+      "status": "done",
       "branch": "agent/STORYSPINE-001-claude",
-      "commitSha": null,
+      "commitSha": "9939cb6",
       "attempts": 1,
-      "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Dispatched 2026-09-03 -- the real 35-chapter Story Spine data, decisions already made in STORY_SPINE_DECISIONS.md. Real risk flagged in acceptance criteria: the source doc's own example data shape uses invented book codes that do NOT match this app's real RefKey/book-number scheme (web/lib/bible/reference.ts) -- builder must verify against the real source, not the doc's illustrative example."
+      "lastRunId": "a31b41be1a9c622f0",
+      "lastEvidence": "typecheck/lint/test all re-run independently by Claude in the builder's own worktree before merge: tsc clean, eslint clean, 1172/1172 tests pass. All 35 passage entries cross-checked by hand against the source doc's own §2 content -- every book number, chapter range, phase, and stage assignment matches. Merged fast-forward onto master and design/mountain-journey at 9939cb6, pushed both.",
+      "notes": "The real 35-chapter Story Spine data (web/lib/bible/storySpine.ts) plus tests. Book-numbering verified against web/public/bible/index.json and cross-checked RefKeys already in the codebase -- the source doc's own example data shape used invented 3-letter codes that do NOT match the app's real 1-66 numeric scheme, correctly caught and worked around. One documented judgment call: chapter 1 (Genesis 1-9) spans mountain stages 1/2/3, so `stage` is typed number | number[] rather than inventing a 5th/6th addition not sanctioned by the source doc. Stage-5 phase-filter UI explicitly out of scope, not built -- future task."
     }
   }
 }
