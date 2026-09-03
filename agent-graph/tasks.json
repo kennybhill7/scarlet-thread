@@ -2499,6 +2499,47 @@
       "humanGates": [
         "Ken should spot-check a handful of the 35 chapters' passage references against a real Bible before this is treated as fully trustworthy content -- this is real biblical content, not just code, and deserves a human sanity check even though it's sourced from an already-published, real structural breakdown."
       ]
+    },
+    {
+      "id": "ISRAELFILTER-001",
+      "title": "Wire real storySpine.ts data into the Israel sub-arc (stage 5) filter, promote it out of prototype-only",
+      "objective": "design/STORY_SPINE_DECISIONS.md decision 4 calls for 'a filter on the existing stage view' for stage 5 (Israel, Genesis 12-Malachi, 65% of the total reading on 1/11th of the Mountain). Research already done this session found there is no production stage-view page to extend -- decision 4's citation of ISRAELPROTO-001 (web/app/(app)/prototype/israel-sub-arc/) is about its INTERACTION PATTERN (a ridge/point diagram, tap a phase, a bottom Sheet drills into detail), not an existing surface. ISRAELPROTO-001 today is reachable only by typing its URL directly (no link anywhere in real nav), uses a hardcoded, DIFFERENT 6-phase taxonomy than the real data (its own file says 'Patriarchs, Exodus, Conquest, Kingdom, Exile, Return'), and its detail view is a static placeholder ('Chapters, threads, and observations for this phase would live here.') with no real content and no navigation onward. This task: reuse that interaction pattern, wire it to the real web/lib/bible/storySpine.ts data (merged this session, 35 chapters, phase field set on stage-5 entries only), give it a real reachable home from stage 5's Mountain waypoint, and make the detail view actually navigate into the reader with real chapter content -- turning it from an inert click-through demo into a working feature.",
+      "ownedPaths": [
+        "web/lib/prototype/israel-sub-arc.ts",
+        "web/components/prototype/IsraelSubArcPrototype.tsx",
+        "web/components/prototype/IsraelSubArcDetail.tsx",
+        "web/components/prototype/IsraelSubArcRidge.tsx",
+        "web/app/(app)/prototype/israel-sub-arc/page.tsx",
+        "web/components/climb/Mountain.tsx",
+        "web/tests/israel-sub-arc.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/bible/storySpine.ts",
+        "web/lib/climb/plateGeometry.ts",
+        "web/lib/climb/mountainGeometry.ts",
+        "design/STORY_SPINE_DECISIONS.md",
+        "design/scarlet-thread-app/Scarlet Thread - Story Spine.md",
+        "web/components/ui/Sheet.module.css"
+      ],
+      "acceptanceCriteria": [
+        "The 6 phases shown are derived from storySpine.ts's real STORY_SPINE data (filter entries where stagesOf(entry).includes(5), group by the real `phase` field: Patriarchs, Exodus, Conquest, Kingdom, 'Divided & Warned', 'Exile & Return') -- NOT the prototype's own hardcoded, differently-named 6-phase array in lib/prototype/israel-sub-arc.ts, which must be replaced (or its shape reconciled to match), not left as a second, drifting source of truth.",
+        "Tapping a phase in the ridge diagram opens a detail view listing every storySpine.ts chapter in that phase (title, passage references in human-readable form, e.g. 'Genesis 12-13'), each one a real, working navigation link into the existing chapter reader (/read/[book]/[chapter]) -- replacing the current static placeholder text entirely.",
+        "Stage 5's waypoint on the real Mountain (web/components/climb/MountainPlates.tsx via Mountain.tsx's onSelect handler) now opens this sub-arc view instead of jumping straight to stageHref()'s first-chapter reader link -- every OTHER stage's waypoint (1-4, 6-11) is completely unaffected and must still navigate exactly as before; do not touch stageHref() itself or any other stage's behavior.",
+        "The ridge visualization (IsraelSubArcRidge.tsx) keeps its existing visual design/shape logic -- this task is about the data and navigation feeding it, not a redesign of the ridge diagram itself.",
+        "The prototype route (web/app/(app)/prototype/israel-sub-arc/page.tsx) may keep existing as a standalone testable URL, OR be removed if the real integration point makes it redundant -- your call, but say explicitly which you chose and why.",
+        "Existing tests in web/tests/israel-sub-arc.test.ts must be updated to match the real data source, not deleted wholesale -- if a test specifically asserted the OLD hardcoded phase taxonomy (Exile and Return as two separate phases), it needs updating to the real one (merged 'Exile & Return', plus the 'Divided & Warned' phase that didn't exist in the prototype at all), not silently dropped.",
+        "No changes to storySpine.ts itself, mountainGeometry.ts, or plateGeometry.ts's own exports/behavior -- this task only consumes their existing exports.",
+        "Mutation-prove any new/changed test that asserts real behavior (e.g. temporarily break the phase-grouping logic or a navigation link, confirm the test catches it, revert)."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": [
+        "Ken should click through the real stage-5 experience himself before this is considered fully final -- ISRAELPROTO-001 was originally built explicitly 'awaiting Ken's own click-through judgment' on the navigation feel, and wiring in real data doesn't retroactively grant that approval. Flag this explicitly when reporting done."
+      ]
     }
   ]
 }

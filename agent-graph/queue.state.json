@@ -638,6 +638,15 @@
       "lastRunId": "a31b41be1a9c622f0",
       "lastEvidence": "typecheck/lint/test all re-run independently by Claude in the builder's own worktree before merge: tsc clean, eslint clean, 1172/1172 tests pass. All 35 passage entries cross-checked by hand against the source doc's own §2 content -- every book number, chapter range, phase, and stage assignment matches. Merged fast-forward onto master and design/mountain-journey at 9939cb6, pushed both.",
       "notes": "The real 35-chapter Story Spine data (web/lib/bible/storySpine.ts) plus tests. Book-numbering verified against web/public/bible/index.json and cross-checked RefKeys already in the codebase -- the source doc's own example data shape used invented 3-letter codes that do NOT match the app's real 1-66 numeric scheme, correctly caught and worked around. One documented judgment call: chapter 1 (Genesis 1-9) spans mountain stages 1/2/3, so `stage` is typed number | number[] rather than inventing a 5th/6th addition not sanctioned by the source doc. Stage-5 phase-filter UI explicitly out of scope, not built -- future task."
+    },
+    "ISRAELFILTER-001": {
+      "status": "in_progress",
+      "branch": "agent/ISRAELFILTER-001-claude",
+      "commitSha": null,
+      "attempts": 1,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Dispatched 2026-09-03 -- promotes ISRAELPROTO-001's interaction pattern (ridge + Sheet drill-in) from an inert, URL-only prototype into a real, wired feature using STORYSPINE-001's real data. Research this session confirmed there is no production 'stage view' to extend and the prototype's own phase taxonomy does not match the real data -- both must be reconciled, not assumed compatible."
     }
   }
 }
