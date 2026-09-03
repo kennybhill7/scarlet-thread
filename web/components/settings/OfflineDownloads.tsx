@@ -80,6 +80,7 @@ export function OfflineDownloads() {
               <div>
                 <p className={styles.name}>{version.short}</p>
                 <p className={styles.note}>{version.note}</p>
+                <p className={styles.licence}>{version.licence}</p>
               </div>
               {status === "ready" && <span className={styles.ready}>Downloaded</span>}
               {status === "downloading" && (

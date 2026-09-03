@@ -81,7 +81,11 @@ VERSIONS: list[Version] = [
         name="King James Version",
         short="King James",
         year="1611",
-        licence="Public domain in the United States.",
+        licence=(
+            "Public domain worldwide, except the United Kingdom, where the Crown holds a "
+            "perpetual printing patent over this text. No access restriction is applied here; "
+            "UK readers should be aware of this text's status there before relying on it."
+        ),
         note="The cadence most memorised verses and older commentaries assume.",
     ),
     Version(

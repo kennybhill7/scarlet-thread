@@ -572,6 +572,20 @@ excluded from the open count above.
   replace KJV with a worldwide-cleared edition, or constrain availability
   based on qualified legal advice. BSB is not the problem: its publisher says
   it entered the public domain on 2023-04-30.
+- **Partial resolution, 2026-09-03 (Claude):** BUILD_PLAN.md 0.11's own
+  acceptance criteria frames the choice as "geo-note or drop" -- this took
+  the geo-note path, not one of the three above. `tools/build_bible.py`'s
+  KJV `licence` field (and the generated `web/public/bible/index.json`) now
+  states the UK Crown-copyright fact plainly and says explicitly that no
+  access restriction is applied; that text now renders in Settings next to
+  each translation (`OfflineDownloads.tsx`). This is a disclosure, not a
+  legal clearance -- no permission was sought from Cambridge/the Crown, no
+  qualified legal advice was obtained, and no territorial restriction was
+  built. It satisfies BUILD_PLAN's literal checklist wording (an honest
+  note, visible where a reader would see it) but does not eliminate the
+  underlying exposure this finding describes. Worth real legal review
+  before a public launch if KJV distribution volume ever becomes material —
+  this is not that review.
 
 ### A-043 - Default-branch history overstates what each commit delivered
 
