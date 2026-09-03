@@ -1,315 +1,483 @@
-# Image commission — ChatGPT / GPT Image
+# Image commission — full picture list
 
-Twelve images. One master mountain panorama and eleven stage scenes. Everything the app needs.
-
-Read §1 and §2 before generating anything. §3 is the master. §4 is the eleven scenes. §5 is delivery and verification.
+Everything the app needs, in build order. Two style contracts: **A** for photoreal vistas (the Grok look), **B** for hand-drawn map sheets (the Narnia look). Every prompt in this file begins with one or the other.
 
 ---
 
-## 1. Why twelve and not sixteen
+## 1. The inventory
 
-The app needs five **plates** (horizontal terrain slices that stack on phone and compose on desktop) and eleven **scenes** (full-bleed art behind each stage card).
+| # | What | Count | Style | Size | Phase |
+|---|---|---|---|---|---|
+| 1 | Master mountain panorama | 1 | A | 1536×1024 | 1 |
+| 2 | Stage scenes | 11 | A | 1536×1024 | 1 |
+| 3 | World map sheet | 1 | B | 1536×1024 | 1 |
+| 4 | Region map sheets | 25 | B | 1536×1024 | 2 |
+| 5 | Site vistas | 40 | A | 1536×1024 | 2–3 |
+| 6 | The New Jerusalem | 1 | B+ | 1536×1024 | 3 |
 
-**Do not commission the five plates separately.** Five independent generations will not share a sun direction, and continuous light across the five is a hard requirement — it is the thing that makes the stack read as one mountain. When five different paintings were tried as stand-ins the mean luminance spread was 5.5×, and every seam showed as a hard horizon line.
+**Phase 1 is 13 images and unblocks the whole app.** Do that first, check it, then commit to phase 2.
 
-Commission **one master panorama** at the largest landscape size, then cut the five plates from it. Contiguous slices of one image are byte-identical at the seams, so continuity is structural rather than something to check. Same file also serves the desktop composed view.
-
-**Total: 1 master + 11 scenes = 12 generations.**
+The five mountain plates are **cut here in code** from the master panorama. Do not commission them separately — five independent generations never share a sun direction, and continuous light across the stack is a hard requirement.
 
 ---
 
-## 2. The global style contract
+## 2. Style Contract A — photoreal vistas
 
-Paste this block at the top of **every** prompt in §3 and §4, then the image-specific text. Do not paraphrase it between images — identical wording is what keeps twelve generations in one world.
+This is the Grok look, written out. Paste it above every prompt in §4, §5 and §8.
 
 ```
-STYLE CONTRACT — follow exactly.
+STYLE CONTRACT A — follow exactly.
 
-Medium: painted cinematic matte painting, in the visual language of hand-painted
-animated-feature backgrounds. Photoreal detail, painterly edges. Not a photograph,
-not 3D render, not concept-art sketch, not illustration with visible linework.
+Medium: photorealistic cinematic matte painting. Epic establishing shot, the
+scale and finish of a feature-film environment plate. Painterly realism —
+real light physics, real atmosphere, but composed like a painting.
 
-Palette: desaturated stone. Rock, earth and water are near-neutral greys, cool
-slate, and warm ochre-browns. Overall saturation low.
+Vantage: elevated. The camera is on a ridge or bluff looking down and out
+across a vast distance. Foreground rock or a dark tree in silhouette frames
+the lower edge. Middle distance carries the subject. Far distance dissolves
+into atmospheric haze, ridge behind ridge behind ridge.
 
-Light: one directional source, low on the horizon, warm. Deep shadow in the
-opposite direction. Atmospheric haze in the distance. Light is the only drama.
+Light: ONE dramatic source, low and warm — raking gold light. Visible shafts
+of light breaking through cloud onto the land. Hard contrast between the
+sunlit ground and deep cool shadow. Volumetric haze catching the light.
+Where storm is present, cold blue-grey rain columns sit against the warm
+light, and the collision of the two is the drama of the frame.
 
-Composition: wide establishing shot. Vast scale. Land occupies the lower two
-thirds, sky the upper third.
+Colour: rich and real. Deep greens in vegetation, true blues in water,
+warm ochre and gold in dry ground, cool slate in shadow and stone.
+Saturated where nature is saturated. Not desaturated, not muted, not sepia.
 
-Mood: reverent, weathered, ancient, quiet. Serious. No whimsy.
+Scale: human figures, tents, flocks, boats and buildings are TINY — specks
+that tell you how vast the land is. Never a portrait, never a face large
+enough to read.
+
+Detail: high. Individual trees at middle distance, texture in rock, spray
+in waterfalls, dust in the air, weather with real structure.
+
+Aspect: wide landscape. Land occupies the lower two thirds.
 
 ABSOLUTE PROHIBITIONS — an image breaking any of these is rejected:
-- No text, letters, numerals, captions, signatures or watermarks anywhere.
-- No red, scarlet, crimson or magenta anywhere in the image. Not on cloth,
-  not in the sky, not in foliage, not in light. This colour is reserved for a
-  graphic overlay the app draws on top.
-- No map markers, pins, waypoint discs, circles, badges, numbered markers,
-  route ribbons, banners or signage.
-- No UI, no frames, no borders, no vignette, no letterboxing, no black bars.
-- No modern objects: no vehicles, roads, powerlines, fences, buildings with
-  glass, or contemporary clothing.
-- No depiction of God. No depiction of the face of Jesus Christ. Human figures
-  only ever distant and small — silhouettes at scale, never portraits, never
-  a face large enough to read.
-- No lens flare, no bokeh, no sun-star artifacts, no sparkle or star glyphs.
+- No text, letters, numerals, captions, signatures or watermarks.
+- No sparkle glyphs, star glyphs, four-pointed shine marks or logo shapes
+  anywhere in the frame, including on clouds and water.
+- No red, scarlet, crimson or magenta anywhere. Fire and glowing lava read
+  as AMBER, ORANGE and GOLD. This colour is reserved for a graphic overlay
+  the app draws on top.
+- No map pins, waypoint markers, numbered discs, badges, banners, ribbons
+  or signage.
+- No UI, frames, borders, vignettes, letterboxing or black bars.
+- No modern objects: vehicles, powerlines, glass buildings, tarmac,
+  contemporary clothing.
+- No depiction of God. No depiction of the face of Jesus Christ.
+- No lens flare, no bokeh, no sun-star artifacts.
 ```
 
-That last line is deliberate. The current art has a four-pointed sparkle baked into `01-creation.jpg` at pixel (858–890, 430–475) — a generator watermark sitting on a cloud, invisible in corner checks. Ask for no sparkle glyphs explicitly, then check for them (§5.3).
+**Why "no red" is absolute:** the scarlet rope is the app's identity and it only reads as *the* thread if it is the only red object on screen. Babylon burns amber. Judgement fire is gold. This is checkable in code and I will run it (§10.3).
 
 ---
 
-## 3. The master panorama
+## 3. Style Contract B — hand-drawn map sheets
 
-**One image. Everything about the mountain comes from this file.**
-
-Size: **1536 × 1024 (landscape)** — the largest landscape GPT Image produces. Do not accept a square crop.
-
-### 3.1 The one thing that must be right
-
-The mountain needs a **visible natural trail** — a pale dirt-and-scree switchback path — running from the lower-left, up the left flank, over the summit, and down the right flank to the lower-right.
-
-This matters more than anything else in the image, for a non-obvious reason. The app draws a scarlet rope along that route, and the rope only reads as *lying on ground* if there is real ground under every point of it. Six attempts at inventing a trajectory in abstract coordinates all read as a graphic overlay. The route gets traced out of the painting, so the painting has to contain it.
-
-The trail must be **dirt, stone and worn scree — never red, never a ribbon, never marked.** A natural footpath. The scarlet rope renders on top of it in the app.
-
-### 3.2 Prompt
+Paste above every prompt in §6, §7 and §9.
 
 ```
-[PASTE THE STYLE CONTRACT FROM §2 FIRST]
+STYLE CONTRACT B — follow exactly.
 
-SUBJECT: A single vast mountain, seen from a distance, filling a wide panoramic
-frame. One summit, centred, with a snow-dusted peak. Ridges descending
-symmetrically to left and right into foothills, then to a broad plain at the
-lower left and a coastline at the lower right.
+Medium: a hand-drawn pictorial fantasy map on aged parchment, in the
+tradition of the illustrated Chronicles of Narnia endpaper maps. Ink line
+and watercolour wash on paper. Visibly drawn by a person.
 
-THE TRAIL — the most important element:
-A narrow natural footpath of pale dirt, gravel and worn scree switchbacks up the
-mountain. It enters at the lower-left of the frame, climbs the left flank in long
-traversing zigzags, crosses the summit ridge, and descends the right flank in
-mirroring zigzags to the lower-right of the frame. It is continuously visible
-along its whole length. Each leg of the switchback travels mostly sideways across
-the slope, with short rises at the turns — a walkable trail, not a vertical scar.
-The ground beneath every part of the trail is believable, walkable terrain: ledges,
-shelves and gentle slopes. No sheer cliff face where the trail runs.
-The trail is dirt and stone only. It is NOT red, NOT a ribbon, NOT paved, NOT
-marked with any signs, posts, flags or markers.
+Surface: warm aged parchment, cream to light tan, with subtle age mottling
+and soft darkening toward the edges. Paper texture visible.
 
-LIGHT: low warm sun at the far LEFT of the frame, near the horizon, casting long
-light across the plain. A dark storm mass gathers at the far RIGHT of the frame,
-over the coastline, with rain haze. The transition from warm dawn on the left to
-cold storm on the right is gradual and continuous across the whole width — no
-sudden change, no seam.
+Ink: warm brown-black line work. Coastlines drawn with a fine confident
+line and light hatching just offshore. Land tinted in soft washes — pale
+green for fertile ground, tan and ochre for desert, grey for rock.
 
-TERRAIN BANDS, bottom to top: a broad sunlit plain with a river at the lower left;
-foothills with scattered trees; mid-slope forest and waterfalls; bare upper rock
-and scree; a snow-and-cloud crown at the summit. Each band reads as continuous
-ground from the left edge of the frame to the right edge.
+Hills and mountains: drawn in ELEVATION, not plan — little three-dimensional
+peaks and ridges seen from the side, the way a story map does it. Forests as
+small drawn trees. Cities as tiny drawn walls, towers and domes.
 
-The image must remain coherent when cut into five horizontal strips.
+Water: pale blue-green wash with fine parallel hatch lines following the
+coast. A few small sailing ships. Stylised waves.
+
+Furniture: an ornate compass rose. A decorative border rule inside the sheet
+edge. Empty sea used as breathing room.
+
+Accuracy: pictorial, not cartographic. Recognisable coastlines, and nothing
+else. NO graticule, NO latitude or longitude lines, NO scale bar, NO
+projection, NO satellite or photographic imagery, NOT a globe.
+
+ABSOLUTE PROHIBITIONS:
+- NO PLACE LABELS AND NO TEXT OF ANY KIND. No region names, no city names,
+  no title cartouche lettering, no compass letters, no numerals. The app
+  draws every label itself in its own typeface. Text baked into the sheet
+  cannot be translated, cannot be repositioned, and will collide with the
+  app's own labels.
+- No red, scarlet or crimson anywhere, including on the compass rose and
+  any heraldry. Reserved for the app's rope overlay.
+- No map pins, dots, waypoint markers or numbered markers.
+- No modern cartography, no printed-atlas look, no vector-flat style.
+- No watermarks, no signatures, no sparkle or star glyphs.
 ```
 
-### 3.3 What to reject on delivery
+**The no-text rule is the one people break.** Every map generator wants to letter its map. A lettered sheet is unusable here: the app positions its own labels in Fraunces over the sheet, and baked lettering doubles up and fights them. Say it twice in the prompt if needed.
 
-- Trail breaks, disappears behind a ridge, or has no visible ground under a stretch.
-- Trail runs near-vertically instead of traversing.
-- Sun on the right, or two light sources, or flat overcast.
-- Any red anywhere.
-- Numerals or markers on the trail.
-- The storm and the dawn meeting in a hard vertical line.
+**Roads and sea lanes must be visible.** The scarlet rope is traced from them. A route authored in abstract coordinates over a map reads as a graphic overlay for exactly the reason it did over terrain — nothing underneath it is ground.
 
 ---
 
-## 4. The eleven scenes
+## 4. The master mountain panorama
 
-One per stage. These are the full-bleed art behind each stage card, so they are read at phone-screen size with type over the lower half.
+One image. Everything about the mountain view comes from this file.
 
-Size: **1536 × 1024 (landscape)** each.
+```
+[STYLE CONTRACT A]
 
-### 4.1 Two rules that apply to all eleven
+SUBJECT: One vast mountain seen from a great distance, filling a wide
+panoramic frame. A single summit, centred, snow-dusted, catching the light.
+Ridges descending symmetrically left and right into foothills, then to a
+broad sunlit plain with a river at the lower left, and a coastline at the
+lower right.
 
-**Rule 1 — depict, never interpret.** Paint what the text puts in front of you: objects, weather, terrain, scale. Never paint a meaning, a symbol of a doctrine, or an emotion. The app's copy follows the same rule, and the art has to match it.
+THE TRAIL — the most important element in the image:
+A narrow natural footpath of pale dirt, gravel and worn scree switchbacks up
+the mountain. It enters at the lower-left of the frame, climbs the left flank
+in long traversing zigzags, crosses the summit ridge, and descends the right
+flank in mirroring zigzags to the lower-right of the frame. Continuously
+visible along its entire length. Each leg travels mostly sideways across the
+slope with short rises at the turns — a walkable trail, not a vertical scar.
+Believable walkable ground under every part of it: ledges, shelves, gentle
+slopes. No sheer cliff face where the trail runs.
+The trail is dirt and stone. NOT red, NOT a ribbon, NOT paved, NOT marked.
 
-**Rule 2 — mirror pairs must look related.** The mountain's whole structure is five ascent/descent pairs across the summit. Each pair shares a composition, a camera angle and a motif, so that seeing one recalls the other. **Generate each pair back to back, in one sitting, so the second can be described against the first.** The pairs:
+LIGHT: low warm sun at the far LEFT, near the horizon, raking gold light
+across the plain with visible shafts through broken cloud. A dark storm mass
+gathers at the far RIGHT over the coastline, with cold rain columns. The
+transition from warm dawn on the left to cold storm on the right is gradual
+and continuous across the whole width — no sudden change, no seam.
 
-| Pair | Ascent | Descent | Shared motif |
+TERRAIN BANDS bottom to top: sunlit plain and river; foothills with scattered
+trees; mid-slope forest and tall waterfalls; bare upper rock and scree; a
+snow-and-cloud crown. Each band reads as continuous ground from the left edge
+of the frame to the right edge.
+
+The image must stay coherent when cut into five horizontal strips.
+```
+
+**Reject if:** the trail breaks or vanishes; the trail runs near-vertically; sun on the right; two light sources; any red; the storm and the dawn meet in a hard vertical line.
+
+---
+
+## 5. The eleven stage scenes
+
+Two rules across all eleven.
+
+**Depict, never interpret.** Paint what the text puts in front of you — objects, weather, terrain, scale. Never a symbol of a doctrine.
+
+**Mirror pairs must look related.** The mountain's structure is five ascent/descent pairs. **Generate each pair back to back** and describe the second against the first.
+
+| Pair | Ascent | Descent | Shared |
 |---|---|---|---|
-| 1 | 01 Creation | 11 Paradise Restored | Same valley, same viewpoint — garden and river |
-| 2 | 02 Sin Enters | 10 Satan Cast Out | Low camera, the serpent form, the ground |
-| 3 | 03 The Flood | 09 World Judged | Water and sky as the agent, an ark-like refuge |
-| 4 | 04 Babel | 08 Babylon | A built tower/city seen at the same angle and scale |
-| 5 | 05 Israel | 07 Church | A people moving across open land, seen from above |
+| 1 | 01 Creation | 11 Paradise Restored | Same valley, same viewpoint |
+| 2 | 02 Sin Enters | 10 Satan Cast Out | Low camera, serpent form |
+| 3 | 03 The Flood | 09 World Judged | Water and sky as the agent |
+| 4 | 04 Babel | 08 Babylon | Same tower/city angle and scale |
+| 5 | 05 Israel | 07 Church | A people crossing open land, from above |
 
-Bottom of frame must stay **visually quiet** in all eleven — low contrast, no detail that competes — because 40% of the lower frame carries a scrim and type.
-
-### 4.2 The prompts
-
-Prepend the §2 style contract to each. Where a scene names its mirror, generate them consecutively and add: *"Match the composition, camera height and palette of the previous image."*
+Keep the **bottom 40% visually quiet** in all eleven — low contrast, no competing detail. Type sits there.
 
 **01 · Creation** — Genesis 1–2
 ```
-A wide untouched valley at first light. A river winds from the far distance
-through green terraced ground toward the viewer. Dense old trees in small
-groves. Bare mountains rising on both sides, the tallest catching the first
-warm light on its snow. Mist lying in the low ground. Utterly empty of
-anything built. Dawn — the warm light source low and to the left.
-The lower third of the frame is quiet, shadowed ground.
+A vast untouched valley at first light, seen from a high ridge. A wide river
+winds from the far distance through green terraced ground toward the viewer.
+Groves of great old trees. Bare mountains rising both sides, the tallest
+catching the first gold on its snow. Mist lying in the low ground, shafts of
+warm light breaking through it. Nothing built anywhere. The lower third is
+quiet shadowed ground.
 ```
 
 **02 · Sin Enters** — Genesis 3–4
 ```
-Low camera close to the earth at the edge of a grove, looking out. A heavy
-fruit tree in the middle distance, its fruit dark and ripe. A thick serpent
-form coiled along a low branch, seen in silhouette, small in frame. Long
-shadows stretching toward the viewer. Beyond the grove, dry open ground and
-a distant escarpment. The light is warm but sinking. Something has changed
-in the weather, not yet in the land.
+Low camera close to the earth at the edge of a grove, looking out across a
+wide golden plain toward distant mountains under a gathering dark sky. A
+heavy fruit tree in the near-middle distance, dark and full, its trunk in
+silhouette. A thick serpent form on the ground beneath it, small in frame,
+seen as a dark shape. Long shadows reaching toward the viewer. Warm sinking
+light on the plain, cold storm behind the mountains.
 [Mirror of 10 — generate before 10 and match camera height.]
 ```
 
 **03 · The Flood** — Genesis 6–9
 ```
-An immense wooden vessel of pitched gopher planks, seen from a distance,
-resting on high ground with mountains behind. The sky above is a broken
-mass of dark cloud with rain columns falling far off. Standing water across
-the low ground, reflecting the cloud. A single bird crossing the middle
-distance, very small. No animals in view, no figures near the vessel.
-The wood is dark brown and black pitch — no red.
+An immense wooden vessel of dark pitched planks on high ground, seen from a
+distance with mountains behind. The sky is a broken mass of dark cloud with
+rain columns falling far off and gold light tearing through the gap above.
+Standing water across all the low ground, mirroring the cloud. One bird
+crossing the middle distance, very small. Dark brown timber and black pitch.
 ```
 
 **04 · Babel** — Genesis 10–11
 ```
-A vast unfinished ziggurat of mud brick rising from a flat river plain,
-seen from a low distant angle so it dominates the sky. Ramps spiralling its
-flanks. Scaffolds of timber and rope near the top. Brick kilns smoking at
-its base. Bitumen-dark mortar between courses of tan brick. The plain
-around it is dry and level to the horizon. Hard clear light from the left,
-long shadow to the right.
+A vast unfinished ziggurat of mud brick rising from a flat river plain, seen
+from a low distant vantage so it dominates the sky. Ramps spiralling its
+flanks, timber scaffolds near the top, brick kilns smoking at its base.
+Courses of tan brick with bitumen-dark mortar. Dry level plain to the horizon,
+a river curving past. Hard gold light from the left, long shadow right.
+Tiny figures on the ramps for scale.
 [Mirror of 08 — generate before 08 and match camera angle and scale.]
 ```
 
 **05 · Israel** — Genesis 12 – Malachi
 ```
-A high vantage over a dry rolling land of ochre hills and terraced valleys.
-A long column of people, tents, flocks and pack animals moving across the
-middle distance, seen from far above so individuals are specks. Dust rising
-behind the column. Scattered stone altars and olive groves on the hillsides.
-A walled hill town very small on the far horizon. Late warm afternoon light
-from the left.
+A high vantage over a great land of ochre hills, green terraced valleys and
+distant snow mountains under a dramatic broken sky. A long column of people,
+tents, flocks and pack animals moving across the middle distance, seen from
+far above so individuals are specks. Dust rising behind the column. Olive
+groves and small stone altars on the hillsides, a walled hill town tiny on
+the horizon. Late gold light from the left, cold rain over the far mountains.
 [Mirror of 07 — generate before 07 and match viewpoint height.]
 ```
 
 **06 · Gospels — the summit** — Matthew – John
 ```
-The summit of the mountain seen close, from just below the crest. Bare
-stone, patches of snow, cloud breaking apart above. A shaft of clear warm
-light striking the rock at the top and spreading down the ridge. Below and
-behind, the ranges fall away into blue distance on both sides. This is the
-highest and brightest image in the set — the only one where the light fully
-wins. No figures. No cross. No symbols.
+The summit of a great mountain seen from just below the crest. Bare stone and
+patches of snow. Heavy cloud breaking apart directly above, and a single
+enormous shaft of warm light striking the rock at the top and spreading down
+the ridge. Below and behind, range after range falling away into blue
+distance on both sides. The brightest image in the whole set — the only one
+where the light fully wins. No figures, no cross, no symbols.
 ```
 
 **07 · Church** — Acts – Jude
 ```
-A high vantage over a wide coastal land at the hour after dawn. Many small
+A high vantage over a wide coastal land in the hour after dawn. Many small
 separate groups of people on many separate roads, spreading outward in
-different directions toward distant coastal towns and a harbour with small
-sailing vessels. Seen from far above so individuals are specks. Where 05 had
-one column on one road, this has many roads. Warm light from the left, sea
-haze on the right.
+different directions toward distant coastal towns and a busy harbour with
+small sailing ships. Seen from far above so individuals are specks. Where 05
+had one column on one road, this has many roads. Gold light from the left,
+sea haze and open blue water on the right.
 [Mirror of 05 — match the viewpoint height and palette of 05.]
 ```
 
 **08 · Babylon** — Revelation 12–18
 ```
-A vast walled city on a river plain, seen from the same low distant angle and
-the same scale as the tower in 04, so the two read as a pair. Terraced
-palaces, a great ziggurat at its centre, quays along the river. The whole city
-is burning from within — deep amber and orange fire glow, black smoke columns
-rising and flattening under a dark sky. Rubble at the walls. The fire is
-amber and gold, never red or crimson.
+A vast walled city on a river plain, seen from the same low distant vantage
+and the same scale as the tower in 04. Terraced palaces, a great ziggurat at
+its centre, stone quays along the river, ships at the wharves. The city burns
+from within — deep amber and orange fire glow through the streets, black smoke
+columns rising and flattening under a dark sky. Rubble at the walls. A crescent
+moon above the smoke. Fire is amber and gold, never red or crimson.
 [Mirror of 04 — match the camera angle and scale of 04.]
 ```
 
 **09 · World Judged** — Revelation 6–11
 ```
-A dark ocean under a sky torn open, seen from a distance. Enormous hail and
-columns of fire falling far out to sea. Mountains half-drowned, only their
-peaks above the water. The sun a dim ash-grey disc, the moon dark. Water
-covering everything that was low ground. Composition and water-and-sky
-agency echo 03, but no vessel and no refuge — only the drowned peaks.
-Amber and ash tones in the fire, never red.
+A dark ocean under a sky torn open, seen from a high distance. Enormous hail
+and columns of fire falling far out to sea, amber against cold grey. Mountains
+half-drowned, only their peaks above the water. The sun a dim ash disc.
+Water covering everything that was low ground. Same water-and-sky composition
+as 03 — but no vessel and no refuge anywhere, only the drowned peaks.
 [Mirror of 03 — match the composition of 03.]
 ```
 
 **10 · Satan Cast Out** — Revelation 19–20
 ```
 Low camera close to the earth, the same height as 02, looking out over cracked
-dry ground. A vast serpent-dragon form lying bound and still in the middle
-distance, seen in dark silhouette, wrapped in heavy chain, being drawn down
-into a chasm in the earth. Where 02 had the serpent coiled on a living branch,
-here it lies chained on bare rock. Fire glow deep in the chasm, amber and
-gold. Cold clear light from above. The dragon is dark — no red.
+dry ground toward a chasm in the middle distance. A vast serpent-dragon form
+lies bound and still, dark in silhouette, wrapped in heavy chain, being drawn
+down into the chasm. Where 02 had the serpent under a living tree, here it
+lies chained on bare rock. Deep amber fire glow inside the chasm. Cold clear
+light from above breaking through cloud. The dragon is dark — no red.
 [Mirror of 02 — match the camera height of 02.]
 ```
 
 **11 · Paradise Restored** — Revelation 21–22
 ```
 The same valley as 01, from the same viewpoint, at full clear morning. The
-river now wide and bright, running straight down the centre of the frame from
-the far distance. Trees along both banks in fruit. Where 01 was empty, here a
-great city of pale stone and gold stands in the far distance at the head of
-the valley, luminous, its walls catching the light. No mist, no shadow in the
-low ground, no storm anywhere in the sky. The brightest and calmest image in
-the set.
+river now wide and brilliant, running straight down the centre from the far
+distance. Great trees in fruit along both banks. Where 01 was empty, a vast
+city of pale stone and gold stands in the far distance at the head of the
+valley, luminous, its walls catching the light. No mist, no shadow in the low
+ground, no storm anywhere. The calmest and brightest image in the set.
 [Mirror of 01 — match the viewpoint and valley shape of 01 exactly.]
 ```
 
 ---
 
-## 5. Delivery, naming, verification
-
-### 5.1 Files
-
-Deliver **PNG at full generated resolution**, unedited, no crop, no upscale, no filter.
+## 6. The world map sheet
 
 ```
-master-panorama.png          1536×1024
-scene-01-creation.png        1536×1024
-scene-02-sin-enters.png      1536×1024
-scene-03-flood.png           1536×1024
-scene-04-babel.png           1536×1024
-scene-05-israel.png          1536×1024
-scene-06-gospels.png         1536×1024
-scene-07-church.png          1536×1024
-scene-08-babylon.png         1536×1024
-scene-09-world-judged.png    1536×1024
-scene-10-satan-cast-out.png  1536×1024
-scene-11-paradise-restored.png 1536×1024
+[STYLE CONTRACT B]
+
+SUBJECT: A hand-drawn pictorial map of the ancient biblical world on aged
+parchment, in the illustrated Narnia endpaper tradition.
+
+EXTENT: the Mediterranean at the left and centre, Italy reaching down into it,
+Greece and the Aegean with its scatter of islands, Asia Minor across the top
+centre, the Black Sea above it, the Caspian at the upper right, the Levant
+coast running north to south at the centre, Egypt and the Nile with its delta
+at the lower left, the Sinai peninsula between the two northern arms of the
+Red Sea, the Arabian desert at the lower centre, Mesopotamia at the right with
+the Tigris and Euphrates running down to the Persian Gulf at the lower right.
+
+DRAWN DETAIL: mountain ranges in side elevation along Ararat, the Taurus, the
+Lebanon, Sinai and the Zagros. Forests as small drawn trees in the north.
+Desert as fine stippling. Little walled cities with towers where the great
+cities stand. Three or four small sailing ships on the Great Sea. An ornate
+compass rose in an empty stretch of sea. A fine decorative border rule inset
+from the sheet edge.
+
+ROADS AND SEA LANES — required: faint dotted caravan roads linking the cities
+and running along the coast and the river valleys; faint dotted sea lanes
+across the Great Sea. These are what the app traces its route along, so they
+must be visible and continuous.
+
+NO LABELS AND NO TEXT ANYWHERE ON THE SHEET. No region names, no city names,
+no title, no compass letters, no numbers. The app adds all lettering itself.
 ```
 
-Plate cutting is done here, in code, from `master-panorama.png` — five contiguous slices of ~205px whose heights sum to exactly 1024. Do not cut them by hand; hand-cut slices overlap and every seam shows the same rows twice.
+---
 
-### 5.2 Rights
+## 7. The twenty-five region sheets
 
-OpenAI's terms assign output ownership to you, which is the improvement over the current situation. Two things to still expect:
+Same Contract B, same hand, same parchment, zoomed in. Use this template and swap the two bracketed lines.
 
-- GPT Image output carries **C2PA provenance metadata**. Invisible, in the file's metadata, and strippable on export if you need it gone.
-- No visible logo is applied — unlike the sparkle now baked into `01-creation.jpg`.
+```
+[STYLE CONTRACT B]
 
-Regenerate all twelve. Do not mix new images with the current set; the current ones have a different generator's look and one has a watermark.
+SUBJECT: A hand-drawn pictorial map of [REGION] on aged parchment, in the
+same illustrated Narnia endpaper style and the same drawing hand as the world
+sheet. Zoomed in close, so individual towns, valleys, wadis and roads are
+drawn at a larger scale.
 
-### 5.3 Check every file on arrival
+TERRAIN: [TERRAIN LINE]
 
-1. **Sparkle and glyph sweep** — view each image at 300% and scan the *whole* frame, not the corners. The existing watermark sits mid-frame on a cloud at (858–890, 430–475) and is invisible in a corner check.
-2. **Red sweep** — no red pixels anywhere. This is checkable in code and I will run it: any pixel where `r > 110 && r > g×1.55 && r > b×1.55` is a fail. The scarlet rope must be the only red object on screen.
-3. **Text sweep** — no letters or numerals, including tiny incidental marks on brickwork, sails or banners.
-4. **Master only — the trail** — trace the path end to end with a finger. If it breaks, vanishes, or crosses ground you could not walk, it fails, because the rope is drawn along it.
-5. **Master only — light continuity** — cover the middle of the image and check the left and right halves still belong to one time of day.
-6. **Mirror check** — put 01 next to 11, 02 next to 10, 03 next to 09, 04 next to 08, 05 next to 07. Each pair should look like the same place or the same shot twice. If a pair does not, regenerate the descent side against the ascent side, not both.
-7. **Bottom-third check** — squint at the lower 40% of each scene. If anything there is busy or high-contrast, type will not survive over it.
+DRAWN DETAIL: mountains in side elevation, forests as small drawn trees,
+towns as little drawn walls and towers, water in pale blue-green wash with
+coastal hatching. A small compass rose. A fine border rule inset from the edge.
 
-### 5.4 If a generation misses
+ROADS — required: dotted roads and tracks linking every settlement, plus the
+river fords and mountain passes. The app traces its route along them.
 
-Regenerate that single image with the same prompt plus one added corrective line. Do not rewrite the prompt — the twelve have to stay in one voice, and rewriting drifts the style. Add, for example: *"The trail must be continuously visible from the lower-left corner to the lower-right corner without breaks."*
+NO LABELS AND NO TEXT ANYWHERE. The app adds all lettering itself.
+```
+
+| # | Region | Terrain line |
+|---|---|---|
+| 1 | Eden & the four rivers | A green well-watered highland with four rivers running out of one source into open country |
+| 2 | Ararat | High snow mountains above a broad plain, water still standing in the low ground |
+| 3 | Shinar & Babel | Flat river plain between two great rivers, marsh and canals, one huge stepped tower |
+| 4 | Ur & Haran | The lower Euphrates with a walled city near the gulf marshes, and a long caravan road north to a second city on open steppe |
+| 5 | Canaan of the patriarchs | North–south hill country, coastal plain to the west, the Jordan rift and Dead Sea to the east, oak groves and wells |
+| 6 | Egypt & Goshen | The Nile valley as a narrow green ribbon in desert, a wide delta at the top, pyramids on the west bank |
+| 7 | Sinai & the wilderness | Rocky desert peninsula between two gulfs, a high granite massif at the south, wadis and scattered springs |
+| 8 | Moab & the Jordan | Plateau east of the Jordan, deep river gorge, the Dead Sea, Jericho on the far plain |
+| 9 | Jericho & the conquest | The Jordan plain, walled towns in hill country, mountain passes and valley approaches |
+| 10 | Shiloh & the judges | Central hill country with scattered walled villages, the coastal plain with five cities to the west |
+| 11 | Bethlehem & the hill country | Terraced ridges south of Jerusalem, shepherd country, small walled towns |
+| 12 | Jerusalem & the temple | One walled city on two ridges with a deep valley between, a temple platform, springs and a pool, olive slopes east |
+| 13 | Samaria & the northern kingdom | Northern hill country and the fertile Jezreel valley, Carmel at the coast, the Sea of Galilee northeast |
+| 14 | Assyria & Nineveh | The upper Tigris, a great walled city on the river, mountains rising to the north and east |
+| 15 | Babylon & the exile | The Euphrates plain, an immense double-walled city astride the river, canals and date groves |
+| 16 | Susa & Persia | Highland plateau east of the Tigris, a royal citadel, the Zagros passes to the west |
+| 17 | Jerusalem rebuilt | The same city as 12 with its walls broken and partly rebuilt, scaffolds on the gates |
+| 18 | Nazareth & Galilee | A freshwater lake ringed by hills, fishing villages on the shore, hill towns above, the Jordan running south |
+| 19 | Judea & the Jordan | Wilderness ridges falling east to the Jordan and the Dead Sea, the river with fords, desert caves |
+| 20 | Jerusalem of the passion | The city as 12, close in — the temple, the garden slope east, a bare hill outside the wall |
+| 21 | Antioch & Asia Minor | The north-east Mediterranean coast, a great river city, mountain roads inland across Anatolia |
+| 22 | Greece & the Aegean | A deeply indented coastline with hundreds of islands, harbour cities, sea lanes across |
+| 23 | Ephesus & the seven churches | The west coast of Asia Minor, a great harbour city, six more cities inland along river valleys |
+| 24 | Rome & Malta | The Italian peninsula, a great city inland on a river, a small island south, sea lanes east |
+| 25 | Patmos | One small rocky Aegean island, close in, a harbour, a high ridge, open sea around |
+
+---
+
+## 8. Site vistas
+
+Contract A. These are the payoff — the photoreal view when you zoom all the way in. **Forty in total; the twelve below are tier 1** and cover the moments people actually study.
+
+Each prompt: `[STYLE CONTRACT A]` + one line of setting + the concrete detail from the text. Depict, never interpret.
+
+| # | Site | Prompt body |
+|---|---|---|
+| 1 | Eden | A green highland garden seen from above at first light, four rivers running out of one spring into open country, great fruit trees, mist and light shafts |
+| 2 | Ararat | A vessel of dark timber aground high on a snow-streaked mountain shoulder, flood water still standing on the plain far below, cloud breaking |
+| 3 | The tower at Shinar | An unfinished brick ziggurat from the plain below, ramps and scaffolds, kilns smoking, tiny figures on the ramps |
+| 4 | Ur of the Chaldees | A walled river city of mud brick with a stepped tower, marsh and date palms, a caravan road leaving west across dry ground |
+| 5 | The pyramids of Egypt | The Nile valley from a high bluff at dawn — green ribbon, palms, a wide river with boats, three great stone pyramids on the west desert edge, workers as specks |
+| 6 | The sea crossing | A vast shallow sea bed between walls of standing water under a black sky torn by light, a great crowd of tiny figures crossing, spray in the air |
+| 7 | Horeb · Sinai | A high granite mountain in the wilderness wrapped in dense cloud and smoke as from a furnace, gold fire glow at the summit, a great camp of tents on the plain below |
+| 8 | Jericho | A walled town on the Jordan plain seen from the hills, palms and springs, dust rising from a column circling the walls |
+| 9 | Jerusalem & the temple | A city on two ridges seen from the Mount of Olives at gold hour, a great stone temple platform, walls and towers, valleys in shadow |
+| 10 | Babylon | An immense double-walled city astride the Euphrates from a high vantage, canals, date groves, a stepped tower at the centre, storm light behind |
+| 11 | The Sea of Galilee | A freshwater lake ringed by green and ochre hills at dawn, small fishing boats, villages on the shore, light shafts on the water |
+| 12 | Patmos | A small rocky Aegean island from a high ridge, open sea in every direction, a harbour far below, dramatic broken sky |
+
+The remaining 28 (phase 3): Bethel · Hebron · Beersheba · Goshen · Marah & Elim · Rephidim · Kadesh · Mount Nebo · Gilgal · Shiloh · Gibeon · Hazor · Bethlehem · Valley of Elah · En Gedi · Mount Carmel · Samaria · Nineveh · Susa · Nazareth · The Jordan at Bethabara · Capernaum · Caesarea Philippi · Gethsemane · Golgotha · Antioch · Athens & Mars Hill · Ephesus.
+
+---
+
+## 9. The New Jerusalem — the one special image
+
+It has no coordinates. In the text it *descends*. So it is not a pin and not a region — it is the sheet changing.
+
+```
+[STYLE CONTRACT B]
+
+SUBJECT: The same aged parchment sheet and the same drawing hand, showing the
+hill country around one walled city — and above it, a vast square city
+descending out of a broken sky. The descending city is drawn in GOLD LEAF and
+luminous pale ink, in a finer and brighter hand than everything else on the
+sheet, as though a second illuminator added it. It has twelve gates, a wall of
+clear stone, and a single wide river running out of it down onto the map below.
+Light radiates from it across the parchment.
+
+Everything else on the sheet stays in the ordinary warm brown ink of the other
+maps. The descending city is the ONLY gold on the sheet and the only luminous
+element.
+
+NO LABELS AND NO TEXT ANYWHERE. No red anywhere.
+```
+
+This is the last thing a reader unlocks and the only time the paper itself changes. Worth spending real effort on.
+
+---
+
+## 10. Delivery and verification
+
+### 10.1 Files
+
+PNG, full generated resolution, unedited — no crop, no upscale, no filter.
+
+```
+master-panorama.png
+scene-01-creation.png … scene-11-paradise-restored.png
+map-world.png
+map-region-01-eden.png … map-region-25-patmos.png
+site-01-eden.png … site-40-ephesus.png
+map-new-jerusalem.png
+```
+
+Plates are cut here in code from `master-panorama.png` — five contiguous slices summing to exactly 1024px. Never cut by hand; hand-cut slices overlap and every seam then shows the same rows twice.
+
+### 10.2 Rights
+
+OpenAI's terms assign output ownership to you — that is the reason to move. Expect C2PA provenance metadata in the file (invisible, strippable). No visible logo is applied, unlike the four-pointed sparkle currently baked into `01-creation.jpg` at pixel (858–890, 430–475).
+
+Regenerate everything. Do not mix new images with the current set.
+
+### 10.3 Check every file on arrival
+
+1. **Red sweep.** No red pixels. Checkable in code and I will run it: any pixel where `r > 110 && r > g×1.55 && r > b×1.55` fails. The rope must be the only red on screen.
+2. **Glyph sweep.** View at 300% and scan the *whole* frame, not the corners. The existing watermark sits mid-frame on a cloud and is invisible in a corner check.
+3. **Text sweep.** No letters or numerals — including incidental marks on brickwork, sails and banners. **On map sheets this is the most likely failure.** A lettered sheet is a reject, not a fix.
+4. **Master only — the trail.** Trace it end to end with a finger. If it breaks, vanishes, or crosses ground you could not walk, it fails; the rope is drawn along it.
+5. **Master only — light continuity.** Cover the middle. Left and right halves must still belong to one time of day.
+6. **Map sheets — roads visible?** If the dotted roads and sea lanes are missing, the route has nothing to lie along. Reject.
+7. **Mirror check.** 01 beside 11, 02 beside 10, 03 beside 09, 04 beside 08, 05 beside 07. Each pair should read as the same place or the same shot twice. If a pair fails, regenerate the descent side against the ascent side — not both.
+8. **Bottom-third check.** Squint at the lower 40% of every vista. If it is busy or high-contrast, type will not survive over it.
+
+### 10.4 If a generation misses
+
+Regenerate that one image with the same prompt plus one added corrective line. Do not rewrite the prompt — twelve or forty images have to stay in one voice, and rewriting drifts the style. E.g. *"The trail must be continuously visible from the lower-left corner to the lower-right corner without breaks."*

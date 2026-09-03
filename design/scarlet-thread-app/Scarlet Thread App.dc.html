@@ -16,6 +16,7 @@
     a:hover { color:#f07a72; }
     ::selection { background:rgba(207,32,39,0.3); }
   </style>
+  <script src="./image-slot.js"></script>
 </helmet>
 
 <div style="min-height:100vh; display:flex; background:#07080a; color:#eae7e1; font-family:'Inter',system-ui,sans-serif;">
@@ -32,6 +33,7 @@
 
     <div onClick="{{ go }}" style="display:flex; flex-direction:column; padding:14px 0 30px;">
       <div data-sec="foundations" style="border-left:2px solid {{ bar_foundations }}; padding:10px 22px; cursor:pointer; font-size:13.5px; color:#b9bcc2; display:flex; gap:11px;" style-hover="color:#eae7e1;"><span style="font-family:'Archivo Narrow',sans-serif; font-size:11px; color:#5d636c; width:15px;">00</span>The world</div>
+      <div data-sec="map" style="border-left:2px solid {{ bar_map }}; padding:10px 22px; cursor:pointer; font-size:13.5px; color:#e04a45; display:flex; gap:11px;" style-hover="color:#f07a72;"><span style="font-family:'Archivo Narrow',sans-serif; font-size:11px; color:#5d636c; width:15px;">17</span>The Map</div>
       <div data-sec="spine" style="border-left:2px solid {{ bar_spine }}; padding:10px 22px; cursor:pointer; font-size:13.5px; color:#e04a45; display:flex; gap:11px;" style-hover="color:#f07a72;"><span style="font-family:'Archivo Narrow',sans-serif; font-size:11px; color:#5d636c; width:15px;">16</span>Story spine</div>
       <div data-sec="switchback" style="border-left:2px solid {{ bar_switchback }}; padding:10px 22px; cursor:pointer; font-size:13.5px; color:#e04a45; display:flex; gap:11px;" style-hover="color:#f07a72;"><span style="font-family:'Archivo Narrow',sans-serif; font-size:11px; color:#5d636c; width:15px;">15</span>The Switchback</div>
       <div data-sec="climb" style="border-left:2px solid {{ bar_climb }}; padding:10px 22px; cursor:pointer; font-size:13.5px; color:#b9bcc2; display:flex; gap:11px;" style-hover="color:#eae7e1;"><span style="font-family:'Archivo Narrow',sans-serif; font-size:11px; color:#5d636c; width:15px;">01</span>The Climb</div>
@@ -1751,6 +1753,347 @@
       </div>
     </sc-if>
 
+    <sc-if value="{{ isMap }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <div style="position:relative; height:404px; overflow:hidden; border-bottom:1px solid #1b1e23;">
+          <img src="./assets/scenes/11-paradise-restored.jpg" alt="" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 46%;">
+          <div style="position:absolute; inset:0; background:linear-gradient(180deg,rgba(7,8,10,0.66) 0%,rgba(7,8,10,0.24) 38%,rgba(7,8,10,0.94) 92%,#07080a 100%);"></div>
+          <div style="position:absolute; left:56px; right:56px; bottom:36px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="width:34px; height:3px; border-radius:3px; background:#cf2027;"></span>
+              <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.24em; text-transform:uppercase; color:#e8c88a;">17 · The Map · second equal view</span>
+            </div>
+            <h1 style="margin:12px 0 0; font-family:'Fraunces',Georgia,serif; font-weight:400; font-size:54px; line-height:1.04; color:#f7f2e6;">Paper to navigate, world to see</h1>
+            <p style="margin:12px 0 0; max-width:72ch; font-size:16px; line-height:1.65; color:#cfd2d6;">A hand-drawn sheet in the Narnia tradition — pictorial, not cartographic. No globe, no projection, no coordinates. Drawn hills, ships on the sea, hand lettering, twenty-five regions and every town the story actually walks through. The scarlet rope runs across it from place to place, and where it stops you get the vista.</p>
+          </div>
+        </div>
+
+        <div style="padding:48px 56px 34px; max-width:1180px; display:flex; flex-direction:column; gap:22px;">
+          <div style="display:flex; align-items:baseline; gap:16px;">
+            <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:#7c828b;">One rope, two views</span>
+            <span style="flex:1 1 auto; height:1px; background:#1b1e23;"></span>
+          </div>
+          <p style="margin:0; max-width:78ch; font-size:15.5px; line-height:1.72; color:#b9bcc2;">This is what makes two views feel like one app instead of two apps. <strong style="color:#f7f2e6; font-weight:500;">The rope is the same object in both.</strong> Same three-stroke render, same scarlet, same rule that it lies on real ground — only the path data changes. On the mountain it is the <em style="color:#cfd2d6;">arc</em>: eleven stages, five mirror pairs, one summit. On the map it is the <em style="color:#cfd2d6;">itinerary</em>: Ur to Haran to Canaan to Egypt to Sinai and back. Chronology and geography are genuinely different axes, and a reader needs both — but they are the same thread, and the app should never let you forget it.</p>
+          <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 52px;">
+            <div style="padding:16px 0; border-top:1px solid #23272d; display:flex; flex-direction:column; gap:6px;">
+              <span style="font-size:14.5px; color:#f4e6c8;">Mountain answers &ldquo;where in the story&rdquo;</span>
+              <span style="font-size:13.5px; line-height:1.65; color:#8f959e;">Altitude is position in the arc. Mirror pairs sit at matching heights. Stone surface, storm light, the plates from §15. This is the view that carries the thesis.</span>
+            </div>
+            <div style="padding:16px 0; border-top:1px solid #23272d; display:flex; flex-direction:column; gap:6px;">
+              <span style="font-size:14.5px; color:#f4e6c8;">Map answers &ldquo;where on the earth&rdquo;</span>
+              <span style="font-size:13.5px; line-height:1.65; color:#8f959e;">Parchment surface, brass ink, hand lettering. Distance is real travel. This is the view that answers the question every reader silently has and never gets told.</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:0 56px 44px; display:flex; flex-direction:column; gap:16px;">
+          <div style="display:flex; align-items:center; gap:26px; flex-wrap:wrap;">
+            <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.2em; text-transform:uppercase; color:#7c828b;">Zoom level · three, not continuous</span>
+            <div onClick="{{ pickZoom }}" style="display:flex; gap:22px;">
+              <span data-zoom="world" style="cursor:pointer; font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:{{ zw }};">1 · World sheet</span>
+              <span data-zoom="region" style="cursor:pointer; font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:{{ zr }};">2 · Region</span>
+              <span data-zoom="site" style="cursor:pointer; font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:{{ zs }};">3 · Site vista</span>
+            </div>
+          </div>
+
+          <sc-if value="{{ zoomWorld }}" hint-placeholder-val="{{ true }}">
+            <div style="position:relative; width:1000px; height:640px; background:#e8dcc0; border:1px solid #23272d; overflow:hidden;">
+              <svg viewBox="0 0 1000 640" style="position:absolute; left:0; top:0; width:100%; height:100%;">
+                  <rect width="1000" height="640" fill="#e8dcc0"/>
+                  <g fill="#9fb8ae" fill-opacity="0.62" stroke="#7d9a8f" stroke-width="1.6">
+                    <path d="M40 296 C60 250 110 216 175 206 C205 201 232 205 252 216 C262 190 276 175 292 178 C306 181 310 200 302 224 C330 220 366 214 396 222 C424 230 436 252 428 276 C418 306 384 322 336 328 C270 336 180 336 116 326 C74 319 44 312 40 296 Z"/>
+                    <path d="M352 128 C392 116 452 118 480 130 C496 137 492 152 470 158 C436 167 384 165 358 154 C344 148 342 132 352 128 Z"/>
+                    <path d="M556 92 C580 84 606 90 614 106 C622 124 610 148 590 152 C568 156 550 140 548 120 C547 104 548 96 556 92 Z"/>
+                    <path d="M300 404 C316 428 344 470 372 512 C392 542 408 570 414 594 C420 616 406 620 396 604 C376 572 350 528 328 490 C310 458 294 424 288 408 C284 396 294 394 300 404 Z"/>
+                    <path d="M706 372 C726 396 754 436 780 470 C798 494 806 516 794 524 C782 532 764 512 744 484 C722 452 700 414 692 392 C686 376 698 360 706 372 Z"/>
+                    <ellipse cx="248" cy="252" rx="7" ry="4"/><ellipse cx="264" cy="268" rx="5" ry="3"/><ellipse cx="234" cy="266" rx="4" ry="3"/><ellipse cx="216" cy="278" rx="6" ry="3"/>
+                  </g>
+                  <path d="M110 258 q15 -3 30 0 q15 3 30 0" fill="none" stroke="#7d9a8f" stroke-width="1.1" opacity="0.6"/><path d="M300 300 q15 -3 30 0 q15 3 30 0" fill="none" stroke="#7d9a8f" stroke-width="1.1" opacity="0.6"/><path d="M740 440 q12.5 -3 25 0 q12.5 3 25 0" fill="none" stroke="#7d9a8f" stroke-width="1.1" opacity="0.6"/><path d="M350 470 q11 -3 22 0 q11 3 22 0" fill="none" stroke="#7d9a8f" stroke-width="1.1" opacity="0.6"/><path d="M380 140 q12.5 -3 25 0 q12.5 3 25 0" fill="none" stroke="#7d9a8f" stroke-width="1.1" opacity="0.6"/><path d="M560 120 q10 -3 20 0 q10 3 20 0" fill="none" stroke="#7d9a8f" stroke-width="1.1" opacity="0.6"/>
+                  <g fill="none" stroke="#5c4526" stroke-width="2.2" opacity="0.75">
+                    <path d="M258 606 C250 560 246 500 244 456 C243 442 240 434 236 428"/>
+                    <path d="M236 428 L212 402 M236 428 L233 398 M236 428 L254 400"/>
+                    <path d="M520 150 C556 190 600 236 646 276 C676 302 696 338 704 366"/>
+                    <path d="M548 142 C580 184 618 226 660 262 C686 284 702 320 710 356"/>
+                    <path d="M392 240 C400 268 402 296 398 320"/>
+                  </g>
+                  <path d="M492 132 l8 -9.92 l8 9.92" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M512 126 l9 -11.16 l9 11.16" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M534 134 l7.5 -9.3 l7.5 9.3" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M418 186 l7 -8.68 l7 8.68" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M440 182 l7.5 -9.3 l7.5 9.3" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M462 186 l7 -8.68 l7 8.68" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M362 272 l6 -7.4399999999999995 l6 7.4399999999999995" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M368 292 l6 -7.4399999999999995 l6 7.4399999999999995" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M306 462 l6.5 -8.06 l6.5 8.06" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M322 476 l6.5 -8.06 l6.5 8.06" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M676 250 l7 -8.68 l7 8.68" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M698 272 l7.5 -9.3 l7.5 9.3" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M716 296 l7 -8.68 l7 8.68" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/>
+                  <g stroke="#8a6a3a" stroke-width="1.1" opacity="0.5" fill="none">
+                    <circle cx="900" cy="112" r="34"/><circle cx="900" cy="112" r="24"/>
+                    <path d="M900 70 L906 106 L900 154 L894 106 Z" fill="#8a6a3a" opacity="0.7"/>
+                    <path d="M858 112 L894 118 L942 112 L894 106 Z" fill="#8a6a3a" opacity="0.45"/>
+                  </g>
+                  <text x="900" y="64" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" fill="#5c4526">N</text>
+                </svg>
+
+              <svg viewBox="0 0 1000 640" style="position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none;">
+                <defs><linearGradient id="mapropeW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2635c"></stop><stop offset="0.42" stop-color="#e5352f"></stop><stop offset="1" stop-color="#a8161c"></stop></linearGradient></defs>
+                <path d="M700 120 C640 118 560 122 520 130 C580 180 620 220 650 250 C690 280 712 310 720 330 C640 320 520 250 470 200 C430 240 390 300 365 330 C330 360 285 410 250 440 C275 460 300 468 315 470 C340 430 355 385 368 350 C480 330 600 290 665 265 C560 300 430 335 372 315 C300 300 250 270 250 235 C205 240 140 246 95 250"
+                      fill="none" stroke="#8a6a3a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.32" stroke-dasharray="1 7"></path>
+                <path d="M250 440 C275 460 300 468 315 470" fill="none" stroke="#4a0c10" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" opacity="0.5" transform="translate(0,3)"></path>
+                <path d="M250 440 C275 460 300 468 315 470" fill="none" stroke="url(#mapropeW)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M250 440 C275 460 300 468 315 470" fill="none" stroke="#f7877f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5" transform="translate(-1,-2)"></path>
+              </svg>
+
+              <span style="position:absolute; left:700px; top:120px; width:12px; height:12px; margin:-6px 0 0 -6px; border-radius:999px; background:#f3f0e8; border:2px solid #8a6a3a;"></span>
+              <span style="position:absolute; left:710px; top:112px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:14px; color:#5c4526;">Eden</span>
+              <span style="position:absolute; left:520px; top:130px; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:999px; background:#f3f0e8; border:2px solid #8a6a3a;"></span>
+              <span style="position:absolute; left:530px; top:122px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:13px; color:#5c4526;">Ararat</span>
+              <span style="position:absolute; left:650px; top:250px; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:999px; background:#f3f0e8; border:2px solid #8a6a3a;"></span>
+              <span style="position:absolute; left:660px; top:242px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:13px; color:#5c4526;">Shinar · Babel</span>
+              <span style="position:absolute; left:720px; top:330px; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:999px; background:#f3f0e8; border:2px solid #8a6a3a;"></span>
+              <span style="position:absolute; left:730px; top:322px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:13px; color:#5c4526;">Ur</span>
+              <span style="position:absolute; left:470px; top:200px; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:999px; background:#f3f0e8; border:2px solid #8a6a3a;"></span>
+              <span style="position:absolute; left:480px; top:192px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:13px; color:#5c4526;">Haran</span>
+              <span style="position:absolute; left:665px; top:265px; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:999px; background:#f3f0e8; border:2px solid #8a6a3a;"></span>
+              <span style="position:absolute; left:600px; top:280px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:13px; color:#5c4526;">Babylon</span>
+              <span style="position:absolute; left:365px; top:330px; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:999px; background:#f3f0e8; border:2px solid #8a6a3a;"></span>
+              <span style="position:absolute; left:300px; top:318px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:13px; color:#5c4526;">Canaan</span>
+              <span style="position:absolute; left:368px; top:350px; width:12px; height:12px; margin:-6px 0 0 -6px; border-radius:999px; background:#f3f0e8; border:2px solid #8a6a3a;"></span>
+              <span style="position:absolute; left:380px; top:352px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:14px; color:#5c4526;">Jerusalem</span>
+              <span style="position:absolute; left:250px; top:440px; width:20px; height:20px; margin:-10px 0 0 -10px; border-radius:999px; background:#cf2027; border:2px solid #f3f0e8; box-shadow:0 0 0 5px rgba(207,32,39,0.24);"></span>
+              <span style="position:absolute; left:196px; top:412px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:15px; color:#7a2020;">Egypt</span>
+              <span style="position:absolute; left:315px; top:470px; width:14px; height:14px; margin:-7px 0 0 -7px; border-radius:999px; background:#cf2027; border:2px solid #f3f0e8;"></span>
+              <span style="position:absolute; left:328px; top:472px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:14px; color:#7a2020;">Sinai</span>
+              <span style="position:absolute; left:372px; top:315px; width:9px; height:9px; margin:-4.5px 0 0 -4.5px; border-radius:999px; background:#f3f0e8; border:2px solid #8a6a3a;"></span>
+              <span style="position:absolute; left:382px; top:302px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:12px; color:#5c4526;">Galilee</span>
+              <span style="position:absolute; left:250px; top:235px; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:999px; background:#f3f0e8; border:2px solid #8a6a3a;"></span>
+              <span style="position:absolute; left:200px; top:216px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:13px; color:#5c4526;">Ephesus</span>
+              <span style="position:absolute; left:95px; top:250px; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:999px; background:#f3f0e8; border:2px solid #8a6a3a;"></span>
+              <span style="position:absolute; left:70px; top:228px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:13px; color:#5c4526;">Rome</span>
+              <span style="position:absolute; left:215px; top:275px; width:9px; height:9px; margin:-4.5px 0 0 -4.5px; border-radius:999px; background:#f3f0e8; border:2px solid #8a6a3a;"></span>
+              <span style="position:absolute; left:224px; top:277px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:12px; color:#5c4526;">Patmos</span>
+
+              <div style="position:absolute; left:22px; bottom:22px; padding:11px 15px; background:rgba(243,240,232,0.9); border:1px solid #c9b788; display:flex; flex-direction:column; gap:6px;">
+                <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:9.5px; letter-spacing:0.2em; text-transform:uppercase; color:#7a6540;">Base sheet · wireframe pending the illustrated map</span>
+                <div style="display:flex; align-items:center; gap:9px;"><span style="width:26px; height:6px; border-radius:6px; background:linear-gradient(180deg,#e5352f,#a8161c);"></span><span style="font-size:12px; color:#4a3a22;">this week · Egypt → Sinai</span></div>
+                <div style="display:flex; align-items:center; gap:9px;"><span style="width:26px; height:0; border-top:3px dotted #8a6a3a; opacity:0.6;"></span><span style="font-size:12px; color:#4a3a22;">the whole itinerary, faint</span></div>
+              </div>
+            </div>
+            <span style="max-width:1000px; font-size:12.5px; line-height:1.65; color:#5d636c;">The sheet drawn here is the geometry only — coastlines, rivers, mountain marks, compass — so the pins and the rope have something real to sit on. The illustrated Narnia-style sheet replaces it as a single image behind the same overlay, with no change to the pin or route coordinates. The full route crosses itself many times — Canaan alone is entered four separate times across the story. Drawing every leg at full strength gives you spaghetti. So the rope renders the current leg solid and everything else as a faint dotted trace: <strong style="color:#b9bcc2; font-weight:500;">the thread lights the leg you are on.</strong> That one rule is what makes a 25-region map legible on a phone.</span>
+          </sc-if>
+
+          <sc-if value="{{ zoomRegion }}" hint-placeholder-val="{{ false }}">
+            <div style="position:relative; width:1000px; height:640px; background:#e8dcc0; border:1px solid #23272d; overflow:hidden;">
+              <svg viewBox="0 0 1000 640" style="position:absolute; left:0; top:0; width:100%; height:100%;">
+                  <rect width="1000" height="640" fill="#e8dcc0"/>
+                  <g fill="#9fb8ae" fill-opacity="0.62" stroke="#7d9a8f" stroke-width="1.6">
+                    <path d="M0 0 L1000 0 L1000 84 C860 106 700 116 520 112 C340 108 160 92 0 72 Z"/>
+                    <path d="M470 250 C500 320 540 420 580 500 C610 560 630 610 636 640 L706 640 C694 588 668 516 632 438 C596 358 546 278 510 240 C492 220 462 226 470 250 Z"/>
+                    <path d="M846 300 C858 360 878 440 896 510 C902 536 906 588 910 640 L968 640 C962 580 950 512 934 444 C918 376 900 316 888 288 C878 262 838 268 846 300 Z"/>
+                  </g>
+                  <path d="M120 40 q17.5 -3 35 0 q17.5 3 35 0" fill="none" stroke="#7d9a8f" stroke-width="1.1" opacity="0.6"/><path d="M420 52 q15 -3 30 0 q15 3 30 0" fill="none" stroke="#7d9a8f" stroke-width="1.1" opacity="0.6"/><path d="M760 44 q15 -3 30 0 q15 3 30 0" fill="none" stroke="#7d9a8f" stroke-width="1.1" opacity="0.6"/><path d="M560 470 q11 -3 22 0 q11 3 22 0" fill="none" stroke="#7d9a8f" stroke-width="1.1" opacity="0.6"/><path d="M900 430 q10 -3 20 0 q10 3 20 0" fill="none" stroke="#7d9a8f" stroke-width="1.1" opacity="0.6"/>
+                  <g fill="none" stroke="#5c4526" stroke-width="2.4" opacity="0.78">
+                    <path d="M112 640 C124 552 136 460 148 388 C158 322 168 246 176 168 C180 128 184 102 188 84"/>
+                    <path d="M188 84 L150 60 M188 84 L176 56 M188 84 L200 54 M188 84 L226 62"/>
+                  </g>
+                  <path d="M700 330 l8 -9.92 l8 9.92" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M724 352 l8.5 -10.54 l8.5 10.54" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M748 376 l8 -9.92 l8 9.92" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M716 392 l7.5 -9.3 l7.5 9.3" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M742 414 l8 -9.92 l8 9.92" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M770 436 l7.5 -9.3 l7.5 9.3" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M236 300 l6.5 -8.06 l6.5 8.06" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M258 318 l6.5 -8.06 l6.5 8.06" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/>
+                  <g stroke="#8a6a3a" stroke-width="1" opacity="0.42" fill="none">
+                    <path d="M150 400 C260 380 380 340 470 300"/>
+                    <path d="M470 300 C560 330 640 380 700 440"/>
+                  </g>
+                  <text x="300" y="200" font-family="Fraunces, Georgia, serif" font-size="19" letter-spacing="6" fill="#5c4526" opacity="0.5">E G Y P T</text>
+                  <text x="690" y="250" font-family="Fraunces, Georgia, serif" font-size="17" letter-spacing="5" fill="#5c4526" opacity="0.5">S I N A I</text>
+                  <text x="330" y="60" font-family="Fraunces, Georgia, serif" font-size="14" letter-spacing="4" fill="#7d9a8f">THE GREAT SEA</text>
+                </svg>
+              <svg viewBox="0 0 1000 640" style="position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none;">
+                <defs><linearGradient id="mapropeR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2635c"></stop><stop offset="0.42" stop-color="#e5352f"></stop><stop offset="1" stop-color="#a8161c"></stop></linearGradient></defs>
+                <path d="M150 180 C230 200 300 230 360 270 C430 316 470 380 520 430 C570 480 650 510 760 520"
+                      fill="none" stroke="#4a0c10" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" opacity="0.5" transform="translate(0,3)"></path>
+                <path d="M150 180 C230 200 300 230 360 270 C430 316 470 380 520 430 C570 480 650 510 760 520"
+                      fill="none" stroke="url(#mapropeR)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M150 180 C230 200 300 230 360 270 C430 316 470 380 520 430 C570 480 650 510 760 520"
+                      fill="none" stroke="#f7877f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5" transform="translate(-1,-2)"></path>
+              </svg>
+              <span style="position:absolute; left:150px; top:180px; width:14px; height:14px; margin:-7px 0 0 -7px; border-radius:999px; background:#cf2027; border:2px solid #f3f0e8;"></span>
+              <span style="position:absolute; left:164px; top:164px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:15px; color:#7a2020;">Goshen</span>
+              <span style="position:absolute; left:360px; top:270px; width:12px; height:12px; margin:-6px 0 0 -6px; border-radius:999px; background:#f3f0e8; border:2px solid #8a6a3a;"></span>
+              <span style="position:absolute; left:373px; top:256px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:14px; color:#5c4526;">Succoth</span>
+              <span style="position:absolute; left:430px; top:316px; width:12px; height:12px; margin:-6px 0 0 -6px; border-radius:999px; background:#f3f0e8; border:2px solid #8a6a3a;"></span>
+              <span style="position:absolute; left:443px; top:302px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:14px; color:#5c4526;">The sea crossing</span>
+              <span style="position:absolute; left:520px; top:430px; width:12px; height:12px; margin:-6px 0 0 -6px; border-radius:999px; background:#f3f0e8; border:2px solid #8a6a3a;"></span>
+              <span style="position:absolute; left:533px; top:416px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:14px; color:#5c4526;">Marah &amp; Elim</span>
+              <span style="position:absolute; left:760px; top:520px; width:20px; height:20px; margin:-10px 0 0 -10px; border-radius:999px; background:#cf2027; border:2px solid #f3f0e8; box-shadow:0 0 0 5px rgba(207,32,39,0.24);"></span>
+              <span style="position:absolute; left:668px; top:492px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:16px; color:#7a2020;">Horeb · Sinai</span>
+              <div style="position:absolute; left:22px; bottom:22px; padding:11px 15px; background:rgba(243,240,232,0.9); border:1px solid #c9b788;">
+                <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:9.5px; letter-spacing:0.2em; text-transform:uppercase; color:#7a6540;">Region 7 · Sinai &amp; the wilderness · Exodus 12–19 · stage 5, Exodus phase</span>
+              </div>
+            </div>
+            <span style="max-width:1000px; font-size:12.5px; line-height:1.65; color:#5d636c;">At region level the rope is fully solid — you are inside one leg now, so there is nothing to compete with it. Same drawing hand, same parchment, more towns. Every stop named in the text gets a pin, including the ones nothing famous happened at; Marah and Elim are two thirds of what the wilderness actually was.</span>
+          </sc-if>
+
+          <sc-if value="{{ zoomSite }}" hint-placeholder-val="{{ false }}">
+            <div style="position:relative; width:1000px; height:640px; background:#07080a; border:1px solid #23272d; overflow:hidden;">
+              <image-slot id="map-site-sinai" placeholder="Site vista — Horeb. The lush painting: the mountain in cloud and fire, the camp on the plain below." style="position:absolute; inset:0; width:100%; height:100%; color:#b9bcc2;"></image-slot>
+              <div style="position:absolute; inset:0; background:linear-gradient(180deg,rgba(7,8,10,0.3) 0%,rgba(7,8,10,0) 30%,rgba(7,8,10,0.55) 62%,rgba(7,8,10,0.95) 92%);"></div>
+              <div style="position:absolute; left:36px; right:36px; bottom:32px; display:flex; flex-direction:column; gap:13px;">
+                <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:10px; letter-spacing:0.22em; text-transform:uppercase; color:#e8c88a;">Region 7 · Sinai &amp; the wilderness</span>
+                <span style="font-family:'Fraunces',Georgia,serif; font-size:44px; line-height:1.02; color:#f7f2e6;">Horeb</span>
+                <p style="margin:0; max-width:62ch; font-family:'Spectral',Georgia,serif; font-size:16px; line-height:1.68; color:#cfd2d6;">A mountain in the wilderness of Sinai, three months out of Egypt. Cloud on the summit, thunder, a long trumpet blast. Boundaries set around the base. Smoke as from a furnace, and the whole mountain shaking.</p>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                  <span style="padding:6px 11px; border-radius:2px; background:rgba(207,32,39,0.16); border:1px solid rgba(207,32,39,0.45); font-family:'Archivo Narrow',sans-serif; font-weight:600; font-size:11px; letter-spacing:0.09em; text-transform:uppercase; color:#e04a45;">Exodus 19–20 · 24 · 32–34</span>
+                  <span style="padding:6px 11px; border-radius:2px; background:rgba(207,32,39,0.16); border:1px solid rgba(207,32,39,0.45); font-family:'Archivo Narrow',sans-serif; font-weight:600; font-size:11px; letter-spacing:0.09em; text-transform:uppercase; color:#e04a45;">Mosaic covenant begins here</span>
+                  <span style="padding:6px 11px; border-radius:2px; background:rgba(207,32,39,0.16); border:1px solid rgba(207,32,39,0.45); font-family:'Archivo Narrow',sans-serif; font-weight:600; font-size:11px; letter-spacing:0.09em; text-transform:uppercase; color:#e04a45;">Also: 1 Kings 19 · Elijah</span>
+                </div>
+                <div style="border-top:1px solid #23272d; margin-top:4px; padding-top:15px; display:flex; align-items:center; justify-content:space-between;">
+                  <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:12.5px; letter-spacing:0.16em; text-transform:uppercase; color:#f4e6c8;">Read Exodus 19</span>
+                  <span style="color:#cf2027; font-size:16px;">→</span>
+                </div>
+              </div>
+            </div>
+            <span style="max-width:1000px; font-size:12.5px; line-height:1.65; color:#5d636c;">The site vista is the stone surface again — full-bleed painting, scrim, type into the dark, one action. Identical treatment to a stage scene in §01, because arriving somewhere should feel the same whichever view you came from. Note the third tag: a site carries <em style="color:#b9bcc2;">every</em> passage that happens there, across the whole canon. Horeb is Exodus and also 1 Kings 19, and that is a connection no chronological view will ever show you.</span>
+          </sc-if>
+        </div>
+
+        <div style="padding:0 56px 44px; max-width:1180px; display:flex; flex-direction:column; gap:22px;">
+          <div style="display:flex; align-items:baseline; gap:16px;">
+            <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:#7c828b;">Twenty-five regions · the art budget</span>
+            <span style="flex:1 1 auto; height:1px; background:#1b1e23;"></span>
+          </div>
+          <p style="margin:0; max-width:78ch; font-size:15px; line-height:1.7; color:#b9bcc2;">One world sheet, twenty-five region sheets, and a site vista for every named place the story stops at. Regions are grouped by the stage they belong to, so the map and the mountain resolve to the same dataset.</p>
+          <div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:0 44px;">
+            <div style="display:flex; flex-direction:column;">
+              <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:9.5px; letter-spacing:0.2em; text-transform:uppercase; color:#e8c88a; padding-bottom:8px;">Stages 1–4 · the ascent begins</span>
+              <span style="padding:9px 0; border-top:1px solid #1b1e23; font-size:13.5px; color:#b9bcc2;">1 · Eden &amp; the four rivers</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#b9bcc2;">2 · Ararat</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#b9bcc2;">3 · Shinar &amp; Babel</span>
+              <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:9.5px; letter-spacing:0.2em; text-transform:uppercase; color:#e8c88a; padding:20px 0 8px;">Stage 5 · Israel · six phases</span>
+              <span style="padding:9px 0; border-top:1px solid #1b1e23; font-size:13.5px; color:#b9bcc2;">4 · Ur &amp; Haran</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#b9bcc2;">5 · Canaan of the patriarchs</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#b9bcc2;">6 · Egypt &amp; Goshen</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#f4e6c8;">7 · Sinai &amp; the wilderness</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#b9bcc2;">8 · Moab &amp; the Jordan</span>
+            </div>
+            <div style="display:flex; flex-direction:column;">
+              <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:9.5px; letter-spacing:0.2em; text-transform:uppercase; color:#5d636c; padding-bottom:8px;">Stage 5 continued</span>
+              <span style="padding:9px 0; border-top:1px solid #1b1e23; font-size:13.5px; color:#b9bcc2;">9 · Jericho &amp; the conquest</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#b9bcc2;">10 · Shiloh &amp; the judges</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#b9bcc2;">11 · Bethlehem &amp; the hill country</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#b9bcc2;">12 · Jerusalem &amp; the temple</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#b9bcc2;">13 · Samaria &amp; the northern kingdom</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#b9bcc2;">14 · Assyria &amp; Nineveh</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#b9bcc2;">15 · Babylon &amp; the exile</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#b9bcc2;">16 · Susa &amp; Persia</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#b9bcc2;">17 · Jerusalem rebuilt</span>
+            </div>
+            <div style="display:flex; flex-direction:column;">
+              <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:9.5px; letter-spacing:0.2em; text-transform:uppercase; color:#e8c88a; padding-bottom:8px;">Stage 6 · the summit</span>
+              <span style="padding:9px 0; border-top:1px solid #1b1e23; font-size:13.5px; color:#b9bcc2;">18 · Nazareth &amp; Galilee</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#b9bcc2;">19 · Judea &amp; the Jordan</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#b9bcc2;">20 · Jerusalem of the passion</span>
+              <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:9.5px; letter-spacing:0.2em; text-transform:uppercase; color:#e8c88a; padding:20px 0 8px;">Stages 7–11 · the descent</span>
+              <span style="padding:9px 0; border-top:1px solid #1b1e23; font-size:13.5px; color:#b9bcc2;">21 · Antioch &amp; Asia Minor</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#b9bcc2;">22 · Greece &amp; the Aegean</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#b9bcc2;">23 · Ephesus &amp; the seven churches</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#b9bcc2;">24 · Rome &amp; Malta</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#b9bcc2;">25 · Patmos</span>
+              <span style="padding:9px 0; border-top:1px solid #14171b; font-size:13.5px; color:#e04a45;">— · The New Jerusalem · see below</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:0 56px 100px; display:flex; gap:44px; align-items:flex-start; flex-wrap:wrap;">
+          <div style="flex:0 0 auto; display:flex; flex-direction:column; gap:14px;">
+            <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.2em; text-transform:uppercase; color:#7c828b;">Phone · the map view</span>
+            <div style="width:390px; height:844px; border-radius:42px; border:8px solid #16191e; background:#e8dcc0; overflow:hidden; box-shadow:0 40px 100px rgba(0,0,0,0.8); display:flex; flex-direction:column; box-sizing:border-box; position:relative;">
+              <svg viewBox="0 0 374 828" style="position:absolute; left:0; top:0; width:100%; height:100%;">
+                  <rect width="374" height="828" fill="#e8dcc0"/>
+                  <g fill="#9fb8ae" fill-opacity="0.62" stroke="#7d9a8f" stroke-width="1.5">
+                    <path d="M-20 60 C40 74 110 92 150 118 C176 136 186 160 178 186 C168 220 130 240 80 250 C40 258 0 258 -20 252 Z"/>
+                    <path d="M40 380 C58 428 84 496 108 556 C126 602 138 660 144 720 C148 762 132 770 122 736 C104 676 82 604 60 540 C40 482 22 420 18 392 C14 368 32 356 40 380 Z"/>
+                    <path d="M270 470 C282 520 298 580 312 636 L352 626 C338 566 320 500 306 458 C296 428 262 436 270 470 Z"/>
+                  </g>
+                  <path d="M30 150 q12.5 -3 25 0 q12.5 3 25 0" fill="none" stroke="#7d9a8f" stroke-width="1.1" opacity="0.6"/><path d="M70 480 q10 -3 20 0 q10 3 20 0" fill="none" stroke="#7d9a8f" stroke-width="1.1" opacity="0.6"/><path d="M300 560 q9 -3 18 0 q9 3 18 0" fill="none" stroke="#7d9a8f" stroke-width="1.1" opacity="0.6"/>
+                  <g fill="none" stroke="#5c4526" stroke-width="2.2" opacity="0.75">
+                    <path d="M212 130 C216 176 220 228 222 274"/>
+                  </g>
+                  <path d="M196 120 l6.5 -8.06 l6.5 8.06" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M214 110 l7 -8.68 l7 8.68" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M160 300 l6 -7.4399999999999995 l6 7.4399999999999995" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M176 340 l6 -7.4399999999999995 l6 7.4399999999999995" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M188 470 l6.5 -8.06 l6.5 8.06" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/><path d="M206 492 l6.5 -8.06 l6.5 8.06" fill="none" stroke="#8a6a3a" stroke-width="1.6" stroke-linejoin="round"/>
+                  <text x="250" y="196" font-family="Fraunces, Georgia, serif" font-size="13" letter-spacing="4" fill="#5c4526" opacity="0.5">CANAAN</text>
+                  <text x="52" y="330" font-family="Fraunces, Georgia, serif" font-size="13" letter-spacing="4" fill="#5c4526" opacity="0.5">EGYPT</text>
+                </svg>
+              <div style="position:absolute; left:0; right:0; top:0; height:120px; background:linear-gradient(180deg,rgba(232,220,192,0.96) 0%,rgba(232,220,192,0) 100%);"></div>
+              <div style="position:absolute; left:0; right:0; bottom:0; height:300px; background:linear-gradient(180deg,rgba(232,220,192,0) 0%,rgba(232,220,192,0.94) 46%,#e8dcc0 100%);"></div>
+
+              <div style="position:relative; z-index:2; height:46px; flex:0 0 auto; display:flex; align-items:flex-end; justify-content:space-between; padding:0 24px 4px; font-family:'Archivo Narrow',sans-serif; font-weight:600; font-size:12px; color:#5c4526;"><span>9:41</span><span>ıll ▲ ▮</span></div>
+
+              <div style="position:relative; z-index:2; padding:10px 20px 0; display:flex; align-items:center; gap:0;">
+                <span style="flex:1; min-height:38px; display:flex; align-items:center; justify-content:center; font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:11.5px; letter-spacing:0.14em; text-transform:uppercase; color:#7a6540; border-bottom:2px solid transparent;">Mountain</span>
+                <span style="flex:1; min-height:38px; display:flex; align-items:center; justify-content:center; font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:11.5px; letter-spacing:0.14em; text-transform:uppercase; color:#5c4526; border-bottom:2px solid #cf2027;">Map</span>
+              </div>
+
+              <div style="position:relative; z-index:2; flex:1 1 auto;">
+                <svg viewBox="0 0 374 470" style="position:absolute; left:0; top:0; width:100%; height:470px;">
+                  <defs><linearGradient id="mapropeP" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2635c"></stop><stop offset="0.42" stop-color="#e5352f"></stop><stop offset="1" stop-color="#a8161c"></stop></linearGradient></defs>
+                  <path d="M60 300 C110 250 160 190 210 150 C250 118 290 100 330 92" fill="none" stroke="#8a6a3a" stroke-width="3" stroke-linecap="round" opacity="0.3" stroke-dasharray="1 6"></path>
+                  <path d="M60 300 C90 276 116 256 140 238" fill="none" stroke="#4a0c10" stroke-width="11" stroke-linecap="round" opacity="0.5" transform="translate(0,3)"></path>
+                  <path d="M60 300 C90 276 116 256 140 238" fill="none" stroke="url(#mapropeP)" stroke-width="8" stroke-linecap="round"></path>
+                  <path d="M60 300 C90 276 116 256 140 238" fill="none" stroke="#f7877f" stroke-width="1.5" stroke-linecap="round" opacity="0.5" transform="translate(-1,-2)"></path>
+                </svg>
+                <span style="position:absolute; left:60px; top:300px; width:18px; height:18px; margin:-9px 0 0 -9px; border-radius:999px; background:#cf2027; border:2px solid #f3f0e8; box-shadow:0 0 0 5px rgba(207,32,39,0.22);"></span>
+                <span style="position:absolute; left:12px; top:276px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:15px; color:#7a2020;">Egypt</span>
+                <span style="position:absolute; left:140px; top:238px; width:14px; height:14px; margin:-7px 0 0 -7px; border-radius:999px; background:#cf2027; border:2px solid #f3f0e8;"></span>
+                <span style="position:absolute; left:152px; top:240px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:14px; color:#7a2020;">Sinai</span>
+                <span style="position:absolute; left:210px; top:150px; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:999px; background:#f3f0e8; border:2px solid #8a6a3a;"></span>
+                <span style="position:absolute; left:221px; top:138px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:13px; color:#5c4526;">Canaan</span>
+                <span style="position:absolute; left:330px; top:92px; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:999px; background:#f3f0e8; border:2px solid #8a6a3a;"></span>
+                <span style="position:absolute; left:272px; top:74px; padding:2px 6px; background:rgba(243,240,232,0.92); font-family:'Fraunces',Georgia,serif; font-size:13px; color:#5c4526;">Haran</span>
+              </div>
+
+              <div style="position:relative; z-index:2; flex:0 0 auto; padding:0 22px 20px; display:flex; flex-direction:column; gap:12px;">
+                <div style="display:flex; flex-direction:column; gap:5px;">
+                  <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:9.5px; letter-spacing:0.2em; text-transform:uppercase; color:#7a6540;">Region 7 · you are here</span>
+                  <span style="font-family:'Fraunces',Georgia,serif; font-size:25px; line-height:1.1; color:#3a2c16;">Sinai &amp; the wilderness</span>
+                  <span style="font-size:12.5px; color:#7a6540;">Exodus 12–19 · 9 stops · stage 5, Exodus phase</span>
+                </div>
+                <div style="display:flex; gap:7px; flex-wrap:wrap;">
+                  <span style="padding:6px 11px; border-radius:2px; background:rgba(207,32,39,0.1); border:1px solid rgba(207,32,39,0.35); font-family:'Archivo Narrow',sans-serif; font-weight:600; font-size:10.5px; letter-spacing:0.09em; text-transform:uppercase; color:#8a2222;">Mosaic covenant</span>
+                  <span style="padding:6px 11px; border-radius:2px; background:rgba(207,32,39,0.1); border:1px solid rgba(207,32,39,0.35); font-family:'Archivo Narrow',sans-serif; font-weight:600; font-size:10.5px; letter-spacing:0.09em; text-transform:uppercase; color:#8a2222;">Water from rock · 3</span>
+                </div>
+                <div style="border-top:1px solid #c9b788; padding-top:14px; display:flex; align-items:center; justify-content:space-between; min-height:44px;">
+                  <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:12.5px; letter-spacing:0.16em; text-transform:uppercase; color:#3a2c16;">Zoom into Horeb</span>
+                  <span style="color:#cf2027; font-size:16px;">→</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="flex:1 1 400px; min-width:380px; display:flex; flex-direction:column;">
+            <span style="font-family:'Archivo Narrow',sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.2em; text-transform:uppercase; color:#7c828b; padding-bottom:14px;">Redlines</span>
+            <div style="padding:18px 0; border-top:1px solid #23272d; display:flex; flex-direction:column; gap:7px;">
+              <span style="font-size:14.5px; color:#f4e6c8;">Pictorial, never cartographic</span>
+              <span style="font-size:13.5px; line-height:1.65; color:#8f959e;">Hand-drawn hills in elevation rather than plan, ships on the water, a compass rose, hand lettering with letter-spaced region names. Coastlines are approximately right and nothing else is: no graticule, no scale bar, no projection, no satellite tiles. It is a story map, and a story map is allowed to place Eden where the text puts it and not where a geographer would argue about.</span>
+            </div>
+            <div style="padding:18px 0; border-top:1px solid #23272d; display:flex; flex-direction:column; gap:7px;">
+              <span style="font-size:14.5px; color:#f4e6c8;">The map is the parchment surface</span>
+              <span style="font-size:13.5px; line-height:1.65; color:#8f959e;">Sheet <code style="color:#cfd2d6;">#e8dcc0</code>, ink <code style="color:#cfd2d6;">#5c4526</code>, rule and coastline <code style="color:#cfd2d6;">#8a6a3a</code>, place labels in Fraunces. This is <code style="color:#cfd2d6;">--page-*</code> doing a new job, not a new palette — which is why the map can live in the same app as the mountain without a second design system. Overlays that sit on the sheet get a <code style="color:#cfd2d6;">rgba(243,240,232,0.9)</code> card and a <code style="color:#cfd2d6;">#c9b788</code> hairline, never a dark scrim.</span>
+            </div>
+            <div style="padding:18px 0; border-top:1px solid #23272d; display:flex; flex-direction:column; gap:7px;">
+              <span style="font-size:14.5px; color:#f4e6c8;">The thread lights the leg you are on</span>
+              <span style="font-size:13.5px; line-height:1.65; color:#8f959e;">The single most important rule on this screen. Full route as a 3px dotted <code style="color:#cfd2d6;">#8a6a3a</code> trace at 30%; the current leg as the full three-stroke scarlet rope. Without it, 25 regions and a route that enters Canaan four times renders as a knot. Tapping any faint leg promotes it to solid and demotes the previous one.</span>
+            </div>
+            <div style="padding:18px 0; border-top:1px solid #23272d; display:flex; flex-direction:column; gap:7px;">
+              <span style="font-size:14.5px; color:#f4e6c8;">Three zoom levels, not continuous</span>
+              <span style="font-size:13.5px; line-height:1.65; color:#8f959e;">World sheet → region sheet → site vista. Continuous zoom needs a tile pyramid at many scales; three discrete sheets with a 280ms cross-fade and a scale-up of the outgoing sheet reads as zoom and costs 1 + 25 + n images. The transition matters more than the count — the outgoing sheet scales 1 → 1.4 while fading, so the eye believes it moved inward.</span>
+            </div>
+            <div style="padding:18px 0; border-top:1px solid #23272d; display:flex; flex-direction:column; gap:7px;">
+              <span style="font-size:14.5px; color:#f4e6c8;">A site carries every passage that happens there</span>
+              <span style="font-size:13.5px; line-height:1.65; color:#8f959e;">This is what the map can do that the mountain cannot. Horeb is Exodus 19 <em style="color:#cfd2d6;">and</em> 1 Kings 19 — Moses and Elijah at the same rock, a thousand years apart, which no chronological view will ever put side by side. Every site lists its passages across the whole canon, in canonical order, with the stage each belongs to. Expect this to be where users find their best threads.</span>
+            </div>
+            <div style="padding:18px 0; border-top:1px solid #23272d; display:flex; flex-direction:column; gap:7px;">
+              <span style="font-size:14.5px; color:#f4e6c8;">The toggle is two words, not an icon</span>
+              <span style="font-size:13.5px; line-height:1.65; color:#8f959e;">&ldquo;Mountain&rdquo; and &ldquo;Map&rdquo; as a two-item strip under the status bar, active carrying the 2px scarlet underline — the same tab-strip component as the entry kinds in §05. Switching preserves position: if you are in stage 5 Exodus phase on the mountain, the map opens on region 7. One dataset means the views must always agree about where you are.</span>
+            </div>
+            <div style="padding:18px 0; border-top:1px solid #23272d; border-bottom:1px solid #23272d; display:flex; flex-direction:column; gap:7px;">
+              <span style="font-size:14.5px; color:#f4e6c8;">The New Jerusalem is not on the map</span>
+              <span style="font-size:13.5px; line-height:1.65; color:#8f959e;">It has no coordinates — in the text it <em style="color:#cfd2d6;">descends</em>. So it is the one place that is not a pin: at stage 11 the city is drawn descending over Jerusalem, in gold leaf rather than brown ink, the only element on the sheet not in the mapmaker&rsquo;s hand. Nothing else on the map is gold. It is the last thing you unlock and the only time the paper changes.</span>
+            </div>
+            <div style="margin-top:22px; padding:18px 20px; background:#0e1013; border-left:2px solid #cf2027;">
+              <span style="font-size:13.5px; line-height:1.65; color:#b9bcc2;">Art dependency: the route is traced from the map sheet, exactly as it is on the mountain (§15). The sheet must be drawn with the roads and sea lanes visible so the rope has something to lie along — a rope authored in abstract coordinates over a map reads as an overlay for the same reason it did over terrain. Prompts are in <a href="./Scarlet Thread - Image Commission.md">Scarlet Thread - Image Commission.md</a>; the slots above accept a drop and persist it.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
     <sc-if value="{{ isSpine }}" hint-placeholder-val="{{ false }}">
       <div>
         <div style="position:relative; height:404px; overflow:hidden; border-bottom:1px solid #1b1e23;">
@@ -2126,11 +2469,11 @@
 
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1600,&quot;height&quot;:1000}}">
-const KEYS = ["foundations","spine","switchback","climb","read","loop","workspace","notes","threads","review","settings","onboarding","states","components","motion","next","connective"];
+const KEYS = ["foundations","map","spine","switchback","climb","read","loop","workspace","notes","threads","review","settings","onboarding","states","components","motion","next","connective"];
 const LOOP = ["read","observe","link","ask","pray"];
 
 class Component extends DCLogic {
-  state = { sec: "foundations", steps: { read: true, observe: true, link: false, ask: false, pray: false }, lens: true, panel: "connect", scene: 6, teach: "me" };
+  state = { sec: "foundations", zoom: "world", steps: { read: true, observe: true, link: false, ask: false, pray: false }, lens: true, panel: "connect", scene: 6, teach: "me" };
 
   renderVals() {
     const go = (e) => {
@@ -2150,6 +2493,7 @@ class Component extends DCLogic {
       if (el) this.setState({ panel: el.getAttribute("data-panel") });
     };
     const toggleLens = () => this.setState((s) => ({ lens: !s.lens }));
+    const pickZoom = (e) => { const el = e.target.closest ? e.target.closest("[data-zoom]") : null; if (el) this.setState({ zoom: el.getAttribute("data-zoom") }); };
     const pickTeach = (e) => {
       const el = e.target.closest ? e.target.closest("[data-teach]") : null;
       if (el) this.setState({ teach: el.getAttribute("data-teach") });
@@ -2158,7 +2502,11 @@ class Component extends DCLogic {
     const st = this.state.steps;
     const done = LOOP.filter((k) => st[k]).length;
     const out = {
-      go, toggleStep, pickPanel, toggleLens, pickTeach,
+      go, toggleStep, pickPanel, toggleLens, pickZoom,
+      zoomWorld: this.state.zoom === "world", zoomRegion: this.state.zoom === "region", zoomSite: this.state.zoom === "site",
+      zw: this.state.zoom === "world" ? "#f4e6c8" : "#7c828b",
+      zr: this.state.zoom === "region" ? "#f4e6c8" : "#7c828b",
+      zs: this.state.zoom === "site" ? "#f4e6c8" : "#7c828b", pickTeach,
       teachMe: this.state.teach === "me", teachRoom: this.state.teach === "room",
       teachMeBar: this.state.teach === "me" ? "#cf2027" : "transparent",
       teachRoomBar: this.state.teach === "room" ? "#cf2027" : "transparent",
