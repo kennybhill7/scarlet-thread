@@ -629,6 +629,15 @@
       "lastRunId": "a62a87cb860aad16c",
       "lastEvidence": "typecheck/lint/build/test all re-run independently by Claude (not just trusted from the builder's report) in the builder's own worktree before merge: tsc clean, eslint clean, next build succeeded (39 routes), 1164/1164 tests pass. Merged fast-forward onto master and design/mountain-journey at 7d6507d, pushed both.",
       "notes": "Real photographic plates + drawn SVG rope, replacing MOUNTAINSWITCHBACK-001's flat procedural terrain. Band-to-stage mapping (plate-1-summit=5,6,7; plate-2-upper=4,8; plate-3-mid=3,9; plate-4-lower=2,10; plate-5-foothills=1,11) independently re-derived from route.json by the builder's own test, matching what was handed to it. Visual check done properly this time: builder rendered the real component via a static harness + headless screenshot (no popup window) and viewed the actual image before reporting done; I did the same independently after merge -- confirms real photographic terrain with a visible 3-stroke rope, not a flat diagram. Screenshot kept locally (not in git) at the builder's scratchpad path. Human gate still open: Ken should look at the real rendered app himself -- not yet done as of this entry."
+    },
+    "STORYSPINE-001": {
+      "status": "in_progress",
+      "branch": "agent/STORYSPINE-001-claude",
+      "commitSha": null,
+      "attempts": 1,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Dispatched 2026-09-03 -- the real 35-chapter Story Spine data, decisions already made in STORY_SPINE_DECISIONS.md. Real risk flagged in acceptance criteria: the source doc's own example data shape uses invented book codes that do NOT match this app's real RefKey/book-number scheme (web/lib/bible/reference.ts) -- builder must verify against the real source, not the doc's illustrative example."
     }
   }
 }

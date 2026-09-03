@@ -2461,6 +2461,44 @@
       "humanGates": [
         "Ken should look at the real rendered result himself before this is considered final-final -- flag that explicitly when reporting done, do not claim the visual gap from MOUNTAIN_IMPLEMENTATION_GAP.md is fully closed on your own authority alone."
       ]
+    },
+    {
+      "id": "STORYSPINE-001",
+      "title": "Commit the real 35-chapter Story Spine data (The Story's structural chapters mapped onto the 11 stages)",
+      "objective": "Build the real, committed data described in design/scarlet-thread-app/Scarlet Thread - Story Spine.md and design/STORY_SPINE_DECISIONS.md: 35 chapters (The Story's 31 original chapters, structural facts only -- chapter numbers and passage references, never Zondervan's prose -- plus the 4 additions '1b/31a/31b/31c' that restore the Babel-Babylon and Flood-World-Judged mirror pairs) mapped onto the app's 11 mountain stages, with a 6-phase sub-arc for stage 5 (Israel). Decisions already made and NOT open for re-litigation: 35 chapters (not 31), renamed titles (not Zondervan's), 4 reading days per chapter as a configurable default, sub-arc as a filter on the existing stage view (not a new route).",
+      "ownedPaths": [
+        "web/lib/bible/storySpine.ts",
+        "web/tests/story-spine.test.ts"
+      ],
+      "readOnlyPaths": [
+        "design/scarlet-thread-app/Scarlet Thread - Story Spine.md",
+        "design/STORY_SPINE_DECISIONS.md",
+        "web/lib/bible/reference.ts",
+        "web/lib/vault/seed.ts",
+        "web/lib/climb/mountainGeometry.ts",
+        "web/public/bible/index.json"
+      ],
+      "acceptanceCriteria": [
+        "CRITICAL, verify before writing any data: the Story Spine doc's own §4 example data shape uses invented 3-letter book codes ('1KI', 'PRO', etc) -- that is NOT what this app actually uses. web/lib/bible/reference.ts documents the real format: RefKey strings 'book.chapter.verse' or 'book.chapter', with book NUMBERS 1-66 in canonical Protestant order (confirm the exact Genesis=1..Revelation=66 numbering against web/public/bible/index.json or the app's real book-metadata source before writing a single passage -- do not assume, verify against the real source of truth). Every passage in the committed data must use this real numbering scheme, not the doc's illustrative 3-letter codes.",
+        "All 35 chapters present: The Story's original 31 (renamed titles -- write fresh, plain, factual titles, never Zondervan's editorial wording, ship Zondervan's original only as an internal 'altTitle' cross-reference field if useful for QA, never rendered) plus the 4 additions (1b The Tower / Genesis 10-11, 31a The Scroll and the Trumpets / Revelation 6-11, 31b The Beast and the City / Revelation 12-18, 31c The Rider and the Chain / Revelation 19-20) exactly as specified in the Story Spine doc's section 1 and section 2.",
+        "Every one of the 11 stages has at least one chapter (this is the whole point of the 4 additions -- verify no stage is empty).",
+        "Stage 5 (Israel) chapters carry a 'phase' field matching the 6-phase grouping in the Story Spine doc's section 1 Finding B table (Patriarchs, Exodus, Conquest, Kingdom, Divided & Warned, Exile & Return) -- chapters outside stage 5 have no phase (null/undefined).",
+        "Each chapter's chapterCount is computed (summed) from its own passages array, not hand-entered separately -- so it can never silently drift from the passages that actually define it.",
+        "Both known mirror-pair risks from the Story Spine doc are real, verified facts in the shipped data, not just prose: stage 4 (Babel) has a chapter, stage 8 (Babylon) has a chapter, stage 9 (World Judged) has a chapter, stage 10 (Satan Cast Out) has a chapter -- add a test that fails loudly if any of the 11 stages ends up with zero chapters.",
+        "A 'source' field distinguishes The Story's original 31 (\"the-story\") from the 4 additions (\"scarlet-thread\") per the doc's own note, so the UI can eventually offer 'read the 31 as published' vs 'read all 35' -- this task only needs the field to exist and be correct, not the UI toggle itself.",
+        "No NIV text, no Zondervan prose, anywhere in the committed file or its tests -- passage references and chapter numbers are structural facts (not copyrightable), titles are written fresh in this app's own voice.",
+        "This task does NOT build the stage-5 filter UI itself (design/STORY_SPINE_DECISIONS.md decision 4 says filter, not route, but that is a future UI task) -- scope is the data file and its tests only. Say explicitly in your final report that the UI integration is intentionally out of scope for this task, per SCOPE-BOUNDARY-001, rather than silently half-building it.",
+        "Mutation-prove the new test(s): temporarily break something real (a wrong book number, a stage with zero chapters, a mis-summed chapterCount) and confirm the test actually catches it before calling this done."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": [
+        "Ken should spot-check a handful of the 35 chapters' passage references against a real Bible before this is treated as fully trustworthy content -- this is real biblical content, not just code, and deserves a human sanity check even though it's sourced from an already-published, real structural breakdown."
+      ]
     }
   ]
 }
