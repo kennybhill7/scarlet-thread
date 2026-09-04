@@ -77,18 +77,26 @@ export const PLATE_SRC: Record<PlateName, string> = {
  * sync with what's actually on disk; tests/mountain-desktop.test.ts checks
  * every one of these 11 files actually exists under web/public/climb/scenes/.
  */
+/**
+ * Updated 2026-09-04: the real commissioned stage scenes (Image Commission
+ * candidates, Ken-approved) replaced the old stand-in scene images. All 11
+ * are now .png (the real generator's native output format) -- the old mix
+ * of .jpg/.png matched the STAND-IN files' own formats, not a real
+ * constraint, so this is a clean uniform rename, not a per-file judgment
+ * call. See design/image-commission/manifest.json for provenance.
+ */
 export const SCENE_SRC: ReadonlyMap<number, string> = new Map([
-  [1, "/climb/scenes/01-creation.jpg"],
+  [1, "/climb/scenes/01-creation.png"],
   [2, "/climb/scenes/02-sin-enters.png"],
   [3, "/climb/scenes/03-flood.png"],
   [4, "/climb/scenes/04-babel.png"],
-  [5, "/climb/scenes/05-israel.jpg"],
-  [6, "/climb/scenes/06-gospels.jpg"],
+  [5, "/climb/scenes/05-israel.png"],
+  [6, "/climb/scenes/06-gospels.png"],
   [7, "/climb/scenes/07-church.png"],
   [8, "/climb/scenes/08-babylon.png"],
-  [9, "/climb/scenes/09-world-judged.jpg"],
+  [9, "/climb/scenes/09-world-judged.png"],
   [10, "/climb/scenes/10-satan-cast-out.png"],
-  [11, "/climb/scenes/11-paradise-restored.jpg"],
+  [11, "/climb/scenes/11-paradise-restored.png"],
 ]);
 
 /** Real committed plate pixel heights, all at 1531px width (see header).
