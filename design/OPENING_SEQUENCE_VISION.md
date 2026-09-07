@@ -1,8 +1,9 @@
 # The opening sequence — globe to Eden
 
-**Date:** 2026-09-02
-**Status:** Ken's vision, captured raw. Not yet speced, not yet built. For Claude Design to weigh
-in on sequencing/feasibility, and for whoever builds it once a direction is chosen.
+**Date:** 2026-09-02, decided 2026-09-07.
+**Status:** SPEC'D, being built. Ken: "build the opening sequence... go in order based on what u
+see needs to be done" (2026-09-07) -- explicit delegation to make the remaining open-question
+calls directly rather than wait for each one. Decisions below, made accordingly.
 
 ---
 
@@ -39,31 +40,38 @@ entirely (satellite tiles vs. hand-painted parchment), but it proves the zoom-th
 interaction Ken is describing is not a hypothetical — it's a pattern that already exists and works
 in a browser.
 
-## Open questions
+## Decisions, 2026-09-07
 
-1. **What is the globe, visually?** A literal rotating 3D Earth (photoreal or stylized)? A painted
-   globe matching Style B's parchment hand? Something else? Ken's "kid playing with a globe" image
-   suggests something tactile/handleable, not a passive establishing shot. Still open.
-2. **How much is one-time vs. re-enterable?** A first-run-only cinematic, or something a returning
-   reader can re-trigger (e.g. from a "world" tab) to jump to any of the 25 regions later, once
-   they exist? Still open.
-3. **Where does the zoom actually end? — REOPENED, 2026-09-03.** Briefly answered "an immersive
-   scene" on 2026-09-02 after the Red Sea Fable prototype (Ken: "works great"). That's since been
-   walked back — after seeing a second Fable scene (Eden), Ken: "im not crazy about the quality.
-   lets continue working on the regular version with the pictures." See
-   `IMMERSIVE_SCENES_ROADMAP.md`, now paused after Phase 1. Back to open: the zoom most likely
-   lands on a static photoreal image (the same track this doc's own §2 already ties the world map
-   to) rather than a Fable scene, unless that decision changes again later.
-4. **Cost/scope, honestly.** A real 3D or richly-animated globe, a full painted world map, and a
-   scripted zoom transition between them is a substantial build on top of everything else already
-   in flight (Mountain plates, the 35-chapter Story Spine, 12-79 commissioned images, and now
-   potentially multiple Fable-built immersive scenes). Worth being explicit that this is additive
-   scope, not a small addition, before committing to it. Still open, and now bigger than when this
-   doc was first written — the validated immersive-scene technique makes the *end* of the sequence
-   more ambitious, not less.
+1. **What is the globe, visually? — DECIDED: an interactive stone/parchment-toned sphere, CSS/SVG,
+   not WebGL.** No new 3D asset pipeline exists and none is worth standing up for one sequence —
+   the app has zero other WebGL surfaces since the immersive-scenes track paused. A draggable
+   sphere built from CSS 3D transforms (rotateX/rotateY on drag, inertia on release) wrapped with a
+   texture in the app's own established palette (`--shell-*` stone tones, not a photoreal Earth
+   texture, which would fight the hand-drawn-map aesthetic it zooms into next) satisfies "something
+   a viewer can turn/handle" without a rendering-technology mismatch between beat 1 (globe) and
+   beat 2 (the hand-painted world map). Cheap, real, in-palette.
+2. **One-time vs. re-enterable? — DECIDED: first-run, with a manual replay.** Shown automatically
+   the first time a user reaches the home screen (gated on a local flag, not account-level — a
+   fresh device should see it again), never forced on a returning user. A "Replay the Journey"
+   entry in Settings lets anyone (Ken included, for review) re-trigger it on demand. No
+   region-jump/re-enterable-per-region mechanic yet — that's real added scope tied to the 25 region
+   sheets, which are themselves not commissioned yet (Image Commission phase 2, not started).
+3. **Where does the zoom actually end? — DECIDED: the real Mountain, via the real Eden scene
+   image.** REOPENED 2026-09-03 after the immersive-scenes pause; now closed the other direction on
+   purpose. Sequence: globe -> world map (`design/scarlet-thread-app/assets/map-world.png`,
+   Ken-approved) -> zoom into the Eden region of that map -> cut to the real, approved
+   `01-creation.png` stage-scene image (full-bleed) -> fade into the real Mountain home page
+   (`/`, already showing stage 1 at the same visual position). This is a real app entry point that
+   hands off to the real product, not a dead-end cinematic — avoids building and maintaining a
+   whole separate static landing experience for one sequence.
+4. **Cost/scope — grounded now, not speculative.** With decision 1 (CSS, not WebGL) this is a real
+   but bounded build: one new client component with a drag-interaction globe, a scripted zoom
+   sequence over two already-approved static images (the world map, scene-01), and a fade into the
+   existing home page. No new image commissions needed for this specific sequence — the world map
+   and Eden scene both already exist and are approved.
 
 ## What this doc is NOT
 
-Not a spec. Not a commitment to build. Ken described a vision; this records it faithfully with its
-real connections to existing work, so the decision (build it, and in what form) can be made with
-full context rather than the idea evaporating into chat history.
+Not a spec for the 25 region sheets or a re-enterable per-region map browser — that's real,
+larger, separate scope (Image Commission phase 2), not part of this build. This doc's decisions
+cover the first-run opening sequence only: globe, world map, Eden, home page.
