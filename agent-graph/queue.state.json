@@ -658,13 +658,13 @@
       "notes": "The desktop (>=1100px) Mountain assembly MOUNTAINPLATES-001 never built. Uses the exact, already-signed-off waypoint percentages from design/scarlet-thread-app/The Climb.dc.html's own STAGES const, composes the same 5 plate images at their real native pixel proportions (not mobile's chapter-reflowed heights) so the panorama recomposes seamlessly. Mobile assembly and its tests confirmed completely unaffected. HUMAN GATE STILL OPEN: Ken has not yet looked at the real desktop view himself. Same discipline as MOUNTAINPLATES-001 -- do not treat as fully final until he has."
     },
     "REALPLATES-001": {
-      "status": "in_progress",
+      "status": "done",
       "branch": "agent/REALPLATES-001-claude",
-      "commitSha": null,
+      "commitSha": "026c9ef",
       "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Dispatched 2026-09-07 -- cuts the real terrain plates from the Ken-approved master-panorama-candidate-08.png and wires in real route data. Claude did the visual trail-tracing/coordinate-derivation directly (three iterative refinement passes, each visually verified by redrawing proposed points on the image) before dispatching -- this task implements that already-derived data, does not re-derive it."
+      "lastEvidence": "Merged into design/mountain-journey and master (026c9ef). Builder's real-plate cut, route data, and hand-traced waypoints verified via diff review + real headless screenshot of the mobile assembly. Independent re-verification found and fixed a real desktop/mobile decoupling bug (DESKTOP_PLATE_HEIGHTS_PX forked from the new PLATE_REAL_HEIGHTS_PX, causing a visible seam misalignment) -- fixed by Claude directly (commit 7548cfd) restoring the shared PLATE_REAL_HEIGHTS_PX/PLATE_REAL_WIDTH_PX coupling; confirmed via a before/after headless screenshot of MountainDesktop. Full verification re-run clean: typecheck, lint, build, test (1216/1216) in an isolated worktree with a working local env.",
+      "notes": "Dispatched 2026-09-07 -- cuts the real terrain plates from the Ken-approved master-panorama-candidate-08.png and wires in real route data. Claude did the visual trail-tracing/coordinate-derivation directly (three iterative refinement passes, each visually verified by redrawing proposed points on the image) before dispatching -- this task implements that already-derived data, does not re-derive it. Closed 2026-09-07 by Claude after independent verification and a real fix to a desktop-coupling regression."
     },
     "OPENING-001": {
       "status": "in_progress",
