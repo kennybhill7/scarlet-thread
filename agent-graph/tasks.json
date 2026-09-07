@@ -2628,6 +2628,55 @@
       "humanGates": [
         "Ken should look at the real running mobile Mountain himself before this is called fully final -- this replaces the actual terrain art users will see, the single most visible change from the whole image-commission effort."
       ]
+    },
+    {
+      "id": "OPENING-001",
+      "title": "Build the first-run opening sequence: globe -> world map -> Eden -> real Mountain home page",
+      "objective": "design/OPENING_SEQUENCE_VISION.md (fully decided 2026-09-07) specifies a first-run-only sequence: an interactive draggable globe, fading to the approved world-story map, zooming into the Eden region of that map, cutting to the real approved Eden/Creation scene image full-bleed, then fading into the real Mountain home page. Shown once per device (local flag, not account-level), with a 'Replay the Journey' action in Settings to re-trigger it manually. This is a real, new client-facing feature -- not a redesign of anything existing.",
+      "ownedPaths": [
+        "web/components/opening/OpeningSequence.tsx",
+        "web/components/opening/OpeningSequence.module.css",
+        "web/components/opening/Globe.tsx",
+        "web/components/opening/Globe.module.css",
+        "web/lib/opening/openingSequence.ts",
+        "web/app/(app)/page.tsx",
+        "web/app/(app)/settings/page.tsx",
+        "web/components/settings/ReplayJourney.tsx",
+        "web/components/settings/ReplayJourney.module.css",
+        "web/public/opening/map-world.png",
+        "web/tests/opening-sequence.test.ts"
+      ],
+      "readOnlyPaths": [
+        "design/OPENING_SEQUENCE_VISION.md",
+        "design/scarlet-thread-app/assets/map-world.png",
+        "web/public/climb/scenes/01-creation.png",
+        "web/lib/theme.ts",
+        "web/lib/bible/lastRead.ts",
+        "web/components/auth/DeviceSessionControls.tsx",
+        "web/app/globals.css",
+        "web/tests/protected-integrations.test.ts"
+      ],
+      "acceptanceCriteria": [
+        "The globe is a CSS/SVG-built interactive sphere (drag to rotate on both axes, e.g. via rotateX/rotateY transforms with some inertia on release) using the app's existing --shell-* palette (design/OPENING_SEQUENCE_VISION.md decision 1) -- NOT a photoreal Earth texture, NOT WebGL/three.js/any new 3D library. This is genuinely greenfield in this codebase (no existing rotateX/rotateY/perspective usage anywhere) -- read web/app/globals.css's real --shell-* hex values yourself before writing any color, do not invent new ones.",
+        "Sequence order, exactly: (1) the globe, with at least a brief real drag interaction available before advancing (not just a static image) (2) fade to web/public/opening/map-world.png (mirror it there from design/scarlet-thread-app/assets/map-world.png -- it is NOT currently in web/public/ anywhere, this task adds that) (3) a zoom/pan animation on that same map image toward its lower-left region, where the Garden of Eden / Adam-and-Eve vignette is actually painted in the art (roughly the lower-left ~20% width x ~25% height of the frame -- verify this yourself by looking at the actual image before hardcoding a crop/transform-origin, do not guess blindly) (4) cut/fade to /climb/scenes/01-creation.png (already in web/public/, already servable, the real Ken-approved Eden/Creation stage scene) shown full-bleed (5) fade into the real Mountain home page content (the existing ClimbHero + Mountain that app/(app)/page.tsx already renders) -- do not build a separate dead-end landing page, this must hand off into the real, already-working home page.",
+        "First-run gating: a device-local flag (NOT account/database-level -- a fresh device/browser should see the sequence again even for a returning signed-in user, per the vision doc's own explicit decision), stored in localStorage using this app's REAL existing key-naming convention -- read web/lib/theme.ts's THEME_STORAGE_KEY ('bible-brain:theme') and web/lib/bible/lastRead.ts for the actual established 'bible-brain:*' prefix convention and match it exactly (e.g. 'bible-brain:opening-seen'), do not invent a 'scarlet-thread:*' prefix that doesn't match the rest of the app.",
+        "No hydration mismatch / no flash of the wrong state on load. This app already has two real, documented solutions to the exact same class of problem (a localStorage-driven decision that a Server Component can't make): web/lib/theme.ts's own inline-script + snapshot pattern, and DeviceSessionControls.tsx's own 'residue' pattern (referenced directly in theme.ts's comments). Read BOTH before writing your own gating logic and follow the same discipline -- don't invent a third, different pattern for the same class of problem in the same codebase.",
+        "app/(app)/page.tsx is currently a Server Component with no client-side gating of any kind (verified: it returns its JSX directly from an async function). This task must add the opening-sequence gate WITHOUT turning page.tsx itself into a client component and without breaking its existing session-resolution/redirect/SetupIncomplete logic -- wrap its returned content in a new client component (e.g. OpeningSequence as a wrapper receiving the real page content as children) that decides, client-side and without a hydration flash, whether to show the sequence overlay first.",
+        "The sequence must be skippable at any point (a visible, real 'Skip' control, not hidden) -- never trap a user in unremovable decorative content, including a first-time user who just wants to get to the app.",
+        "prefers-reduced-motion: reduce must be honored -- under that setting, skip straight to the real home page (or at minimum remove all animation/transition and show final states immediately), following the same two-guarantee discipline already established elsewhere in this codebase (e.g. web/components/climb/Mountain.tsx's own reduced-motion handling) -- read that existing pattern, match its rigor, don't invent a weaker one.",
+        "'Replay the Journey' Settings action: a new section appended AFTER the existing ThemePicker section in app/(app)/settings/page.tsx (the last section in that file today) -- do NOT insert it between OfflineDownloads/VaultExportButton/DeviceSessionControls, which have a load-bearing tested order (web/tests/protected-integrations.test.ts's 'settings renders downloads, then export, then clear device' test, which only asserts those three -- appending after ThemePicker is safe and matches how ThemePicker itself was added). Clicking it clears the local flag and takes the user back to the real sequence (e.g. navigate to '/' with a query param or an in-memory trigger -- your call on the exact mechanism, but it must actually re-show the sequence, not just clear the flag silently).",
+        "Real tests in web/tests/opening-sequence.test.ts: the first-run flag read/write logic (pure functions, testable under plain node:test per this repo's no-jsdom convention -- follow mountainGeometry.ts/plateGeometry.ts's own 'hookless, props in markup out' discipline for any renderToStaticMarkup-testable pieces), the reduced-motion guarantee, and the settings-order-safety of the new Replay section (a real assertion, not just eyeballing). Mutation-prove each.",
+        "Do not touch STORYSPINE-001, ISRAELFILTER-001, MOUNTAINPLATES-001/MOUNTAINDESKTOP-001's own components, or REALPLATES-001's in-flight work (web/lib/climb/plateGeometry.ts, web/public/climb/plates/*) -- this task is additive, a new feature layered on top, not a modification of any of those."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": [
+        "This is a brand-new, highly visual, first-impression feature -- Ken should click through the real sequence himself (including the Settings replay) before it's called fully final. Do your own real visual verification first (a static harness render + a real headless screenshot you personally look at, matching this project's established discipline -- no visible browser window, headless/file-output only) for at least the globe's resting frame and the map-zoom-to-Eden-scene transition, but say explicitly that your own check is not a substitute for Ken's."
+      ]
     }
   ]
 }

@@ -665,6 +665,15 @@
       "lastRunId": null,
       "lastEvidence": null,
       "notes": "Dispatched 2026-09-07 -- cuts the real terrain plates from the Ken-approved master-panorama-candidate-08.png and wires in real route data. Claude did the visual trail-tracing/coordinate-derivation directly (three iterative refinement passes, each visually verified by redrawing proposed points on the image) before dispatching -- this task implements that already-derived data, does not re-derive it."
+    },
+    "OPENING-001": {
+      "status": "in_progress",
+      "branch": "agent/OPENING-001-claude",
+      "commitSha": null,
+      "attempts": 1,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Dispatched 2026-09-07 -- the globe-to-Eden opening sequence, decided in design/OPENING_SEQUENCE_VISION.md the same day. Real investigation already done before dispatch (home page structure, no existing onboarding pattern, real localStorage key convention, settings section-order test, --shell-* token values, confirmed no existing CSS 3D transform usage in this codebase) -- handed to the builder directly rather than left to re-derive."
     }
   }
 }
