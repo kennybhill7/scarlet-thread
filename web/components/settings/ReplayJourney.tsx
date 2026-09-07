@@ -1,7 +1,7 @@
 "use client";
 
 import { clearOpeningSeen, replayHref } from "@/lib/opening/openingSequence";
-import styles from "./replay-journey.module.css";
+import styles from "./ReplayJourney.module.css";
 
 /**
  * OPENING-001, decision 2 — "A 'Replay the Journey' entry in Settings lets
