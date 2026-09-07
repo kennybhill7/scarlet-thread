@@ -2583,6 +2583,51 @@
       "humanGates": [
         "This is a large, highly visual feature built against a real, detailed mockup -- Ken should look at the actual rendered desktop view himself (not just trust a description) before it's considered fully final, same discipline as MOUNTAINPLATES-001. Do an actual visual check yourself first (a static harness render + a real screenshot you personally look at, not a text description) before reporting done, and still flag that Ken's own look is the final word."
       ]
+    },
+    {
+      "id": "REALPLATES-001",
+      "title": "Cut the 5 real terrain plates from the approved master panorama and wire in real route data",
+      "objective": "Replace MOUNTAINPLATES-001's stand-in plates (old climb-vista.png crops, still carrying baked-in rope/pins) with real terrain-only plates cut from design/image-commission/candidates/master-panorama-candidate-08.png (1536x1024, Ken-approved art direction, independently verified by Claude to have a real continuous switchback trail on both flanks). Claude has already done the sensitive part -- visually traced the real trail against the actual image (three refinement passes, each checked by drawing the proposed points back onto the image and looking at it) to produce real, grounded pixel coordinates. This task cuts the plates and wires the derived data into the existing mobile plate/rope code -- it does not re-derive the coordinates.",
+      "ownedPaths": [
+        "web/lib/climb/plateGeometry.ts",
+        "web/public/climb/plates/plate-1-summit.jpg",
+        "web/public/climb/plates/plate-2-upper.jpg",
+        "web/public/climb/plates/plate-3-mid.jpg",
+        "web/public/climb/plates/plate-4-lower.jpg",
+        "web/public/climb/plates/plate-5-foothills.jpg",
+        "design/scarlet-thread-app/assets/plates/plate-1-summit.jpg",
+        "design/scarlet-thread-app/assets/plates/plate-2-upper.jpg",
+        "design/scarlet-thread-app/assets/plates/plate-3-mid.jpg",
+        "design/scarlet-thread-app/assets/plates/plate-4-lower.jpg",
+        "design/scarlet-thread-app/assets/plates/plate-5-foothills.jpg",
+        "design/scarlet-thread-app/assets/plates/route.json",
+        "web/tests/plate-geometry.test.ts"
+      ],
+      "readOnlyPaths": [
+        "design/image-commission/candidates/master-panorama-candidate-08.png",
+        "web/lib/climb/mountainGeometry.ts",
+        "web/lib/vault/seed.ts"
+      ],
+      "acceptanceCriteria": [
+        "Cut exactly 5 contiguous, non-overlapping horizontal strips from master-panorama-candidate-08.png (1536 wide, 1024 tall) at these exact y-boundaries (Claude-derived, verified against the real visible trail -- use these values, do not re-derive): plate-1-summit y=[0,245] (height 245), plate-2-upper y=[245,356] (height 111), plate-3-mid y=[356,484] (height 128), plate-4-lower y=[484,598] (height 114), plate-5-foothills y=[598,1024] (height 426). All 1536px wide. Save as .jpg (matching the existing file extension convention) at reasonable quality (q90+), and place identical copies at both owned-path locations (web/public/climb/plates/ and design/scarlet-thread-app/assets/plates/) -- these must stay byte-identical mirrors of each other, same as the stand-ins were.",
+        "Update web/lib/climb/plateGeometry.ts's baked constants to match the NEW real plate pixel heights (245/111/128/114/426 at 1536px width) -- replace PLATE_REAL_HEIGHTS_PX's old stand-in values (240/85/85/86/149) and PLATE_SCALE's old width basis (1531) with the new real numbers. Read the file's own header comment first (documents exactly how these constants were derived) and update that comment to describe the new derivation, don't just change the numbers silently.",
+        "Update the per-stage waypoint fractions (STAGE_FRACTIONS or equivalent) using this Claude-derived, real data -- x-fraction is real pixel x / 1536, y-fraction-within-band is (real pixel y - band's real top) / band's real height, both computed from the real coordinates below, not re-eyeballed:\n      stage 1: x=180  y=640  (band: foothills, plate-5)\n      stage 2: x=280  y=590  (band: lower, plate-4)\n      stage 3: x=450  y=430  (band: mid, plate-3)\n      stage 4: x=520  y=300  (band: upper, plate-2)\n      stage 5: x=600  y=190  (band: summit, plate-1)\n      stage 6: x=820  y=110  (band: summit, plate-1 -- peak)\n      stage 7: x=900  y=190  (band: summit, plate-1)\n      stage 8: x=1030 y=300  (band: upper, plate-2)\n      stage 9: x=1050 y=405  (band: mid, plate-3)\n      stage 10: x=1140 y=520 (band: lower, plate-4)\n      stage 11: x=1220 y=640 (band: foothills, plate-5)\n    Note these mirror pairs (3/9, 2/10) are NOT perfectly y-symmetric within their shared band -- that's expected and correct, this is real photographic/painted art, not a perfectly symmetric procedural stand-in; both landing in the SAME plate/band is the real structural requirement, not identical sub-pixel position.",
+        "Write real route.json (design/scarlet-thread-app/assets/plates/route.json) documenting this new extraction: the 11 real pts (as listed above, in the master panorama's own 1536x1024 pixel space -- do not rescale to the old 1000-wide reference frame, that convention is retired with this new source image), and record the 5 band boundary y-values [0,245,356,484,598,1024] under a clearly-named key (not the old ambiguous 'bandTops' name that caused confusion before -- something like 'plateBoundariesPx'). Include a comment/field noting the source image (master-panorama-candidate-08.png) and extraction date.",
+        "Regenerate the rope path (Catmull-Rom spline through the 11 remapped waypoints) using the EXISTING catmullRomToBezierPath function already in plateGeometry.ts -- do not write a new spline implementation, this task only changes the input data, not the math.",
+        "web/tests/plate-geometry.test.ts's existing tests must be updated to match the new real data where they assert specific old numbers (e.g. old PLATE_REAL_HEIGHTS_PX values, old band-to-stage boundary math) -- do not just delete failing assertions, update them to real, correct values for the new source and verify they still test the same real invariants (band-to-stage mapping matches route data, reflow math, waypoint bounds, rope path well-formedness). Mutation-prove any changed/new assertion.",
+        "Do NOT touch DESKTOP_STAGE_POSITIONS or any desktop-specific geometry in plateGeometry.ts -- those coordinates come from a separate, already-approved design source (The Climb.dc.html's own hand-placed percentages) unrelated to this route.json extraction, and are explicitly out of scope for this task.",
+        "Do NOT touch mountainGeometry.ts's exports/behavior at all.",
+        "Visual verification required before calling this done: render the real MountainPlates component (mobile assembly) with realistic sample data via a static harness (renderToStaticMarkup + real CSS + a local static server so /climb/plates/*.jpg paths resolve, matching the pattern already used for MOUNTAINPLATES-001's own original verification) and get a real headless screenshot you personally look at -- confirm the plates compose into a coherent mountain image with the rope tracking real terrain, not misaligned or floating over sky/rock that doesn't support it. Headless/file-output only, no visible browser window."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": [
+        "Ken should look at the real running mobile Mountain himself before this is called fully final -- this replaces the actual terrain art users will see, the single most visible change from the whole image-commission effort."
+      ]
     }
   ]
 }
