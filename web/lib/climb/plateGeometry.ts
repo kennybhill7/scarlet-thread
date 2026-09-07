@@ -112,14 +112,14 @@ export const SCENE_SRC: ReadonlyMap<number, string> = new Map([
 ]);
 
 /** Real committed plate pixel heights, all at 1536px width (see header) —
- * the REAL master-panorama's own crop boundaries. Before REALPLATES-001
- * this same array was also reused by the desktop geometry below (additive,
- * MOUNTAINDESKTOP-001); that reuse only worked because the OLD stand-in
- * plates happened to be cropped to the same heights The Climb.dc.html's own
- * hardcoded aspect-ratio expects. Now that the real plates have different
- * heights, desktop keeps its own independent, unchanged copy of the old
- * numbers instead (DESKTOP_PLATE_HEIGHTS_PX, far below) — see that
- * constant's own comment. */
+ * the REAL master-panorama's own crop boundaries. Also reused directly by
+ * the desktop geometry below (additive, MOUNTAINDESKTOP-001) — both
+ * assemblies read the exact same five image files (PLATE_SRC), so both
+ * must use the exact same real proportions to lay them out, or the
+ * composed panorama visibly misaligns (confirmed by an actual screenshot
+ * during REALPLATES-001's review — see the desktop section's own header
+ * for the full story). Update this one array and both assemblies stay
+ * correct together. */
 export const PLATE_REAL_HEIGHTS_PX: readonly number[] = [245, 111, 128, 114, 426];
 /** The real master panorama's own pixel width — route.json's `pts` are
  * directly in this same 1536px-wide space, no reference-frame rescaling
@@ -471,18 +471,39 @@ export function buildPlateGeometry(stages: readonly MountainStage[]): PlateGeome
 // The desktop composition is different in kind, not just in layout: instead
 // of reflowing each band's height to the member stages' chapter count (the
 // mobile column, meant to scroll), the desktop panorama stacks the same five
-// plate images at their REAL, NATIVE pixel-height proportions (240 / 85 / 85
-// / 86 / 149, summing to 645 — DESKTOP_PLATE_HEIGHTS_PX below, decoupled
-// from mobile's own PLATE_REAL_HEIGHTS_PX by REALPLATES-001 — see its own
-// comment) inside a container fixed at `aspect-ratio: 1531 / 645` (the plates' own combined
-// pixel dimensions). Because the five plates are literally horizontal slices
-// of ONE photographed mountain, all the same 1531px width, restoring their
-// true native proportions (rather than mobile's content-driven reflow)
-// recomposes the seams back into one continuous image — which is the whole
-// point of "the plates compose back into the landscape panorama" per the
-// design brief. Reflowing THIS geometry by chapter count, the way the mobile
-// column does, would re-introduce visible seams between plates and defeat
-// that recomposition, so it deliberately does not.
+// plate images at their REAL, NATIVE pixel-height proportions (PLATE_REAL_
+// HEIGHTS_PX above, shared with mobile -- both read the exact same five
+// image files via PLATE_SRC, so both must use the exact same real
+// proportions to lay them out, or the images get cropped/stretched against
+// a container shaped for different content, breaking the seamless
+// recomposition). Because the five plates are literally horizontal slices
+// of ONE photographed mountain, all the same PLATE_REAL_WIDTH_PX wide,
+// restoring their true native proportions (rather than mobile's
+// content-driven reflow) recomposes the seams back into one continuous
+// image -- which is the whole point of "the plates compose back into the
+// landscape panorama" per the design brief. Reflowing THIS geometry by
+// chapter count, the way the mobile column does, would re-introduce visible
+// seams between plates and defeat that recomposition, so it deliberately
+// does not.
+//
+// CORRECTION, 2026-09-07 (Claude, independent visual verification after
+// REALPLATES-001's own build): that task's first pass introduced a
+// DESKTOP_PLATE_HEIGHTS_PX holding the OLD stand-in's 240/85/85/86/149
+// values, reasoning that decoupling from the new real PLATE_REAL_HEIGHTS_PX
+// would protect The Climb.dc.html's already-approved layout from an
+// unplanned change. That reasoning was half right and half backwards: the
+// hand-placed WAYPOINT PERCENTAGES (DESKTOP_STAGE_POSITIONS, below) really
+// are an independent, separately-signed-off data source and correctly stay
+// untouched regardless of what art the plates show -- but the PLATE HEIGHT
+// PROPORTIONS are not part of that signed-off layout at all; they simply
+// have to match whatever real image content the same PLATE_SRC files
+// actually contain, on both assemblies, or the composed panorama visibly
+// misaligns. A real headless screenshot of the desktop assembly with the
+// real REALPLATES-001 plate files, laid out using the old stand-in
+// proportions, showed exactly that: visible horizontal seam breaks across
+// the mountain. Restored the original coupling (desktop reuses
+// PLATE_REAL_HEIGHTS_PX/PLATE_REAL_WIDTH_PX directly) so both assemblies
+// stay correct together automatically whenever the real art changes again.
 //
 // The 11 waypoint positions are NOT derived from route.json's traced pts (as
 // the mobile STAGE_FRACTIONS above are) — they are hand-placed constants
@@ -495,28 +516,18 @@ export function buildPlateGeometry(stages: readonly MountainStage[]): PlateGeome
 // the mobile math."
 // ---------------------------------------------------------------------------
 
-/**
- * REALPLATES-001 (2026-09-07): the desktop panorama's own plate heights,
- * decoupled from PLATE_REAL_HEIGHTS_PX above. Before this task the two were
- * the same array purely by coincidence — the OLD stand-in plate crops
- * happened to be cut to these same 240/85/85/86/149 heights, which is also
- * what The Climb.dc.html's own hardcoded `aspect-ratio:1531 / 645` (line 55)
- * expects. Now that the REAL master-panorama plates are cropped to
- * different heights (245/111/128/114/426, summing to 1024 — see
- * PLATE_REAL_HEIGHTS_PX's own comment), continuing to share one array would
- * silently change the desktop panorama's aspect ratio out from under The
- * Climb.dc.html's own already-approved, out-of-scope layout. This constant
- * keeps the desktop assembly's numbers byte-identical to before this task —
- * do not update it when the mobile plate crops change again; update it only
- * if The Climb.dc.html's own hand-placed layout changes. */
-export const DESKTOP_PLATE_HEIGHTS_PX: readonly number[] = [240, 85, 85, 86, 149];
-
 /** The panorama container's fixed pixel dimensions — matches the five real
- * plate images' combined size (1531 wide; 240+85+85+86+149=645 tall) and is
- * set verbatim as the container's `aspect-ratio` CSS (The Climb.dc.html line
- * 55: `aspect-ratio:1531 / 645`). */
-export const DESKTOP_PANORAMA_WIDTH = 1531;
-export const DESKTOP_PANORAMA_HEIGHT = DESKTOP_PLATE_HEIGHTS_PX.reduce((sum, h) => sum + h, 0);
+ * plate images' combined size (PLATE_REAL_WIDTH_PX wide;
+ * PLATE_REAL_HEIGHTS_PX summing to their real total height) and drives the
+ * container's `aspect-ratio` CSS. Reuses the exact same real numbers mobile
+ * uses (both assemblies read the same five image files via PLATE_SRC — see
+ * this section's own header for why these must stay coupled, not forked).
+ * The Climb.dc.html's own historical `aspect-ratio:1531 / 645` was tied to
+ * the OLD stand-in plates specifically; it is superseded by whatever the
+ * real art's own real proportions are, computed here rather than
+ * hand-copied from that now-stale mockup value. */
+export const DESKTOP_PANORAMA_WIDTH = PLATE_REAL_WIDTH_PX;
+export const DESKTOP_PANORAMA_HEIGHT = PLATE_REAL_HEIGHTS_PX.reduce((sum, h) => sum + h, 0);
 
 /**
  * Hand-placed desktop waypoint positions, transcribed verbatim from The
@@ -553,7 +564,7 @@ export interface DesktopPlateBand {
 export function computeDesktopPlateBands(): DesktopPlateBand[] {
   let topPx = 0;
   return PLATE_NAMES.map((name, i) => {
-    const heightPx = DESKTOP_PLATE_HEIGHTS_PX[i];
+    const heightPx = PLATE_REAL_HEIGHTS_PX[i];
     const band: DesktopPlateBand = {
       name,
       topPct: round2((topPx / DESKTOP_PANORAMA_HEIGHT) * 100),
@@ -619,7 +630,7 @@ export function computeDesktopWaypoints(stages: readonly MountainStage[]): Deskt
 }
 
 /** design doc's Layer 2 stroke widths, scaled for the desktop panorama's real
- * 1531-unit-wide pixel reference frame (rather than PLATE_COLUMN_WIDTH's
+ * 1536-unit-wide pixel reference frame (rather than PLATE_COLUMN_WIDTH's
  * 320, which the mobile column uses) — see ROPE_REF_STROKE_WIDTHS above. */
 const DESKTOP_ROPE_STROKE_SCALE = DESKTOP_PANORAMA_WIDTH / 1000;
 export const DESKTOP_ROPE_STROKE_WIDTHS = {
