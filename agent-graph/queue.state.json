@@ -667,13 +667,13 @@
       "notes": "Dispatched 2026-09-07 -- cuts the real terrain plates from the Ken-approved master-panorama-candidate-08.png and wires in real route data. Claude did the visual trail-tracing/coordinate-derivation directly (three iterative refinement passes, each visually verified by redrawing proposed points on the image) before dispatching -- this task implements that already-derived data, does not re-derive it. Closed 2026-09-07 by Claude after independent verification and a real fix to a desktop-coupling regression."
     },
     "OPENING-001": {
-      "status": "in_progress",
+      "status": "done",
       "branch": "agent/OPENING-001-claude",
-      "commitSha": null,
+      "commitSha": "23fe549",
       "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Dispatched 2026-09-07 -- the globe-to-Eden opening sequence, decided in design/OPENING_SEQUENCE_VISION.md the same day. Real investigation already done before dispatch (home page structure, no existing onboarding pattern, real localStorage key convention, settings section-order test, --shell-* token values, confirmed no existing CSS 3D transform usage in this codebase) -- handed to the builder directly rather than left to re-derive."
+      "lastEvidence": "Merged into design/mountain-journey and master (23fe549). Builder's globe/map/Eden/home sequence verified via full diff review, real typecheck/lint/build/test re-run (1241/1241), a real headless screenshot of GlobeSphere's resting and turned frames (reads as a turnable in-palette wireframe sphere), and an independent pixel-crop of the real map-world.png confirming the claimed Eden vignette (Adam and Eve, the serpent, the waterfall, the thread's starting knot) really sits inside EDEN_REGION -- then rendered the actual CSS zoom transform at EDEN_ORIGIN and confirmed it converges on the couple. Fixed one real defect before merging: replay-journey.module.css renamed to ReplayJourney.module.css to match this repo's PascalCase CSS-module convention.",
+      "notes": "Dispatched 2026-09-07 -- the globe-to-Eden opening sequence, decided in design/OPENING_SEQUENCE_VISION.md the same day. Real investigation already done before dispatch (home page structure, no existing onboarding pattern, real localStorage key convention, settings section-order test, --shell-* token values, confirmed no existing CSS 3D transform usage in this codebase) -- handed to the builder directly rather than left to re-derive. Closed 2026-09-07 by Claude after independent verification, including an independent re-derivation of the Eden-region crop (not just trusting the builder's stated coordinates). Flag for Ken: first-impression feature, worth clicking through for real on a fresh device (or via Settings > Replay the journey) -- timing/pacing was tuned by judgment, not watched in a live browser by either builder or verifier."
     }
   }
 }
