@@ -137,6 +137,15 @@ const cssProxy = new Proxy(
 
 seedModule("server-only", {});
 seedModule("@/components/climb/ClimbHero.module.css", { default: cssProxy });
+// OPENING-001 — page.tsx now wraps its returned JSX in the real
+// OpeningSequence client component (no server-side stubbing needed for the
+// component itself: it has no server-only dependency, and its hooks only
+// touch `window`/`document` inside effects/handlers, never during the
+// render body, so it renders fine through renderToStaticMarkup here). Its
+// own and Globe's CSS Modules still need the same cssProxy treatment as
+// ClimbHero's, for the same reason.
+seedModule("@/components/opening/OpeningSequence.module.css", { default: cssProxy });
+seedModule("@/components/opening/Globe.module.css", { default: cssProxy });
 seedModule("next/navigation", {
   redirect: (url: string): never => {
     throw new RedirectSignal(url);

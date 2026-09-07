@@ -1,6 +1,7 @@
 import { DeviceSessionControls } from "@/components/auth/DeviceSessionControls";
 import { VaultExportButton } from "@/components/export/VaultExportButton";
 import { OfflineDownloads } from "@/components/settings/OfflineDownloads";
+import { ReplayJourney } from "@/components/settings/ReplayJourney";
 import { ThemePicker } from "@/components/settings/ThemePicker";
 import styles from "./settings.module.css";
 
@@ -12,7 +13,9 @@ import styles from "./settings.module.css";
  * ThemePicker section is appended AFTER DeviceSessionControls rather than
  * inserted between any of the three, per that task's own constraint — the
  * settings-order test only asserts offline < export < clear, so appending
- * here cannot disturb it.
+ * here cannot disturb it. OPENING-001's ReplayJourney section is appended
+ * again after THAT, for the same reason — it is not one of the three
+ * ordered sections either.
  */
 export default function SettingsPage() {
   return (
@@ -36,6 +39,7 @@ export default function SettingsPage() {
           </h2>
           <ThemePicker />
         </section>
+        <ReplayJourney />
       </div>
     </div>
   );

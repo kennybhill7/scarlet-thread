@@ -9,6 +9,7 @@ import { listThreads } from "@/lib/db/threads";
 import type { MountainStage } from "@/lib/vault/seed";
 import { ClimbHero } from "@/components/climb/ClimbHero";
 import { Mountain } from "@/components/climb/Mountain";
+import { OpeningSequence } from "@/components/opening/OpeningSequence";
 
 /**
  * Gate 0.2 — the Climb home no longer reads web/data/seed/*.json through
@@ -253,15 +254,23 @@ export default async function ClimbPage() {
 
   const { stages, stagesWithWork, totalStages, threadCount, openQuestions } = view.data;
 
+  // OPENING-001 — first-run-only globe -> map -> Eden sequence, shown before
+  // this real content on a fresh device (see OpeningSequence.tsx's header
+  // for how it decides that client-side with no hydration flash). This page
+  // stays a Server Component: OpeningSequence is the client boundary, and
+  // its own children are exactly what this function already returned before
+  // this task, unchanged.
   return (
-    <div>
-      <ClimbHero
-        stagesWithWork={stagesWithWork}
-        totalStages={totalStages}
-        threadCount={threadCount}
-        openQuestions={openQuestions}
-      />
-      <Mountain stages={stages} />
-    </div>
+    <OpeningSequence>
+      <div>
+        <ClimbHero
+          stagesWithWork={stagesWithWork}
+          totalStages={totalStages}
+          threadCount={threadCount}
+          openQuestions={openQuestions}
+        />
+        <Mountain stages={stages} />
+      </div>
+    </OpeningSequence>
   );
 }

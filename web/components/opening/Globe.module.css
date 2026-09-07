@@ -1,0 +1,134 @@
+/* OPENING-001, beat 1. See Globe.tsx's header for the split between the
+   hookless GlobeSphere (this file's .stage/.base/.sphere/... rules) and the
+   interactive Globe wrapper (.wrap/.caption/.dragSurface/.continue). */
+
+.wrap {
+  display: grid;
+  justify-items: center;
+  gap: 1.1rem;
+  padding: 1.5rem;
+}
+
+.caption {
+  margin: 0;
+  font-family: var(--font-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: var(--shell-muted-2);
+}
+
+.dragSurface {
+  cursor: grab;
+  touch-action: none;
+  border-radius: var(--r-xl);
+  padding: 0.5rem;
+  outline-offset: 6px;
+}
+
+.dragSurface:active {
+  cursor: grabbing;
+}
+
+.dragSurface:focus-visible {
+  outline: 2px solid var(--gold);
+}
+
+/* --- Hookless GlobeSphere -------------------------------------------------- */
+
+.stage {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  /* Real perspective (not photoreal WebGL, just a real CSS 3D scene) so the
+     rotated meridian/parallel rings actually foreshorten into ellipses. */
+  perspective: 900px;
+}
+
+.base {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle at 32% 28%,
+      var(--shell-surface-hi) 0%,
+      var(--shell-surface) 55%,
+      var(--shell-bg) 100%
+    );
+  box-shadow:
+    inset 0 0 0 1px var(--shell-border-hi),
+    inset -18px -18px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* Fixed diameter -- must match Globe.tsx's SPHERE_DIAMETER_PX (220), which
+   uses this same number as a real length for translateZ(). See that
+   constant's own comment. */
+.sphere {
+  position: absolute;
+  inset: 0;
+  width: 220px;
+  height: 220px;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.meridian,
+.parallel {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--shell-border-hi);
+  background: transparent;
+}
+
+.parallel {
+  border-color: color-mix(in srgb, var(--shell-border-hi) 70%, transparent);
+}
+
+.landmass {
+  position: absolute;
+  top: 38%;
+  left: 35%;
+  background: color-mix(in srgb, var(--shell-crimson-text) 55%, var(--shell-muted) 45%);
+  opacity: 0.55;
+  /* An organic blob, not a rectangle -- purely decorative "landmass" shape,
+     not a real coastline. */
+  border-radius: 42% 58% 55% 45% / 45% 55% 42% 58%;
+}
+
+.highlight {
+  position: absolute;
+  top: 12%;
+  left: 18%;
+  width: 34%;
+  height: 26%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(234, 231, 225, 0.35) 0%, rgba(234, 231, 225, 0) 70%);
+  pointer-events: none;
+}
+
+/* No smaller breakpoint: 220px fits every real viewport this app targets,
+   and shrinking .stage/.sphere/.base here without also changing Globe.tsx's
+   SPHERE_DIAMETER_PX would desync the translateZ() radius from the visible
+   sphere size (see that constant's comment) -- not worth the drift for a
+   size that already fits. */
+
+.continue {
+  min-height: 2.75rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--shell-border-hi);
+  background: transparent;
+  color: var(--shell-text-2);
+  font-family: var(--font-label);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.continue:hover,
+.continue:focus-visible {
+  border-color: var(--gold);
+  color: var(--shell-text);
+}
