@@ -13,31 +13,43 @@
  * ---------------------------------------------------------------------------
  * WHERE THE BAKED CONSTANTS BELOW COME FROM (read once, cited inline after):
  *
- * design/scarlet-thread-app/assets/plates/route.json (read directly,
- * 2026-09-02) is `{ d, pts, bandTops }` in a ~1000-unit-wide reference frame
- * (matches the real plate width of 1531px at scale 1531/1000 = 1.531).
- * `pts` is 11 points, one per stage, IN STAGE ORDER 1-11 — that ordering,
- * not `bandTops`, is what this module keys off. (`bandTops` in that file is
- * a set of six *contour gridlines* the design doc draws for illustration —
- * evenly spaced ~56 units apart starting at the summit's own y — it is NOT
- * the plate boundary list; do not confuse the two. The real plate
- * boundaries below come from the five plates' own committed pixel heights.)
+ * REALPLATES-001 (2026-09-07) replaced MOUNTAINPLATES-001's STAND-IN plate
+ * crops (old crops of climb-vista.png, a prior design artifact that still
+ * had a rope/pins baked into the art) with real terrain cut from the
+ * Ken-approved AI-generated master panorama,
+ * design/image-commission/candidates/master-panorama-candidate-08.png
+ * (1536x1024px). The route itself was hand-traced directly against that
+ * real image — three iterative passes, each verified by drawing the
+ * proposed points back onto the image and visually confirming they land on
+ * real, visible trail, not a formula or algorithmic sample.
+ *
+ * design/scarlet-thread-app/assets/plates/route.json (rewritten 2026-09-07)
+ * is now `{ pts, plateBoundariesPx, ... }` DIRECTLY in the master
+ * panorama's own real 1536x1024 pixel space — unlike the old file, there is
+ * no separate reference frame to rescale out of (that ~1000-unit-wide
+ * convention belonged to the old stand-in's route data and is retired).
+ * `pts` is 11 points, one per stage, IN STAGE ORDER 1-11. `plateBoundariesPx`
+ * is the 5 plates' real cut boundaries, `[0, 245, 356, 484, 598, 1024]` —
+ * identical to PLATE_BOUNDARIES_PX below (re-derived here from
+ * PLATE_REAL_HEIGHTS_PX, not imported from the JSON at runtime, same "baked
+ * constant, cited inline" discipline this header has always used).
  *
  * The five plates (design/scarlet-thread-app/assets/plates/plate-*.jpg) are
- * all 1531px wide; their real heights are 240 / 85 / 85 / 86 / 149px
- * (summit / upper / mid / lower / foothills, summing to 645px). Dividing
- * each by the same 1.531 scale factor gives each plate's span in the
- * route.json reference frame — PLATE_REF_BOUNDARIES below.
+ * all 1536px wide; their real heights are 245 / 111 / 128 / 114 / 426px
+ * (summit / upper / mid / lower / foothills, summing to 1024px) — the exact
+ * crop boundaries used to cut them from the source panorama.
  *
  * Checking each of route.json's 11 `pts` y-values against those boundaries
  * gives an unambiguous per-stage plate assignment, and it exactly matches
  * the mirror-pair structure already in the data model (stage N mirrors
  * stage 12-N): plate-1-summit carries stages 5/6/7, plate-2-upper 4/8,
- * plate-3-mid 3/9 (the Flood/World Judged pair — the design doc's own
- * example), plate-4-lower 2/10, plate-5-foothills 1/11. See
- * BAND_STAGE_NUMBERS. tests/plate-geometry.test.ts re-derives this
- * assignment straight from route.json at test time (not from these baked
- * constants), so it is provably not a guess.
+ * plate-3-mid 3/9 (the Flood/World Judged pair), plate-4-lower 2/10,
+ * plate-5-foothills 1/11 — see BAND_STAGE_NUMBERS. This mapping is
+ * unchanged from MOUNTAINPLATES-001 even though every underlying pixel
+ * value changed, because the real hand-traced route preserves the same
+ * structural shape. tests/plate-geometry.test.ts re-derives this assignment
+ * straight from route.json at test time (not from these baked constants),
+ * so it is provably not a guess.
  * ---------------------------------------------------------------------------
  */
 import type { MountainStage } from "@/lib/vault/seed";
@@ -99,24 +111,33 @@ export const SCENE_SRC: ReadonlyMap<number, string> = new Map([
   [11, "/climb/scenes/11-paradise-restored.png"],
 ]);
 
-/** Real committed plate pixel heights, all at 1531px width (see header).
- * Exported (additive, MOUNTAINDESKTOP-001) so the desktop geometry below can
- * reuse these same real numbers for its native-proportion recomposition,
- * rather than re-typing them a second time. */
-export const PLATE_REAL_HEIGHTS_PX: readonly number[] = [240, 85, 85, 86, 149];
-/** route.json's reference frame is 1000 units wide; the real plates are
- * 1531px wide, so this is the reference-space -> real-pixel scale factor. */
-const PLATE_SCALE = 1531 / 1000;
+/** Real committed plate pixel heights, all at 1536px width (see header) —
+ * the REAL master-panorama's own crop boundaries. Before REALPLATES-001
+ * this same array was also reused by the desktop geometry below (additive,
+ * MOUNTAINDESKTOP-001); that reuse only worked because the OLD stand-in
+ * plates happened to be cropped to the same heights The Climb.dc.html's own
+ * hardcoded aspect-ratio expects. Now that the real plates have different
+ * heights, desktop keeps its own independent, unchanged copy of the old
+ * numbers instead (DESKTOP_PLATE_HEIGHTS_PX, far below) — see that
+ * constant's own comment. */
+export const PLATE_REAL_HEIGHTS_PX: readonly number[] = [245, 111, 128, 114, 426];
+/** The real master panorama's own pixel width — route.json's `pts` are
+ * directly in this same 1536px-wide space, no reference-frame rescaling
+ * (see header). */
+const PLATE_REAL_WIDTH_PX = 1536;
 
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
-/** Cumulative plate boundaries in route.json's reference frame: index i is
- * the top of plate i, index i+1 is its bottom. Length 6 (5 plates). */
-export const PLATE_REF_BOUNDARIES: readonly number[] = (() => {
+/** Cumulative plate boundaries in real pixel space: index i is the top of
+ * plate i, index i+1 is its bottom. Length 6 (5 plates):
+ * [0, 245, 356, 484, 598, 1024] — identical to route.json's own
+ * `plateBoundariesPx`, re-derived here from PLATE_REAL_HEIGHTS_PX rather
+ * than read from the JSON at runtime. */
+export const PLATE_BOUNDARIES_PX: readonly number[] = (() => {
   const out: number[] = [0];
-  for (const h of PLATE_REAL_HEIGHTS_PX) out.push(round2(out[out.length - 1] + h / PLATE_SCALE));
+  for (const h of PLATE_REAL_HEIGHTS_PX) out.push(round2(out[out.length - 1] + h));
   return out;
 })();
 
@@ -136,29 +157,51 @@ function bandIndexForStageNumber(stageNumber: number): number {
 
 // ---------------------------------------------------------------------------
 // Per-stage (x-fraction, y-fraction-within-band), baked from route.json's
-// `pts` array (11 points, stage order 1-11 — read directly, 2026-09-02):
+// `pts` array (11 points, stage order 1-11 — real master-panorama pixel
+// space, hand-traced against the real image 2026-09-07, see header):
 //
-//   [[142.8,356.7],[225.1,300.7],[306.5,244.9],[383,188.9],[455,132.9],
-//    [498.6,105],[526,133],[597.4,188.9],[677.7,244.9],[756.8,300.7],
-//    [893.9,356.8]]
+//   stage 1:  x=180  y=640   (plate-5-foothills)
+//   stage 2:  x=280  y=590   (plate-4-lower)
+//   stage 3:  x=450  y=430   (plate-3-mid)
+//   stage 4:  x=520  y=300   (plate-2-upper)
+//   stage 5:  x=600  y=190   (plate-1-summit)
+//   stage 6:  x=820  y=110   (plate-1-summit — peak)
+//   stage 7:  x=900  y=190   (plate-1-summit)
+//   stage 8:  x=1030 y=300   (plate-2-upper)
+//   stage 9:  x=1050 y=405   (plate-3-mid)
+//   stage 10: x=1140 y=520   (plate-4-lower)
+//   stage 11: x=1220 y=640   (plate-5-foothills)
 //
-// x-fraction is pts[i].x / 1000 directly. y-fraction-within-band is
-// (pts[i].y - thisStage'sPlateRefTop) / thisPlate'sRefHeight, both computed
-// below rather than hand-rounded, so this file stays the single source of
-// truth if route.json's raw points ever need re-reading.
+// x-fraction is pts[i].x / 1536 directly. y-fraction-within-band is
+// (pts[i].y - thisStage'sPlateBoundaryTop) / thisPlate'sRealHeight, both
+// computed below rather than hand-rounded, so this file stays the single
+// source of truth if route.json's raw points ever need re-reading. Computed
+// fractions (round2), for reference:
+//
+//   stage 1:  xFraction=0.12 yFractionWithinBand=0.10
+//   stage 2:  xFraction=0.18 yFractionWithinBand=0.93
+//   stage 3:  xFraction=0.29 yFractionWithinBand=0.58
+//   stage 4:  xFraction=0.34 yFractionWithinBand=0.50
+//   stage 5:  xFraction=0.39 yFractionWithinBand=0.78
+//   stage 6:  xFraction=0.53 yFractionWithinBand=0.45
+//   stage 7:  xFraction=0.59 yFractionWithinBand=0.78
+//   stage 8:  xFraction=0.67 yFractionWithinBand=0.50
+//   stage 9:  xFraction=0.68 yFractionWithinBand=0.38
+//   stage 10: xFraction=0.74 yFractionWithinBand=0.32
+//   stage 11: xFraction=0.79 yFractionWithinBand=0.10
 // ---------------------------------------------------------------------------
-const ROUTE_PTS_REF: readonly { x: number; y: number }[] = [
-  { x: 142.8, y: 356.7 }, // stage 1
-  { x: 225.1, y: 300.7 }, // stage 2
-  { x: 306.5, y: 244.9 }, // stage 3
-  { x: 383, y: 188.9 }, // stage 4
-  { x: 455, y: 132.9 }, // stage 5
-  { x: 498.6, y: 105 }, // stage 6 (peak)
-  { x: 526, y: 133 }, // stage 7
-  { x: 597.4, y: 188.9 }, // stage 8
-  { x: 677.7, y: 244.9 }, // stage 9
-  { x: 756.8, y: 300.7 }, // stage 10
-  { x: 893.9, y: 356.8 }, // stage 11
+const ROUTE_PTS_REAL: readonly { x: number; y: number }[] = [
+  { x: 180, y: 640 }, // stage 1
+  { x: 280, y: 590 }, // stage 2
+  { x: 450, y: 430 }, // stage 3
+  { x: 520, y: 300 }, // stage 4
+  { x: 600, y: 190 }, // stage 5
+  { x: 820, y: 110 }, // stage 6 (peak)
+  { x: 900, y: 190 }, // stage 7
+  { x: 1030, y: 300 }, // stage 8
+  { x: 1050, y: 405 }, // stage 9
+  { x: 1140, y: 520 }, // stage 10
+  { x: 1220, y: 640 }, // stage 11
 ];
 
 interface StageFractions {
@@ -168,16 +211,16 @@ interface StageFractions {
 }
 
 const STAGE_FRACTIONS: ReadonlyMap<number, StageFractions> = new Map(
-  ROUTE_PTS_REF.map((pt, idx) => {
+  ROUTE_PTS_REAL.map((pt, idx) => {
     const stageNumber = idx + 1;
     const bandIndex = bandIndexForStageNumber(stageNumber);
-    const top = PLATE_REF_BOUNDARIES[bandIndex];
-    const bottom = PLATE_REF_BOUNDARIES[bandIndex + 1];
+    const top = PLATE_BOUNDARIES_PX[bandIndex];
+    const bottom = PLATE_BOUNDARIES_PX[bandIndex + 1];
     return [
       stageNumber,
       {
         bandIndex,
-        xFraction: round2(pt.x / 1000),
+        xFraction: round2(pt.x / PLATE_REAL_WIDTH_PX),
         yFractionWithinBand: round2((pt.y - top) / (bottom - top)),
       },
     ];
@@ -429,8 +472,9 @@ export function buildPlateGeometry(stages: readonly MountainStage[]): PlateGeome
 // of reflowing each band's height to the member stages' chapter count (the
 // mobile column, meant to scroll), the desktop panorama stacks the same five
 // plate images at their REAL, NATIVE pixel-height proportions (240 / 85 / 85
-// / 86 / 149, summing to 645 — PLATE_REAL_HEIGHTS_PX above) inside a
-// container fixed at `aspect-ratio: 1531 / 645` (the plates' own combined
+// / 86 / 149, summing to 645 — DESKTOP_PLATE_HEIGHTS_PX below, decoupled
+// from mobile's own PLATE_REAL_HEIGHTS_PX by REALPLATES-001 — see its own
+// comment) inside a container fixed at `aspect-ratio: 1531 / 645` (the plates' own combined
 // pixel dimensions). Because the five plates are literally horizontal slices
 // of ONE photographed mountain, all the same 1531px width, restoring their
 // true native proportions (rather than mobile's content-driven reflow)
@@ -451,12 +495,28 @@ export function buildPlateGeometry(stages: readonly MountainStage[]): PlateGeome
 // the mobile math."
 // ---------------------------------------------------------------------------
 
+/**
+ * REALPLATES-001 (2026-09-07): the desktop panorama's own plate heights,
+ * decoupled from PLATE_REAL_HEIGHTS_PX above. Before this task the two were
+ * the same array purely by coincidence — the OLD stand-in plate crops
+ * happened to be cut to these same 240/85/85/86/149 heights, which is also
+ * what The Climb.dc.html's own hardcoded `aspect-ratio:1531 / 645` (line 55)
+ * expects. Now that the REAL master-panorama plates are cropped to
+ * different heights (245/111/128/114/426, summing to 1024 — see
+ * PLATE_REAL_HEIGHTS_PX's own comment), continuing to share one array would
+ * silently change the desktop panorama's aspect ratio out from under The
+ * Climb.dc.html's own already-approved, out-of-scope layout. This constant
+ * keeps the desktop assembly's numbers byte-identical to before this task —
+ * do not update it when the mobile plate crops change again; update it only
+ * if The Climb.dc.html's own hand-placed layout changes. */
+export const DESKTOP_PLATE_HEIGHTS_PX: readonly number[] = [240, 85, 85, 86, 149];
+
 /** The panorama container's fixed pixel dimensions — matches the five real
  * plate images' combined size (1531 wide; 240+85+85+86+149=645 tall) and is
  * set verbatim as the container's `aspect-ratio` CSS (The Climb.dc.html line
  * 55: `aspect-ratio:1531 / 645`). */
 export const DESKTOP_PANORAMA_WIDTH = 1531;
-export const DESKTOP_PANORAMA_HEIGHT = PLATE_REAL_HEIGHTS_PX.reduce((sum, h) => sum + h, 0);
+export const DESKTOP_PANORAMA_HEIGHT = DESKTOP_PLATE_HEIGHTS_PX.reduce((sum, h) => sum + h, 0);
 
 /**
  * Hand-placed desktop waypoint positions, transcribed verbatim from The
@@ -493,7 +553,7 @@ export interface DesktopPlateBand {
 export function computeDesktopPlateBands(): DesktopPlateBand[] {
   let topPx = 0;
   return PLATE_NAMES.map((name, i) => {
-    const heightPx = PLATE_REAL_HEIGHTS_PX[i];
+    const heightPx = DESKTOP_PLATE_HEIGHTS_PX[i];
     const band: DesktopPlateBand = {
       name,
       topPct: round2((topPx / DESKTOP_PANORAMA_HEIGHT) * 100),

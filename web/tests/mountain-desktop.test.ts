@@ -45,9 +45,9 @@ import type { MountainStage } from "@/lib/vault/seed";
 import {
   DESKTOP_PANORAMA_HEIGHT,
   DESKTOP_PANORAMA_WIDTH,
+  DESKTOP_PLATE_HEIGHTS_PX,
   DESKTOP_ROPE_STROKE_WIDTHS,
   DESKTOP_STAGE_POSITIONS,
-  PLATE_REAL_HEIGHTS_PX,
   ROPE_STROKE_WIDTHS,
   SCENE_SRC,
   buildDesktopPlateGeometry,
@@ -138,7 +138,7 @@ test("DESKTOP_PANORAMA_WIDTH/HEIGHT: exactly 1531 x 645, the five real plates' c
   assert.equal(DESKTOP_PANORAMA_WIDTH, 1531);
   assert.equal(DESKTOP_PANORAMA_HEIGHT, 645);
   assert.equal(
-    PLATE_REAL_HEIGHTS_PX.reduce((sum, h) => sum + h, 0),
+    DESKTOP_PLATE_HEIGHTS_PX.reduce((sum, h) => sum + h, 0),
     645,
   );
 });
