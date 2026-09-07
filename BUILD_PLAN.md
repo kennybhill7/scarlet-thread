@@ -3,6 +3,7 @@
 **Date:** 2026-08-12 (revised same date after reconciliation)
 **Input:** `THEOLOGY_PRODUCT_AUDIT.md` (the "why").
 **Authority:** `THEOLOGY_MASTER_BUILD_PLAN.md` is the authoritative product/architecture spec; this file is the shorter execution checklist, reconciled to its §30 findings. Where the two disagree, the master plan wins.
+**Inspiration references:** `design/INSPIRATION_REFERENCE_POLICY.md` records Ken-designated inspiration/reference PDFs for product framing. They are not part of the project authority chain and do not override Scripture, the master plan, contracts, shipped schema, licensing gates, or pastoral review.
 **Goal:** Turn Scarlet Thread from a Scripture reader + connection journal into a **teaching system** — an app that teaches a repeatable study *method* and makes the learner do the interpretive work, rather than one that asserts doctrinal conclusions. The loop is unchanged: Read → Observe → Context → Interpret → Connect → Theology → Conviction → Practice → Teach. The Theology step is the *learner* forming and warranting a claim; the app never supplies the verdict (see §5.0).
 **Stack (unchanged):** Next.js 16.2 / React 19.2, Drizzle + Neon Postgres, NextAuth v5 (Google), IndexedDB offline vault with last-write-wins sync, Node test runner (35 tests today).
 

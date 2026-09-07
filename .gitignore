@@ -23,6 +23,10 @@ web/data/seed/
 # Generated
 Bible-Brain-Map.html
 
+# Python test/import cache
+__pycache__/
+*.py[cod]
+
 # Vercel
 .vercel/
 
@@ -52,3 +56,13 @@ desktop.ini
 # Logs
 *.log
 npm-debug.log*
+
+# Agent graph runtime state and receipts are machine-local. The reviewed task
+# definitions and controller are tracked; mutable run history is not.
+agent-graph/state.local.json
+agent-graph/receipts.local.jsonl
+.worktrees/
+
+# Local browser-audit receipts. Durable, redacted evidence belongs in the
+# audit ledger; raw MCP downloads and page snapshots stay on this machine.
+.playwright-mcp/
