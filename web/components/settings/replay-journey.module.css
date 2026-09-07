@@ -1,0 +1,56 @@
+/* OPENING-001. Same card shell app/(app)/settings/settings.module.css's
+   .card gives OfflineDownloads' wrapper section, since ReplayJourney owns
+   its own <section> (like VaultExportButton/DeviceSessionControls) rather
+   than reusing that class directly across a CSS Modules boundary. */
+
+.section {
+  display: grid;
+  gap: 0.7rem;
+  padding: 1.25rem;
+  border: 1px solid var(--shell-border);
+  border-radius: var(--r-xl);
+  background: var(--shell-surface-hi);
+  color: var(--shell-text);
+}
+
+.eyebrow {
+  color: var(--gold);
+  font-family: var(--font-narrow);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 18px;
+  color: var(--shell-text);
+  margin: 0;
+}
+
+.copy {
+  color: var(--shell-muted-2);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.button {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.65rem 1.1rem;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--shell-border-hi);
+  background: transparent;
+  color: var(--shell-text);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.button:hover,
+.button:focus-visible {
+  border-color: var(--gold);
+  color: var(--gold);
+}

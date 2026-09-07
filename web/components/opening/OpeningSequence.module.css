@@ -1,0 +1,180 @@
+/* OPENING-001. See OpeningSequence.tsx's header for the full mechanism this
+   file is half of: a single `data-opening-visible` attribute on `.root`,
+   flipped before first paint by a blocking inline script, is the ONLY thing
+   that decides first-paint visibility of `.overlay` vs `.content` -- no
+   React state is involved in that decision, so there is nothing for
+   hydration to mismatch. */
+
+.root {
+  position: relative;
+}
+
+/* Safe default (no JS, or the bootstrap script hasn't run/errored): real
+   content visible, overlay fully transparent and non-interactive. This is
+   also what the sequence returns to at the end -- see .overlay's own
+   comment below for how that produces a crossfade rather than a pop. */
+.content {
+  visibility: visible;
+}
+
+.root[data-opening-visible="true"] .content {
+  visibility: hidden;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--shell-bg);
+  color: var(--shell-text);
+  opacity: 0;
+  /* visibility:hidden (not just opacity:0/pointer-events:none) matters for
+     the "never actually playing" path in OpeningSequence.tsx's mount effect
+     (already-seen visitor, or reduced motion): that path deliberately never
+     touches `stage`, so this overlay -- Skip button, Continue button, the
+     draggable globe -- stays mounted, in the DOM, for as long as Globe's
+     own one-shot timer runs. Without `visibility:hidden` those controls
+     would still be reachable by Tab even though invisible: a real
+     keyboard-focus trap ahead of the real page's own content. visibility
+     removes an element from both hit-testing AND the tab order.
+   */
+  visibility: hidden;
+  pointer-events: none;
+  /* The ONE transition that carries the whole sequence's entrance AND its
+     exit. Entrance (attribute flips true before paint) needs no visible
+     transition -- it's the intended starting frame, not a flash: visibility
+     switches with 0 delay on the way IN (see the rule below). Exit (finish()
+     flips the attribute back to "false", see OpeningSequence.tsx) DOES
+     animate smoothly: opacity fades over the full duration while `visibility`
+     is held at "visible" until that fade finishes (transition-delay equal to
+     the opacity duration), so it becomes non-interactive/non-focusable only
+     once it is actually, visually gone -- never a pop, never an early focus
+     loss. .content is already `visibility: visible` underneath this
+     still-opaque overlay the instant the attribute flips, so the fade alone
+     carries the whole crossfade. Keep 900ms in sync with
+     OpeningSequence.tsx's TIMING.fadeOutMs.
+   */
+  transition:
+    opacity 900ms ease,
+    visibility 0s linear 900ms;
+}
+
+.root[data-opening-visible="true"] .overlay {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    opacity 900ms ease,
+    visibility 0s linear 0s;
+}
+
+.skip {
+  position: absolute;
+  top: calc(16px + var(--safe-top, 0px));
+  right: 16px;
+  z-index: 1;
+  min-height: 2.5rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--shell-border-hi);
+  background: color-mix(in srgb, var(--shell-surface) 70%, transparent);
+  color: var(--shell-text-2);
+  font-family: var(--font-label);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  font-size: 0.85rem;
+}
+
+.skip:hover,
+.skip:focus-visible {
+  border-color: var(--gold);
+  color: var(--shell-text);
+}
+
+/* --- Beat 2/3: the world map, then the zoom into Eden ---------------------- */
+
+.mapStage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--shell-bg);
+  opacity: 0;
+  animation: openingFadeIn 700ms ease forwards;
+}
+
+.mapImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* EDEN_ORIGIN (lib/opening/openingSequence.ts), passed down as these two
+     custom properties from OpeningSequence.tsx -- the real, verified
+     position of Adam and Eve/the tree/the waterfall/the lion on
+     map-world.png, so the zoom below converges on THEM, not the image's
+     geometric center. */
+  transform-origin: var(--eden-origin-x, 10%) var(--eden-origin-y, 80%);
+  transform: scale(1);
+  transition: transform 2600ms cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+.mapImage[data-zoom="true"] {
+  transform: scale(5.2);
+}
+
+/* --- Beat 4: the real Eden/Creation scene, full-bleed ---------------------- */
+
+.edenStage {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  animation: openingFadeIn 500ms ease forwards;
+}
+
+.edenImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@keyframes openingFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* --- Requirement 5: reduced motion skips straight to real content ---------
+   Two independent guarantees, same rigor as Mountain.module.css's own
+   --mountain-progress pin: (1) OpeningSequence.tsx's mount effect checks
+   matchMedia itself and sets finishedRef so `stage` never actually
+   progresses past its initial value -- no motion-only timer or listener
+   (Globe's drag/inertia included) is ever attached. (2) This block is a
+   second, CSS-only guarantee, independent of whether that JS ran correctly
+   at all: even if `data-opening-visible` somehow stuck at "true", reduced
+   motion forces the overlay fully away (invisible, non-interactive, AND
+   out of the tab order) and the real content fully visible, with
+   `!important` so nothing above can win against it. */
+@media (prefers-reduced-motion: reduce) {
+  .overlay {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition: none !important;
+  }
+
+  .content {
+    visibility: visible !important;
+  }
+
+  .mapImage,
+  .mapStage,
+  .edenStage {
+    animation: none !important;
+    transition: none !important;
+  }
+}
