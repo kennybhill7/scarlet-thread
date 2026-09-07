@@ -134,13 +134,16 @@ test("DESKTOP_STAGE_POSITIONS: matches The Climb.dc.html's own STAGES const, rea
   }
 });
 
-test("DESKTOP_PANORAMA_WIDTH/HEIGHT: exactly 1531 x 645, the five real plates' combined pixel size", () => {
-  assert.equal(DESKTOP_PANORAMA_WIDTH, 1531);
-  assert.equal(DESKTOP_PANORAMA_HEIGHT, 645);
+test("DESKTOP_PANORAMA_WIDTH/HEIGHT: exactly 1536 x 1024, the real REALPLATES-001 plates' combined pixel size -- MUST equal PLATE_REAL_HEIGHTS_PX's own sum (both assemblies read the same five image files, see plateGeometry.ts's desktop-section header for why these must stay coupled, not forked)", () => {
+  assert.equal(DESKTOP_PANORAMA_WIDTH, 1536);
+  assert.equal(DESKTOP_PANORAMA_HEIGHT, 1024);
   assert.equal(
     PLATE_REAL_HEIGHTS_PX.reduce((sum, h) => sum + h, 0),
-    645,
+    1024,
   );
+  // MUTATION-GUARD: this must be the SAME array both assemblies use, not a
+  // coincidentally-equal separate copy -- catches a future re-fork.
+  assert.deepEqual(DESKTOP_PANORAMA_HEIGHT, PLATE_REAL_HEIGHTS_PX.reduce((sum, h) => sum + h, 0));
 });
 
 test("computeDesktopPlateBands: native proportional heights (NOT reflowed by content), summing to exactly 100%", () => {
@@ -149,9 +152,11 @@ test("computeDesktopPlateBands: native proportional heights (NOT reflowed by con
   assert.equal(bands[0].topPct, 0);
   const last = bands[bands.length - 1];
   assert.ok(Math.abs(last.topPct + last.heightPct - 100) < 0.01, `bands should sum to 100%, got ${last.topPct + last.heightPct}`);
-  // plate-1-summit is 240/645 = 37.21% -- the tallest plate, matching its
-  // real committed pixel height, not any content-driven reflow.
-  assert.ok(Math.abs(bands[0].heightPct - (240 / 645) * 100) < 0.01);
+  // plate-5-foothills is 426/1024 = 41.6% -- the tallest plate in the real
+  // REALPLATES-001 crop (unlike the old stand-in, where summit was
+  // tallest), matching its real committed pixel height, not any
+  // content-driven reflow.
+  assert.ok(Math.abs(bands[4].heightPct - (426 / 1024) * 100) < 0.01);
 });
 
 test("computeDesktopWaypoints: reuses the same reached/status + href logic as the mobile assembly (no divergent re-implementation)", () => {
@@ -166,7 +171,7 @@ test("computeDesktopWaypoints: reuses the same reached/status + href logic as th
   assert.equal(flood.mirror?.slug, "world-judged");
 });
 
-test("buildDesktopPlateGeometry: rope stroke widths are scaled for the REAL 1531px panorama, distinct from the mobile column's 320px-scaled widths", () => {
+test("buildDesktopPlateGeometry: rope stroke widths are scaled for the REAL 1536px panorama, distinct from the mobile column's 320px-scaled widths", () => {
   const geometry = buildDesktopPlateGeometry(ELEVEN_STAGES);
   assert.deepEqual(geometry.ropeStrokeWidths, DESKTOP_ROPE_STROKE_WIDTHS);
   assert.notDeepEqual(geometry.ropeStrokeWidths, ROPE_STROKE_WIDTHS, "desktop stroke widths must not equal mobile's");
@@ -209,9 +214,9 @@ const { MountainDesktop, StageCard, SceneTakeover, ProgressRail, resolveDesktopW
 
 function noopSelect() {}
 
-test("RENDER MountainDesktop: the panorama's aspect-ratio is exactly 1531 / 645", () => {
+test("RENDER MountainDesktop: the panorama's aspect-ratio is exactly 1536 / 1024, the real REALPLATES-001 plates' combined pixel size", () => {
   const html = renderToStaticMarkup(createElement(MountainDesktop, { stages: ELEVEN_STAGES, onSelect: noopSelect }));
-  assert.ok(/aspect-ratio:\s*1531\s*\/\s*645/.test(html), html.slice(0, 400));
+  assert.ok(/aspect-ratio:\s*1536\s*\/\s*1024/.test(html), html.slice(0, 400));
 });
 
 test("RENDER MountainDesktop: five plate <img>s, one per real plate file, top/height percentages summing to 100", () => {

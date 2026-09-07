@@ -76,16 +76,27 @@ test("BAND_STAGE_NUMBERS is exactly what route.json's own pts/plate-boundary dat
     "route.json",
   );
   const raw = fs.readFileSync(routeJsonPath, "utf-8");
-  const route = JSON.parse(raw) as { pts: [number, number][] };
+  const route = JSON.parse(raw) as { pts: [number, number][]; plateBoundariesPx: number[] };
   assert.equal(route.pts.length, 11, "route.json should carry one point per stage, 1-11");
 
   // Real committed plate pixel heights (design/scarlet-thread-app/assets/
-  // plates/plate-*.jpg, all 1531px wide), independently re-stated here (not
+  // plates/plate-*.jpg, all 1536px wide), independently re-stated here (not
   // imported from plateGeometry.ts) so this test cannot pass by circularity.
-  const REAL_HEIGHTS_PX = [240, 85, 85, 86, 149];
-  const SCALE = 1531 / 1000;
+  // route.json's pts are directly in this same real pixel space (no
+  // reference-frame rescaling, unlike the old MOUNTAINPLATES-001 data), so
+  // the boundaries are a plain cumulative sum -- no scale factor needed.
+  const REAL_HEIGHTS_PX = [245, 111, 128, 114, 426];
   const boundaries: number[] = [0];
-  for (const h of REAL_HEIGHTS_PX) boundaries.push(boundaries[boundaries.length - 1] + h / SCALE);
+  for (const h of REAL_HEIGHTS_PX) boundaries.push(boundaries[boundaries.length - 1] + h);
+
+  // Cross-check: route.json's own plateBoundariesPx field (its documented
+  // extraction record) must agree with these independently-recomputed real
+  // boundaries too -- catches route.json drifting from the real plate crops.
+  assert.deepEqual(
+    route.plateBoundariesPx,
+    boundaries,
+    `route.json's plateBoundariesPx ${JSON.stringify(route.plateBoundariesPx)} disagrees with the real plate heights' cumulative boundaries ${JSON.stringify(boundaries)}`,
+  );
 
   function plateIndexForY(y: number): number {
     for (let i = 0; i < 5; i++) {

@@ -161,12 +161,16 @@ test("RENDER MountainPlates: dormant/begun/current statuses render distinct dot 
   assert.ok(html.includes('class="dot current"'), "current dot should carry the current class");
 });
 
-test("RENDER MountainPlates: a mirror pair's two waypoints are positioned at (nearly) the same top% -- same plate, same altitude", () => {
+test("RENDER MountainPlates: a mirror pair's two waypoints share the same plate (plateIndex), and both fall within that shared band's real range -- NOT necessarily the same top% (REALPLATES-001, 2026-09-07): the real hand-traced master-panorama route is not sub-pixel-symmetric within a band -- stage 3 (the Flood, y=430) and stage 9 (World Judged, y=405) share plate-3-mid but sit at genuinely different heights within it. That is correct, expected real-art behavior per route.json's own note, not a bug -- landing on the same plate is the real structural requirement this test checks, not matching altitude.", () => {
   const geometry = buildPlateGeometry(ELEVEN_STAGES);
   const flood = geometry.waypoints.find((w) => w.stage.slug === "the-flood")!;
   const worldJudged = geometry.waypoints.find((w) => w.stage.slug === "world-judged")!;
-  assert.equal(flood.plateIndex, worldJudged.plateIndex);
-  const floodTopPct = (flood.y / geometry.totalHeight) * 100;
-  const worldJudgedTopPct = (worldJudged.y / geometry.totalHeight) * 100;
-  assert.ok(Math.abs(floodTopPct - worldJudgedTopPct) < 0.5, `expected near-identical top%: ${floodTopPct} vs ${worldJudgedTopPct}`);
+  assert.equal(flood.plateIndex, worldJudged.plateIndex, "the Flood and World Judged must land on the same plate");
+  const band = geometry.bands[flood.plateIndex];
+  for (const wp of [flood, worldJudged]) {
+    assert.ok(
+      wp.y >= band.topPx - 0.01 && wp.y <= band.topPx + band.heightPx + 0.01,
+      `${wp.stage.slug}'s y=${wp.y} should fall within its shared plate band ${band.name}'s range [${band.topPx}, ${band.topPx + band.heightPx}]`,
+    );
+  }
 });
