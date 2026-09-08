@@ -2722,6 +2722,48 @@
         "Actually wiring this script into the real Vercel/CI deploy pipeline (when in the pipeline it runs, what credentials/env it needs there, whether it gates the build or runs as a separate release step) is a deployment-configuration decision for Ken, not something this task attempts. State clearly in your report exactly what command Ken (or a future CI config) would need to run and when.",
         "If full backup/restore-point verification against Neon's own API was not achievable within this task's scope, that gap should be named explicitly for Ken's awareness, not silently narrowed."
       ]
+    },
+    {
+      "id": "OFFLINERELIABILITY-001",
+      "title": "Fix four real offline-reliability bugs: stuck downloads, false-ready status, unversioned cache, unsafe cache write",
+      "objective": "CODEX_AUDIT.md findings A-020/A-021/A-022/A-023 are all genuinely still open (independently re-verified against current code by Claude, 2026-09-08, not just re-read from the old doc) and all live in the same offline-caching subsystem: web/lib/bible/loader.ts, web/components/settings/OfflineDownloads.tsx, web/public/sw.js, and web/public/bible/index.json (built by tools/build_bible.py). Fix all four together since they share files and context; do not split into separate tasks.",
+      "ownedPaths": [
+        "web/lib/bible/loader.ts",
+        "web/components/settings/OfflineDownloads.tsx",
+        "web/components/settings/OfflineDownloads.module.css",
+        "web/public/sw.js",
+        "tools/build_bible.py",
+        "tools/build_spanish.py",
+        "web/lib/contracts.ts",
+        "web/tests/offline-downloads.test.ts",
+        "web/tests/sw.test.ts",
+        "tools/test_corpus_validation.py"
+      ],
+      "readOnlyPaths": [
+        "web/lib/bible/useBibleIndex.ts",
+        "web/lib/bible/versemap.ts",
+        "web/lib/sync/clear.ts",
+        "web/tests/README-db-invariants.md",
+        "CODEX_AUDIT.md"
+      ],
+      "acceptanceCriteria": [
+        "A-021 (offline download failure leaves Settings stuck): OfflineDownloads.tsx's download() (currently lines 54-63) awaits warmVersion() with no try/catch -- if any book fetch in the loop throws (warmVersion in loader.ts does NOT swallow loadBook() failures, only its own versemap prefetch), status stays 'downloading' forever with no way to retry or even see that it failed. Add a real 'error' status (extend the Status union), surface a retry-capable UI state (a visible error message + a way to re-trigger download(), not just silently reverting to idle), and a real test that a rejected loadBook() call leaves the UI in that error state, not stuck.",
+        "A-022 (one cached book reported as a downloaded translation): the init effect (currently line 41) calls isBookCached(version.id, 1) -- book 1 ONLY -- and labels the whole translation 'ready'/Downloaded from that single check. Either check all of index.books (bounded by index.books.length, not a hardcoded 66) via isBookCached, or (more efficient) have warmVersion()/download() write an explicit 'download completed' receipt (e.g. a small marker cached alongside the books, or a new loader.ts function like isVersionFullyCached(version, bookNumbers)) that the init effect reads instead of re-deriving completeness from a partial check. Either approach is acceptable; do not leave the single-book check as the completeness signal.",
+        "A-020 (scripture cache has no release invalidation): CACHE_NAME in loader.ts is a fixed literal (\"bible-brain-scripture-v1\") and web/public/bible/index.json has no revision/content-version field at all, so a corpus rebuild (tools/build_bible.py, tools/build_spanish.py) can silently leave stale cached chapter JSON served forever to a device that downloaded it before the rebuild -- fetchWithCache's cache-first-then-network logic (loader.ts lines 49-81) never re-checks the network once something is cached. Add a real content revision: a deterministic value tools/build_bible.py (and build_spanish.py) computes and writes into index.json (a hash of the built corpus content is more honest than a hand-maintained counter -- your call, but it must be REAL and DETERMINISTIC, not a timestamp that changes on every rebuild even with identical content, and not invented without checking what's actually feasible to compute in the Python builder). Wire that revision into the cache name/key scheme (e.g. CACHE_NAME derived from or suffixed with the revision) so a new corpus revision naturally gets a fresh cache, and add real invalidation of the old cache (the service worker already has a pattern for deleting stale shell caches by name prefix in its activate handler -- read that first, follow the same discipline for the scripture cache rather than inventing a different one). Real tests: a rebuild that changes content produces a different revision value; the loader/service-worker correctly treats a different revision as a fresh cache to populate, not a poisoned old one to keep serving.",
+        "A-023 (service-worker cache writes are not kept alive): web/public/sw.js's fetch handler (around line 227) does `caches.open(CACHE_NAME).then((cache) => cache.put(request, copy))` without passing that promise to `event.waitUntil()` -- since `event.respondWith()`'s own chain can resolve and deliver the response to the page before this background cache-write promise settles, the browser may terminate the service worker before the write completes, silently losing the cache entry. Fix: extend the fetch event's lifetime to cover the cache-put the same way the activate handler already does with its own waitUntil() (read that first, around line 200, for the established pattern in this file) -- e.g. wrap the whole respondWith body so the cache.put promise is properly awaited/chained before the handler's overall promise resolves, or use event.waitUntil() alongside respondWith() for the cache-write specifically. A real test: with a controllable/mocked cache.put that resolves after respondWith's own response would otherwise have settled, confirm the fix actually keeps the write pending (this may need a lightweight functional harness for sw.js's fetch handler logic rather than the full Service Worker global scope -- look at whether this repo already has any sw.js testing precedent before inventing an approach; if none exists, keep the test as narrowly scoped and honestly documented as web/tests/README-db-invariants.md's own precedent for hard-to-test-in-CI cases).",
+        "All four fixes are real, working code changes -- not comments or TODOs. Follow this codebase's own fail-closed/honest-status discipline throughout (already established via CODEX_AUDIT A-002's fix, cited in loader.ts's own comments): a caching failure must never make things WORSE than no caching at all, and a status shown to the user must be true.",
+        "Do not touch the versemap.ts / VMCACHE-001 caching path (read-only) beyond whatever loader.ts changes it transitively picks up through fetchWithCache -- if the cache-name/revision scheme changes, versemap.json's caching through fetchWithCache must keep working unchanged, verify this explicitly with a test rather than assuming it."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test",
+        "python tools/test_corpus_validation.py (if you touch tools/build_bible.py or tools/build_spanish.py -- confirm this still passes)"
+      ],
+      "humanGates": [
+        "None of these four fixes need Ken's judgment to build -- they are concrete, verifiable bugs. Standard independent re-verification (not Ken's own eyes) is the gate before merge."
+      ]
     }
   ]
 }

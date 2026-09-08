@@ -683,6 +683,15 @@
       "lastRunId": null,
       "lastEvidence": "Merged into design/mountain-journey and master (83602a5, fast-forward). Independently verified: full diff review of both scripts/lib/releaseMigrate.ts (pure orchestration: identity/lock/readiness/guard/migrate/verify phases) and scripts/release-migrate.mts (real @neondatabase/serverless Pool wiring); confirmed the honesty disclosures are real (no live-Postgres run was possible in this environment -- no usable local Postgres credentials, and @neondatabase/serverless's Pool cannot reach a vanilla Postgres without a websocket proxy -- documented plainly rather than faked); ran one adversarial mutation myself (forced the expand-contract guard to always pass) and confirmed multiple tests went red, then reverted clean (byte-identical, confirmed via git diff). Full verification re-run clean: typecheck, lint, build, test (1286/1286 in the isolated worktree; 1271 tests/1267 pass/0 fail/4 cancelled on the merged main checkout -- the 4 cancelled are the same pre-existing wire-suite/env gap documented on every prior merge this session, not a regression).",
       "notes": "Dispatched 2026-09-08 -- BUILD_PLAN.md gate 0.12 / CODEX_AUDIT.md A-047's named replacement for the removed migrate-on-build Vercel hook (a1031cc). Confirmed via grep before dispatch that no such release job exists anywhere in the repo. Grounded in this codebase's own established precedent (tests/README-db-invariants.md's manual-live-Postgres-verification pattern; the SessionDeps/ClimbDataDeps dependency-injection pattern for unit-testability) rather than inventing a new testing convention. Closed 2026-09-08 by Claude after independent verification including a real adversarial mutation test. Live-Postgres verification (the lock actually blocking a concurrent run, the migrator actually applying SQL, the identity check actually refusing) remains genuinely unexecuted -- web/tests/README-release-migrate.md documents the exact procedure for Ken or a future CI job with real Neon branch credentials to run it. Wiring this into any real deploy pipeline is Ken's own decision, untouched by this task."
+    },
+    "OFFLINERELIABILITY-001": {
+      "status": "in_progress",
+      "branch": "agent/OFFLINERELIABILITY-001-claude",
+      "commitSha": null,
+      "attempts": 1,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Dispatched 2026-09-08 -- CODEX_AUDIT.md A-020/A-021/A-022/A-023, independently re-verified against current code (not just re-read from the old audit doc) before dispatch: confirmed loader.ts's CACHE_NAME is still a fixed literal with no revision field anywhere in index.json, OfflineDownloads.tsx's download() still has no try/catch around warmVersion(), its init effect still checks isBookCached(version.id, 1) only, and sw.js's fetch handler still does an un-waitUntil'd cache.put(). Part of a broader CODEX_AUDIT.md reconciliation pass (Claude, 2026-09-08) that found roughly a dozen other findings already resolved-but-unmarked and several more genuinely still open -- this is the first of the concrete, non-deferred, non-human-gated ones being built."
     }
   }
 }
