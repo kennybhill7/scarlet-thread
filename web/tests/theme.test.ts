@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import { createRequire } from "node:module";
+import path from "node:path";
 import test from "node:test";
 import vm from "node:vm";
+
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 
 import {
   AA_LARGE_TEXT_MIN_RATIO,
@@ -455,6 +460,112 @@ test("SHELL_TOKENS is byte-identical to app/globals.css's :root shell block", as
   assert.match(shellBlock, /--gold:\s*#e8c88a;/);
   assert.match(shellBlock, /--shell-crimson:\s*#cf2027;/);
   assert.match(shellBlock, /--shell-crimson-text:\s*#e04a45;/);
+});
+
+// --- A-040: --page-ink-3 / --brass on parchment now clear WCAG AA ----------
+// Same discipline as PARCHMENT_BODY_TOKENS/MIDNIGHT_BODY_TOKENS and
+// SHELL_TOKENS above: hand-transcribed from app/globals.css (no CSS parser
+// in this project's dependencies), pinned against the file's own text below.
+// These two do NOT live in lib/theme.ts's PARCHMENT_BODY_TOKENS -- that file
+// is out of scope for this task (READPOLISH-001's readOnlyPaths), so the
+// snapshot lives here directly, the same way SHELL_TOKENS above has no
+// lib/theme.ts export to attach to either.
+//
+// Both tokens are real body/label text everywhere they are used (12-16px
+// for --page-ink-3 across ChapterReader/CovenantTimelineStrip/the
+// notes-composer family; 10.5-12px bold uppercase labels for --brass across
+// thread-detail/thread-picker/claim-composer/entry-list/device-session and
+// more -- see the values' own comments in globals.css for the full file
+// list) -- never large text -- so the 4.5:1 normal-text floor applies to
+// both, the same floor page-muted/page-muted-2 were held to at wave-21.
+
+const PARCHMENT_INK3_BRASS_TOKENS = {
+  pageBg: "#f3f0e8",
+  // Was #6a746d (4.257:1) -- just under the 4.5:1 floor. #666f69 measures
+  // 4.561:1.
+  pageInk3: "#666f69",
+  // Was #a98b3e (2.859:1) -- well under even the relaxed 3:1 large-text/UI
+  // floor. #806a2f measures 4.587:1.
+  brass: "#806a2f",
+} as const;
+
+test("Parchment: page-ink-3 on page-bg meets WCAG AA normal text (A-040)", () => {
+  const ratio = contrastRatio(PARCHMENT_INK3_BRASS_TOKENS.pageInk3, PARCHMENT_INK3_BRASS_TOKENS.pageBg);
+  assert.ok(meetsAA(ratio), `expected >= 4.5:1, got ${ratio.toFixed(3)}:1`);
+});
+
+test("Parchment: brass on page-bg meets WCAG AA normal text (A-040)", () => {
+  const ratio = contrastRatio(PARCHMENT_INK3_BRASS_TOKENS.brass, PARCHMENT_INK3_BRASS_TOKENS.pageBg);
+  assert.ok(meetsAA(ratio), `expected >= 4.5:1, got ${ratio.toFixed(3)}:1`);
+});
+
+// MUTATION-PROOF TARGET (A-040 regression guard): reverting either value to
+// its old pre-fix hex (#6a746d / #a98b3e) must fail this test -- it asserts
+// the OLD values fail AA, so a silent revert cannot pass unnoticed.
+test("Parchment: the OLD pre-fix page-ink-3/brass values fail WCAG AA (proves the fix was necessary)", () => {
+  const oldInk3 = contrastRatio("#6a746d", PARCHMENT_INK3_BRASS_TOKENS.pageBg);
+  const oldBrass = contrastRatio("#a98b3e", PARCHMENT_INK3_BRASS_TOKENS.pageBg);
+  assert.ok(!meetsAA(oldInk3), `old page-ink-3 unexpectedly passes AA now: ${oldInk3.toFixed(3)}:1`);
+  assert.ok(!meetsAA(oldBrass), `old brass unexpectedly passes AA now: ${oldBrass.toFixed(3)}:1`);
+});
+
+test("PARCHMENT_INK3_BRASS_TOKENS is byte-identical to app/globals.css's :root block", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const midnightStart = css.indexOf('[data-reading="midnight"]');
+  const rootBlock = css.slice(css.indexOf(":root {"), midnightStart);
+  assert.match(rootBlock, /--page-ink-3:\s*#666f69;/);
+  assert.match(rootBlock, /--brass:\s*#806a2f;/);
+  assert.equal(PARCHMENT_INK3_BRASS_TOKENS.pageInk3, "#666f69");
+  assert.equal(PARCHMENT_INK3_BRASS_TOKENS.brass, "#806a2f");
+});
+
+// --- A-040: ClimbHero's Settings link reaches the 44px tap-target floor ----
+// The Settings gear used to be a plain <Link> with no min-height, and
+// globals.css's `button, a[role="button"], [data-tap] { min-height: 44px }`
+// selector (app/globals.css, ~line 246) does not match a plain anchor.
+// ClimbHero.tsx now carries `data-tap` on that Link. Proven here against
+// real rendered markup (this repo's no-jsdom convention -- see
+// tests/climb-setup-state.test.ts's identical reasoning and its own
+// `cssProxy`/`seedModule` for why ClimbHero.module.css needs stubbing
+// under plain node:test), not just read from the source text.
+
+test("ClimbHero's Settings link carries data-tap, reaching the global 44px tap-target floor (A-040)", async () => {
+  const nodeRequire = createRequire(__filename);
+  const cssProxy = new Proxy(
+    {},
+    { get: (_target, key) => (typeof key === "string" ? key : undefined) },
+  );
+  const resolved = nodeRequire.resolve("@/components/climb/ClimbHero.module.css");
+  (nodeRequire.cache as Record<string, unknown>)[resolved] = {
+    id: resolved,
+    filename: resolved,
+    loaded: true,
+    path: path.dirname(resolved),
+    paths: [],
+    children: [],
+    exports: { __esModule: true, default: cssProxy },
+  };
+
+  const { ClimbHero } = nodeRequire("@/components/climb/ClimbHero") as {
+    ClimbHero: typeof import("@/components/climb/ClimbHero").ClimbHero;
+  };
+
+  const html = renderToStaticMarkup(
+    createElement(ClimbHero, {
+      stagesWithWork: 0,
+      totalStages: 11,
+      threadCount: 0,
+      openQuestions: 0,
+    }) as never,
+  );
+
+  const settingsLinkMatch = html.match(/<a[^>]*href="\/settings"[^>]*>/);
+  assert.ok(settingsLinkMatch, `Settings link not found in rendered markup:\n${html}`);
+  assert.match(
+    settingsLinkMatch![0],
+    /data-tap/,
+    `Settings link is missing data-tap, so it will not reach the 44px floor:\n${settingsLinkMatch![0]}`,
+  );
 });
 
 test("shell-crimson tokens live in the shell block and are never redefined by [data-reading] parchment/midnight selectors", async () => {

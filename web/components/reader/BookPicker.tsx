@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useBibleIndex } from "@/lib/bible/useBibleIndex";
-import { getLastRead } from "@/lib/bible/lastRead";
+import {
+  readLastReadServerSnapshot,
+  readLastReadSnapshot,
+  subscribeLastRead,
+} from "@/lib/bible/lastRead";
 import styles from "./BookPicker.module.css";
 
 /**
@@ -14,7 +18,19 @@ import styles from "./BookPicker.module.css";
 export function BookPicker() {
   const { index, loading } = useBibleIndex();
   const [openBook, setOpenBook] = useState<number | null>(null);
-  const lastRead = getLastRead();
+  // A-038: was `getLastRead()` called directly during render, which reads
+  // localStorage -- invisible to the server, so the server pass and the
+  // client's first pass could disagree on the "Continue reading" target.
+  // useSyncExternalStore with a server snapshot matching what the server
+  // actually rendered (DEFAULT) avoids that mismatch; see
+  // lib/bible/lastRead.ts's own comment on why this follows
+  // DeviceSessionControls.tsx's `residue` pattern rather than lib/theme.ts's
+  // pre-paint bootstrap script.
+  const lastRead = useSyncExternalStore(
+    subscribeLastRead,
+    readLastReadSnapshot,
+    readLastReadServerSnapshot,
+  );
 
   if (loading || !index) {
     return <p className={styles.hint}>Loading…</p>;

@@ -7,7 +7,12 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Read the Bible front to back, and build the connections yourself.",
     start_url: "/",
     display: "standalone",
-    orientation: "portrait",
+    // A-037: was hardcoded "portrait", which locks an installed PWA out of
+    // landscape entirely -- including on tablets, where the wide
+    // parallel-reader (MirrorSplitView) and the mountain layout are
+    // genuinely usable in landscape. "any" lets the OS/window manager
+    // decide instead of the manifest forcing a single orientation.
+    orientation: "any",
     background_color: "#0d1420",
     theme_color: "#0d1420",
     icons: [

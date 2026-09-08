@@ -13,7 +13,13 @@ export function ClimbHero({ stagesWithWork, totalStages, threadCount, openQuesti
     <div className={styles.wrap}>
       <div className={styles.eyebrowRow}>
         <p className={styles.eyebrow}>Scarlet Thread</p>
-        <Link href="/settings" className={styles.settingsLink} aria-label="Offline settings">
+        {/* A-040: a plain <Link> isn't covered by globals.css's
+            `button, a[role="button"], [data-tap] { min-height: 44px }`
+            selector -- data-tap is this codebase's own convention for
+            exactly this class of control (a non-button, non-role="button"
+            tap target), so wire it in here rather than hardcoding a
+            min-height only in ClimbHero.module.css. */}
+        <Link href="/settings" className={styles.settingsLink} aria-label="Offline settings" data-tap>
           ⚙
         </Link>
       </div>

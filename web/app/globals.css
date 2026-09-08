@@ -118,7 +118,20 @@
 
   --page-ink: #233029;
   --page-ink-2: #3a453f;
-  --page-ink-3: #6a746d;
+  /* Was #6a746d (4.257:1 against --page-bg) — just under the 4.5:1
+     normal-text floor. --page-ink-3 renders as real body copy at 12-16px
+     across ChapterReader.module.css (.navBtn, .error, .entryError),
+     CovenantTimelineStrip.module.css (.stageNote, .disputedBasis), the
+     notes/study/thread composer module.css files (.methodNote,
+     .recordedLabel, and friends), and device-session-controls.module.css
+     (.copy, .status) — normal-size text everywhere it's used, so the 4.5:1
+     floor applies, not the relaxed 3:1 large-text one. #666f69 measures
+     4.561:1 — see tests/theme.test.ts's parchment ink-3/brass contrast
+     block (lib/theme.ts itself is out of scope for this fix, so the
+     snapshot lives directly in the test rather than in
+     PARCHMENT_BODY_TOKENS). Same wave-21 discipline as --page-muted/
+     --page-muted-2 just below (A-040). */
+  --page-ink-3: #666f69;
   /* Was #8a938c (2.78:1 against --page-bg) — failed WCAG AA even at the
      relaxed 3:1 large-text/UI floor. --page-muted renders at 10.5-11.5px
      (Field.module.css, claim-composer.module.css) — normal-size text, so
@@ -138,7 +151,19 @@
   --green: #2f4f4a;
   --green-soft-bg: #e7eeeb;
   --green-soft-border: #d3e0da;
-  --brass: #a98b3e;
+  /* Was #a98b3e (2.859:1 against --page-bg) — well under even the 3:1
+     large-text/UI floor. --brass is used only as small label/eyebrow text
+     (10.5-12px, bold uppercase) across thread-detail/thread-picker/
+     thread-creator/claim-composer/CovenantTimelineStrip/ChapterReader/
+     study-session/daily-loop/entry-list/note-composer/
+     vault-export-button/device-session-controls .module.css files and
+     ThreadDetail.tsx's inline rowHeaderStyle — never at large-text size, so
+     the 4.5:1 normal-text floor applies, matching --page-ink-3 above
+     (A-040). #806a2f measures 4.587:1, still recognizably brass/gold — see
+     tests/theme.test.ts's parchment ink-3/brass contrast block (same
+     out-of-scope-lib/theme.ts rationale as --page-ink-3 above). Same
+     wave-21 values-only-fix discipline as --page-muted/--page-muted-2. */
+  --brass: #806a2f;
   /* Thread-connection accent (BUILD_PLAN section 4, 2026-08-13: "crimson
      marks active thread connections"). Defining this token is in scope for
      THEMESYSTEM-001; re-coloring existing thread-connection UI to actually
