@@ -2677,6 +2677,51 @@
       "humanGates": [
         "This is a brand-new, highly visual, first-impression feature -- Ken should click through the real sequence himself (including the Settings replay) before it's called fully final. Do your own real visual verification first (a static harness render + a real headless screenshot you personally look at, matching this project's established discipline -- no visible browser window, headless/file-output only) for at least the globe's resting frame and the map-zoom-to-Eden-scene transition, but say explicitly that your own check is not a substitute for Ken's."
       ]
+    },
+    {
+      "id": "RELEASEJOB-001",
+      "title": "Gate 0.12's replacement: a serialized, locked release-migration job",
+      "objective": "BUILD_PLAN.md gate 0.12 and CODEX_AUDIT.md finding A-047 both record the same real, still-open gap. Commit a1031cc removed the dangerous Vercel buildCommand hook that ran `db:migrate` on every deployment (before the build was proven, with no locking across concurrent deploys), but its named replacement -- 'a serialized release migration job with database-identity checks, locking, backup/readiness checks, expand-contract migrations, and post-migration verification' -- was explicitly deferred and does not exist anywhere in the repo (confirmed by grep: zero hits for advisory locks, database-identity checks, or a release job in web/scripts, web/lib, or web/lib/db). Today `db:migrate` is just a bare `drizzle-kit migrate` in package.json -- no lock, no identity check, no verification. Build the real replacement as a standalone script, NOT as a build-time hook (that would recreate the exact defect a1031cc removed).",
+      "ownedPaths": [
+        "web/scripts/release-migrate.mts",
+        "web/scripts/lib/releaseMigrate.ts",
+        "web/tests/release-migrate.test.ts",
+        "web/tests/README-release-migrate.md",
+        "web/package.json"
+      ],
+      "readOnlyPaths": [
+        "web/db/migrations/",
+        "web/drizzle.config.ts",
+        "web/lib/db/index.ts",
+        "web/db/schema.ts",
+        "web/tests/README-db-invariants.md",
+        "web/app/(app)/page.tsx",
+        "CODEX_AUDIT.md",
+        "BUILD_PLAN.md"
+      ],
+      "acceptanceCriteria": [
+        "A standalone CLI script (e.g. `web/scripts/release-migrate.mts`, run via `tsx`, wired as a new `npm run db:release-migrate` in package.json -- ADDITIVE, do not remove or change the existing `db:migrate`/`db:generate`/`db:studio` scripts) that a human or a future deploy pipeline invokes as its own explicit step, separate from `next build`. Do NOT touch web/vercel.json or any Vercel buildCommand wiring -- recreating a build-time migrate hook is exactly the defect a1031cc removed; actually wiring this into a real deploy pipeline is a human/ops decision out of this task's scope, note that explicitly in your final report rather than attempting it.",
+        "Uses `@neondatabase/serverless`'s `Pool` (already a dependency -- see web/lib/db/index.ts's own header comment on why the app's own runtime connection intentionally stays on the lazy neon-http driver; this script is a separate, standalone, long-lived CLI process, not a serverless request handler, so a real pooled/websocket connection with full session semantics -- transactions, advisory locks -- is correct here and does not conflict with that design). Do not modify web/lib/db/index.ts.",
+        "Database-identity check: before doing anything destructive, the script verifies it is connected to the database it thinks it is (e.g. queries `current_database()`/a stored identity marker and compares against an explicit expected value passed via an env var or CLI flag) and refuses to proceed with a clear error if the identity is unset or does not match -- this is the guard against a preview/staging run accidentally migrating production or vice versa. Fails closed (refuses) rather than warns-and-continues if identity cannot be verified.",
+        "Locking: acquires a real Postgres session-level advisory lock (`pg_advisory_lock`, a fixed, documented lock key constant) over the single persistent connection for the whole migration run, so two concurrent invocations of this script cannot race. If the lock is already held, the script waits with a bounded timeout (not `pg_advisory_lock`'s indefinite block -- use `pg_try_advisory_lock` in a poll loop or `SET lock_timeout`) and exits with a clear, distinct error/exit code on timeout rather than hanging forever. Releases the lock explicitly in a `finally` (not just relying on connection close) so a script that errors after acquiring the lock does not need a human to intervene.",
+        "Backup/readiness check: be honest about what is actually achievable without new external credentials/scope this task does not have (e.g. a real Neon backup/branch API integration may be out of reach). At minimum, implement and clearly label a real readiness probe: connectivity check, expected Postgres version/extension check, and confirmation that no other migration is already in a partially-applied state (drizzle-kit's own migrations-journal table is the source of truth for that). If full backup verification genuinely cannot be built without credentials this task doesn't have, say so explicitly in the script's own header comment and in your final report -- do not fake a check that doesn't verify anything real.",
+        "Expand-contract guard (a real, mechanizable check, not just a comment): before applying, scans the pending (not-yet-applied, per drizzle's journal) migration SQL files for destructive statements -- `DROP COLUMN`, `DROP TABLE`, `ALTER COLUMN ... TYPE` narrowing, `DROP CONSTRAINT` on a NOT NULL/foreign key others may depend on. If any are found, the script refuses to proceed unless an explicit `--allow-breaking` flag (or equivalent env var) is passed, and prints exactly which statements triggered the guard. This is read-only scanning of web/db/migrations/*.sql -- never modify those files (they are a read-only path for this task; TRIGGER-001 already documented a real ordering defect in 0006/0007 that is explicitly out of scope here too, do not touch it).",
+        "Applies migrations via drizzle-orm's own programmatic migrator (the same one `drizzle-kit migrate` wraps) against the locked connection, inside the identity/readiness/expand-contract guards above -- not by shelling out to `npx drizzle-kit migrate` as a separate unguarded process.",
+        "Post-migration verification: after applying, re-queries the migrations journal to confirm the expected migration(s) are now recorded as applied, and runs one real smoke query against the schema (e.g. a cheap `SELECT` against a real table) to confirm the connection and schema are actually usable post-migration, not just that the journal says so.",
+        "Clear, structured console output at each phase (identity check, lock acquired, readiness check, expand-contract scan, migrating, verifying, lock released) and a non-zero exit code on any failure -- this script's whole point is to be safely wireable into an unattended pipeline later, so its success/failure must be unambiguous from its exit code and log lines alone, not require a human to interpret prose.",
+        "Real tests in web/tests/release-migrate.test.ts for everything that does NOT require a live database: identity-check comparison logic, the expand-contract SQL-scanning logic (given fixture SQL strings, correctly flags/allows), CLI flag/env-var parsing, and the phase-sequencing logic -- using dependency injection (a `deps` object of injectable functions/clients) the same way web/app/(app)/page.tsx's `SessionDeps`/`ClimbDataDeps` pattern already does in this codebase, so these are real node:test unit tests with no live Postgres involved. Mutation-prove each.",
+        "For the things that genuinely need a live Postgres (the advisory lock actually blocking a second concurrent run; drizzle's migrator actually applying SQL; the post-migration smoke query actually running) -- do NOT invent a mock that pretends to verify this. Follow this repo's own established precedent exactly: web/tests/README-db-invariants.md documents a manual, live-Postgres verification procedure for things npm test cannot cover, explicitly excluded from `npm test` and run by hand against a disposable database. Write `web/tests/README-release-migrate.md` in that same style: exact setup steps, exact commands, and exactly what a pass looks like for (a) the lock genuinely blocking a concurrent second invocation, (b) a real migration applying end to end, (c) the identity check genuinely refusing on a mismatched database. If you have the ability to actually stand up a disposable local Postgres and run these yourself (the README-db-invariants.md precedent shows a prior task did have `sudo -u postgres psql` available), do so and report the real output; if not, write the doc as precisely as that precedent does and say plainly in your report that it is written but not executed against a live instance."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": [
+        "Actually wiring this script into the real Vercel/CI deploy pipeline (when in the pipeline it runs, what credentials/env it needs there, whether it gates the build or runs as a separate release step) is a deployment-configuration decision for Ken, not something this task attempts. State clearly in your report exactly what command Ken (or a future CI config) would need to run and when.",
+        "If full backup/restore-point verification against Neon's own API was not achievable within this task's scope, that gap should be named explicitly for Ken's awareness, not silently narrowed."
+      ]
     }
   ]
 }
