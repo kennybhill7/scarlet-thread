@@ -47,6 +47,7 @@ from build_bible import (
     TOTAL_CHAPTERS,
     ValidationIssue,
     atomic_replace_dir,
+    compute_dir_revision,
     validate_version_payload,
 )
 
@@ -441,9 +442,20 @@ def main() -> None:
     versions.append({k: v for k, v in VERSION_META.items() if k != "source"})
     index_meta["versions"] = versions
     index_meta["spanishNames"] = {str(k): v for k, v in sorted(spanish_names.items())}
+
+    # Recompute the corpus revision (CODEX_AUDIT A-020) against the now-live
+    # OUTPUT_DIR -- SBL's atomic_replace_dir swap and the versemap.json write
+    # above have already landed, so this reflects the COMPLETE corpus (every
+    # English translation plus Spanish plus the verse alignment map), not just
+    # the English-only snapshot build_bible.py wrote. Reusing
+    # build_bible.compute_dir_revision rather than duplicating it, same
+    # discipline as this module's existing reuse of validate_version_payload
+    # and atomic_replace_dir.
+    index_meta["revision"] = compute_dir_revision(OUTPUT_DIR)
     _atomic_write_json(index_meta, OUTPUT_DIR / "index.json")
 
-    print(f"\n  Spanish {total_es:,} vs {COMPARE_TO} {total_en:,} ({total_es - total_en:+,})")
+    print(f"\n  Corpus revision: {index_meta['revision']}")
+    print(f"  Spanish {total_es:,} vs {COMPARE_TO} {total_en:,} ({total_es - total_en:+,})")
     print(f"  {len(chapter_diffs)} chapter(s) differ · report -> {REPORT_FILE.name}")
     for book, chapter, es, en in chapter_diffs[:15]:
         print(f"    {book} {chapter}: ES {es} vs EN {en} ({es - en:+})")

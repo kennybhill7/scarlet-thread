@@ -65,6 +65,19 @@
   font-variant-numeric: tabular-nums;
 }
 
+.errorGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.error {
+  font-size: 11.5px;
+  color: var(--danger, #9b2c2c);
+  max-width: 220px;
+  text-align: right;
+}
+
 .footer {
   font-size: 11.5px;
   color: var(--shell-muted);

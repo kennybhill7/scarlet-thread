@@ -50,6 +50,18 @@ export interface BibleIndex {
   books: BookMeta[];
   /** Book number (as string key) -> Spanish display name. Written by build_spanish.py. */
   spanishNames?: Record<string, string>;
+  /**
+   * Deterministic content hash of the built corpus (tools/build_bible.py's
+   * compute_dir_revision(), reused by build_spanish.py) — CODEX_AUDIT A-020.
+   * Not a timestamp: identical content always yields the same revision, so a
+   * rebuild that changes nothing does not spuriously invalidate every
+   * client's scripture cache. lib/bible/loader.ts reads this to detect a
+   * genuine corpus change and wipe its cache accordingly. Optional in the
+   * type only to tolerate an index.json cached before this field existed —
+   * loader.ts treats a missing value as its own stable "unversioned" state,
+   * never as a wildcard that forces a wipe on every load.
+   */
+  revision?: string;
 }
 
 /** /public/bible/{version}/{bookNumber}.json — chapters, each an array of verses. */
