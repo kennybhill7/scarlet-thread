@@ -363,21 +363,39 @@ export async function alignChapter(
         .filter(([source, target]) => target === null && source.startsWith(`${chapterKey}.`))
         .map(([source]) => source);
 
-  const rows: AlignedRow[] = [];
+  // Each row -- real (English-verse-sourced) or gap (target-only) -- carries a
+  // sortKey placing it on the SAME verse-number line, plus a tiebreak so a
+  // gap lands immediately BEFORE a real row that shares its number rather
+  // than after it: the gap is the numbered-but-textless slot a reader would
+  // reach first in the target text, with the relocated content (the real row
+  // of the same number, pulled in from wherever it was moved to) following
+  // right after it. This is what actually fixes A-036 -- gapKeys used to be
+  // concatenated onto the very end of `rows` regardless of this number, which
+  // is what detached the omission from its canonical position in the first
+  // place.
+  type SortableRow = AlignedRow & { sortKey: number; gapOrder: 0 | 1 };
 
+  const realRows: SortableRow[] = [];
   for (let verse = 1; verse <= fromVerseCount; verse += 1) {
     const key = verseKey(parsed.book, parsed.chapter, verse);
     const mapped = Object.prototype.hasOwnProperty.call(direction, key) ? direction[key] : key;
-    rows.push({ fromVerse: verse, toKey: mapped });
+    realRows.push({ fromVerse: verse, toKey: mapped, sortKey: verse, gapOrder: 1 });
   }
 
   // gapKeys is already scoped to the English->divergent direction and this
-  // chapter (see above) -- empty, and this a no-op, in every other case.
-  for (const key of gapKeys) {
-    rows.push({ fromVerse: null, toKey: key });
-  }
+  // chapter (see above) -- empty, and this a no-op, in every other case. Each
+  // gap's own sortKey is ITS OWN verse number (parsed off its own toKey), not
+  // its position in gapKeys -- multiple gaps in one chapter still land at
+  // their own correct spots relative to the real rows and each other.
+  const gapRows: SortableRow[] = gapKeys.map((gapToKey) => {
+    const gapParsed = parseKey(gapToKey);
+    const gapVerse = gapParsed && "verse" in gapParsed ? gapParsed.verse : Number.POSITIVE_INFINITY;
+    return { fromVerse: null, toKey: gapToKey, sortKey: gapVerse, gapOrder: 0 };
+  });
 
-  return rows;
+  return [...realRows, ...gapRows]
+    .sort((a, b) => a.sortKey - b.sortKey || a.gapOrder - b.gapOrder)
+    .map(({ fromVerse, toKey }) => ({ fromVerse, toKey }));
 }
 
 /**

@@ -37,14 +37,84 @@ test("English Romans 16 maps its doxology to Spanish Romans 14", async () => {
   assert.equal(rows.find((row) => row.fromVerse === 27)?.toKey, "45.14.26");
 });
 
-test("English Romans 16 includes an explicit row for the Spanish gap", async () => {
+test("CODEX_AUDIT A-036: English Romans 16's gap row sits in its canonical position, not appended after the whole chapter", async () => {
   const { alignChapter } = await import("@/lib/bible/versemap");
   const rows = await alignChapter("BSB", "SBL", "45.16", 27);
-  assert.ok(
-    rows.some(
-      (row) => row.fromVerse === null && row.toKey === "45.16.25",
-    ),
-  );
+
+  // The full ordered sequence, not just "a gap row exists somewhere" (the
+  // presence-only assertion this test used to make, and which would have
+  // stayed green even with the gap wrongly appended at index 27). The blank
+  // Spanish 16:25 slot (gap, own verse number 25) must land immediately
+  // BEFORE the real row for English verse 25 -- English 24 -> Spanish 16:24,
+  // then the gap, then English 25/26/27 -> the relocated Spanish 14:24-26
+  // doxology -- not after English 27's row at the very end.
+  const expected = [
+    ...Array.from({ length: 24 }, (_, i) => ({ fromVerse: i + 1, toKey: `45.16.${i + 1}` })),
+    { fromVerse: null, toKey: "45.16.25" },
+    { fromVerse: 25, toKey: "45.14.24" },
+    { fromVerse: 26, toKey: "45.14.25" },
+    { fromVerse: 27, toKey: "45.14.26" },
+  ];
+  assert.deepEqual(rows, expected);
+});
+
+test("A-036 SYNTHETIC: a gap declared in the middle of a chapter (not near either edge) merges into its own correct position", async () => {
+  const versemap = await import("@/lib/bible/versemap");
+  versemap.__resetVerseMapCacheForTests();
+  // Modeled on the real Romans 14/16 shape (see the fixture above) but with
+  // the target-only gap sitting at verse 5 of a 10-verse chapter -- squarely
+  // in the middle, so this cannot pass by coincidence the way "near the end"
+  // could. Verses 1-4 are identity; verses 5-10 are relocated to a different
+  // chapter ("1.2"); the gap is the Spanish-only blank slot "1.1.5" that no
+  // English verse maps onto.
+  const midChapterFixture = {
+    SBL: {
+      comparedTo: "BSB",
+      toEnglish: {
+        "1.2.5": "1.1.5",
+        "1.2.6": "1.1.6",
+        "1.2.7": "1.1.7",
+        "1.2.8": "1.1.8",
+        "1.2.9": "1.1.9",
+        "1.2.10": "1.1.10",
+        "1.1.5": null,
+      },
+      toSpanish: {
+        "1.1.5": "1.2.5",
+        "1.1.6": "1.2.6",
+        "1.1.7": "1.2.7",
+        "1.1.8": "1.2.8",
+        "1.1.9": "1.2.9",
+        "1.1.10": "1.2.10",
+      },
+      notes: {},
+      divergentChapters: ["1.1"],
+    },
+  };
+  globalThis.fetch = async () =>
+    new Response(JSON.stringify(midChapterFixture), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
+  try {
+    const rows = await versemap.alignChapter("BSB", "SBL", "1.1", 10);
+    assert.deepEqual(rows, [
+      { fromVerse: 1, toKey: "1.1.1" },
+      { fromVerse: 2, toKey: "1.1.2" },
+      { fromVerse: 3, toKey: "1.1.3" },
+      { fromVerse: 4, toKey: "1.1.4" },
+      { fromVerse: null, toKey: "1.1.5" },
+      { fromVerse: 5, toKey: "1.2.5" },
+      { fromVerse: 6, toKey: "1.2.6" },
+      { fromVerse: 7, toKey: "1.2.7" },
+      { fromVerse: 8, toKey: "1.2.8" },
+      { fromVerse: 9, toKey: "1.2.9" },
+      { fromVerse: 10, toKey: "1.2.10" },
+    ]);
+  } finally {
+    globalThis.fetch = async () => respondOk();
+    versemap.__resetVerseMapCacheForTests();
+  }
 });
 
 test("a network/fetch failure fails closed, not a silent identity fallback", async () => {

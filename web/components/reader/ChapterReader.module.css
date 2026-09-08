@@ -111,6 +111,14 @@
   font-style: italic;
 }
 
+/* CODEX_AUDIT.md A-028 -- the visible marker for a declared-omission verse
+   (VerseColumn and the parallel Spanish pane both use it), styled distinctly
+   from real verse text so it reads as an editorial note, never as Scripture. */
+.omitted {
+  color: var(--page-muted);
+  font-style: italic;
+}
+
 .error {
   color: var(--page-ink-3);
   background: var(--page-card);

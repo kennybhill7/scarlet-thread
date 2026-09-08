@@ -29,12 +29,24 @@ export function refToKey(ref: VerseRef | ChapterRef): RefKey {
     : chapterKey(ref.book, ref.chapter);
 }
 
+/**
+ * Only a clean, complete non-negative-integer string counts as one segment --
+ * "1", "23", never "1x", "1.3junk"'s "3junk", or "15oops". `Number.parseInt`
+ * silently truncates at the first non-digit character (`Number.parseInt("1x",
+ * 10) === 1`), so a loose parseInt-based parser accepted exactly this kind of
+ * junk as a valid reference (CODEX_AUDIT.md A-039). This regex pre-check runs
+ * before any numeric conversion, so a segment either parses whole or is
+ * rejected outright -- there is no partial/truncated middle ground.
+ */
+const CLEAN_INTEGER = /^\d+$/;
+
 /** Returns null rather than throwing — callers parse untrusted URLs and stored keys. */
 export function parseKey(key: string): VerseRef | ChapterRef | null {
   const parts = key.split(".");
   if (parts.length < 2 || parts.length > 3) return null;
+  if (parts.some((part) => !CLEAN_INTEGER.test(part))) return null;
 
-  const numbers = parts.map((part) => Number.parseInt(part, 10));
+  const numbers = parts.map((part) => Number(part));
   if (numbers.some((n) => !Number.isInteger(n) || n < 1)) return null;
 
   const [book, chapter, verse] = numbers;

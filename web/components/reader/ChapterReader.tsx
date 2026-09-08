@@ -49,6 +49,53 @@ export function nextVerseSelection(current: RefKey | null, candidate: RefKey): R
   return current === candidate ? null : candidate;
 }
 
+/**
+ * CODEX_AUDIT.md A-032 -- the single decision StudySession's `textAvailable`
+ * prop is built from: true only once the primary chapter's verses have
+ * actually loaded (non-null) and the response was not a genuinely empty
+ * array. `null` covers both "still loading" and "load failed" (see the
+ * `Loaded<T>` type above -- a failure sets `primary` to an `ok: false`
+ * record, so `primaryVerses` itself stays null in that case too). Exported,
+ * like nextVerseSelection above, so this exact function is what the test
+ * suite exercises.
+ */
+export function hasLoadedText(verses: string[] | null): boolean {
+  return verses !== null && verses.length > 0;
+}
+
+/**
+ * Resolves one aligned row's Spanish text by its actual mapped reference,
+ * never by loop position. Pulled out to a top-level, pure function -- rather
+ * than a closure captured over `spanishChapters` state -- for the same
+ * testability reason as nextVerseSelection/resolveAlignment above.
+ *
+ * The returned `text` is `null` ONLY while genuinely still loading (no
+ * chapter entry for `toKey`'s chapter yet, or no resolvable verse number).
+ * CODEX_AUDIT.md A-028's fix depends on this staying strictly `null`, never
+ * `""`: a declared omission (the corpus builder's own convention -- the
+ * verse exists but its text is empty/whitespace, see isOmittedVerseText)
+ * comes back as `text: ""` once its chapter has actually loaded, so the
+ * caller (ChapterReader's parallel-pane render below) can tell "not loaded
+ * yet" (`null` -- render nothing, still waiting) apart from "loaded, and
+ * this edition declares no text for this verse" (`""` -- render the honest
+ * marker). The old code's `if (!text) return null` collapsed both into the
+ * same silent nothing.
+ */
+export function resolveSpanishVerse(
+  spanishChapters: Record<string, Loaded<string[]>>,
+  toKey: string | null,
+): { text: string | null; error: string | null } {
+  if (!toKey) return { text: null, error: null };
+  const parsedVerse = parseKey(toKey);
+  const chapterRef = toChapterKey(toKey);
+  const entry = spanishChapters[chapterRef];
+  if (!entry) return { text: null, error: null }; // still loading
+  if (!entry.ok) return { text: null, error: entry.message };
+  const verseNumber = parsedVerse && "verse" in parsedVerse ? parsedVerse.verse : undefined;
+  const value = verseNumber ? entry.value[verseNumber - 1] : undefined;
+  return { text: value ?? null, error: null };
+}
+
 export type AlignmentResult =
   | { ok: true; rows: AlignedRow[] }
   | { ok: false; message: string };
@@ -93,6 +140,31 @@ type VerseColumnProps = {
 };
 
 /**
+ * CODEX_AUDIT.md A-028 -- the corpus builder's own established convention
+ * (tools/build_bible.py, proved by tests/corpus.test.ts's `empty` fixture)
+ * for "this verse number exists but this edition has no text for it" (known
+ * textual omissions like Matthew 17:21, Acts 8:37, or the relocated Romans
+ * 16:25-27 doxology's blank Spanish slot) is an empty/whitespace-only string
+ * -- never a missing array element. That is DIFFERENT from "not loaded yet",
+ * which is represented as the whole verses array (or, in the parallel pane,
+ * the whole chapter entry) being absent/null. Exported so both VerseColumn
+ * and the parallel pane below share one definition instead of two regexes
+ * drifting apart.
+ */
+export function isOmittedVerseText(text: string): boolean {
+  return text.trim().length === 0;
+}
+
+/**
+ * The visible marker rendered in place of a declared omission's blank text.
+ * Deliberately plain, declarative language matching this file's own existing
+ * status copy ("This chapter isn't downloaded and you're offline.", "Couldn't
+ * load this chapter.") rather than bracketed placeholder-style text -- never
+ * invents wording that pretends to be the verse itself.
+ */
+export const OMITTED_VERSE_TEXT = "Not present in this translation.";
+
+/**
  * Renders one column's verses as selectable controls. Each verse is a real
  * <button>, not a hand-rolled div+role+keydown combo, so Enter/Space
  * activation is guaranteed by the HTML platform itself -- mouse and keyboard
@@ -101,6 +173,11 @@ type VerseColumnProps = {
  * keys off the canonical book.chapter.verse RefKey computed from the row's
  * own verse number, never the array position, so it stays correct even where
  * a parallel pane's alignment diverges (this column never renders that pane).
+ *
+ * CODEX_AUDIT.md A-028 -- a row whose text is a declared omission (see
+ * isOmittedVerseText above) renders OMITTED_VERSE_TEXT instead of raw
+ * {row.text}, so the verse number is never left with silently nothing after
+ * it.
  */
 export function VerseColumn({ book, chapter, rows, selectedVerse, onSelectVerse }: VerseColumnProps) {
   return (
@@ -108,6 +185,7 @@ export function VerseColumn({ book, chapter, rows, selectedVerse, onSelectVerse 
       {rows.map((row) => {
         const refKey = verseKey(book, chapter, row.verse);
         const selected = refKey === selectedVerse;
+        const omitted = isOmittedVerseText(row.text);
         return (
           <button
             key={row.verse}
@@ -118,7 +196,7 @@ export function VerseColumn({ book, chapter, rows, selectedVerse, onSelectVerse 
             onClick={() => onSelectVerse(nextVerseSelection(selectedVerse, refKey))}
           >
             <sup className={styles.vnum}>{row.verse}</sup>
-            {row.text}
+            {omitted ? <span className={styles.omitted}>{OMITTED_VERSE_TEXT}</span> : row.text}
           </button>
         );
       })}
@@ -262,17 +340,7 @@ export function ChapterReader({ book, chapter, workspaceId }: ChapterReaderProps
     };
   }, [parallel, alignedRows, key]);
 
-  /** Resolves one row's Spanish text by its actual mapped reference, never by loop position. */
-  function resolveSpanish(toKey: string | null): { text: string | null; error: string | null } {
-    if (!toKey) return { text: null, error: null };
-    const parsedVerse = parseKey(toKey);
-    const chapterRef = toChapterKey(toKey);
-    const entry = spanishChapters[chapterRef];
-    if (!entry) return { text: null, error: null }; // still loading
-    if (!entry.ok) return { text: null, error: entry.message };
-    const verseNumber = parsedVerse && "verse" in parsedVerse ? parsedVerse.verse : undefined;
-    return { text: (verseNumber ? entry.value[verseNumber - 1] : undefined) ?? null, error: null };
-  }
+  const resolveSpanish = (toKey: string | null) => resolveSpanishVerse(spanishChapters, toKey);
 
   const spanishNaturalChapter = spanishChapters[key];
   // alignmentErrorText excluded here on purpose: once resolveAlignment() has
@@ -281,6 +349,12 @@ export function ChapterReader({ book, chapter, workspaceId }: ChapterReaderProps
   // explicit notice below (VMCACHE-001).
   const spanishLoading = parallel && !alignmentErrorText && (!alignedRows || !spanishNaturalChapter);
   const spanishError = spanishNaturalChapter && !spanishNaturalChapter.ok ? spanishNaturalChapter.message : null;
+
+  // CODEX_AUDIT.md A-032 -- true only once the primary chapter has actually
+  // loaded at least one verse. Passed to StudySession so "I'm finished
+  // reading" cannot unlock the composer for a chapter that failed to load,
+  // is still loading, or (defensively) resolved to a genuinely empty array.
+  const textAvailable = hasLoadedText(primaryVerses);
 
   const goNext = () => {
     if (!index) return;
@@ -299,7 +373,7 @@ export function ChapterReader({ book, chapter, workspaceId }: ChapterReaderProps
   );
 
   return (
-    <StudySession chapter={key} selectedVerse={selectedVerse}>
+    <StudySession chapter={key} selectedVerse={selectedVerse} textAvailable={textAvailable}>
     <div className={styles.page}>
       <header className={styles.top}>
         <button className={styles.navBtn} onClick={goPrevious} aria-label="Previous chapter">
@@ -367,11 +441,17 @@ export function ChapterReader({ book, chapter, workspaceId }: ChapterReaderProps
                 alignedRows?.map((row, i) => {
                   const { text, error } = resolveSpanish(row.toKey);
                   if (error) return null; // a secondary (divergence-target) chapter failed to load; skip that row only
-                  if (!text) return null; // still loading that specific target chapter, or a declared gap with no text
+                  if (text === null) return null; // still loading that specific target chapter -- genuinely nothing to show yet
+                  // CODEX_AUDIT.md A-028 -- text === "" is a DECLARED omission
+                  // (the corpus's own convention), not "still loading" (that
+                  // case already returned above via text === null). Render
+                  // the same honest marker VerseColumn uses rather than
+                  // silently dropping the row.
+                  const omitted = isOmittedVerseText(text);
                   return (
                     <p key={`${row.toKey ?? "gap"}-${i}`} className={styles.verse}>
                       <sup className={styles.vnum}>{row.fromVerse ?? "—"}</sup>
-                      {text}
+                      {omitted ? <span className={styles.omitted}>{OMITTED_VERSE_TEXT}</span> : text}
                     </p>
                   );
                 })}
