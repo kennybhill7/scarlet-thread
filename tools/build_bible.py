@@ -34,6 +34,7 @@ Author: Kenneth Hill
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import shutil
@@ -327,6 +328,55 @@ def atomic_replace_dir(staged: Path, live: Path) -> None:
             shutil.rmtree(backup)
 
 
+REVISION_LENGTH = 16  # hex chars -- 64 bits, plenty to distinguish real rebuilds, short enough to read in a log
+
+
+def compute_revision(files: dict[str, bytes]) -> str:
+    """Deterministic content hash over a set of (relative-path -> bytes) files.
+
+    CODEX_AUDIT A-020: web/public/bible/index.json needs a REAL, DETERMINISTIC
+    revision -- not a timestamp, which would change on every rebuild even when
+    the corpus content is byte-identical, and not a hand-maintained counter,
+    which someone can forget to bump. A hash of the actual built bytes is
+    honest: two builds that produce the same files always agree on the
+    revision, and any real content change (even one verse) changes it.
+
+    Pure function, no filesystem access -- takes already-read bytes so
+    tools/test_corpus_validation.py can exercise it with synthetic fixtures,
+    the same reason validate_version_payload() and atomic_replace_dir() are
+    both plain functions (see this module's docstring). Sorting by path makes
+    the result independent of filesystem enumeration order (which varies by
+    OS) and of the order callers happen to build the dict in.
+    """
+    hasher = hashlib.sha256()
+    for rel_path in sorted(files):
+        hasher.update(rel_path.encode("utf-8"))
+        hasher.update(b"\0")
+        hasher.update(files[rel_path])
+        hasher.update(b"\0")
+    return hasher.hexdigest()[:REVISION_LENGTH]
+
+
+def compute_dir_revision(root: Path, *, skip: frozenset[str] = frozenset({"index.json"})) -> str:
+    """Filesystem wrapper around compute_revision(): hashes every *.json file
+    under `root` (paths relative to `root`, POSIX-style so the result does not
+    depend on whether the build ran on Windows or POSIX), excluding files
+    named in `skip`.
+
+    index.json itself is excluded by default because it is the file THIS
+    revision gets written into -- hashing it would make the revision depend
+    on its own previous value (or not exist yet, for a first build), neither
+    of which describes "the content this revision identifies".
+    """
+    files: dict[str, bytes] = {}
+    for path in root.rglob("*.json"):
+        if path.name in skip:
+            continue
+        rel_path = path.relative_to(root).as_posix()
+        files[rel_path] = path.read_bytes()
+    return compute_revision(files)
+
+
 def download(version: Version, force: bool = False) -> Path:
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     target = CACHE_DIR / version.file
@@ -430,6 +480,15 @@ def main() -> None:
         shutil.rmtree(STAGING_DIR, ignore_errors=True)
         _report_failure_and_exit(all_issues)
 
+    # Hash the book JSON just written to STAGING_DIR -- BEFORE index.json
+    # itself exists there -- so the revision is a real fingerprint of the
+    # content it identifies (CODEX_AUDIT A-020). This is the English-only
+    # revision: build_spanish.py recomputes it against the live OUTPUT_DIR
+    # (English + Spanish together) once SBL is swapped in, which is expected
+    # to differ from this one -- see this file's own note above about
+    # re-running build_spanish.py after every build_bible.py run.
+    revision = compute_dir_revision(STAGING_DIR)
+
     index = {
         "versions": [
             {
@@ -445,6 +504,7 @@ def main() -> None:
         ],
         "default": "BSB",
         "totalChapters": TOTAL_CHAPTERS,
+        "revision": revision,
         "books": [
             {
                 "n": index_,
@@ -459,6 +519,7 @@ def main() -> None:
     (STAGING_DIR / "index.json").write_text(
         json.dumps(index, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
     )
+    print(f"Corpus revision: {revision}")
 
     size = sum(f.stat().st_size for f in STAGING_DIR.rglob("*.json"))
     file_count = len(list(STAGING_DIR.rglob("*.json")))

@@ -212,6 +212,29 @@ function shouldHandle(url) {
   return true;
 }
 
+/**
+ * CODEX_AUDIT A-023: the cache-write below used to be started with
+ * `caches.open(CACHE_NAME).then((cache) => cache.put(...))` and never handed
+ * to `event.waitUntil()`. Because `event.respondWith()`'s own promise chain
+ * resolves (and delivers the response to the page) as soon as `fetch()`
+ * settles, that write was racing the browser's decision to recycle this
+ * worker once respondWith() is done -- a real response could reach the page
+ * while the shell/font/JS bytes it just fetched were still only half-written
+ * to the cache, or never written at all. Extending the event's lifetime with
+ * waitUntil() is the same discipline the activate handler above already uses
+ * for its own cleanup -- this just applies it to a write instead of a
+ * delete, and to the fetch handler instead of activate.
+ *
+ * event.waitUntil is guarded (not called unconditionally) because it is
+ * genuinely optional to correctness here -- the write itself already has its
+ * own .catch(() => {}) and was already fire-and-forget before this fix; all
+ * waitUntil adds is a hint to the browser not to kill the worker early. A
+ * host that hands fetch events without a waitUntil method (real Service
+ * Worker globals always provide one; this repo's own sw.js test harness in
+ * tests/offline-nav.test.ts intentionally mocks only request/respondWith,
+ * the two members this file used before this fix) still gets the write
+ * attempted, just without that extended-lifetime hint.
+ */
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (request.method !== "GET") return;
@@ -224,7 +247,17 @@ self.addEventListener("fetch", (event) => {
       .then((response) => {
         if (response.ok) {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          const write = caches
+            .open(CACHE_NAME)
+            .then((cache) => cache.put(request, copy))
+            .catch(() => {
+              // Best-effort, same discipline as lib/bible/loader.ts's own
+              // cache writes: a storage failure must not make this response
+              // fail -- it already succeeded over the network.
+            });
+          if (typeof event.waitUntil === "function") {
+            event.waitUntil(write);
+          }
         }
         return response;
       })
