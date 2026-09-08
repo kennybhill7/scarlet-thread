@@ -2801,6 +2801,42 @@
       "humanGates": [
         "The exact wording of the 'not present in this translation' marker copy (A-028) is a small product-voice judgment call -- make a reasonable choice matching this app's existing tone, but flag it in your report as worth Ken's quick glance rather than treating your wording as final."
       ]
+    },
+    {
+      "id": "READPOLISH-001",
+      "title": "Fix three real polish/hygiene bugs: forced portrait, unvalidated last-read, remaining contrast/tap-target gaps",
+      "objective": "CODEX_AUDIT.md findings A-037/A-038/A-040 are all genuinely still open (independently re-verified against current code by Claude, 2026-09-08, not just re-read from the old audit doc). Unlike OFFLINERELIABILITY-001 and READCORRECT-001 (also just dispatched, touching different files), these three are smaller and don't share a subsystem, but are grouped into one task since each is individually small.",
+      "ownedPaths": [
+        "web/app/manifest.ts",
+        "web/lib/bible/lastRead.ts",
+        "web/components/reader/BookPicker.tsx",
+        "web/components/reader/BookPicker.module.css",
+        "web/app/globals.css",
+        "web/components/climb/ClimbHero.tsx",
+        "web/components/climb/ClimbHero.module.css",
+        "web/tests/last-read.test.ts",
+        "web/tests/theme.test.ts",
+        "web/tests/manifest.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/theme.ts",
+        "web/components/auth/DeviceSessionControls.tsx",
+        "web/lib/sync/clear.ts",
+        "web/components/reader/ChapterReader.tsx",
+        "CODEX_AUDIT.md"
+      ],
+      "acceptanceCriteria": [
+        "A-037 (installed app forced to portrait): app/manifest.ts currently hardcodes `orientation: \"portrait\"`. Change to `\"any\"` (or remove the field entirely -- your call, but the effect must be that an installed PWA is no longer locked to portrait). Add or update a real test asserting the manifest no longer declares a portrait-only orientation.",
+        "A-038 (last-read state is not hydration-safe or validated): lib/bible/lastRead.ts's getLastRead() does `{ ...DEFAULT, ...(JSON.parse(raw) as Partial<LastRead>) }` with ZERO validation -- a corrupted/hand-edited localStorage value (e.g. book: 999, chapter: -5, version: 'XYZ', parallel: 'yes' as a string) is spread straight through with no bounds/type checking, which can drive an invalid route or version lookup downstream. Add real per-field validation (book must be an integer 1-66, chapter must be a positive integer, version must be one of this app's actual known VersionIds -- check lib/contracts.ts for the real list, don't hardcode a guessed one, parallel must be a strict boolean) that falls back to DEFAULT per-field on anything invalid, not an all-or-nothing structural spread. SEPARATELY, investigate the hydration-unsafety claim: BookPicker.tsx currently calls getLastRead() directly during render (not inside useEffect or a useState lazy initializer guarded the way this app's OWN established pattern handles this exact class of problem), and ChapterReader.tsx reads it in a useState(() => getLastRead()...) initializer -- both can produce a server/client mismatch since getLastRead() depends on localStorage, which a Server Component cannot see. This codebase already has TWO established, working solutions to exactly this problem: lib/theme.ts's inline-script + snapshot pattern, and DeviceSessionControls.tsx's 'residue' pattern (referenced in theme.ts's own comments) -- read BOTH before deciding, and follow whichever fits this case (last-read state deciding an initial route/selection is not necessarily as flash-sensitive as the theme case; a client-only useEffect read with a graceful default-then-update may be sufficient here rather than a full pre-paint bootstrap script -- use your own judgment on which established pattern's rigor this specific case actually needs, but do not invent a third, different pattern for the same class of problem this codebase already solved twice). Real tests: getLastRead() rejects every invalid-field case named above and falls back to DEFAULT for that field specifically (not the whole object); whatever hydration approach you pick has a real test proving no server/client mismatch (e.g. render output is identical between a 'no localStorage' server-like environment and matches the JSX's own stated default).",
+        "A-040 (remaining contrast/tap-target gaps): TWO specific token values are why this finding is still open even though --page-muted/--page-muted-2 were already fixed (wave-21, see that fix's own comments in app/globals.css for the precedent to follow) -- (1) --page-ink-3 (currently #6a746d on the light/parchment theme, computed ~4.257:1 against --page-bg, just under the 4.5:1 WCAG AA floor for body text) and (2) --brass (currently #a98b3e on parchment, computed ~2.859:1, well under even the 3:1 large-text/UI floor). Darken both parchment-theme values just enough to clear their respective WCAG floors (--page-ink-3 needs >=4.5:1 as body text; --brass is used as accent/label text in multiple components -- check its actual usage contexts in components/*.module.css before picking a floor, matching the sturdier of large-text 3:1 or body-text 4.5:1 depending on how it's actually used) while keeping the parchment theme's warm character recognizable -- this is a values-only fix in app/globals.css, not a redesign, matching how --page-muted/--page-muted-2 were fixed. Real test in tests/theme.test.ts (extend the existing contrast-check test the wave-21 fix already added, following its own exact methodology) asserting both new values clear their floors, the same way that file already asserts for --page-muted/--page-muted-2. SEPARATELY: ClimbHero.tsx's Settings gear (currently a plain <Link href=\"/settings\" className={styles.settingsLink}>) is not covered by globals.css's `button, a[role=\"button\"], [data-tap] { min-height: 44px }` selector (currently ~line 246-250) -- add `data-tap` to that Link (matching this codebase's own existing convention for exactly this class of control, rather than inventing a new selector or hardcoding a min-height only in ClimbHero.module.css) so it reaches the same 44px floor every other tap target in this app does. Real test confirming the settings link now carries data-tap (or renders with a real min-height >= 44px, whichever is easiest to assert against rendered markup in this repo's no-jsdom test convention)."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": []
     }
   ]
 }
