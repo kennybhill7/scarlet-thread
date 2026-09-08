@@ -5,12 +5,13 @@ import {
   getLastRead,
   readLastReadServerSnapshot,
   readLastReadSnapshot,
+  reconcileLastReadSnapshot,
   sanitizeLastRead,
   setLastRead,
   subscribeLastRead,
 } from "@/lib/bible/lastRead";
 
-const DEFAULT = { book: 1, chapter: 1, version: "BSB", parallel: false };
+const DEFAULT = { book: 1, chapter: 1, version: "BSB", parallel: false } as const;
 
 // ---------------------------------------------------------------------------
 // A-038: getLastRead() used to do
@@ -164,4 +165,62 @@ test("subscribeLastRead returns a working no-op unsubscribe outside a browser", 
     throw new Error("must never be called without a window");
   });
   assert.doesNotThrow(unsubscribe);
+});
+
+// ---------------------------------------------------------------------------
+// reconcileLastReadSnapshot: the getSnapshot stability contract.
+//
+// useSyncExternalStore requires getSnapshot to return the SAME reference
+// across calls when nothing changed -- a bare `return getLastRead()` (which
+// this file used to do) constructs a fresh object from JSON.parse on every
+// call, so Object.is(previous, next) is always false even for identical
+// data, and React re-renders forever trying to converge. This was a real
+// bug in the first cut of A-038's fix, caught during READCORRECT-001's own
+// review of the just-merged code (lib/sync/clear.ts's readDeviceNotCleared
+// sidesteps this by returning a primitive, where same-value equality
+// already IS reference equality -- LastRead is an object, so that same
+// shape does not carry over here without deliberate caching).
+// ---------------------------------------------------------------------------
+
+test("reconcileLastReadSnapshot: same raw string returns the exact cached reference, not a new object", () => {
+  const raw = '{"book":43,"chapter":3,"version":"KJV","parallel":true}';
+  const cached: import("@/lib/bible/lastRead").LastReadSnapshotCache = {
+    raw,
+    value: { book: 43, chapter: 3, version: "KJV", parallel: true },
+  };
+  const result = reconcileLastReadSnapshot(raw, cached);
+  assert.strictEqual(result, cached.value, "must be the SAME object reference, not merely deep-equal");
+});
+
+test("reconcileLastReadSnapshot: a genuinely different raw string produces a fresh, correctly parsed value", () => {
+  const cached: import("@/lib/bible/lastRead").LastReadSnapshotCache = {
+    raw: '{"book":43,"chapter":3,"version":"KJV","parallel":true}',
+    value: { book: 43, chapter: 3, version: "KJV", parallel: true },
+  };
+  const nextRaw = '{"book":5,"chapter":1,"version":"BSB","parallel":false}';
+  const result = reconcileLastReadSnapshot(nextRaw, cached);
+  assert.notStrictEqual(result, cached.value, "a real change must not reuse the stale cached reference");
+  assert.deepEqual(result, { book: 5, chapter: 1, version: "BSB", parallel: false });
+});
+
+test("reconcileLastReadSnapshot: null raw (nothing stored) returns DEFAULT, cache miss or not", () => {
+  const freshCache: import("@/lib/bible/lastRead").LastReadSnapshotCache = { raw: undefined, value: DEFAULT };
+  assert.deepEqual(reconcileLastReadSnapshot(null, freshCache), DEFAULT);
+});
+
+test("reconcileLastReadSnapshot: a repeated call sequence never allocates a new object for an unchanged value (simulated render loop)", () => {
+  const raw = '{"book":19,"chapter":9,"version":"ASV","parallel":false}';
+  const cache: import("@/lib/bible/lastRead").LastReadSnapshotCache = {
+    raw: undefined,
+    value: DEFAULT,
+  };
+  const first = reconcileLastReadSnapshot(raw, cache);
+  cache.raw = raw;
+  cache.value = first;
+  // Simulates useSyncExternalStore calling getSnapshot again on the very
+  // next render/commit check with nothing having changed in between.
+  for (let i = 0; i < 5; i += 1) {
+    const again = reconcileLastReadSnapshot(raw, cache);
+    assert.strictEqual(again, first, `call ${i + 2} must return the same reference as call 1`);
+  }
 });

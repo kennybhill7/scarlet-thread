@@ -129,9 +129,63 @@ export function setLastRead(value: Partial<LastRead>): void {
 // flags elsewhere in this repo for the identical cascading-render reason
 // lib/theme.ts's own comment on ThemePicker explains).
 
-/** useSyncExternalStore's client getSnapshot. */
+// useSyncExternalStore requires getSnapshot to return a STABLE reference
+// when nothing has changed -- if two consecutive calls return different
+// object identities even with identical field values, Object.is(prev, next)
+// is always false, and React re-renders forever trying to converge (this is
+// a documented React footgun, not a hypothetical one). lib/sync/clear.ts's
+// readDeviceNotCleared() sidesteps this by returning a primitive
+// (string | null), where same-value equality already IS reference equality
+// -- but LastRead is an object, so a bare `return getLastRead()` here would
+// construct a fresh object on every single call and break the contract.
+// Cache by the raw localStorage string: only construct (and thus only
+// return a new reference for) a fresh LastRead when the underlying stored
+// value has actually changed since the last read.
+
+export interface LastReadSnapshotCache {
+  raw: string | null | undefined;
+  value: LastRead;
+}
+
+/**
+ * Pure caching core -- no localStorage/window of its own -- so
+ * tests/last-read.test.ts can prove the stability contract directly (same
+ * raw string in -> same object reference out; a different raw string ->
+ * a genuinely new value) without stubbing a DOM, the same DI discipline
+ * lib/theme.ts's storage helpers already use in this codebase.
+ */
+export function reconcileLastReadSnapshot(
+  raw: string | null,
+  cache: LastReadSnapshotCache,
+): LastRead {
+  if (raw === cache.raw) return cache.value;
+  return raw ? sanitizeLastRead(safeParse(raw)) : DEFAULT;
+}
+
+function safeParse(raw: string): unknown {
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return undefined;
+  }
+}
+
+const lastReadSnapshotCache: LastReadSnapshotCache = { raw: undefined, value: DEFAULT };
+
+/** useSyncExternalStore's client getSnapshot -- stable reference across
+ *  calls when the underlying localStorage value hasn't changed. */
 export function readLastReadSnapshot(): LastRead {
-  return getLastRead();
+  if (typeof window === "undefined") return DEFAULT;
+  let raw: string | null;
+  try {
+    raw = window.localStorage.getItem(KEY);
+  } catch {
+    raw = null;
+  }
+  const value = reconcileLastReadSnapshot(raw, lastReadSnapshotCache);
+  lastReadSnapshotCache.raw = raw;
+  lastReadSnapshotCache.value = value;
+  return value;
 }
 
 /** useSyncExternalStore's getServerSnapshot -- matches what the server rendered (DEFAULT). */
