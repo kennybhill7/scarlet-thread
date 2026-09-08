@@ -2764,6 +2764,43 @@
       "humanGates": [
         "None of these four fixes need Ken's judgment to build -- they are concrete, verifiable bugs. Standard independent re-verification (not Ken's own eyes) is the gate before merge."
       ]
+    },
+    {
+      "id": "READCORRECT-001",
+      "title": "Fix four real reading-flow correctness bugs: read-gate bypass, gap ordering, junk refs, silent blank verses",
+      "objective": "CODEX_AUDIT.md findings A-028/A-032/A-036/A-039 are all genuinely still open (independently re-verified against current code by Claude, 2026-09-08, not just re-read from the old audit doc) and all live in the core v1 reading flow: web/components/reader/ChapterReader.tsx, web/components/notes/StudySession.tsx, web/lib/bible/reference.ts, web/lib/bible/versemap.ts. Fix all four together since they share files and reader-correctness context; do not split into separate tasks.",
+      "ownedPaths": [
+        "web/components/reader/ChapterReader.tsx",
+        "web/components/reader/ChapterReader.module.css",
+        "web/components/notes/StudySession.tsx",
+        "web/lib/bible/reference.ts",
+        "web/lib/bible/versemap.ts",
+        "web/tests/reference.test.ts",
+        "web/tests/versemap.test.ts",
+        "web/tests/study-session.test.ts",
+        "web/tests/chapter-reader.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/app/(app)/read/[book]/[chapter]/page.tsx",
+        "web/lib/sync/store.ts",
+        "web/components/notes/NoteComposer.tsx",
+        "CODEX_AUDIT.md"
+      ],
+      "acceptanceCriteria": [
+        "A-032 (read-before-write can unlock when no Scripture loaded): StudySession.tsx's composerRenderState() and the 'I'm finished reading' button (components/notes/StudySession.tsx) currently gate purely on the local readComplete boolean set by that button's own click -- with zero awareness of whether the chapter text actually loaded. ChapterReader.tsx computes primaryVerses/primaryError (currently lines 203-204) but passes NEITHER into <StudySession> (currently line 302, only chapter and selectedVerse are passed). Fix: thread a real 'is there actually loaded text to have read' signal from ChapterReader into StudySession (e.g. a new prop, textAvailable: boolean, true once primaryVerses is non-null and non-empty), and have composerRenderState()/the button itself refuse to allow finishReading() (or at minimum visibly disable/hide the 'I'm finished reading' button) while that signal is false -- a reader who hit a load error or an empty chapter must not be able to mark it read. This is READGATE-001's same discipline (already correctly applied to the separate v2 workspace-shell flow) applied here, to the v1 flow it never touched -- read READGATE-001's approach first (git log/blame or its merged diff) rather than inventing a different gating pattern for the same class of requirement in the same codebase. Real tests: composerRenderState()/StudySession with textAvailable=false never shows the composer or allows the finish action even if a user could otherwise trigger it; with textAvailable=true behaves exactly as before.",
+        "A-036 (Romans 16 gap rows appended out of canonical order): versemap.ts's alignChapter() (currently lines 366-378) builds every English-mapped row 1..fromVerseCount first, then appends every gapKeys row (the Spanish-only verses with no English source, e.g. the Romans 16:25-27 doxology relocated in some Spanish editions) at the very end of the array regardless of where those verses actually belong in reading order. Since this rows array drives the parallel reader's rendered sequence, a gap row ends up displayed after the whole chapter instead of near its real neighboring verses. Fix: merge gapKeys rows into their correct position in the rows array (sorted by the gap key's own verse number, interleaved with the English-mapped rows by that verse number) rather than concatenating them at the end. Real test: for a synthetic fixture with a gap in the middle of a chapter (not just anywhere), assert the FULL ordered sequence of rows (not just rows.some(...) presence, which the existing tests/versemap.test.ts:40-48 test does today and must be strengthened, not just left as is) -- the gap row must appear in its correct numeric position relative to the surrounding real rows.",
+        "A-039 (reference/route parsing accepts numeric junk): parseKey() in lib/bible/reference.ts (currently lines 32-42) uses Number.parseInt(part, 10) on each dot-separated segment, which silently truncates at the first non-digit character -- Number.parseInt('1x', 10) returns 1, so keys like '1x.3', '1.3junk', '1.3.15oops' are all accepted as valid RefKeys today. Fix parseKey() to reject any segment that is not a clean, complete non-negative integer string (e.g. a regex pre-check like /^\\d+$/ on each part before parsing, or use Number(part) + Number.isInteger() -- Number('1x') is NaN, unlike parseInt). Also check app/(app)/read/[book]/[chapter]/page.tsx's own route-param validation (currently only checks book 1-66 and chapter >= 1 via the same loose parseInt pattern, per its own comment admitting real chapter-bounds validation is client-side only) -- if it has the same parseInt-truncation weakness, fix it there too using the same strict-parsing discipline, consistently. Real tests: parseKey() and the route validation both reject every junk-suffix case above, and still accept every legitimate key format they did before (no regression on the happy path).",
+        "A-028 (declared verse omissions render as silent blanks): ChapterReader.tsx's VerseColumn (currently ~line 121) renders {row.text} raw -- for a verse whose text is a declared-omission empty string (the corpus builder's own established convention for a verse number that exists but has no text in a given translation/edition), this renders as a bare verse number with nothing after it, no explanation. Separately, the parallel/Spanish pane (currently ~line 370) does `if (!text) return null;` -- its own comment admits this silently drops BOTH a still-loading row AND 'a declared gap with no text', conflating two different states into the same silent nothing. Fix: VerseColumn (or a shared helper) must render an honest, visible marker (e.g. '[not present in this translation]' or similarly clear language -- match this app's existing tone/copy conventions, check other user-facing strings in this file/nearby components before inventing new copy) when row.text is a declared omission, distinct from real verse text. The parallel-pane path must also distinguish 'still loading' from 'declared gap with no text' rather than treating both as null -- render the same honest marker for the declared-gap case there too, only skip rendering for the genuinely-still-loading case. Real tests: a row with declared-omission text renders the marker, not a blank; a row with real text renders normally; the parallel pane distinguishes loading-null from declared-gap-null."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": [
+        "The exact wording of the 'not present in this translation' marker copy (A-028) is a small product-voice judgment call -- make a reasonable choice matching this app's existing tone, but flag it in your report as worth Ken's quick glance rather than treating your wording as final."
+      ]
     }
   ]
 }

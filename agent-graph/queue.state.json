@@ -692,6 +692,15 @@
       "lastRunId": null,
       "lastEvidence": null,
       "notes": "Dispatched 2026-09-08 -- CODEX_AUDIT.md A-020/A-021/A-022/A-023, independently re-verified against current code (not just re-read from the old audit doc) before dispatch: confirmed loader.ts's CACHE_NAME is still a fixed literal with no revision field anywhere in index.json, OfflineDownloads.tsx's download() still has no try/catch around warmVersion(), its init effect still checks isBookCached(version.id, 1) only, and sw.js's fetch handler still does an un-waitUntil'd cache.put(). Part of a broader CODEX_AUDIT.md reconciliation pass (Claude, 2026-09-08) that found roughly a dozen other findings already resolved-but-unmarked and several more genuinely still open -- this is the first of the concrete, non-deferred, non-human-gated ones being built."
+    },
+    "READCORRECT-001": {
+      "status": "in_progress",
+      "branch": "agent/READCORRECT-001-claude",
+      "commitSha": null,
+      "attempts": 1,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Dispatched 2026-09-08 -- CODEX_AUDIT.md A-028/A-032/A-036/A-039, independently re-verified against current code (not just re-read from the old audit doc) before dispatch: confirmed StudySession.tsx's read-gate still has zero awareness of ChapterReader's primaryVerses/primaryError, versemap.ts's alignChapter() still appends gap rows at the end regardless of position, reference.ts's parseKey() still truncates on Number.parseInt instead of rejecting junk, and ChapterReader.tsx still renders declared-omission verses as bare blanks. Part of the same broader CODEX_AUDIT.md reconciliation pass as OFFLINERELIABILITY-001."
     }
   }
 }
