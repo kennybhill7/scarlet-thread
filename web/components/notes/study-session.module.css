@@ -54,6 +54,16 @@
   font-weight: 650;
 }
 
+/* CODEX_AUDIT.md A-032 -- shown next to the disabled "I'm finished reading"
+   button while textAvailable is false, so the disabled state has a visible
+   reason rather than looking broken. */
+.hint {
+  margin-top: 0.6rem;
+  color: var(--page-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
 .writing {
   display: grid;
   gap: 1.5rem;
