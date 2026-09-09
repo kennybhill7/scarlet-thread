@@ -710,6 +710,24 @@
       "lastRunId": null,
       "lastEvidence": "Merged into design/mountain-journey and master (2f44b78, fast-forward). Independently verified: full diff review of manifest.ts (orientation:any), lastRead.ts (sanitizeLastRead per-field validation + useSyncExternalStore residue-pattern hydration store, correctly following DeviceSessionControls.tsx's established precedent rather than inventing a third pattern), BookPicker.tsx's wiring, ClimbHero.tsx's data-tap addition, and globals.css's --page-ink-3/--brass contrast fix; independently recomputed both old and new WCAG contrast ratios myself via a real luminance/contrast calculation (confirmed exact match: old 4.257:1/2.859:1, new 4.561:1/4.587:1, both now clear the 4.5:1 floor); confirmed the real VersionId union in lib/contracts.ts matches the builder's KNOWN_VERSION_IDS list exactly; ran one adversarial mutation myself (weakened the book-range validator to accept any number) and confirmed a test caught it, then reverted clean (byte-identical). Full verification re-run clean: typecheck, lint, build, test (1312/1312 in the isolated worktree; 1297 tests/1293 pass/0 fail/4 cancelled on the merged main checkout -- the 4 cancelled are the same pre-existing wire-suite/env gap documented on every prior merge this session, not a regression).",
       "notes": "Dispatched 2026-09-08 -- CODEX_AUDIT.md A-037/A-038/A-040, independently re-verified against current code (not just re-read from the old audit doc) before dispatch: confirmed manifest.ts still hardcodes orientation:portrait, lastRead.ts's getLastRead() still spreads parsed JSON with zero field validation, and --page-ink-3 (#6a746d, ~4.257:1) / --brass (#a98b3e, ~2.859:1) on the parchment theme still fail their WCAG floors while the sibling --page-muted/--page-muted-2 tokens were already fixed in wave-21. Part of the same broader CODEX_AUDIT.md reconciliation pass as OFFLINERELIABILITY-001 and READCORRECT-001 (also dispatched today, different files, safe to run concurrently). Closed 2026-09-08 by Claude after independent verification including a real adversarial mutation test and an independent recomputation of the WCAG contrast ratios. ChapterReader.tsx has the same render-time getLastRead() hydration issue as BookPicker.tsx did, but was correctly left untouched here (owned by the concurrently-running READCORRECT-001) -- flagged by the builder, worth checking that task addresses it or a small follow-up is needed."
+    },
+    "SWPRIVACY-001": {
+      "status": "in_progress",
+      "branch": "agent/SWPRIVACY-001-claude",
+      "commitSha": null,
+      "attempts": 1,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Dispatched 2026-09-08 -- CODEX_AUDIT.md A-014, independently re-verified against current code before dispatch: confirmed shouldHandle() in sw.js still only excludes /api/* and /bible/*, meaning every authenticated page navigation/RSC fetch still gets cached under bible-brain-shell-v1, and lib/sync/clear.ts's own header comment still explicitly says this flow does not close A-014. Part of the same broader CODEX_AUDIT.md reconciliation pass as OFFLINERELIABILITY-001/READCORRECT-001/READPOLISH-001 (all merged 2026-09-08) -- this task was deliberately held until OFFLINERELIABILITY-001 (which also touches sw.js) merged first, to avoid two concurrent tasks owning the same file."
+    },
+    "VAULTIMPORT-001": {
+      "status": "in_progress",
+      "branch": "agent/VAULTIMPORT-001-claude",
+      "commitSha": null,
+      "attempts": 1,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Dispatched 2026-09-08 -- CODEX_AUDIT.md A-010/A-017, independently re-verified against current code before dispatch: confirmed import_people() in tools/import_vault.py still hardcodes chapters:[] and only reads outbound Threads-section links, never inbound backlinks. Part of the same broader CODEX_AUDIT.md reconciliation pass as OFFLINERELIABILITY-001/READCORRECT-001/READPOLISH-001 (all merged 2026-09-08). Lower urgency than the other tasks (admin/reseeding tooling, not user-facing runtime) but genuinely unstarted and well-bounded."
     }
   }
 }

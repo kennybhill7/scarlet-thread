@@ -2837,6 +2837,66 @@
         "cd web; npm.cmd test"
       ],
       "humanGates": []
+    },
+    {
+      "id": "SWPRIVACY-001",
+      "title": "Stop the service worker from caching authenticated page/RSC responses (A-014)",
+      "objective": "CODEX_AUDIT.md A-014 ('Authenticated page/RSC caches persist after sign-out') is genuinely still open, independently re-verified by Claude on 2026-09-08. web/lib/sync/clear.ts's own header comment already says so explicitly: \"This flow does not close CODEX_AUDIT A-014 ... A normal browsing session still lets public/sw.js cache authenticated document and RSC responses in bible-brain-shell-* ... the caching policy itself is a separate task.\" web/public/sw.js's shouldHandle() currently excludes only /api/* and /bible/* -- every other same-origin request, including a full page navigation or RSC data fetch for an authenticated route (/, /review, /settings, /read/*, /study/*, /threads/*, /mirror/*), gets cached under CACHE_NAME ('bible-brain-shell-v1'). On a shared device, that cached authenticated HTML/RSC (which embeds real per-user data server-rendered inline, per Next.js RSC architecture) sits in Cache Storage until an explicit 'clear device' action runs -- a natural session expiry or a plain browser close does not clear it, and it could be served to a different person on the same device from a network-hiccup fallback before an explicit clear happens.",
+      "ownedPaths": [
+        "web/public/sw.js",
+        "web/tests/sw.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/lib/sync/clear.ts",
+        "web/tests/offline-nav.test.ts",
+        "web/tests/versemap-offline.test.ts",
+        "CODEX_AUDIT.md"
+      ],
+      "acceptanceCriteria": [
+        "The fetch handler must NEVER cache a document navigation (request.mode === 'navigate') or a Next.js RSC data fetch (identify these correctly -- Next's RSC fetches carry identifying request headers such as 'RSC', 'Next-Router-State-Tree', 'Next-Url'; read the actual request shape this repo's real app sends in dev/build output or existing test fixtures before guessing at the exact header names, do not assume without checking). These are the ONLY request types that can carry authenticated, per-user page content in this app's architecture -- excluding them from caching entirely is what actually closes A-014, not a narrower denylist.",
+        "Genuinely public, static, non-personal assets must KEEP being cached for offline app-shell resilience, matching this file's own stated job ('the JS/CSS bundle, the fonts, the shell'): /_next/static/* (Next's hashed, content-addressed, immutable build output), fonts, icons, the manifest, and similar. Do not regress the app's ability to reload its own shell offline after a first visit -- that is this file's whole reason for existing, per its own header comment.",
+        "CODEX_AUDIT.md A-013's existing offline chapter-rescue behavior (offlineChapterFallback, reading the SEPARATE scripture cache lib/bible/loader.ts owns) must keep working completely unchanged -- it is a read-only path against a different cache and does not write to CACHE_NAME at all, so it should not be directly affected by this fix, but verify this explicitly with a real test rather than assuming.",
+        "web/lib/sync/clear.ts's own header comment (currently lines 20-26, stating A-014 is not closed by that flow) must be updated to reflect the real fixed state once this task lands -- either removed if fully closed, or narrowed to describe whatever residual gap (if any) remains honestly. Do not just delete the comment without confirming the fix actually closes what it describes.",
+        "Real tests in web/tests/sw.test.ts (already exists, built by OFFLINERELIABILITY-001 -- read its existing structure/mocking approach first and match it, don't invent a different one) proving: a simulated navigate-mode request for an authenticated-shaped route is never cached (no cache.put call happens for it), a simulated RSC-header-carrying request is never cached, and a simulated static-asset request (e.g. a /_next/static/ path or a script/style/font destination) still IS cached exactly as before -- this is the regression guard that A-014 does not silently creep back if someone widens shouldHandle() again later. Mutation-prove each.",
+        "This is service-worker code with real, subtle correctness stakes (get the request-type detection wrong and either the privacy leak persists, or offline app-shell resilience silently breaks) -- read the CURRENT web/public/sw.js in full before changing anything, and if you are genuinely unsure whether a particular request shape (e.g. a prefetch, a middleware-triggered redirect fetch) counts as 'navigate/RSC' or 'safe static asset', say so explicitly in your report rather than guessing silently."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": [
+        "This changes offline-caching behavior for the app shell -- worth Ken clicking through a real offline reload after this lands (open the app once online, go offline, reload) to confirm the shell still works, since sw.js's own real browser behavior cannot be fully proven by this repo's mocked test harness alone."
+      ]
+    },
+    {
+      "id": "VAULTIMPORT-001",
+      "title": "Fix the vault-import person-backlink bug that regresses all five people to orphans (A-010/A-017)",
+      "objective": "CODEX_AUDIT.md A-010/A-017 are genuinely still open, independently re-verified by Claude on 2026-09-08. tools/import_vault.py's import_people() (currently ~lines 230-252) hardcodes chapters: [] for every person and only reads OUTBOUND links from that person's own 'Threads' section -- it never resolves INBOUND links (a passage or thread note that mentions/links to a person). The finding's own suggested fix, already spelled out in CODEX_AUDIT.md's A-010 entry: 'build a vault-wide backlink index during import, resolve passage-to-person and thread-to-person links in both directions, and compare the imported orphan set to the source-derived expected set before writing seed JSON.' Today's downstream symptom: web/db/seed.ts's preflight() rejects Adam and Jesus as unexpected orphans before ever reaching the database (its own expectedPersonOrphans allowlist is {abraham, david, noah} -- three real, source-derived orphans -- but the import script currently produces five).",
+      "ownedPaths": [
+        "tools/import_vault.py",
+        "tools/test_import_vault.py"
+      ],
+      "readOnlyPaths": [
+        "web/db/seed.ts",
+        "CODEX_AUDIT.md",
+        "tools/test_corpus_validation.py"
+      ],
+      "acceptanceCriteria": [
+        "import_people() (or a new function it calls) builds a vault-wide backlink index during import: for every passage note (VAULT_DIR / '01 Passages') and every thread note (VAULT_DIR / '02 Threads'), resolve any link to a person (matching this vault's own existing link-parsing convention -- read links_in()/strip_links() and how import_entries()/import_threads() already parse cross-references before inventing a different parsing approach) and record that as an inbound edge on the target person.",
+        "A person's final `chapters`/thread-derived data reflects BOTH directions: their own outbound 'Threads' section links (already implemented) AND every inbound link discovered from passages/threads that reference them. Do not remove or weaken the existing outbound-link behavior -- this is additive.",
+        "Before writing seed JSON, compare the resulting orphan set (people with zero resolved links in either direction) against a source-derived expected set. The finding names three real expected orphans: abraham, david, noah (matching web/db/seed.ts's own expectedPersonOrphans, which is read-only for this task -- do not change the app's own allowlist, fix the import so its OUTPUT matches what that allowlist already correctly expects). If the computed orphan set does not match {abraham, david, noah} exactly, this is real, actionable information: print/report exactly which people differ and why (e.g. 'adam: 0 outbound, 0 inbound -- expected at least one inbound link from a passage/thread note, found none: check <specific file/section>' or similar), rather than silently writing a mismatched result.",
+        "Real tests in tools/test_import_vault.py (new file, following tools/test_corpus_validation.py's existing unittest-based style and its discipline of using synthetic/temporary fixture data, NEVER Ken's real Bible-Brain/ vault content -- that directory is off-limits to read from in tests and off-limits to write to under any circumstance): build a small synthetic vault directory tree (tempfile-based, mirroring the real '01 Passages'/'02 Threads'/'03 People' folder structure with 2-3 fake passage/thread/person markdown files) where at least one person has ONLY an inbound link (referenced by a passage note, no outbound 'Threads' section entry of their own) and confirm they are correctly NOT reported as an orphan after the fix, whereas they WOULD have been under the old outbound-only logic. Also test: a person with genuinely zero links in either direction IS still correctly reported as an orphan (the fix must not accidentally make every person look linked). Mutation-prove each.",
+        "Do not touch web/db/seed.ts's expectedPersonOrphans or its preflight() logic (read-only for this task) -- the fix belongs entirely in the import script producing correct output that already-correct downstream validation can accept."
+      ],
+      "verification": [
+        "python tools/test_import_vault.py (use /c/Users/kenny/AppData/Local/Python/bin/python.exe on Windows -- bare python triggers a Windows Store stub)",
+        "python tools/test_corpus_validation.py (confirm this unrelated but adjacent Python test suite still passes unchanged)"
+      ],
+      "humanGates": [
+        "Running the fixed import_vault.py against Ken's REAL Bible-Brain/ vault to confirm it now produces exactly the three expected orphans (abraham/david/noah) end-to-end is genuinely worth Ken doing himself, or asking Claude to do in a follow-up with real output pasted -- this task's own acceptance is the synthetic-fixture tests passing, not a live run against real personal data, which this task should not attempt on its own given Bible-Brain/ is a standing off-limits path."
+      ]
     }
   ]
 }
