@@ -721,13 +721,13 @@
       "notes": "Dispatched 2026-09-08 -- CODEX_AUDIT.md A-014, independently re-verified against current code before dispatch: confirmed shouldHandle() in sw.js still only excludes /api/* and /bible/*, meaning every authenticated page navigation/RSC fetch still gets cached under bible-brain-shell-v1, and lib/sync/clear.ts's own header comment still explicitly says this flow does not close A-014. Part of the same broader CODEX_AUDIT.md reconciliation pass as OFFLINERELIABILITY-001/READCORRECT-001/READPOLISH-001 (all merged 2026-09-08) -- this task was deliberately held until OFFLINERELIABILITY-001 (which also touches sw.js) merged first, to avoid two concurrent tasks owning the same file."
     },
     "VAULTIMPORT-001": {
-      "status": "in_progress",
+      "status": "done",
       "branch": "agent/VAULTIMPORT-001-claude",
-      "commitSha": null,
+      "commitSha": "5002ca4",
       "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Dispatched 2026-09-08 -- CODEX_AUDIT.md A-010/A-017, independently re-verified against current code before dispatch: confirmed import_people() in tools/import_vault.py still hardcodes chapters:[] and only reads outbound Threads-section links, never inbound backlinks. Part of the same broader CODEX_AUDIT.md reconciliation pass as OFFLINERELIABILITY-001/READCORRECT-001/READPOLISH-001 (all merged 2026-09-08). Lower urgency than the other tasks (admin/reseeding tooling, not user-facing runtime) but genuinely unstarted and well-bounded."
+      "lastEvidence": "Merged into design/mountain-journey and master (5002ca4, fast-forward). Independently verified: full diff review of build_person_backlinks() (confirmed it correctly reuses the pre-existing WIKILINK regex/links_in/slugify helpers rather than inventing new parsing), import_people()'s additive outbound+inbound merge, and check_person_orphans()'s fail-closed SystemExit(1) before any seed JSON is written on a mismatch; ran both Python suites myself (14/14 test_import_vault.py, 31/31 test_corpus_validation.py unaffected); ran one adversarial mutation myself (disabled passage-note backlink resolution) and confirmed 2 tests caught it with a real diff showing the missing inbound chapter, then reverted clean. Same results reproduced on the merged main checkout after fast-forward.",
+      "notes": "Dispatched 2026-09-08 -- CODEX_AUDIT.md A-010/A-017, independently re-verified against current code before dispatch: confirmed import_people() in tools/import_vault.py still hardcodes chapters:[] and only reads outbound Threads-section links, never inbound backlinks. Part of the same broader CODEX_AUDIT.md reconciliation pass as OFFLINERELIABILITY-001/READCORRECT-001/READPOLISH-001 (all merged 2026-09-08). Lower urgency than the other tasks (admin/reseeding tooling, not user-facing runtime) but genuinely unstarted and well-bounded. Closed 2026-09-08 by Claude after independent verification including a real adversarial mutation test. Per the task's own human-gate, a real run against Ken's actual Bible-Brain/ vault to confirm it now produces exactly {abraham, david, noah} as orphans was deliberately not attempted by the builder or by Claude -- that vault directory is a standing off-limits path. Worth Ken running `python tools/import_vault.py` himself (or asking for it in a follow-up) to see the real output before the next reseed."
     }
   }
 }
