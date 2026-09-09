@@ -18,6 +18,20 @@
  *   - /api/*     -- always live data (auth, entries, sync). Never serve stale.
  *   - /bible/*   -- loader.ts already owns this cache; double-handling it
  *                   here would just be a second, redundant copy.
+ *   - document navigations (request.mode === "navigate") and Next.js RSC/
+ *     Flight data fetches (identified by the request headers Next's client
+ *     router always attaches -- see RSC_REQUEST_HEADERS below) -- CODEX_AUDIT
+ *     A-014. Next server-renders real per-user data inline into exactly
+ *     these two response shapes for every authenticated route (/, /review,
+ *     /settings, /read/*, /study/*, /threads/*, /mirror/*), so writing them
+ *     into this shared shell cache let private content sit in Cache Storage
+ *     on a shared device with no expiry. Both are still fetched from the
+ *     network exactly as before, and a navigation still gets the A-013
+ *     offline chapter rescue below on failure -- they are just never
+ *     written to CACHE_NAME. CACHE_NAME was also bumped to "-v2" alongside
+ *     this fix so the activate handler's existing stale-cache sweep purges
+ *     any authenticated pages a browser had already cached under "-v1"
+ *     before this fix shipped, not just future ones.
  *
  * CODEX_AUDIT.md A-013: a /read/{book}/{chapter} route is a Next.js dynamic
  * server route, so an exact-URL cache miss used to mean "hard fail" even when
@@ -32,7 +46,7 @@
  * byte unchanged -- see the narrow trigger condition in the fetch handler.
  */
 
-const CACHE_NAME = "bible-brain-shell-v1";
+const CACHE_NAME = "bible-brain-shell-v2";
 
 /**
  * The cache name lib/bible/loader.ts owns and writes. Duplicated here as a
@@ -213,6 +227,61 @@ function shouldHandle(url) {
 }
 
 /**
+ * CODEX_AUDIT A-014. Request headers Next.js's client-side router attaches to
+ * every RSC/Flight data fetch it issues for a route transition -- confirmed
+ * against this repo's actual installed Next 16.2.12
+ * (node_modules/next/dist/client/components/app-router-headers.js and
+ * .../fetch-server-response.js, which unconditionally sets `headers.rsc =
+ * "1"` on every such fetch). Header names are lower-case because that is how
+ * Next's own source defines them and how the Headers API normalizes/reads
+ * them regardless of the case a caller used.
+ *
+ * "rsc" is the one Next guarantees on every RSC fetch; the other three ride
+ * along on most of them (a full transition also sends
+ * next-router-state-tree and next-url; a background prefetch sends
+ * next-router-prefetch instead of a real "1" rsc value in some Next
+ * versions). All four are checked so this does not depend on exactly one
+ * header surviving a future Next upgrade -- see this worker's own top
+ * comment for why any one of them is enough to disqualify a response from
+ * the shell cache.
+ */
+const RSC_REQUEST_HEADERS = [
+  "rsc",
+  "next-router-state-tree",
+  "next-url",
+  "next-router-prefetch",
+];
+
+/** True when this request is a client-side RSC/Flight data fetch, per RSC_REQUEST_HEADERS above. */
+function isRscRequest(request) {
+  const headers = request.headers;
+  if (!headers || typeof headers.get !== "function") return false;
+  return RSC_REQUEST_HEADERS.some((name) => headers.get(name) !== null);
+}
+
+/**
+ * Whether a successful response to this request may be written into
+ * CACHE_NAME.
+ *
+ * A document navigation (`request.mode === "navigate"`) and an RSC/Flight
+ * data fetch (`isRscRequest()`) are the only two request shapes that can
+ * carry server-rendered, per-user page content in this app's architecture --
+ * every authenticated route's real data arrives inline in exactly one of
+ * these two response types, never as a separately fetched JSON/asset URL.
+ * Excluding both entirely, rather than trying to enumerate authenticated
+ * routes by path, is what actually closes CODEX_AUDIT A-014: the safety
+ * property does not depend on that path list staying exhaustive as routes
+ * are added later. Both request shapes are still fetched over the network
+ * and returned to the page exactly as before -- this only gates the cache
+ * write below.
+ */
+function isCacheableRequest(request) {
+  if (request.mode === "navigate") return false;
+  if (isRscRequest(request)) return false;
+  return true;
+}
+
+/**
  * CODEX_AUDIT A-023: the cache-write below used to be started with
  * `caches.open(CACHE_NAME).then((cache) => cache.put(...))` and never handed
  * to `event.waitUntil()`. Because `event.respondWith()`'s own promise chain
@@ -245,7 +314,7 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(request)
       .then((response) => {
-        if (response.ok) {
+        if (response.ok && isCacheableRequest(request)) {
           const copy = response.clone();
           const write = caches
             .open(CACHE_NAME)
