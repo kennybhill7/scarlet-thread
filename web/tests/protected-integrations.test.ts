@@ -240,11 +240,30 @@ test("the cleared last-read key still matches lib/bible/lastRead.ts", () => {
   );
 });
 
-// --- E. A-014 is not silently claimed closed --------------------------------
+// --- E. A-014's closure claim is specific and verifiable, not silent --------
 
-test("clear.ts states that the cache-policy finding stays open, by its real ID", () => {
+/**
+ * SWPRIVACY-001 closed A-014 at the source: public/sw.js's fetch handler no
+ * longer writes a document navigation or RSC/Flight data fetch into
+ * bible-brain-shell-* at all (isCacheableRequest()), so clear.ts's own header
+ * comment was updated from "does not close A-014" to state closure. This
+ * guard now checks the OPPOSITE direction from before: that the closure claim
+ * still names the real finding ID and still attributes it to the change that
+ * actually closes it (public/sw.js), rather than becoming a bare, unverifiable
+ * "this is fine now" with nothing behind it.
+ */
+test("clear.ts's A-014 closure claim names the real finding ID and the fix that closes it", () => {
   const src = read("lib/sync/clear.ts");
-  assert.match(src, /does not close CODEX_AUDIT A-014/);
+  assert.match(
+    src,
+    /CODEX_AUDIT A-014 \("Authenticated page\/RSC caches persist after sign-out"\)[\s\S]{0,60}is now closed/,
+    "the closure claim must name A-014 by its real title and actually say it is closed, not just mention the ID",
+  );
+  assert.match(
+    src,
+    /public\/sw\.js/,
+    "the claim must point at the file that actually does the excluding, not assert closure in the abstract",
+  );
   // The ID is checked against the audit itself, so a wrong one cannot pass.
   const audit = fs.readFileSync(path.join(root, "..", "CODEX_AUDIT.md"), "utf8");
   assert.match(
@@ -253,7 +272,7 @@ test("clear.ts states that the cache-policy finding stays open, by its real ID",
   );
   assert.doesNotMatch(
     src,
-    /does not close CODEX_AUDIT A-015/,
+    /A-015[\s\S]{0,60}is now closed/,
     "A-015 is the stale-docs finding, not the cache-policy one",
   );
 });

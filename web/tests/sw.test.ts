@@ -46,8 +46,14 @@ import vm from "node:vm";
 const SW_PATH = path.join(process.cwd(), "public", "sw.js");
 const SW_SOURCE = readFileSync(SW_PATH, "utf8");
 
-/** Mirrors the literal in public/sw.js — this worker's own shell cache, the one A-023's fix covers. */
-const SHELL_CACHE_NAME = "bible-brain-shell-v1";
+/**
+ * Mirrors the literal in public/sw.js — this worker's own shell cache, the
+ * one A-023's fix covers. Bumped to "-v2" alongside SWPRIVACY-001 (CODEX_AUDIT
+ * A-014) so the activate handler's existing stale-cache sweep purges any
+ * authenticated pages a browser had already cached under "-v1" before that
+ * fix shipped, not just future ones.
+ */
+const SHELL_CACHE_NAME = "bible-brain-shell-v2";
 
 type RequestMode = "navigate" | "same-origin" | "cors" | "no-cors";
 
@@ -55,10 +61,23 @@ interface MockRequest {
   method: string;
   url: string;
   mode: RequestMode;
+  /**
+   * A real `Headers` instance (Node's global fetch implementation provides
+   * one) rather than a plain object -- sw.js's isRscRequest() reads it via
+   * `.get()`, exactly as it would read the real Request.headers a browser
+   * hands a fetch-event listener, so this exercises the actual case-
+   * insensitive lookup path rather than a stand-in for it.
+   */
+  headers?: Headers;
 }
 
-function makeRequest(url: string, mode: RequestMode = "same-origin", method = "GET"): MockRequest {
-  return { method, url, mode };
+function makeRequest(
+  url: string,
+  mode: RequestMode = "same-origin",
+  method = "GET",
+  headers?: Headers,
+): MockRequest {
+  return { method, url, mode, headers };
 }
 
 type CacheKey = MockRequest | string;
@@ -404,4 +423,117 @@ test("the fetch handler still works against a minimal event mock with no waitUnt
 
   assert.equal(response.status, 200);
   assert.equal(await response.text(), "shell bytes, no waitUntil available");
+});
+
+// ===========================================================================
+// CODEX_AUDIT A-014 — the fetch handler must never write a document
+// navigation or an RSC/Flight data fetch into CACHE_NAME, because Next
+// server-renders real per-user data inline into exactly those two response
+// shapes for every authenticated route. A genuinely public static asset
+// (no navigate mode, no RSC headers) must keep being cached exactly as
+// before -- that is the regression guard against shouldHandle()/the cache
+// gate silently widening again later.
+//
+// Mutation-proving note: each assertion below checks BOTH the tracked-write
+// count (via waitUntil()) AND the mock cache's own putCount/has() state, so
+// a mutation in either direction is caught -- weakening isCacheableRequest()
+// to always return true (the privacy regression) fails the navigate/RSC
+// tests below because putCount would become 1 and the cache would then
+// `.has()` the entry; weakening it to always return false (breaking offline
+// shell resilience) fails the static-asset test below because putCount
+// would stay 0. This was hand-verified by temporarily mutating
+// public/sw.js's isCacheableRequest() to `return true;` and separately to
+// `return false;` and re-running this suite -- both mutations produced the
+// expected, opposite test failures before being reverted.
+// ===========================================================================
+
+test("CODEX_AUDIT A-014: a navigate-mode request for an authenticated-shaped route is never written to the shell cache", async () => {
+  const onlineFetch = async () =>
+    textResponse("<html>real per-user Review page</html>", {
+      headers: { "Content-Type": "text/html; charset=utf-8" },
+    });
+  const harness = loadServiceWorker(onlineFetch);
+
+  const response = await harness.dispatchFetch(makeRequest("http://localhost:3000/review", "navigate"));
+  assert.equal(await response.text(), "<html>real per-user Review page</html>");
+
+  assert.equal(
+    harness.tracker.trackedCount,
+    0,
+    "a document navigation must never hand a cache-write promise to event.waitUntil()",
+  );
+  const cache = harness.cacheStorage.get(SHELL_CACHE_NAME);
+  assert.equal(cache?.putCount ?? 0, 0, "cache.put() must never be called for a document navigation");
+  assert.equal(
+    cache?.has("http://localhost:3000/review") ?? false,
+    false,
+    "the authenticated page must not be readable back out of the shell cache",
+  );
+});
+
+test("CODEX_AUDIT A-014: a request carrying Next's RSC/Flight headers is never written to the shell cache, even for a route this worker otherwise handles", async () => {
+  const onlineFetch = async () =>
+    textResponse("1:HL,per-user RSC flight payload", {
+      headers: { "Content-Type": "text/x-component" },
+    });
+  const harness = loadServiceWorker(onlineFetch);
+
+  // Mirrors a real Next.js client-router transition fetch: fetch-server-
+  // response.js in the installed next@16.2.12 package always sets `rsc: "1"`
+  // and, for a full transition, next-router-state-tree and next-url too.
+  // request.mode for this kind of fetch() call is NOT "navigate" -- it's an
+  // ordinary same-origin fetch the router issues -- so this is a genuinely
+  // separate case from the test above, not the same guard firing twice.
+  const rscHeaders = new Headers({
+    rsc: "1",
+    "next-router-state-tree": "%5B%22%22%2C%7B%7D%2Cnull%2Cnull%2Ctrue%5D",
+    "next-url": "/review",
+  });
+  const response = await harness.dispatchFetch(
+    makeRequest("http://localhost:3000/review", "same-origin", "GET", rscHeaders),
+  );
+  assert.equal(await response.text(), "1:HL,per-user RSC flight payload");
+
+  assert.equal(
+    harness.tracker.trackedCount,
+    0,
+    "an RSC/Flight data fetch must never hand a cache-write promise to event.waitUntil()",
+  );
+  const cache = harness.cacheStorage.get(SHELL_CACHE_NAME);
+  assert.equal(cache?.putCount ?? 0, 0, "cache.put() must never be called for an RSC/Flight data fetch");
+});
+
+test("CODEX_AUDIT A-014: the bare 'rsc' header alone is enough to exclude a fetch from the shell cache (the one header Next guarantees on every RSC fetch)", async () => {
+  const onlineFetch = async () => textResponse("per-user RSC payload, minimal headers");
+  const harness = loadServiceWorker(onlineFetch);
+
+  const response = await harness.dispatchFetch(
+    makeRequest("http://localhost:3000/threads/1", "same-origin", "GET", new Headers({ rsc: "1" })),
+  );
+  await response.text();
+
+  const cache = harness.cacheStorage.get(SHELL_CACHE_NAME);
+  assert.equal(cache?.putCount ?? 0, 0, "the 'rsc' header alone must be sufficient to exclude the write");
+});
+
+test("CODEX_AUDIT A-014 regression guard: a genuinely static asset (no navigate mode, no RSC headers) is still cached exactly as before", async () => {
+  const onlineFetch = async () =>
+    textResponse("/* hashed, content-addressed JS bundle */", {
+      headers: { "Content-Type": "application/javascript" },
+    });
+  const harness = loadServiceWorker(onlineFetch);
+
+  const assetUrl = "http://localhost:3000/_next/static/chunks/app-abcdef123456.js";
+  const response = await harness.dispatchFetch(makeRequest(assetUrl, "no-cors"));
+  assert.equal(await response.text(), "/* hashed, content-addressed JS bundle */");
+
+  assert.equal(
+    harness.tracker.trackedCount,
+    1,
+    "a static asset must still hand its cache-write promise to event.waitUntil(), unchanged",
+  );
+  await harness.tracker.drain();
+  const cache = harness.cacheStorage.get(SHELL_CACHE_NAME);
+  assert.equal(cache?.putCount, 1, "cache.put() must still be called exactly once for a static asset");
+  assert.ok(cache?.has(assetUrl), "the static asset must be readable back out of the shell cache");
 });

@@ -18,13 +18,16 @@
  * `next build` while prerendering /settings). Deferring the import keeps this
  * module server-safe without touching a read-only file.
  *
- * This flow does not close CODEX_AUDIT A-014 ("Authenticated page/RSC caches
- * persist after sign-out"). A normal browsing session still lets
- * `public/sw.js` cache authenticated document and RSC responses in
- * `bible-brain-shell-*`; clearing the device deletes that cache, but the
- * caching policy itself is a separate task. (A-015 is a docs finding and has
- * nothing to do with this module — an earlier revision of this header cited it
- * by mistake.)
+ * CODEX_AUDIT A-014 ("Authenticated page/RSC caches persist after sign-out")
+ * is now closed at the source: `public/sw.js`'s fetch handler (SWPRIVACY-001)
+ * never writes a document navigation or an RSC/Flight data fetch into
+ * `bible-brain-shell-*` in the first place, so a normal browsing session no
+ * longer puts authenticated page content in that cache to begin with. This
+ * flow's own APP_CACHE_PREFIXES sweep below still deletes that cache on every
+ * clear-device run, which now matters only for whatever it already holds from
+ * a genuinely public asset (the JS/CSS/font shell) — never per-user content.
+ * (A-015 is a docs finding and has nothing to do with this module — an earlier
+ * revision of this header cited it by mistake.)
  */
 
 import { deleteDB } from "idb";
