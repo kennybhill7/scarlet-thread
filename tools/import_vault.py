@@ -162,9 +162,9 @@ class Report:
     warnings: list[ImportWarning] = field(default_factory=list)
 
 
-def import_stages(report: Report) -> list[dict]:
+def import_stages(report: Report, vault_dir: Path = VAULT_DIR) -> list[dict]:
     stages: list[dict] = []
-    for path in sorted((VAULT_DIR / "01 Passages").glob("*.md")):
+    for path in sorted((vault_dir / "01 Passages").glob("*.md")):
         text = path.read_text(encoding="utf-8")
         frontmatter, body = parse_frontmatter(text)
         raw_stage = frontmatter.get("stage", "").strip()
@@ -210,9 +210,9 @@ def import_stages(report: Report) -> list[dict]:
     return stages
 
 
-def import_threads(report: Report) -> list[dict]:
+def import_threads(report: Report, vault_dir: Path = VAULT_DIR) -> list[dict]:
     threads: list[dict] = []
-    for path in sorted((VAULT_DIR / "02 Threads").glob("*.md")):
+    for path in sorted((vault_dir / "02 Threads").glob("*.md")):
         text = path.read_text(encoding="utf-8")
         sections = parse_sections(text)
         one_line = re.search(r"\*\*In one line:\*\*\s*(.+)", text)
@@ -228,9 +228,90 @@ def import_threads(report: Report) -> list[dict]:
     return threads
 
 
-def import_people(report: Report) -> list[dict]:
+def person_slugs(vault_dir: Path = VAULT_DIR) -> set[str]:
+    """Every known person slug, derived from '03 People' filenames -- the
+    same slugify(path.stem) identity import_people() assigns each person, so
+    a backlink resolved against this set always lines up with the person it
+    names."""
+    return {slugify(path.stem) for path in (vault_dir / "03 People").glob("*.md")}
+
+
+def _chapter_sort_key(chapter: str) -> tuple[int, int]:
+    book, _, chapter_num = chapter.partition(".")
+    return (int(book), int(chapter_num))
+
+
+def build_person_backlinks(
+    known_people: set[str], report: Report, vault_dir: Path = VAULT_DIR
+) -> dict[str, dict[str, set[str]]]:
+    """Vault-wide backlink index (CODEX_AUDIT A-010/A-017): scan every
+    passage note ('01 Passages') and thread note ('02 Threads') for wikilinks
+    that resolve to a known person, and record each as an INBOUND edge on
+    that person -- the direction import_people() alone can never see, since a
+    person's own note only ever records their OUTBOUND 'Threads' section
+    links.
+
+    Uses the vault's existing link convention end to end: links_in() finds
+    every `[[Target]]` / `[[Target|alias]]` / `[[Target#section]]` wikilink
+    (the same regex import_stages()'s '_threads' field and import_people()'s
+    outbound 'threads' field already rely on), and slugify() resolves each
+    target the same way every other slug in this file is derived -- so a
+    link that names a person renders to that person's exact slug regardless
+    of which note or section it was written in.
+
+    A passage note contributes its own anchor chapter (e.g. "1.3", the same
+    value import_stages()/first_chapter_ref() compute for that note) to
+    every known person linked ANYWHERE in that note's body -- Observation,
+    Questions, Mirror, or any other section; the wikilink convention, not a
+    specific heading, is what this vault treats as "referencing X". A thread
+    note contributes its own slug the same way.
+    """
+    backlinks: dict[str, dict[str, set[str]]] = {
+        slug: {"chapters": set(), "threads": set()} for slug in known_people
+    }
+
+    for path in sorted((vault_dir / "01 Passages").glob("*.md")):
+        text = path.read_text(encoding="utf-8")
+        frontmatter, body = parse_frontmatter(text)
+        raw_stage = frontmatter.get("stage", "").strip()
+        if not raw_stage.isdigit():
+            continue
+        read_line_match = re.search(r"\*\*Read:\*\*\s*(.+)", body)
+        anchor = first_chapter_ref(read_line_match.group(1)) if read_line_match else None
+        if not anchor:
+            continue
+        for link in links_in(body):
+            slug = slugify(link)
+            if slug in backlinks:
+                backlinks[slug]["chapters"].add(anchor)
+
+    for path in sorted((vault_dir / "02 Threads").glob("*.md")):
+        text = path.read_text(encoding="utf-8")
+        thread_slug = slugify(path.stem)
+        for link in links_in(text):
+            slug = slugify(link)
+            if slug in backlinks:
+                backlinks[slug]["threads"].add(thread_slug)
+
+    return backlinks
+
+
+def import_people(
+    report: Report,
+    vault_dir: Path = VAULT_DIR,
+    backlinks: dict[str, dict[str, set[str]]] | None = None,
+) -> list[dict]:
+    """`chapters`/`threads` are additive across BOTH directions: a person's
+    own outbound 'Threads' section (this note linking out) plus any inbound
+    edges `build_person_backlinks()` resolved (a passage/thread note linking
+    in to this person) -- neither direction alone is the full picture, and
+    the old outbound-only read is what produced CODEX_AUDIT A-010's
+    all-five-orphans regression."""
+    if backlinks is None:
+        backlinks = build_person_backlinks(person_slugs(vault_dir), report, vault_dir)
+
     people: list[dict] = []
-    for path in sorted((VAULT_DIR / "03 People").glob("*.md")):
+    for path in sorted((vault_dir / "03 People").glob("*.md")):
         text = path.read_text(encoding="utf-8")
         sections = parse_sections(text)
         one_line = re.search(r"\*\*In one line:\*\*\s*(.+)", text)
@@ -239,17 +320,73 @@ def import_people(report: Report) -> list[dict]:
         if seeing:
             body_parts.append(seeing)
 
+        slug = slugify(path.stem)
+        outbound_threads = {slugify(t) for t in links_in(sections.get("Threads"))}
+        inbound = backlinks.get(slug, {"chapters": set(), "threads": set()})
+
         people.append(
             {
-                "slug": slugify(path.stem),
+                "slug": slug,
                 "name": path.stem,
                 "body": "\n\n".join(body_parts),
-                "chapters": [],
-                "threads": [slugify(t) for t in links_in(sections.get("Threads"))],
+                "chapters": sorted(inbound["chapters"], key=_chapter_sort_key),
+                "threads": sorted(outbound_threads | inbound["threads"]),
             }
         )
     report.people = len(people)
     return people
+
+
+EXPECTED_PERSON_ORPHANS = {"abraham", "david", "noah"}
+"""Source-derived expected orphan set (CODEX_AUDIT A-010). Must match
+web/db/seed.ts's own `expectedPersonOrphans` exactly -- that allowlist is
+read-only for this script; this constant exists so the import can fail
+closed on a mismatch itself, before ever handing seed.ts a bad artifact."""
+
+
+def check_person_orphans(people: list[dict]) -> list[str]:
+    """Compare the computed orphan set (zero chapters AND zero threads,
+    matching web/db/seed.ts's preflight() definition exactly) against
+    EXPECTED_PERSON_ORPHANS. Returns one specific, debuggable message per
+    mismatch -- empty list means an exact match."""
+    by_slug = {p["slug"]: p for p in people}
+    actual = {
+        slug for slug, p in by_slug.items() if not p["chapters"] and not p["threads"]
+    }
+
+    messages: list[str] = []
+    for slug in sorted(EXPECTED_PERSON_ORPHANS - actual):
+        person = by_slug.get(slug)
+        if person is None:
+            messages.append(
+                f"{slug}: expected to be a source person orphan, but no person "
+                f"note with slug '{slug}' was found under 03 People/ at all."
+            )
+            continue
+        messages.append(
+            f"{slug}: expected to be an orphan (zero chapters, zero threads) "
+            f"but the import resolved chapters={sorted(person['chapters'])} "
+            f"threads={sorted(person['threads'])} for them -- check "
+            f"03 People/ for an unexpected outbound Threads-section link on "
+            f"{person['name']}'s own note, or a passage/thread note "
+            f"elsewhere in the vault carrying a [[{person['name']}]]-style "
+            f"wikilink that resolves to slug '{slug}'."
+        )
+    for slug in sorted(actual - EXPECTED_PERSON_ORPHANS):
+        person = by_slug[slug]
+        messages.append(
+            f"{slug}: 0 outbound thread(s) and 0 inbound link(s) resolved "
+            f"for {person['name']} -- expected at least one inbound "
+            f"reference from a passage/thread note, or an outbound "
+            f"'## Threads' entry on {person['name']}'s own 03 People/ note, "
+            f"found neither. Check whether a passage/thread note that "
+            f"should mention {person['name']} is missing a "
+            f"[[{person['name']}]]-style wikilink, or whether such a link "
+            f"exists but slugifies to something other than '{slug}' (a "
+            f"spelling/alias mismatch between the link text and the person "
+            f"note's own filename)."
+        )
+    return messages
 
 
 def import_entries(stages: list[dict], report: Report) -> list[dict]:
@@ -298,10 +435,22 @@ def main() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     report = Report()
 
-    stages_raw = import_stages(report)
-    threads = import_threads(report)
-    people = import_people(report)
+    stages_raw = import_stages(report, VAULT_DIR)
+    threads = import_threads(report, VAULT_DIR)
+    backlinks = build_person_backlinks(person_slugs(VAULT_DIR), report, VAULT_DIR)
+    people = import_people(report, VAULT_DIR, backlinks)
     entries = import_entries(stages_raw, report)
+
+    orphan_issues = check_person_orphans(people)
+    if orphan_issues:
+        print(
+            f"\n{len(orphan_issues)} person-orphan mismatch(es) against the "
+            f"expected source set {sorted(EXPECTED_PERSON_ORPHANS)} -- "
+            f"refusing to write seed JSON:"
+        )
+        for message in orphan_issues:
+            print(f"  ! {message}")
+        raise SystemExit(1)
 
     # Strip the working fields (prefixed "_") before writing -- they exist
     # only to hand context from import_stages() to import_entries().
