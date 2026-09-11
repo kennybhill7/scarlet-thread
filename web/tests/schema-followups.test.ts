@@ -498,16 +498,17 @@ test("study_sessions has a PARTIAL unique index on (workspace_id, range) scoped 
 });
 
 test("migration 0010 adds the study_sessions active-range unique index additively -- a single CREATE UNIQUE INDEX statement, no rewrite of 0000-0009", () => {
-  const files = fs
-    .readdirSync(migrationsDir)
-    .filter((name) => /^\d{4}_.+\.sql$/.test(name))
-    .sort();
-  const newest = files[files.length - 1]!;
-  assert.match(
-    newest,
-    /^0010_/,
-    "expected migration 0010 to be the newest file (a forward migration, not an edit to an applied one)",
-  );
+  // Pinned by tag (like schema-v2.test.ts's own "migration 0008, pinned by
+  // tag" test), not "whichever file is newest" -- GRAPHEDGES-001 added a
+  // legitimate forward migration (0011) after this one, so "0010 is the
+  // newest file" stopped being true without 0010's own content changing at
+  // all. What this test actually needs to prove -- that 0010's file was
+  // never retroactively rewritten -- is exactly as true after 0011 as
+  // before it; only the brittle "newest" proxy for that was wrong.
+  const files = fs.readdirSync(migrationsDir).filter((name) => /^\d{4}_.+\.sql$/.test(name));
+  const pinned = files.find((name) => name.startsWith("0010_"));
+  assert.ok(pinned, "expected a migration file starting with \"0010_\"");
+  const newest = pinned as string;
 
   const sql = fs.readFileSync(path.join(migrationsDir, newest), "utf8").replace(/\r\n/g, "\n").trim();
   assert.equal(

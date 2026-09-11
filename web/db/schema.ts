@@ -857,3 +857,120 @@ export const artifactRevisions = pgTable(
     index("artifact_revisions_entity_idx").on(table.workspaceId, table.entityTable, table.entityId),
   ],
 );
+
+// ---------------------------------------------------------------------------
+// GRAPHEDGES-001 — Curated (no userId; `/content` is the single authoring
+// source). BUILD_PLAN.md §3.3: "the DB rows below are read-only release
+// indexes, never independently edited. Corrections ship as a new release +
+// a signed revocation record — published artifacts are never mutated."
+//
+// `sources` and `graphEdges` are the first two curated tables to actually
+// land (passageContexts/doctrines/graph_edge_evidence remain unbuilt — out
+// of scope here). Deliberately NOT workspace/user-scoped and NOT
+// soft-deleted, unlike every learner-owned table above: curated content is
+// architecturally different, per §3.3's own words, not an oversight of the
+// tenant-safety pattern those tables use.
+// ---------------------------------------------------------------------------
+
+/**
+ * §3.3's minimal shape verbatim: "source: id, author, title, publisher,
+ * edition, year, url, licence, accessedAt" — trimmed to exactly what
+ * GRAPHEDGES-001 needs (no `edition`/`year`, since the one seeded row is a
+ * living web dataset, not a dated print edition). This is intentionally NOT
+ * the full sources+citations+content_reviews pipeline §5.1 describes — that
+ * is separate, larger, not-yet-started infrastructure.
+ *
+ * `url` carries a real unique index so the one-row seed (OpenBible.info's
+ * cross-reference dataset) is idempotent to insert — `ON CONFLICT (url) DO
+ * NOTHING RETURNING id` — without inventing a natural key §3.3 never asked
+ * for.
+ */
+export const sources = pgTable(
+  "sources",
+  {
+    id: text("id").primaryKey(),
+    author: text("author").notNull(),
+    title: text("title").notNull(),
+    publisher: text("publisher").notNull(),
+    url: text("url").notNull(),
+    /** e.g. "CC BY 4.0" — a real CC-BY attribution requirement, not decoration. */
+    licence: text("licence").notNull(),
+    accessedAt: timestamp("accessed_at", { withTimezone: true, mode: "string" }).notNull(),
+  },
+  (table) => [uniqueIndex("sources_url_idx").on(table.url)],
+);
+
+/**
+ * The reviewed canonical graph (§3.3: "fromRange, toRange, type
+ * (ConnectionType), evidenceLabel, rationale block, viewpoint, release,
+ * review status"). GRAPHEDGES-001 imports real bulk data
+ * (OpenBible.info/Treasury of Scripture Knowledge, CC BY 4.0) rather than
+ * hand-authored `/content` review, so the rationale/viewpoint/release/review
+ * fields that presuppose a human reviewer authoring each row individually
+ * are not yet meaningful here and are left for that later, actually-reviewed
+ * pipeline — this table's own doc comment on `type` explains what IS honest
+ * to assert about a bulk, unreviewed import.
+ *
+ * `fromRange`/`toRange` reuse the exact `jsonb(...).$type<CanonicalRangeV1>()`
+ * pattern `userConnections` already established above; `type`/`evidenceLabel`
+ * reuse `connectionTypeEnum`/`evidenceLabelEnum` verbatim — no second enum.
+ *
+ * "Personal overlays stay in `user_connections`; they are never written
+ * here" (§3.3) — so there is no `workspaceId`/`userId` here by design, and no
+ * soft-delete: a correction ships as a new release, never a mutation of an
+ * existing row (§3.3's curated-tables rule, stated once above and not
+ * re-litigated per table).
+ */
+export const graphEdges = pgTable(
+  "graph_edges",
+  {
+    id: text("id").primaryKey(),
+    fromRange: jsonb("from_range").$type<CanonicalRangeV1>().notNull(),
+    toRange: jsonb("to_range").$type<CanonicalRangeV1>().notNull(),
+    /**
+     * Every GRAPHEDGES-001 row is imported as `"parallel"` — the most
+     * honest existing `ConnectionType` for "these passages are linked"
+     * without falsely claiming a more specific classification
+     * (quotation/type_antitype/promise_fulfillment/etc.) that this bulk,
+     * unreviewed import has not actually verified. Automated fine-grained
+     * classification into those other values is real theological/literary
+     * judgment, deliberately out of scope (BUILD_PLAN's own tenet 6:
+     * "Tests certify software; a pastor certifies theology"). The column
+     * itself still accepts every `ConnectionType` value, not a narrower
+     * enum, so a later reviewed `/content` pipeline can write more specific
+     * types into this same table without a migration.
+     */
+    type: connectionTypeEnum("type").notNull(),
+    /**
+     * Mapped from the source dataset's community vote count at import time
+     * (>=50 votes -> "strong", 1-49 -> "plausible"; rows with votes <= 0 are
+     * skipped entirely, never imported). Never `"explicit"` (reserved for a
+     * verified direct textual quotation/reference this import has not
+     * confirmed) or `"devotional"` (reserved for `personal_resonance`
+     * connections per the CHECK-constraint precedent on `userConnections`
+     * above — these are not personal_resonance rows, and this table has no
+     * `type = 'personal_resonance'` value possible for the same reason
+     * every imported row's `type` is `"parallel"`).
+     */
+    evidenceLabel: evidenceLabelEnum("evidence_label").notNull(),
+    sourceId: text("source_id")
+      .notNull()
+      .references(() => sources.id, { onDelete: "restrict" }),
+    /**
+     * The real vote count preserved verbatim from the source dataset, so
+     * the app can filter/rank by confidence at query time rather than one
+     * import-time cutoff baking in a single arbitrary threshold.
+     */
+    communityVotes: integer("community_votes").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    // Real unique index so re-running the import is idempotent (upsert or
+    // skip-on-conflict), not an ever-growing duplicate set — the acceptance
+    // criterion this task names explicitly.
+    uniqueIndex("graph_edges_from_to_type_idx").on(table.fromRange, table.toRange, table.type),
+    index("graph_edges_source_idx").on(table.sourceId),
+  ],
+);

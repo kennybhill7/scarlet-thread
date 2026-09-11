@@ -153,6 +153,18 @@ test("every v2 table carries created_at/updated_at (NOT NULL) and deleted_at (nu
 //    `export const artifactRevisions`), so it is exempted from the
 //    default-value half of the check only, via
 //    TABLES_WITHOUT_DEFAULTED_REVISION below.
+//
+// GRAPHEDGES-001 adds a THIRD kind of exemption, for a different reason
+// again: `graph_edges` and `sources` are BUILD_PLAN §3.3's "Curated (no
+// userId; `/content` is the single authoring source)" tables — "read-only
+// release indexes, never independently edited." They are not
+// workspace-scoped because curated content has no per-user owner at all
+// (unlike `workspaces`, which has no workspace_id because it IS the
+// workspace), and they carry no `revision` because a correction ships as a
+// new release, never an edit to an existing row. See CURATED_TABLE_NAMES
+// below and `tests/graph-edges.test.ts`, which makes this same "no
+// workspace_id, no revision, no soft-delete" shape a positive, checked
+// assertion for these two tables specifically.
 // ---------------------------------------------------------------------------
 
 const PRE_EXISTING_TABLE_NAMES = new Set([
@@ -173,6 +185,9 @@ const PRE_EXISTING_TABLE_NAMES = new Set([
 /** Tables added after SCHEMAV2-001 that are exempt from the workspace_id/revision sweep entirely — see the comment above. */
 const WORKSPACE_ROOT_TABLE_NAMES = new Set(["workspaces"]);
 
+/** BUILD_PLAN §3.3 curated tables (GRAPHEDGES-001) — exempt from the same sweep for the different reason explained above. */
+const CURATED_TABLE_NAMES = new Set(["graph_edges", "sources"]);
+
 /** Tables that carry workspace_id + an integer revision column but where that revision is deliberately never defaulted — see the comment above. */
 const TABLES_WITHOUT_DEFAULTED_REVISION = new Set(["artifact_revisions"]);
 
@@ -182,6 +197,7 @@ test("no table added to db/schema.ts after SCHEMAV2-001 can lack workspace_id + 
   for (const [name, table] of Object.entries(tables)) {
     if (PRE_EXISTING_TABLE_NAMES.has(name)) continue;
     if (WORKSPACE_ROOT_TABLE_NAMES.has(name)) continue;
+    if (CURATED_TABLE_NAMES.has(name)) continue;
     checked.push(name);
     const cols = columnsOf(table);
     assert.ok(cols.workspaceId, `${name} is a new table with no workspace_id column`);

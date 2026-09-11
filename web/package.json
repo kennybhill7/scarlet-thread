@@ -13,6 +13,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:release-migrate": "tsx scripts/release-migrate.mts",
     "db:seed": "tsx --env-file=.env.local db/seed.ts",
+    "db:import-graph-edges": "tsx --env-file=.env.local scripts/import-cross-references.mts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
