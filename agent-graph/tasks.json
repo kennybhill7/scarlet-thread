@@ -2943,6 +2943,55 @@
         "Actually running the import against a real database (Ken's dev/prod Neon instance) is a real data-loading decision Ken should trigger himself, or ask Claude to do in a follow-up with real output pasted -- this task's own acceptance is the schema + tested import logic being correct and ready to run, not a live database mutation. Do not run the script against any real DATABASE_URL yourself.",
         "The vote-tier evidence-label cutoffs (>=50 strong, 1-49 plausible) and the blanket 'parallel' connectionType default are real content-policy judgment calls Claude made and is comfortable defending, but are worth a quick sanity check from Ken once he sees the Story Map visualization (a separate follow-up task) actually using this data -- flag this in your report, do not treat it as unquestionably final."
       ]
+    },
+    {
+      "id": "STORYMAP-001",
+      "title": "The Story Map: a full-canon cross-reference arc diagram, built on real GRAPHEDGES-001 data",
+      "objective": "Ken asked for this directly (2026-09-11), inspired by the classic Chris Harrison/Christoph Romhild Bible cross-reference visualization -- all 66 books laid out along one line, with curved arcs connecting related passages. GRAPHEDGES-001 (merged) built the real data behind this: a curated graph_edges table seeded with 341,223 real, CC BY 4.0 licensed cross-references (web/db/schema.ts, web/lib/db/graphEdges.ts). This task builds the actual visualization, a NEW screen, entirely our own design and rendering -- NOT a copy of Harrison's image (which is copyrighted for personal non-commercial use only; Claude verified this directly before ever proposing this feature). Same idea, our own data, our own look.",
+      "ownedPaths": [
+        "web/app/(app)/map/page.tsx",
+        "web/components/map/StoryMap.tsx",
+        "web/components/map/StoryMap.module.css",
+        "web/components/map/ChapterBaseline.tsx",
+        "web/components/climb/ClimbHero.tsx",
+        "web/components/climb/ClimbHero.module.css",
+        "web/lib/db/graphEdges.ts",
+        "web/lib/map/storyMapLayout.ts",
+        "web/tests/story-map-layout.test.ts",
+        "web/tests/story-map.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/db/schema.ts",
+        "web/lib/contracts/graph-v1.ts",
+        "web/lib/contracts/study-v2.ts",
+        "web/lib/contracts/range-v1.ts",
+        "web/lib/bible/range.ts",
+        "web/lib/bible/reference.ts",
+        "web/public/bible/index.json",
+        "web/app/globals.css",
+        "web/components/climb/Mountain.tsx",
+        "web/lib/climb/plateGeometry.ts"
+      ],
+      "acceptanceCriteria": [
+        "This app has a DELIBERATE three-tab-only navigation discipline (web/components/shell/TabBar.tsx's own comment: 'Anything that isn't one of those three lives inside one of them rather than earning a fourth tab'). Do NOT add a fourth tab. The Story Map is a new route (app/(app)/map/page.tsx) reachable via a new link in ClimbHero (currently has one icon link, the settings gear, in its eyebrow row -- add a sibling link there, matching that existing pattern exactly rather than inventing a different entry-point mechanism) -- read ClimbHero.tsx and its module.css first.",
+        "Layout math (web/lib/map/storyMapLayout.ts, pure functions, no React/DOM): a single horizontal baseline of all 1,189 chapters across all 66 books in canonical order, each chapter segment's width proportional to its real verse count (the same technique Harrison's original used, and the same real-data technique scripts/import-cross-references.mts's buildRealCanonTable() already established in this repo for computing real verse counts from public/bible/BSB/*.json -- reuse that data-loading approach, don't approximate or hardcode verse counts). Compute each chapter's x-position/width along the baseline as a pure function of this real data. Real tests: the full baseline's total width sums correctly, a specific well-known chapter (e.g. Psalm 119, the longest chapter) gets a visibly wider segment than a one-verse chapter (e.g. Psalm 117 or Obadiah's shortest chapter), book boundaries land in the real canonical order.",
+        "Arc rendering: for each graph_edges row shown, an SVG path (cubic or quadratic Bezier) connecting its fromRange and toRange chapter positions on the baseline, with the arc's height/curvature scaled by the distance between them along the baseline (closer chapters get a shallow arc, farther-apart chapters get a tall one) -- the same visual grammar Harrison's diagram used, computed fresh from our own real data and our own math, not copied pixel values. Use this app's own --shell-*/--gold/--gold-deep/--shell-crimson palette (read app/globals.css's real token values yourself, do not invent new colors) for arc color/opacity -- do NOT recreate Harrison's rainbow-by-distance color scheme; find your own tasteful in-palette treatment (e.g. gold for common/nearby connections, crimson accents for the highest-confidence 'strong' edges, consistent with how crimson already marks the scarlet thread elsewhere in this app per THEMESYSTEM-001/CRIMSONACCENT-001 -- read those components for the established crimson-means-thread-connection convention before choosing colors here).",
+        "Data volume is real and large (341,223 rows) -- this MUST be server-filtered, never shipped to the client as one blob. Two real views: (1) OVERVIEW (default): the full 1,189-chapter baseline with only the highest-confidence edges drawn -- add a new query function to web/lib/db/graphEdges.ts (following upsertOpenBibleSource/insertGraphEdgesBatch's existing dependency-injected Database-parameter style in that same file) that returns edges above a vote threshold, ordered by communityVotes descending, with a real LIMIT. Do NOT guess the threshold/limit -- build a temporary static-harness render (this repo's established technique: renderToStaticMarkup + real CSS + a local http.server + a headless msedge screenshot, see any recent merged task for the exact commands) at a few real candidate sizes (e.g. ~2,000, ~10,000, ~40,000 arcs) and report actual browser paint/render time for each using real measurement (e.g. the Performance API or wall-clock around a headless screenshot capture), then pick a default that stays responsive -- paste the real numbers in your report, this is not a judgment call to make by feel. (2) CHAPTER FOCUS: clicking/selecting one chapter on the baseline shows ALL of that chapter's real edges (not vote-filtered -- average ~287 edges per chapter, a small, real, fully-renderable set), fetched via a second query function scoped to that one chapter's fromRange/toRange. Both views run through the same StoryMap/ChapterBaseline rendering components -- do not fork the rendering logic per view.",
+        "prefers-reduced-motion: reduce must be honored if you add any transition/animation (e.g. an arc fade-in, a chapter-focus zoom) -- follow this app's own established two-guarantee pattern (Mountain.tsx/Mountain.module.css's own reduced-motion handling, and OpeningSequence.tsx/OpeningSequence.module.css's -- read one of those first, match its rigor, do not invent a weaker one).",
+        "Mobile-first responsive: 1,189 chapter segments is wide. This app's own precedent for exactly this problem is Mountain.tsx's mobile-vs-desktop split (a scrolling column on mobile, a different proportional layout on desktop -- read plateGeometry.ts's header for that reasoning) -- decide whether the Story Map needs a genuinely different mobile treatment (e.g. horizontal scroll with a fixed viewport height) or whether a single responsive SVG viewBox suffices, and explain your reasoning in your report; either is acceptable but must be a real, considered decision, not an afterthought that breaks on a phone screen.",
+        "Real, mutation-proven tests for the pure layout math (story-map-layout.test.ts) and for the query functions added to lib/db/graphEdges.ts / the page's own data-assembly logic where DB-independent (story-map.test.ts) -- follow this repo's established logic-vs-IO test-splitting discipline (scripts/lib/importCrossReferences.ts / tests/import-cross-references.test.ts is the most recent precedent, read it first).",
+        "Do your own real visual verification: a static harness render of both the overview and a chapter-focus view, with the real --shell-* CSS tokens and (if feasible) a real small sample of actual graph_edges-shaped data (synthetic is fine if a live DB isn't available in your environment -- state clearly which you used), screenshotted headlessly (no visible browser window) and actually looked at by you before calling this done."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": [
+        "This is a brand-new, flagship, highly visual feature Ken specifically asked for and is excited about ('this is exactly what I envisioned for our app'). Your own visual verification (static harness + headless screenshot) is real and required, but it is explicitly NOT a substitute for Ken looking at the real, running page himself before this is considered finished in spirit, even after Claude's own independent re-verification merges it. Say this plainly in your report.",
+        "The overview's vote-threshold/edge-count default (chosen from real measured render-performance numbers per the acceptance criteria above) and the arc color/opacity treatment are real design judgment calls -- defensible, but worth Ken's quick reaction once he sees it, not treated as unquestionably final."
+      ]
     }
   ]
 }
