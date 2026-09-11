@@ -17,6 +17,16 @@
   color: var(--gold);
 }
 
+/* STORYMAP-001 — groups the Story Map link + the settings gear so the
+ * existing `justify-content: space-between` on `.eyebrowRow` still puts one
+ * thing at each end (the eyebrow label vs. this whole icon cluster), instead
+ * of spreading three items apart individually. */
+.eyebrowIcons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .settingsLink {
   color: var(--shell-muted);
   font-size: 16px;

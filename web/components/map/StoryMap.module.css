@@ -1,0 +1,287 @@
+/*
+ * STORYMAP-001 — the Story Map's own styles. Shell-only (this screen lives in
+ * the always-dark shell, not the parchment/midnight reading surface — see
+ * app/globals.css's own header: "--shell-* never change with this
+ * preference"), so every color below is one of the real --shell- / --gold /
+ * --gold-deep / --shell-crimson tokens already declared there — no new colors
+ * invented, and no light/dark [data-reading] branching needed for this file.
+ */
+
+.wrap {
+  padding: calc(20px + var(--safe-top)) var(--pad-page) calc(32px + var(--safe-bottom));
+  background: var(--shell-bg);
+  color: var(--shell-text);
+  min-height: 100%;
+}
+
+.header {
+  margin-bottom: 16px;
+}
+
+.eyebrow {
+  font-family: var(--font-label);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--gold);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 26px;
+  color: var(--shell-text);
+  margin: 4px 0 6px;
+}
+
+.sub {
+  font-size: 13px;
+  color: var(--shell-muted-2);
+  line-height: 1.5;
+  max-width: 60ch;
+}
+
+/* role="status" — an honest, visible notice when a bookmarked/hand-typed
+ * ?c= value didn't resolve to a real chapter (page.tsx's own
+ * `invalidSelection`), not a silent fallback. */
+.notice {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--shell-crimson-text);
+}
+
+/* --- Controls: back link + "jump to chapter" form ---------------------- */
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.backLink {
+  font-family: var(--font-narrow);
+  font-weight: 600;
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  color: var(--shell-text-2);
+  display: inline-flex;
+  align-items: center;
+}
+
+.backLink:hover {
+  color: var(--shell-text);
+}
+
+.jumpForm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.jumpLabel {
+  font-family: var(--font-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 10px;
+  color: var(--shell-muted);
+}
+
+.jumpSelect {
+  background: var(--shell-surface);
+  border: 1px solid var(--shell-border);
+  color: var(--shell-text);
+  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  min-height: 44px;
+  max-width: 220px;
+}
+
+.jumpButton {
+  background: var(--gold-dim-bg);
+  border: 1px solid var(--gold-dim-border);
+  color: var(--gold);
+  font-family: var(--font-narrow);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0 16px;
+  border-radius: var(--r-sm);
+}
+
+.jumpButton:hover {
+  color: var(--gold-deep);
+}
+
+/* --- The diagram --------------------------------------------------------
+ * MOBILE DECISION (see StoryMap.tsx's own header for the full reasoning):
+ * one responsive `viewBox` in real "verse unit" space, not a second
+ * differently-laid-out mobile assembly. `.svg`'s `min-width` gives it a real
+ * pixel floor so 1,189 chapter segments never get squeezed into illegible
+ * slivers on a narrow screen; `.scroller` lets the viewport scroll
+ * horizontally to reach the rest when that floor is wider than the screen.
+ * On any viewport wide enough to fit min-width on its own (most tablets and
+ * every desktop), `width: 100%` already satisfies it and `.scroller` never
+ * needs to scroll at all — one rule, no media query. */
+.scroller {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 calc(-1 * var(--pad-page));
+  padding: 4px var(--pad-page) 0;
+  overscroll-behavior-x: contain;
+}
+
+/* FIXED pixel height, NOT `height: auto`. The viewBox's x-axis is real
+ * "verse units" (~31,102 wide, StoryMap.tsx's `viewWidth`) while its y-axis
+ * is a small, fixed design value (StoryMap.tsx's `VIEW_HEIGHT`, 320) — an
+ * intentionally, wildly non-square aspect ratio (~97:1). `height: auto`
+ * would compute a real rendered height from THAT ratio against whatever
+ * width the container gets (e.g. 1600px wide -> ~16px tall), collapsing
+ * every arc into an illegible sliver — a real bug caught by actually looking
+ * at this task's own first static-harness screenshot, not assumed away.
+ * Pairing a fixed CSS height here with `preserveAspectRatio="none"` on the
+ * `<svg>` itself (StoryMap.tsx) decouples the two axes completely: the x-axis
+ * still stretches to fill `width: 100%`/`min-width` exactly as intended, and
+ * the y-axis independently fills this fixed height regardless of how wide
+ * the diagram actually renders. */
+.svg {
+  display: block;
+  width: 100%;
+  height: 320px;
+  min-width: 1100px;
+}
+
+/* --- Arcs -----------------------------------------------------------------
+ * COLOR TREATMENT — Ken's own explicit direction (2026-09-11, relayed mid-
+ * build): the arc diagram must visually READ AS THE SCARLET THREAD, this
+ * app's core motif — crimson as the PRIMARY color language of every
+ * connection, not a rare accent reserved for one tier while gold carries the
+ * bulk of the diagram (an earlier draft of this file did exactly that, and
+ * was corrected before merge). Every arc is crimson; confidence
+ * (`evidenceLabel`) varies SHADE/opacity/weight within that one family,
+ * exactly the way Ken asked, rather than introducing a second, competing
+ * color that would read as a different, disconnected visualization living in
+ * the same app:
+ *   - "plausible" (1-49 votes, the bulk of the data): `--shell-crimson-text`
+ *     (#e04a45, the LIGHTER "thread on dark" tone) at low opacity/thin
+ *     stroke — thousands of these overlap into a soft translucent-red haze,
+ *     the mass of the citation network.
+ *   - "strong" (>=50 votes): `--shell-crimson` (#cf2027, the DEEPER "rope"
+ *     tone already used for non-text fills/glyphs elsewhere in the shell) at
+ *     higher opacity/thicker stroke — the same darker, more saturated red
+ *     the Mountain's own rope (lib/climb/plateGeometry.ts's
+ *     ROPE_GRADIENT_STOPS/ROPE_SHADOW_COLOR) uses for its own most solid,
+ *     foreground strokes — so the few highest-confidence edges read as the
+ *     thread pulling taut, not a differently-colored category.
+ * No gold anywhere in the connection arcs themselves — gold stays UI chrome
+ * only (labels, the baseline ticks, hover states below), exactly as it
+ * already is everywhere else in this app. Deliberately NOT Harrison's
+ * original rainbow-by-distance scheme either (see storyMapLayout.ts's own
+ * header) — one identity, this app's own, not a rebuild of his.
+ *
+ * `vector-effect: non-scaling-stroke` — the viewBox is real "verse units"
+ * wide (~31,102), rendered at a small fraction of that in real CSS pixels;
+ * without this, a `stroke-width` meant to read as roughly one screen pixel
+ * would themselves be scaled down to near-invisibility by that same ~30x
+ * viewBox compression. This keeps every arc's stroke a legible, constant
+ * screen-pixel width regardless of how wide the diagram is actually
+ * rendered.
+ */
+.arc {
+  fill: none;
+  stroke: var(--shell-crimson-text);
+  stroke-width: 0.6;
+  opacity: 0.1;
+  vector-effect: non-scaling-stroke;
+  transition: opacity 160ms ease;
+}
+
+.arc:hover {
+  opacity: 0.6;
+}
+
+.arcStrong {
+  stroke: var(--shell-crimson);
+  stroke-width: 1.1;
+  opacity: 0.4;
+}
+
+.arcStrong:hover {
+  opacity: 0.95;
+}
+
+/* prefers-reduced-motion: the one transition above (`.arc`'s hover opacity)
+ * is already fully covered by app/globals.css's existing BLANKET rule
+ * (`*, *::before, *::after { transition-duration: 0.01ms !important; }`
+ * under the same media query) — this file adds no JavaScript-driven motion
+ * anywhere (StoryMap.tsx's own header explains why: no scroll listener, no
+ * rAF, no client component boundary at all in this feature), so there is no
+ * second, bespoke two-guarantee pattern to build here the way
+ * Mountain.module.css's `--mountain-progress` needed one. A redundant
+ * `@media (prefers-reduced-motion: reduce) { .arc { transition: none } }`
+ * block here would assert nothing globals.css doesn't already guarantee. */
+
+/* --- Baseline (rendered by ChapterBaseline.tsx, same SVG) ---------------- */
+
+.baselineLine {
+  stroke: var(--shell-border-hi);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.bookTick {
+  fill: var(--shell-surface-hi);
+}
+
+.bookTickAlt {
+  fill: var(--shell-surface);
+}
+
+.chapterTick {
+  fill: var(--gold-deep);
+  opacity: 0.55;
+}
+
+.chapterTickSelected {
+  fill: var(--shell-crimson-text);
+  opacity: 1;
+}
+
+/* --- Legend ---------------------------------------------------------------*/
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 14px;
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--shell-muted);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendSwatch {
+  display: inline-block;
+  width: 18px;
+  height: 2px;
+  background: var(--shell-crimson-text);
+  opacity: 0.5;
+}
+
+.legendSwatchStrong {
+  background: var(--shell-crimson);
+  opacity: 0.9;
+  height: 2.6px;
+}

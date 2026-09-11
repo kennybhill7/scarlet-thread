@@ -13,7 +13,7 @@
  * for exactly this reason.
  */
 
-import { eq } from "drizzle-orm";
+import { desc, eq, gte, sql } from "drizzle-orm";
 
 import { graphEdges, sources } from "@/db/schema";
 import type { Database } from "@/lib/db";
@@ -92,4 +92,94 @@ export async function insertGraphEdgesBatch(
     insertedCount += inserted.length;
   }
   return insertedCount;
+}
+
+// ---------------------------------------------------------------------------
+// STORYMAP-001 — read queries for the Story Map (app/(app)/map/page.tsx).
+// 341,223 rows must never ship to the client as one blob (the registered
+// task's own acceptance criterion), so the app only ever asks this file for
+// one of exactly two real, server-filtered shapes below — no "give me
+// everything" query exists anywhere in this module.
+// ---------------------------------------------------------------------------
+
+/** What both query functions below return — the exact fields
+ * `lib/map/storyMapLayout.ts`'s pure `buildArcsForEdges` needs, nothing more
+ * (never `sourceId`/`createdAt`, which the diagram never uses). */
+export type GraphEdgeRow = Pick<
+  GraphEdgeRecordV1,
+  "id" | "fromRange" | "toRange" | "type" | "evidenceLabel" | "communityVotes"
+>;
+
+const GRAPH_EDGE_ROW_COLUMNS = {
+  id: graphEdges.id,
+  fromRange: graphEdges.fromRange,
+  toRange: graphEdges.toRange,
+  type: graphEdges.type,
+  evidenceLabel: graphEdges.evidenceLabel,
+  communityVotes: graphEdges.communityVotes,
+} as const;
+
+/**
+ * The Story Map OVERVIEW's one query: only the highest-confidence edges,
+ * ordered by real `communityVotes` descending, with a real `LIMIT` —
+ * `options.minVotes`/`options.limit` are chosen by the page from real
+ * measured render-performance numbers (see that page's own header), never
+ * guessed here. This function itself imposes no default of its own — an
+ * empty/zero `limit` is the caller's own decision to make, not silently
+ * substituted.
+ */
+export async function listTopGraphEdges(
+  db: Database,
+  options: { minVotes: number; limit: number },
+): Promise<GraphEdgeRow[]> {
+  return db
+    .select(GRAPH_EDGE_ROW_COLUMNS)
+    .from(graphEdges)
+    .where(gte(graphEdges.communityVotes, options.minVotes))
+    .orderBy(desc(graphEdges.communityVotes))
+    .limit(options.limit);
+}
+
+/**
+ * The Story Map CHAPTER-FOCUS query: every real edge ANCHORED at one chapter
+ * — i.e. `fromRange.start` falls inside `book.chapter` — not vote-filtered.
+ * Every GRAPHEDGES-001-imported row's "From Verse" is always a single verse
+ * (`scripts/lib/importCrossReferences.ts`'s `parseDatasetVerseToken`), so this
+ * scoping is exhaustive per row, and lines up exactly with the registered
+ * task's own ~287-edges/chapter average (341,223 / 1,189 ~= 287.0).
+ *
+ * Deliberately does NOT also match rows where this chapter is the `toRange`
+ * side instead (this chapter's real INBOUND references). Those already
+ * surface when the OTHER chapter is the one focused, and folding them in here
+ * would make the per-chapter row count wildly uneven — a heavily-cited
+ * chapter like Genesis 1 or Isaiah 53 would balloon far past the "small, real,
+ * fully-renderable set" the registered task's own acceptance criterion asks
+ * for, while most chapters stayed near the ~287 average. A real scope choice,
+ * flagged in the build report, not a silent gap.
+ *
+ * `fromRange->>'start'` is matched with a literal `book.chapter.` LIKE prefix.
+ * This is safe against a false partial match (book 1 chapter 1 can never match
+ * book 1 chapter 10, or book 12 chapter 1 match book 1 chapter 21) because
+ * every RefKey is always exactly "book.chapter.verse" with no leading zeros
+ * (`lib/bible/range.ts`'s `parseVerseKeyStrict`), so the literal "." straight
+ * after the chapter number in the pattern is a hard boundary a longer
+ * chapter/book number can never satisfy by accident.
+ *
+ * KNOWN PERF GAP, reported not hidden: there is no index on this expression —
+ * `graph_edges`'s one real index covers `(from_range, to_range, type)`
+ * equality, for import idempotency, not this substring match — and
+ * `db/schema.ts` is a readOnlyPath for this task, so no new expression index
+ * could be added here even if one were wanted. At 341,223 rows a sequential
+ * LIKE scan is a real but acceptable cost for one interactive click; it was
+ * not part of this task's own performance-measurement scope (that scope is
+ * the OVERVIEW query above, which this function's result set never needs to
+ * be trimmed the same way).
+ */
+export async function listGraphEdgesForChapter(db: Database, book: number, chapter: number): Promise<GraphEdgeRow[]> {
+  const prefix = `${book}.${chapter}.%`;
+  return db
+    .select(GRAPH_EDGE_ROW_COLUMNS)
+    .from(graphEdges)
+    .where(sql`${graphEdges.fromRange}->>'start' LIKE ${prefix}`)
+    .orderBy(desc(graphEdges.communityVotes));
 }
