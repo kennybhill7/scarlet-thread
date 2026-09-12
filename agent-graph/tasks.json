@@ -2992,6 +2992,52 @@
         "This is a brand-new, flagship, highly visual feature Ken specifically asked for and is excited about ('this is exactly what I envisioned for our app'). Your own visual verification (static harness + headless screenshot) is real and required, but it is explicitly NOT a substitute for Ken looking at the real, running page himself before this is considered finished in spirit, even after Claude's own independent re-verification merges it. Say this plainly in your report.",
         "The overview's vote-threshold/edge-count default (chosen from real measured render-performance numbers per the acceptance criteria above) and the arc color/opacity treatment are real design judgment calls -- defensible, but worth Ken's quick reaction once he sees it, not treated as unquestionably final."
       ]
+    },
+    {
+      "id": "CONTENTPIPE-001",
+      "title": "BUILD_PLAN §5.1: the curriculum content compiler (validate/build), not the content itself",
+      "objective": "BUILD_PLAN.md Section 5.1 specifies a content pipeline -- lessons authored in `/content`, compiled by web/scripts/content/{validate,build,publish,verify-release}.ts into checksummed releases the app consumes -- as the 'prerequisite of first publication' for BUILD_PLAN's Phase 3 (method curriculum). Confirmed by fresh audit (2026-09-12): this genuinely does not exist anywhere -- no content/ directory at repo root, no web/scripts/content/, and web/db/schema.ts's own GRAPHEDGES-001 comment (search 'passageContexts/doctrines/graph_edge_evidence remain unbuilt') explicitly calls this 'separate, larger, not-yet-started infrastructure.' This task builds ONLY the compiler infrastructure (schema, validation, the assertion-line lint, a real build/checksum step) -- it does NOT author any actual lesson content. Matches this session's own established sequencing discipline: GRAPHEDGES-001 (infrastructure) shipped fully separately before STORYMAP-001 (the content-facing feature built on it) -- same pattern here, infrastructure now, real Genesis 3 lesson content as a deliberately separate, later, more carefully-scoped task given BUILD_PLAN's own tenet 6 ('Tests certify software; a pastor certifies theology').",
+      "ownedPaths": [
+        "content/README.md",
+        "web/scripts/content/schema.ts",
+        "web/scripts/content/validate.ts",
+        "web/scripts/content/build.ts",
+        "web/db/schema.ts",
+        "web/db/migrations/",
+        "web/tests/content-schema.test.ts",
+        "web/tests/content-validate.test.ts",
+        "web/tests/content-build.test.ts",
+        "web/package.json"
+      ],
+      "readOnlyPaths": [
+        "BUILD_PLAN.md",
+        "THEOLOGY_MASTER_BUILD_PLAN.md",
+        "web/lib/contracts/study-v2.ts",
+        "web/lib/contracts/range-v1.ts",
+        "web/lib/bible/range.ts",
+        "web/scripts/lib/releaseMigrate.ts",
+        "web/scripts/lib/importCrossReferences.ts"
+      ],
+      "acceptanceCriteria": [
+        "SCOPE NARROWING, stated up front and in your final report (a deliberate, reasoned decision, not a silent gap): BUILD_PLAN §5.1 says lessons are authored as 'MDX'. No MDX tooling (@mdx-js or similar) exists anywhere in this repo's dependencies today. Author lesson files as plain Markdown + YAML frontmatter instead (parseable with a small, real frontmatter/body splitter -- tools/import_vault.py's own parse_frontmatter() in this repo is a working precedent for exactly this shape, read it for the convention even though it's Python and this is TypeScript) rather than pulling in a whole new MDX/JSX compilation pipeline for a first version with no lesson content yet needing embedded interactive components. If real interactive/embedded-component needs emerge later, upgrading to true MDX is a real, separate, future decision -- not something this task should half-build now.",
+        "SCOPE NARROWING #2: §5.1's publish.ts describes 'a signed, checksummed catalog-release manifest to durable append-new storage, independent of any single Vercel deployment.' Build the checksummed part for real (a real SHA-256 hash over the compiled release bundle's canonical JSON, verifiable) but skip literal cryptographic signing (no keypair/signature scheme) -- this is a solo-operator internal tool today, not a multi-party trust boundary; note this as a real, deliberate scope decision. Durable storage: write the compiled release bundle into a NEW `catalog_releases` table in the existing Postgres DB (following the exact `sources`/`graphEdges` precedent GRAPHEDGES-001 already established in web/db/schema.ts -- read that table pair first) rather than standing up a genuinely separate object-storage integration -- 'independent of any single Vercel deployment' is honestly satisfied by 'lives in the DB, not in the Vercel build output', not by external cloud storage this task does not need to build.",
+        "Zod schema (web/scripts/content/schema.ts) for lesson frontmatter, matching §5.1's own field list verbatim: passage (a real CanonicalRangeV1-shaped value, reuse that existing type from lib/contracts/range-v1.ts, do not invent a parallel string format), stage (references this app's real 1-11 stage numbers), methodFocus (string), contextId/connectionIds[]/positionIds[]/sources[] (string IDs -- these reference passageContexts/graph_edges/positions/sources rows that mostly don't exist yet either; validate them as well-formed strings only for now, NOT as resolving against real rows yet -- that resolution needs passageContexts/positions tables this task does not build either, flag this honestly as a real limitation of what 'ref resolution' can mean until those land), author (string, required -- BUILD_PLAN tenet 6: 'every curated lesson names its author'), status (enum: draft | in_review | published).",
+        "web/scripts/content/validate.ts: schema validation (via the zod schema above) over every .md file found under content/curriculum/**/*.md, PLUS the real, mechanized assertion-line lint BUILD_PLAN §5.1 names explicitly: flag declarative doctrinal-verdict language in lesson body prose (patterns like 'this passage teaches that', 'the correct view is', 'this proves', 'this means') UNLESS that text sits inside a clearly-delimited 'positions' block (a real, simple convention you define and document -- e.g. a markdown heading or HTML-comment-delimited section named exactly 'Positions') or is a quoted/attributed source citation. This lint is explicitly 'a review aid, not a proof' (§5.1's own words) -- it must fail the validation run loudly on a match, and be silenceable ONLY by an explicit `assertionReviewed: <reason>` frontmatter key on that specific lesson, never silently. Also validate: every lesson names >=1 real sourceId in its `sources[]` list when it makes a 'Cited fact' claim (§5.0's category 2) -- a lightweight heuristic is fine here (e.g. require sources[] to be non-empty whenever the lint's own positions-block detector finds a positions section, since §5.1 requires 'every positions block names >=2 traditions each with their own source') given the real ref-resolution limitation named above.",
+        "web/scripts/content/build.ts: reads every validated lesson, compiles them into one release bundle (a real, deterministic JSON structure -- lessons keyed by their content/ path or slug), computes a real SHA-256 checksum over that bundle's canonical (stable key order) JSON serialization, and writes one row into the new `catalog_releases` table (id, releasedAt, checksum, lessonCount, bundle as jsonb). Wire as a new `content:validate`/`content:build` npm script pair in web/package.json (additive, do not touch other scripts). Running build.ts with zero real lesson files present (the honest starting state after this task, since no lesson content is authored yet) must succeed with an empty, valid, zero-lesson release -- not error out just because content/curriculum/ is empty.",
+        "Real, mutation-proven tests for the zod schema (valid/invalid frontmatter shapes), the assertion-line lint (a fixture lesson with verdict language outside a positions block correctly fails; the same language inside a real positions block or behind assertionReviewed correctly passes), and the build step's checksum determinism (the same input bundle always produces the same checksum; a changed bundle always produces a different one) -- follow this repo's established logic-vs-IO test-splitting discipline (scripts/lib/releaseMigrate.ts/tests/release-migrate.test.ts and scripts/lib/importCrossReferences.ts/tests/import-cross-references.test.ts are the two most recent precedents, read one first).",
+        "Write content/README.md documenting the real authoring convention for a future lesson-authoring task: the frontmatter schema (link to schema.ts), the Positions-block convention the lint checks for, the assertionReviewed escape hatch and when it's legitimate to use, and explicitly state 'no lesson content exists yet -- this is the compiler only' so a future task or Ken himself understands the real current state at a glance.",
+        "Do NOT author any actual lesson content (no real Genesis 3 or any other passage's lesson prose, sourced context, or positions) as part of this task -- that is explicitly out of scope, a separate, later task given the real theological-content stakes BUILD_PLAN's own tenet 6 names. If you create any example/fixture lesson files for testing purposes, keep them obviously synthetic (e.g. a placeholder passage/topic, clearly not real theological content) and scoped to web/tests/ fixtures, never under content/curriculum/ itself."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": [
+        "The two scope-narrowing decisions (plain Markdown instead of MDX; checksummed-in-Postgres instead of signed-external-storage) are real, defensible engineering judgment calls made to keep this task proportionate to real current need, not unquestionably final -- worth Ken's awareness, and worth revisiting if/when this pipeline needs to support embedded interactive lesson components or truly independent-of-this-DB durability.",
+        "Actually authoring the first real lesson (Genesis 3, per BUILD_PLAN §9's own named first vertical slice) is a deliberately separate, future task -- this task's own human-gate is simply: confirm this scope-narrowing is acceptable before real content authorship begins on top of it."
+      ]
     }
   ]
 }
