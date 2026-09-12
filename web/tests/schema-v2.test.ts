@@ -165,6 +165,13 @@ test("every v2 table carries created_at/updated_at (NOT NULL) and deleted_at (nu
 // below and `tests/graph-edges.test.ts`, which makes this same "no
 // workspace_id, no revision, no soft-delete" shape a positive, checked
 // assertion for these two tables specifically.
+//
+// CONTENTPIPE-001 adds `catalog_releases` to the same CURATED_TABLE_NAMES
+// exemption, for the identical reason: it is the `sources`/`graph_edges`
+// curated-table shape verbatim (see the "CONTENTPIPE-001" comment block on
+// `db/schema.ts` immediately above `export const catalogReleases`) — no
+// per-user owner, and a correction ships as a new release row rather than a
+// mutation of an existing one.
 // ---------------------------------------------------------------------------
 
 const PRE_EXISTING_TABLE_NAMES = new Set([
@@ -185,8 +192,8 @@ const PRE_EXISTING_TABLE_NAMES = new Set([
 /** Tables added after SCHEMAV2-001 that are exempt from the workspace_id/revision sweep entirely — see the comment above. */
 const WORKSPACE_ROOT_TABLE_NAMES = new Set(["workspaces"]);
 
-/** BUILD_PLAN §3.3 curated tables (GRAPHEDGES-001) — exempt from the same sweep for the different reason explained above. */
-const CURATED_TABLE_NAMES = new Set(["graph_edges", "sources"]);
+/** BUILD_PLAN §3.3 curated tables (GRAPHEDGES-001, plus `catalog_releases` from CONTENTPIPE-001) — exempt from the same sweep for the different reason explained above. */
+const CURATED_TABLE_NAMES = new Set(["graph_edges", "sources", "catalog_releases"]);
 
 /** Tables that carry workspace_id + an integer revision column but where that revision is deliberately never defaulted — see the comment above. */
 const TABLES_WITHOUT_DEFAULTED_REVISION = new Set(["artifact_revisions"]);

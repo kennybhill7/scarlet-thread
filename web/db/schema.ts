@@ -974,3 +974,44 @@ export const graphEdges = pgTable(
     index("graph_edges_source_idx").on(table.sourceId),
   ],
 );
+
+// ---------------------------------------------------------------------------
+// CONTENTPIPE-001 — curated content-release ledger. BUILD_PLAN.md §5.1:
+// "a signed, checksummed catalog-release manifest to durable append-only
+// storage, independent of any single Vercel deployment." Two deliberate
+// scope narrowings from that sentence, both recorded in full in
+// `scripts/content/build.ts`'s own header: NOT signed (no keypair/signature
+// scheme — a solo-operator tool, not a multi-party trust boundary), and
+// "durable, append-only storage independent of any single Vercel
+// deployment" is satisfied by living in this Postgres table rather than a
+// separate object-storage integration this task does not need to build.
+//
+// Same curated-table shape as `sources`/`graphEdges` above (and for the
+// same reason, stated once there and not re-litigated per table):
+// deliberately NOT workspace/user-scoped (`content/` is the single
+// authoring source) and NOT soft-deleted — a correction ships as a NEW
+// release row, never a mutation of an existing one.
+// ---------------------------------------------------------------------------
+
+/**
+ * One immutable snapshot of the compiled lesson catalog, written by
+ * `scripts/content/build.ts`. `bundle` is the full canonical-JSON release
+ * body (`build.ts`'s `compileReleaseBundle` / `canonicalJsonStringify`);
+ * `checksum` is a real SHA-256 hex digest computed over that exact
+ * canonical serialization (`build.ts`'s `computeChecksum`), so any later
+ * consumer can re-derive it from `bundle` and confirm this row was not
+ * altered in place. `lessonCount` is denormalized from `bundle` purely for
+ * cheap listing queries — `bundle` remains the source of truth. Untyped
+ * `jsonb` (no `$type<...>()`), matching `artifactRevisions.snapshot` above:
+ * the release-bundle shape lives in `scripts/content/build.ts`, a
+ * standalone script this app-wide schema module should not depend on.
+ */
+export const catalogReleases = pgTable("catalog_releases", {
+  id: text("id").primaryKey(),
+  releasedAt: timestamp("released_at", { withTimezone: true, mode: "string" })
+    .defaultNow()
+    .notNull(),
+  checksum: text("checksum").notNull(),
+  lessonCount: integer("lesson_count").notNull(),
+  bundle: jsonb("bundle").notNull(),
+});
