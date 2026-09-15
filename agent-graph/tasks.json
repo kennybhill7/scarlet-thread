@@ -3038,6 +3038,53 @@
         "The two scope-narrowing decisions (plain Markdown instead of MDX; checksummed-in-Postgres instead of signed-external-storage) are real, defensible engineering judgment calls made to keep this task proportionate to real current need, not unquestionably final -- worth Ken's awareness, and worth revisiting if/when this pipeline needs to support embedded interactive lesson components or truly independent-of-this-DB durability.",
         "Actually authoring the first real lesson (Genesis 3, per BUILD_PLAN §9's own named first vertical slice) is a deliberately separate, future task -- this task's own human-gate is simply: confirm this scope-narrowing is acceptable before real content authorship begins on top of it."
       ]
+    },
+    {
+      "id": "RELEASEREADER-001",
+      "title": "Wire compiled catalog_releases lessons into the workspace (Context/Theology stop saying 'no curated content')",
+      "objective": "CONTENTPIPE-001 (merged) built a real content compiler that validates, builds, and checksums lessons into a new `catalog_releases` table -- but nothing in the application ever reads it. Independently confirmed by Claude (2026-09-15, and separately flagged by Codex the same day): zero references to `catalogReleases`/`catalog_releases` anywhere in web/components, web/app, or web/lib outside schema/scripts/tests. `ContextSection.tsx` and `TheologySection.tsx` both unconditionally render a fixed 'no curated content yet' notice (data-testid=\"context-no-curated-notice\"/\"theology-no-curated-notice\") regardless of whether a real published lesson exists for the session's own passage range. This means authoring a real lesson (the separate, upcoming Genesis 3 content task) would currently be invisible to every learner -- there is no reader. This task builds ONLY the reader/wiring. It does not author any lesson content itself.",
+      "ownedPaths": [
+        "web/lib/content/publishedLessons.ts",
+        "web/components/workspace/ContextSection.tsx",
+        "web/components/workspace/TheologySection.tsx",
+        "web/components/workspace/WorkspaceShell.tsx",
+        "web/app/(app)/study/[sessionId]/page.tsx",
+        "web/tests/published-lessons.test.ts",
+        "web/tests/context-section.test.ts",
+        "web/tests/theology-section.test.ts",
+        "web/tests/workspace-shell.test.ts"
+      ],
+      "readOnlyPaths": [
+        "web/db/schema.ts",
+        "web/lib/db/graphEdges.ts",
+        "web/scripts/content/schema.ts",
+        "web/scripts/content/build.ts",
+        "web/scripts/content/validate.ts",
+        "web/lib/contracts/range-v1.ts",
+        "web/lib/bible/range.ts",
+        "web/lib/workspace/gating.ts",
+        "web/lib/workspace/renderState.ts",
+        "content/README.md"
+      ],
+      "acceptanceCriteria": [
+        "New `web/lib/content/publishedLessons.ts`: a real query (following `web/lib/db/graphEdges.ts`'s own dependency-injected `Database`-parameter style -- read that file first) that finds the MOST RECENT `catalog_releases` row, parses its `bundle` jsonb column (the shape `scripts/content/build.ts` writes -- read that file to get the exact real bundle structure, do not guess it), and returns the one lesson (if any) inside it whose `passage` (a `CanonicalRangeV1`) covers a given session's own range. 'Covers' means the lesson's passage range contains the session's range -- reuse real range-comparison logic from `lib/bible/range.ts` (read it for what's already there, e.g. `compareRefs`/bounds-checking) rather than writing new ad-hoc comparison logic; if nothing in that file does exactly a 'does range A contain range B' check, add one small, real, tested helper function there is NOT permitted (`lib/bible/range.ts` is read-only for this task) -- write that containment check as a small pure function inside `publishedLessons.ts` itself instead, using `lib/bible/reference.ts`'s exported comparison primitives.",
+        "The returned lesson data must expose, at minimum, real 'Context' and 'Positions' prose extracted from the lesson's compiled markdown body by the SAME heading convention `scripts/content/validate.ts`'s `findPositionsBlockLines` already established for 'Positions' (a `## Positions` ATX heading) -- add a symmetric extraction for a `## Context` heading (if the lesson has one) using the identical technique, not a different parser. A lesson with neither heading present is a valid, real state (not every lesson needs both) -- the reader must handle 'lesson exists but has no ## Context section' as distinct from 'no lesson exists at all'.",
+        "`app/(app)/study/[sessionId]/page.tsx`: add ONE new server-side data load alongside the existing `getSessionV2`/`listClaimsV2`/`listApplicationsV2` calls (same file, same pattern -- read how those are already called and awaited together) that calls the new `publishedLessons.ts` query for the resolved session's range, and pass the result down as a new `curatedLesson` prop on `<WorkspaceShell>`. A database/query failure here must fail closed to 'no curated lesson' (render the existing notices, exactly like today), never break the page -- this mirrors the existing `loadClimbViewModel`/`resolveSessionState` fail-closed precedent elsewhere in this app (`app/(app)/page.tsx` is a real example of that pattern, read-only reference only, do not copy it wholesale since this is a different page).",
+        "`WorkspaceShell.tsx`: accept the new optional `curatedLesson` prop on `WorkspaceShellProps` and thread it straight through to `<ContextSection>` and `<TheologySection>` (both already rendered in this file -- add the new prop to both call sites, no other change to this file's own state/handlers).",
+        "`ContextSection.tsx`: when `curatedLesson` is present AND has real '## Context' prose, render that prose INSTEAD OF the fixed 'no curated context yet' notice (keep the existing notice as the fallback for every other passage, unchanged) -- above the still-always-present `ClaimComposer` (the learner's own attempt still happens either way, curated context supplements it, never replaces the learner's own work, per BUILD_PLAN's own design tenet 1 discipline). Keep a real, distinct `data-testid` for the new curated-context-shown state so tests can assert which state rendered.",
+        "`TheologySection.tsx`: same pattern, using the lesson's '## Positions' prose (named positions, reported descriptively -- this is exactly the content type BUILD_PLAN §5.0 permits a lesson to assert) instead of the fixed 'no curated doctrine content yet' notice. Do NOT render this as if it were the app's own doctrinal claim -- the existing surrounding copy already frames the learner's own theology claim as separate and their own; preserve that framing, only replace the specific 'nothing exists yet' sentence with the real content when present.",
+        "Real, mutation-proven tests: `publishedLessons.ts`'s pure range-containment/section-extraction logic tested with small injected fixtures (a fake bundle shape, no live DB) -- follow the same logic-vs-IO split established by every recent task this session (`scripts/lib/importCrossReferences.ts`/`scripts/lib/releaseMigrate.ts` are the clearest precedents). `ContextSection`/`TheologySection`/`WorkspaceShell` tests confirming: no `curatedLesson` prop (or one with no matching passage) renders exactly today's existing notice unchanged (a real regression guard -- every passage with no lesson yet must look identical to today), a `curatedLesson` with real Context/Positions prose renders that prose instead, and a `curatedLesson` present but missing one of the two sections falls back to that ONE section's own notice while still showing the other section's real content (don't let one missing heading blank out a whole section that does have content).",
+        "This task explicitly does NOT touch `ConnectSection.tsx` (BUILD_PLAN's curated-connections story there already runs through the separate `graph_edges`/GRAPHEDGES-001 data, a different mechanism from lesson-authored prose -- out of scope here, do not conflate the two) and does NOT author, seed, or publish any real lesson content anywhere -- if you need a fixture lesson for testing, keep it obviously synthetic and scoped to test files only, matching CONTENTPIPE-001's own precedent."
+      ],
+      "verification": [
+        "cd web; npm.cmd run typecheck",
+        "cd web; npm.cmd run lint",
+        "cd web; npm.cmd run build",
+        "cd web; npm.cmd test"
+      ],
+      "humanGates": [
+        "None -- this is pure plumbing with a real regression guard (every passage with no lesson yet renders identically to today), safe for standard independent re-verification before merge."
+      ]
     }
   ]
 }
