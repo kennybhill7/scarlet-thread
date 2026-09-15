@@ -41,6 +41,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { CANONICAL_VERSIFICATION_ID, type CanonicalRangeV1 } from "@/lib/contracts/range-v1";
+import type { PublishedLessonMatch } from "@/lib/content/publishedLessons";
 import {
   STUDY_SESSION_STEPS,
   type Application,
@@ -133,6 +134,55 @@ function sampleSession(overrides: Partial<StudySession> = {}): StudySession {
 
 function claim(kind: ClaimKind, overrides: Partial<GatingClaim> = {}): GatingClaim {
   return { kind, deletedAt: null, ...overrides };
+}
+
+/** A real StudyClaim, not just the GatingClaim subset above — the `render()`
+ * helper's `claims` prop needs the full shape WorkspaceShell/ContextSection/
+ * TheologySection actually receive, not the narrower gating-only fixture. */
+function sampleStudyClaim(kind: ClaimKind, overrides: Partial<StudyClaim> = {}): StudyClaim {
+  return {
+    id: "claim-1",
+    workspaceId: "workspace-1",
+    sessionId: "session-1",
+    kind,
+    epistemicBasis: "text_explicit",
+    body: "A sample claim body.",
+    passage: RANGE,
+    confidence: "tentative",
+    provenance: "learner",
+    doctrineStatus: null,
+    viewpointId: null,
+    status: "draft",
+    revision: 1,
+    createdAt: "2026-01-01T00:00:00.000Z",
+    updatedAt: "2026-01-01T00:00:00.000Z",
+    deletedAt: null,
+    ...overrides,
+  };
+}
+
+/** RELEASEREADER-001 fixture: the minimal real `PublishedLessonMatch` shape
+ * `ContextSection`/`TheologySection` actually read (`contextProse`/
+ * `positionsProse`) — `frontmatter` is a real, schema-valid value even
+ * though neither section renders it today, so this fixture stays honest
+ * about the real contract rather than a partial stand-in. */
+function sampleCuratedLesson(overrides: Partial<PublishedLessonMatch> = {}): PublishedLessonMatch {
+  return {
+    slug: "genesis-3",
+    frontmatter: {
+      passage: RANGE,
+      stage: 1,
+      methodFocus: "Observation before inference.",
+      connectionIds: [],
+      positionIds: [],
+      sources: [],
+      author: "Test Author",
+      status: "published",
+    },
+    contextProse: null,
+    positionsProse: null,
+    ...overrides,
+  };
 }
 
 function application(status: string, overrides: Partial<GatingApplication> = {}): GatingApplication {
@@ -430,10 +480,69 @@ test("buildReadGateUpdate is idempotent: a second call keeps the ORIGINAL readGa
 // RENDER — the real WorkspaceShell component, via renderToStaticMarkup.
 // ===========================================================================
 
-function render(props: { session: StudySession; claims?: StudyClaim[]; applications?: Application[] }): string {
+function render(props: {
+  session: StudySession;
+  claims?: StudyClaim[];
+  applications?: Application[];
+  curatedLesson?: PublishedLessonMatch | null;
+}): string {
   const element = createElement(WorkspaceShell as never, { workspaceId: "workspace-1", ...props } as never);
   return renderToStaticMarkup(element as never);
 }
+
+// ---------------------------------------------------------------------------
+// RELEASEREADER-001 — curatedLesson threading into Context/Theology.
+// A session with real claims unlocks both (hasAnyClaim(claims), per each
+// section's own header) so their real bodies -- not LockedNotice -- render.
+// ---------------------------------------------------------------------------
+
+test("RENDER: no curatedLesson -- Context and Theology show today's exact 'no curated content' notices, unchanged (regression guard)", () => {
+  const html = render({
+    session: sampleSession(),
+    claims: [sampleStudyClaim("observation")],
+  });
+  assert.ok(html.includes('data-testid="context-no-curated-notice"'), "context notice missing");
+  assert.ok(html.includes('data-testid="theology-no-curated-notice"'), "theology notice missing");
+  assert.ok(!html.includes('data-testid="context-curated-content"'), "no curated-content testid should render with no lesson");
+  assert.ok(!html.includes('data-testid="theology-curated-content"'), "no curated-content testid should render with no lesson");
+});
+
+test("RENDER: a curatedLesson with both ## Context and ## Positions prose renders both instead of the fixed notices", () => {
+  const lesson = sampleCuratedLesson({
+    contextProse: "Real context prose for the test fixture lesson.",
+    positionsProse: "Real positions prose for the test fixture lesson.",
+  });
+  const html = render({
+    session: sampleSession(),
+    claims: [sampleStudyClaim("observation")],
+    curatedLesson: lesson,
+  });
+  assert.ok(html.includes("Real context prose for the test fixture lesson."), "context prose did not render");
+  assert.ok(html.includes("Real positions prose for the test fixture lesson."), "positions prose did not render");
+  assert.ok(html.includes('data-testid="context-curated-content"'));
+  assert.ok(html.includes('data-testid="theology-curated-content"'));
+  assert.ok(!html.includes('data-testid="context-no-curated-notice"'), "the fixed notice must not also render");
+  assert.ok(!html.includes('data-testid="theology-no-curated-notice"'), "the fixed notice must not also render");
+});
+
+test("RENDER: a curatedLesson missing ONE section falls back to that section's own notice while the other section's real content still shows", () => {
+  const lesson = sampleCuratedLesson({
+    contextProse: "Real context prose only -- this lesson has no Positions section.",
+    positionsProse: null,
+  });
+  const html = render({
+    session: sampleSession(),
+    claims: [sampleStudyClaim("observation")],
+    curatedLesson: lesson,
+  });
+  assert.ok(html.includes("Real context prose only -- this lesson has no Positions section."), "context prose missing");
+  assert.ok(html.includes('data-testid="context-curated-content"'));
+  assert.ok(
+    html.includes('data-testid="theology-no-curated-notice"'),
+    "theology must fall back to its own notice when the lesson has no Positions prose, even though Context has real content",
+  );
+  assert.ok(!html.includes('data-testid="theology-curated-content"'));
+});
 
 test("RENDER: all eight sections appear, each naming both its plain label and its BUILD_PLAN product name", () => {
   const html = render({ session: sampleSession() });

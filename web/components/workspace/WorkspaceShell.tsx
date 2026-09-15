@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import type { ClaimComposerSavedResult } from "@/components/study";
 import type { Application, StudyClaim, StudySession } from "@/lib/contracts/study-v2";
+import type { PublishedLessonMatch } from "@/lib/content/publishedLessons";
 import type { WorkspaceGatingInput } from "@/lib/workspace/gating";
 import { computeWorkspaceSectionsFromSession } from "@/lib/workspace/renderState";
 
@@ -131,6 +132,16 @@ export interface WorkspaceShellProps {
   /** This session's own claims, for gating. Empty is a valid, honest state — see this task's commit message for what does/does not fetch this today. */
   claims?: StudyClaim[];
   applications?: Application[];
+  /**
+   * RELEASEREADER-001 — the one published lesson (if any) whose own passage
+   * covers this session's range, resolved server-side by `page.tsx` via
+   * `lib/content/publishedLessons.ts`. `null`/`undefined` (the honest default
+   * for every passage with no lesson authored yet) is threaded straight
+   * through to `ContextSection`/`TheologySection` unchanged — this file makes
+   * no gating or content decision of its own with it, exactly like `claims`/
+   * `applications` above.
+   */
+  curatedLesson?: PublishedLessonMatch | null;
 }
 
 export function WorkspaceShell({
@@ -138,6 +149,7 @@ export function WorkspaceShell({
   session: initialSession,
   claims: initialClaims = [],
   applications: initialApplications = [],
+  curatedLesson = null,
 }: WorkspaceShellProps) {
   const [session, setSession] = useState(initialSession);
   const [claims, setClaims] = useState(initialClaims);
@@ -208,6 +220,7 @@ export function WorkspaceShell({
               unlocked={section.unlocked}
               offeredKinds={section.offeredKinds ?? []}
               onSaved={handleClaimSaved}
+              curatedLesson={curatedLesson}
             />
           ) : null}
           {section.contentMode === "theology" ? (
@@ -217,6 +230,7 @@ export function WorkspaceShell({
               unlocked={section.unlocked}
               offeredKinds={section.offeredKinds ?? []}
               onSaved={handleClaimSaved}
+              curatedLesson={curatedLesson}
             />
           ) : null}
           {section.contentMode === "conviction" ? (

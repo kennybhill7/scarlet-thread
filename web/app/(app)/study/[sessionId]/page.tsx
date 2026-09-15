@@ -2,10 +2,12 @@ import { notFound, redirect } from "next/navigation";
 
 import { WorkspaceShell } from "@/components/workspace";
 import { auth } from "@/lib/auth/config";
+import { db } from "@/lib/db";
 import { listThreads } from "@/lib/db/threads";
 import { getOrCreatePersonalWorkspace } from "@/lib/db/workspaces";
 import type { Application, StudyClaim, StudySession } from "@/lib/contracts/study-v2";
 import { getSessionV2, listApplicationsV2, listClaimsV2 } from "@/app/api/v2/_lib/queries";
+import { findPublishedLessonForRange, type PublishedLessonMatch } from "@/lib/content/publishedLessons";
 
 import styles from "./study.module.css";
 
@@ -46,6 +48,24 @@ import styles from "./study.module.css";
  * observable effect there: the RENDER tests' gating computation sees
  * `claims: []`/`applications: []`, same as before this change — none of
  * those tests assert anything about gating, so this is inert for them.
+ *
+ * CURATED LESSON DATA (RELEASEREADER-001): `resolveStudyPageData` also loads
+ * this session's own `curatedLesson` (`lib/content/publishedLessons.ts`'s
+ * `findPublishedLessonForRange`) alongside claims/applications. Unlike
+ * those two, it runs inside its OWN try/catch, deliberately separate from
+ * the outer one: a failure to reach `catalog_releases` (a dead connection, a
+ * malformed release row, no release published yet) must fail closed to
+ * `curatedLesson: null` — the workspace renders exactly today's "no curated
+ * content yet" notices — and must NEVER turn an otherwise-healthy session
+ * into a "setup-incomplete" screen the way a failure resolving the
+ * session/workspace itself does. `deps.getCuratedLesson` follows the same
+ * optional, call-guarded shape as `listSessionClaims`/`listSessionApplications`
+ * for the same reason: `tests/study-page.test.ts` (frozen, predates this
+ * task, not this task's to edit) does not stub it, so its real default (a
+ * genuine `catalog_releases` query against `@/lib/db`) runs under that
+ * suite too — safe specifically because it is try/caught into `null` there,
+ * proving the fail-closed behavior for free rather than asserting it in a
+ * stub this task cannot add to that file.
  */
 
 // ---------------------------------------------------------------------------
@@ -87,6 +107,13 @@ export type StudyPageDeps = {
    */
   listSessionClaims?: (workspaceId: string, sessionId: string) => Promise<StudyClaim[]>;
   listSessionApplications?: (workspaceId: string, sessionId: string) => Promise<Application[]>;
+  /**
+   * Optional (new in this task, see "CURATED LESSON DATA" above): the one
+   * published lesson (if any) covering `range`. Omitted here means "no
+   * curated lesson" (`null`), never a thrown error — mirrors
+   * `listSessionClaims`/`listSessionApplications`'s own optionality.
+   */
+  getCuratedLesson?: (range: StudySession["range"]) => Promise<PublishedLessonMatch | null>;
 };
 
 /**
@@ -108,6 +135,7 @@ const defaultStudyPageDeps: StudyPageDeps = {
     typeof listApplicationsV2 === "function"
       ? listApplicationsV2(workspaceId, { sessionId })
       : Promise.resolve([]),
+  getCuratedLesson: (range) => findPublishedLessonForRange(db, range),
 };
 
 export type StudyPageResolution =
@@ -119,6 +147,7 @@ export type StudyPageResolution =
       session: StudySession;
       claims: StudyClaim[];
       applications: Application[];
+      curatedLesson: PublishedLessonMatch | null;
     };
 
 /**
@@ -162,7 +191,18 @@ export async function resolveStudyPageData(
     return { status: "setup-incomplete" };
   }
   if (!session) return { status: "not-found" };
-  return { status: "ready", workspaceId, session, claims, applications };
+
+  // Deliberately its OWN try/catch, separate from the block above — see this
+  // file's "CURATED LESSON DATA" header comment. A failure here must never
+  // demote an otherwise-healthy "ready" resolution to "setup-incomplete".
+  let curatedLesson: PublishedLessonMatch | null = null;
+  try {
+    curatedLesson = deps.getCuratedLesson ? await deps.getCuratedLesson(session.range) : null;
+  } catch {
+    curatedLesson = null;
+  }
+
+  return { status: "ready", workspaceId, session, claims, applications, curatedLesson };
 }
 
 // ---------------------------------------------------------------------------
@@ -281,6 +321,7 @@ export default async function StudySessionPage({ params }: StudyPageProps) {
         session={resolution.session}
         claims={resolution.claims}
         applications={resolution.applications}
+        curatedLesson={resolution.curatedLesson}
       />
     </div>
   );
