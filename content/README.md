@@ -42,6 +42,20 @@ already enforces.
 content/curriculum/<track>/<nn-slug>.md
 ```
 
+## Source registry
+
+`content/source-registry.json` is the authoring bibliography registry. Every
+ID in a lesson's `sources` list must appear there before `content:build` can
+proceed. The registry stores bibliographic metadata, a provenance URL, a
+license/copying note, and access date; it does not reproduce copyrighted
+source text. The compiler checks IDs against this file before the publication
+status gate and before any database write.
+
+This is the authoring-side resolution gate. A later release migration must
+also upsert or verify the same IDs in the curated Postgres `sources` table
+before publishing a catalog row; the JSON file alone is not evidence that
+those database rows exist.
+
 e.g. `content/curriculum/genesis/03-the-fall.md`. The path (minus `.md`,
 forward-slash separated) becomes the lesson's slug in the compiled release
 bundle — see `web/scripts/content/build.ts`'s `slugFor`.

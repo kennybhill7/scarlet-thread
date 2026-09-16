@@ -44,6 +44,7 @@
  */
 
 import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -144,6 +145,24 @@ export interface BuildResult {
   errors: string[];
 }
 
+export interface SourceRegistryEntry {
+  id: string;
+  author: string;
+  title: string;
+  publisher: string;
+  url: string;
+  licence: string;
+  accessedAt: string;
+}
+
+/** Returns source IDs referenced by lessons but absent from the registry. */
+export function missingSourceIds(bundle: ReleaseBundle, registry: SourceRegistryEntry[]): string[] {
+  const known = new Set(registry.map((source) => source.id));
+  return [...new Set(Object.values(bundle.lessons).flatMap((lesson) => lesson.frontmatter.sources))]
+    .filter((id) => !known.has(id))
+    .sort();
+}
+
 /** Returns the explicit publication-gate failures in a validated bundle. */
 export function publishGateFailures(bundle: ReleaseBundle): string[] {
   return Object.entries(bundle.lessons)
@@ -197,6 +216,18 @@ async function main(): Promise<void> {
   }
 
   const validatedBundle = result.bundle as ReleaseBundle;
+  let sourceRegistry: SourceRegistryEntry[];
+  try {
+    const raw = JSON.parse(readFileSync(path.resolve(CURRICULUM_DIR, "..", "source-registry.json"), "utf8")) as unknown;
+    if (!Array.isArray(raw)) throw new Error("registry must be an array");
+    sourceRegistry = raw as SourceRegistryEntry[];
+  } catch (error) {
+    throw new Error(`content:build refused: source registry could not be loaded (${String(error)})`);
+  }
+  const missingSources = missingSourceIds(validatedBundle, sourceRegistry);
+  if (missingSources.length > 0) {
+    throw new Error(`content:build refused: lesson source IDs are absent from content/source-registry.json: ${missingSources.join(", ")}`);
+  }
   const draftOrReview = publishGateFailures(validatedBundle);
 
   // `status` is a publication gate, not descriptive metadata. A durable

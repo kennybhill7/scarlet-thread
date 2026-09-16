@@ -22,6 +22,7 @@ import {
   compileReleaseBundle,
   computeChecksum,
   publishGateFailures,
+  missingSourceIds,
   slugFor,
   type CompileLessonInput,
 } from "../scripts/content/build";
@@ -195,6 +196,15 @@ test("BUILD: draft and in-review lessons are never eligible for a durable releas
   // release gate must reject both statuses.
   assert.equal(result.bundle?.lessonCount, 2);
   assert.deepEqual(publishGateFailures(result.bundle!), ["genesis/draft (draft)", "genesis/review (in_review)"]);
+});
+
+test("BUILD: every lesson source ID must resolve in the authoring registry", () => {
+  const bundle = compileReleaseBundle([
+    { slug: "genesis/03", frontmatter: fixtureFrontmatter({ sources: ["known", "missing"] }), body: "Body" },
+  ]);
+  const registry = [{ id: "known", author: "A", title: "T", publisher: "P", url: "https://example.test", licence: "metadata", accessedAt: "2026-09-15" }];
+  assert.deepEqual(missingSourceIds(bundle, registry), ["missing"]);
+  assert.deepEqual(missingSourceIds(bundle, [...registry, { ...registry[0], id: "missing" }]), []);
 });
 
 test("BUILD: refuses to build (no bundle, no checksum) when ANY lesson fails validation", () => {
