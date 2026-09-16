@@ -21,6 +21,7 @@ import {
   canonicalJsonStringify,
   compileReleaseBundle,
   computeChecksum,
+  publishGateFailures,
   slugFor,
   type CompileLessonInput,
 } from "../scripts/content/build";
@@ -177,6 +178,23 @@ test("BUILD: all-valid lessons compile into a bundle with a checksum", () => {
   assert.equal(result.ok, true);
   assert.equal(result.bundle?.lessonCount, 1);
   assert.ok(result.bundle?.lessons["genesis/03-the-fall"]);
+});
+
+test("BUILD: draft and in-review lessons are never eligible for a durable release", () => {
+  const draft = { frontmatter: fixtureFrontmatter({ status: "draft" }), body: "Draft body" };
+  const inReview = { frontmatter: fixtureFrontmatter({ status: "in_review" }), body: "Review body" };
+  const result = buildReleaseFromValidation("/curriculum", {
+    ok: true,
+    results: [
+      validResult("/curriculum/genesis/draft.md", draft.frontmatter, draft.body),
+      validResult("/curriculum/genesis/review.md", inReview.frontmatter, inReview.body),
+    ],
+  });
+  assert.equal(result.ok, true);
+  // The pure compiler remains useful for previews; the explicit durable
+  // release gate must reject both statuses.
+  assert.equal(result.bundle?.lessonCount, 2);
+  assert.deepEqual(publishGateFailures(result.bundle!), ["genesis/draft (draft)", "genesis/review (in_review)"]);
 });
 
 test("BUILD: refuses to build (no bundle, no checksum) when ANY lesson fails validation", () => {

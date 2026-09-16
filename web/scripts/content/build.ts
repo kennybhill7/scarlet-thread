@@ -144,6 +144,13 @@ export interface BuildResult {
   errors: string[];
 }
 
+/** Returns the explicit publication-gate failures in a validated bundle. */
+export function publishGateFailures(bundle: ReleaseBundle): string[] {
+  return Object.entries(bundle.lessons)
+    .filter(([, lesson]) => lesson.frontmatter.status !== "published")
+    .map(([slug, lesson]) => `${slug} (${lesson.frontmatter.status})`);
+}
+
 /**
  * Turns a `validate.ts` `runValidation` result into a {@link BuildResult}.
  * Refuses (does not partially publish) if ANY lesson under `curriculumDir`
@@ -189,7 +196,21 @@ async function main(): Promise<void> {
     return;
   }
 
-  const bundle = result.bundle as ReleaseBundle;
+  const validatedBundle = result.bundle as ReleaseBundle;
+  const draftOrReview = publishGateFailures(validatedBundle);
+
+  // `status` is a publication gate, not descriptive metadata. A durable
+  // catalog release must never expose a draft or in-review lesson. Refuse the
+  // write entirely, including when the only available lesson is a draft, so a
+  // casual `content:build` cannot replace the latest release with an empty or
+  // unreviewed catalog. Publishing is an explicit authoring transition.
+  if (draftOrReview.length > 0) {
+    throw new Error(
+      `content:build refused durable release: ${draftOrReview.join(", ")} must be marked published before it can ship`,
+    );
+  }
+
+  const bundle = validatedBundle;
   const checksum = result.checksum as string;
   console.log(`Compiled ${bundle.lessonCount} lesson(s) from content/curriculum/.`);
   console.log(`SHA-256 checksum: ${checksum}`);
