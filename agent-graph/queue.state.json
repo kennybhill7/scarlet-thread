@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-17T18:49:35.272Z",
+  "updatedAt": "2026-09-17T19:25:30.520Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -800,6 +800,15 @@
       "lastRunId": null,
       "lastEvidence": "Merged into design/mountain-journey and master (251512a, fast-forward, pushed both). Independently re-verified, not merely trusted: full diff review of all 6 changed files -- confirmed upsertSourceRegistryRows conflicts on sources.id (not url) with a real per-row onConflictDoUpdate using excluded.<col> so a batched multi-row upsert applies each row's own values, confirmed the new gate in build.ts's main() sits in the exact ordering specified (JSON checks -> DATABASE_URL check -> db client created -> real Postgres findMissingSourceIds query -> catalogReleases insert), confirmed sync-source-registry.mts matches import-cross-references.mts's human-gate framing and was never run for real. Ran all three relevant test files directly (46/46: 21 content-build.test.ts, 16 graph-edges.test.ts, 9 source-registry-sync.test.ts), typecheck/lint clean, full suite clean (1562 pass/0 fail/4 cancelled with SECURITY_HEADERS_WIRE_ALLOW_SKIP=1 -- the agent's own report showed 19 cancelled because it ran without that flag; same underlying pre-existing .next/BUILD_ID gap either way, not a regression). Did not attempt a live content:build/db:sync-sources smoke test against production myself -- the ordering is already proven correct by direct code reading and the pure/structural tests, and a live run (even read-only) against the only Postgres this app has was judged not worth the added exposure for a change already this thoroughly verified by inspection.",
       "notes": "Dispatched 2026-09-17 immediately after Ken approved the Genesis 3 lesson's content ('i like it') and Claude flipped it to status: published (4e58f6b). Closes content/README.md's own documented gap: the JSON source-registry.json only ever proved authoring-side resolution, never that real Postgres sources rows exist. Closed 2026-09-17 by Claude. Two real production writes remain, both deliberately NOT done by any agent this session, held for Ken's own explicit go: (1) npm run db:sync-sources -- upserts the 11 Genesis 3 source rows into the real sources table; (2) npm run content:build -- writes the first-ever catalog_releases row, the actual go-live moment after which a learner opening a Genesis 3 study session sees the lesson via RELEASEREADER-001's reader. Order matters: (1) must run before (2), or the new DB-row-existence gate refuses the release."
+    },
+    "GEN3RELEASE-001": {
+      "status": "done",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 1,
+      "lastRunId": null,
+      "lastEvidence": "Real production database actions, run by Claude with Ken's explicit approval. A read-only check first found production's Postgres was 7 migrations behind master (last applied 2026-07-29) -- missing the entire v2 Study schema and the graph_edges/sources/catalog_releases tables entirely. Flagged to Ken before acting since it was larger in scope than originally approved. With his go-ahead: ran drizzle-kit migrate for real (all 13 migrations applied cleanly); ran the source-registry sync for real (11 source rows written to the now-real sources table); ran content:build for real (compiled 1 lesson, checksum 6ce50ba4bd766bf4437a6af33f47a80a9e790d0cf3bb7213af727b39d62cd677, wrote catalog_releases row 5821416d-f648-410e-bc21-518f39655e26).",
+      "notes": "Milestone, not a code task -- no branch/commit, pure production-database action. Closes the loop opened by GEN3LESSON-001/CONTENTBUILDGATE-001/SOURCEREGISTRY-001/SOURCESYNC-001: the first real, published, cited curriculum content this app has ever served. Follow-up worth Ken's attention: production's schema was multiple migrations stale for an unknown period before today -- worth checking whether any currently-deployed Vercel build depended on those tables and was affected, and worth adding a real migration step to the deploy process (or a standing habit) so this gap does not silently reopen as more schema work merges."
     }
   }
 }
