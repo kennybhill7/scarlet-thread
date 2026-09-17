@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-16T19:26:10.728Z",
+  "updatedAt": "2026-09-17T18:39:25.405Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -791,6 +791,15 @@
       "lastRunId": null,
       "lastEvidence": "Merged into design/mountain-journey and master (1bd8393 Codex + 59704fa Claude's own follow-on fix, both fast-forward, pushed). Codex built content/source-registry.json (11 entries, one per Genesis 3 source ID) plus a new missingSourceIds(bundle, registry) gate in build.ts's main(), checked before the DATABASE_URL/db.insert path -- an unresolved source ID now refuses the build. Independently re-verified by Claude: reviewed the full diff; ran content-build.test.ts (18/18 including the new source-resolution test); ran typecheck/lint clean; ran a real content:validate + content:build smoke test against the actual repo (source IDs resolve cleanly, then correctly refused at the pre-existing draft-status gate); full suite 1550 pass/0 fail/4 cancelled (same pre-existing env gap). Beyond re-verifying Codex's work, Claude cross-checked every registry entry's author/title/publisher against design/GENESIS_3_LESSON_RESEARCH.md's own bibliography and found one real misattribution: the Augustine entry listed 'Augustine of Hippo' as author for a URL that is actually Edward L. Smither's 2014 Verbum et Ecclesia journal article reporting Augustine's text (research bibliography entry 48 -- the only Augustine-related citation in the whole research doc, and it is Smither's secondary article, not a primary Augustine source). Fixed directly (59704fa) rather than sent back, since it was a small, mechanical, unambiguous metadata correction and the lesson body's own prose already attributed it correctly to Smither -- only the registry's own metadata was wrong. Re-ran the full verification suite after the fix to confirm the correction didn't break resolution (still 11/11 IDs resolve).",
       "notes": "Dispatched by Codex 2026-09-16 in parallel with Claude's Genesis 3 content review, closing CONTENTPIPE-001's own documented scope gap (schema.ts's SCOPE NOTE: source IDs were format-checked only, never resolved to a real row). content/README.md's own new 'Source registry' section is explicit that this is the AUTHORING-side gate only -- a later release migration must still upsert/verify these same IDs in the curated Postgres sources table before a catalog row can be published; the JSON registry alone is not evidence those DB rows exist. That Postgres-side sync/verification step remains real, unstarted future work, tracked as an open item. Publishing the Genesis 3 lesson (status: published) still requires Ken's own review/approval of the content itself -- unaffected by this task, not made here."
+    },
+    "SOURCESYNC-001": {
+      "status": "pending",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Dispatched 2026-09-17 -- the last real gap before the Genesis 3 lesson (now status: published as of 4e58f6b, per Ken's approval -- 'i like it') can actually be released via content:build. Two real, unstarted pieces: (1) sync content/source-registry.json into the ALREADY-EXISTING curated sources Postgres table (db/schema.ts, built by GRAPHEDGES-001 -- shape is id/author/title/publisher/url/licence/accessedAt, an exact match for SourceRegistryEntry in build.ts) via an idempotent upsert keyed on id (NOT graphEdges.ts's existing upsertOpenBibleSource, which conflicts on url and generates a random uuid id -- wrong pattern here, since source-registry.json's ids ARE the intended stable primary keys lessons reference); (2) extend content:build's own fail-closed gate chain (schema validation -> registry-JSON resolution -> publish-status -> [NEW] real Postgres source-row existence) so a release can never write a catalog row citing a source that has no real DB row backing it -- closing the gap content/README.md's own 'Source registry' section already flags ('the JSON file alone is not evidence that those database rows exist'). Scoped to building and unit-testing the sync script + the new DB gate only -- actually RUNNING the sync script against the real production DATABASE_URL (the only Postgres this app has) is deliberately NOT done here, matching this session's own established precedent (import-cross-references.mts, content:build itself) of never running a real write against production from inside a dispatched task -- that stays Ken's own decision to trigger."
     }
   }
 }
