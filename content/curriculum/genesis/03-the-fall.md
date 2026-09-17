@@ -5,7 +5,7 @@ passage:
 stage: 2
 methodFocus: "Distinguishing cited fact, textual/lexical observation, and named positions from the reader's own conclusion -- using Genesis 3:15 as the test case where translations and traditions visibly diverge."
 author: "Kenneth Hill"
-status: draft
+status: published
 sources:
   - source-westminster-confession
   - source-westminster-larger-catechism
