@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-17T18:39:25.405Z",
+  "updatedAt": "2026-09-17T18:49:35.272Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -793,13 +793,13 @@
       "notes": "Dispatched by Codex 2026-09-16 in parallel with Claude's Genesis 3 content review, closing CONTENTPIPE-001's own documented scope gap (schema.ts's SCOPE NOTE: source IDs were format-checked only, never resolved to a real row). content/README.md's own new 'Source registry' section is explicit that this is the AUTHORING-side gate only -- a later release migration must still upsert/verify these same IDs in the curated Postgres sources table before a catalog row can be published; the JSON registry alone is not evidence those DB rows exist. That Postgres-side sync/verification step remains real, unstarted future work, tracked as an open item. Publishing the Genesis 3 lesson (status: published) still requires Ken's own review/approval of the content itself -- unaffected by this task, not made here."
     },
     "SOURCESYNC-001": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/SOURCESYNC-001-claude",
+      "commitSha": "251512a",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Dispatched 2026-09-17 -- the last real gap before the Genesis 3 lesson (now status: published as of 4e58f6b, per Ken's approval -- 'i like it') can actually be released via content:build. Two real, unstarted pieces: (1) sync content/source-registry.json into the ALREADY-EXISTING curated sources Postgres table (db/schema.ts, built by GRAPHEDGES-001 -- shape is id/author/title/publisher/url/licence/accessedAt, an exact match for SourceRegistryEntry in build.ts) via an idempotent upsert keyed on id (NOT graphEdges.ts's existing upsertOpenBibleSource, which conflicts on url and generates a random uuid id -- wrong pattern here, since source-registry.json's ids ARE the intended stable primary keys lessons reference); (2) extend content:build's own fail-closed gate chain (schema validation -> registry-JSON resolution -> publish-status -> [NEW] real Postgres source-row existence) so a release can never write a catalog row citing a source that has no real DB row backing it -- closing the gap content/README.md's own 'Source registry' section already flags ('the JSON file alone is not evidence that those database rows exist'). Scoped to building and unit-testing the sync script + the new DB gate only -- actually RUNNING the sync script against the real production DATABASE_URL (the only Postgres this app has) is deliberately NOT done here, matching this session's own established precedent (import-cross-references.mts, content:build itself) of never running a real write against production from inside a dispatched task -- that stays Ken's own decision to trigger."
+      "lastEvidence": "Merged into design/mountain-journey and master (251512a, fast-forward, pushed both). Independently re-verified, not merely trusted: full diff review of all 6 changed files -- confirmed upsertSourceRegistryRows conflicts on sources.id (not url) with a real per-row onConflictDoUpdate using excluded.<col> so a batched multi-row upsert applies each row's own values, confirmed the new gate in build.ts's main() sits in the exact ordering specified (JSON checks -> DATABASE_URL check -> db client created -> real Postgres findMissingSourceIds query -> catalogReleases insert), confirmed sync-source-registry.mts matches import-cross-references.mts's human-gate framing and was never run for real. Ran all three relevant test files directly (46/46: 21 content-build.test.ts, 16 graph-edges.test.ts, 9 source-registry-sync.test.ts), typecheck/lint clean, full suite clean (1562 pass/0 fail/4 cancelled with SECURITY_HEADERS_WIRE_ALLOW_SKIP=1 -- the agent's own report showed 19 cancelled because it ran without that flag; same underlying pre-existing .next/BUILD_ID gap either way, not a regression). Did not attempt a live content:build/db:sync-sources smoke test against production myself -- the ordering is already proven correct by direct code reading and the pure/structural tests, and a live run (even read-only) against the only Postgres this app has was judged not worth the added exposure for a change already this thoroughly verified by inspection.",
+      "notes": "Dispatched 2026-09-17 immediately after Ken approved the Genesis 3 lesson's content ('i like it') and Claude flipped it to status: published (4e58f6b). Closes content/README.md's own documented gap: the JSON source-registry.json only ever proved authoring-side resolution, never that real Postgres sources rows exist. Closed 2026-09-17 by Claude. Two real production writes remain, both deliberately NOT done by any agent this session, held for Ken's own explicit go: (1) npm run db:sync-sources -- upserts the 11 Genesis 3 source rows into the real sources table; (2) npm run content:build -- writes the first-ever catalog_releases row, the actual go-live moment after which a learner opening a Genesis 3 study session sees the lesson via RELEASEREADER-001's reader. Order matters: (1) must run before (2), or the new DB-row-existence gate refuses the release."
     }
   }
 }
