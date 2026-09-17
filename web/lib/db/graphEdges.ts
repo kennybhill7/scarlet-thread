@@ -13,7 +13,7 @@
  * for exactly this reason.
  */
 
-import { desc, eq, gte, sql } from "drizzle-orm";
+import { desc, eq, gte, inArray, sql } from "drizzle-orm";
 
 import { graphEdges, sources } from "@/db/schema";
 import type { Database } from "@/lib/db";
@@ -63,10 +63,106 @@ export async function upsertOpenBibleSource(db: Database, accessedAt: string): P
   return existing.id;
 }
 
-export type GraphEdgeInsert = Omit<GraphEdgeRecordV1, "id" | "createdAt">;
-
-/** Postgres binds one parameter per column per row; 500 rows * 7 columns = 3,500 params, comfortably under the 65,535-per-statement limit even before accounting for `id`/`createdAt` defaults. */
+/** Postgres binds one parameter per column per row; 500 rows * 7 columns = 3,500 params, comfortably under the 65,535-per-statement limit even before accounting for `id`/`createdAt` defaults. Shared by every chunked bulk-write function in this file. */
 const DEFAULT_CHUNK_SIZE = 500;
+
+// ---------------------------------------------------------------------------
+// SOURCESYNC-001 — syncs `content/source-registry.json` (the authoring-side
+// bibliography gate `scripts/content/build.ts`'s `missingSourceIds` checks
+// against) into the real curated `sources` table those JSON entries are
+// meant to become rows in. `content/README.md`'s "Source registry" section
+// names this as the second, release-side half of a two-tier design: "the
+// JSON file alone is not evidence that those database rows exist."
+// ---------------------------------------------------------------------------
+
+/** The shape one `content/source-registry.json` entry must have to become a
+ * `sources` row — structurally identical to `scripts/content/build.ts`'s own
+ * `SourceRegistryEntry` interface (both are, deliberately, the real
+ * `sources` table's insert shape), derived directly from the schema instead
+ * of retyped by hand so the two can never silently drift. */
+export type SourceRow = typeof sources.$inferInsert;
+
+/**
+ * Upserts every `content/source-registry.json` entry into `sources`, keyed
+ * on `sources.id` — deliberately NOT the same pattern
+ * {@link upsertOpenBibleSource} above uses. That function conflicts on
+ * `sources.url` and mints a fresh `crypto.randomUUID()` `id` on every call,
+ * which is correct for OpenBible's one bulk-imported row (an arbitrary id,
+ * no stable natural key of its own). It is wrong here:
+ * `content/source-registry.json`'s ids (e.g.
+ * `"source-westminster-confession"`) are deliberately stable, human-authored
+ * strings that ARE meant to be the real `sources.id` primary keys — lessons'
+ * frontmatter `sources[]` fields reference these exact strings
+ * (`content/README.md` "Source registry").
+ *
+ * `.onConflictDoUpdate({ target: sources.id, ... })` — not
+ * `onConflictDoNothing` — gives real update-on-conflict semantics:
+ * idempotent to re-run with unchanged input, and a registry entry corrected
+ * after its first sync (this already happened once this week, per
+ * SOURCESYNC-001's own task description) is picked up on the next sync
+ * rather than silently ignored. `sql`excluded....`` (not the JS-side
+ * `entry.field` values) is used in `set` so a single batched multi-row
+ * `INSERT ... ON CONFLICT` applies each conflicting row's OWN incoming
+ * values, not the first/last row's values pasted onto every conflict — the
+ * standard Postgres bulk-upsert idiom, same chunking discipline as
+ * {@link insertGraphEdgesBatch} below.
+ */
+export async function upsertSourceRegistryRows(
+  db: Database,
+  entries: readonly SourceRow[],
+  chunkSize: number = DEFAULT_CHUNK_SIZE,
+): Promise<void> {
+  for (let start = 0; start < entries.length; start += chunkSize) {
+    const chunk = entries.slice(start, start + chunkSize);
+    if (chunk.length === 0) continue;
+    await db
+      .insert(sources)
+      .values(chunk)
+      .onConflictDoUpdate({
+        target: sources.id,
+        set: {
+          author: sql`excluded.author`,
+          title: sql`excluded.title`,
+          publisher: sql`excluded.publisher`,
+          url: sql`excluded.url`,
+          licence: sql`excluded.licence`,
+          accessedAt: sql`excluded.accessed_at`,
+        },
+      });
+  }
+}
+
+/**
+ * Pure: which of `required` are absent from `existing`. Deduped and sorted,
+ * matching `scripts/content/build.ts`'s own `missingSourceIds` output shape.
+ * Factored out from {@link findMissingSourceIds} below so the actual
+ * set-diff logic is unit-testable with plain fixtures — no database
+ * connection needed to prove this part correct.
+ */
+export function diffAbsentIds(required: readonly string[], existing: readonly string[]): string[] {
+  const found = new Set(existing);
+  return [...new Set(required)].filter((id) => !found.has(id)).sort();
+}
+
+/**
+ * The real-Postgres analogue of `scripts/content/build.ts`'s own
+ * `missingSourceIds`, which only checks `content/source-registry.json` —
+ * this checks the real database instead. Returns which of `ids` have NO
+ * matching row in `sources` right now. `content/README.md`'s own words:
+ * "a later release migration must also upsert or verify the same IDs in the
+ * curated Postgres `sources` table before publishing a catalog row; the JSON
+ * file alone is not evidence that those database rows exist" — this
+ * function, wired into `content:build`'s `main()`, is that release-side
+ * gate made real.
+ */
+export async function findMissingSourceIds(db: Database, ids: readonly string[]): Promise<string[]> {
+  const unique = [...new Set(ids)];
+  if (unique.length === 0) return [];
+  const rows = await db.select({ id: sources.id }).from(sources).where(inArray(sources.id, unique));
+  return diffAbsentIds(unique, rows.map((row) => row.id));
+}
+
+export type GraphEdgeInsert = Omit<GraphEdgeRecordV1, "id" | "createdAt">;
 
 /**
  * Bulk-inserts `graph_edges` rows in chunks, skipping any row that already

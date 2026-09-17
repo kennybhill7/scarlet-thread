@@ -38,6 +38,15 @@
  * step (validation -> bundle -> checksum) above it is real and is what
  * `content-build.test.ts` proves deterministic.
  *
+ * SOURCESYNC-001 adds the release-side half of the source-registry gate
+ * `content/README.md` documents: after `missingSourceIds` proves every
+ * lesson source ID resolves in the authoring-side `content/source-registry.json`
+ * and after the `DATABASE_URL` check, `main` also calls
+ * `lib/db/graphEdges.ts`'s `findMissingSourceIds` against the real curated
+ * `sources` table and refuses the release if any ID has no matching row
+ * there -- see that gate's own comment below for the exact ordering
+ * rationale.
+ *
  * Run via `npm run content:build` from `web/`.
  *
  * Author: Kenneth Hill
@@ -52,6 +61,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 
 import * as schema from "@/db/schema";
 import { catalogReleases } from "@/db/schema";
+import { findMissingSourceIds } from "@/lib/db/graphEdges";
 
 import type { LessonFrontmatter } from "./schema";
 import { CURRICULUM_DIR, runValidation, type RunValidationResult } from "./validate";
@@ -155,12 +165,19 @@ export interface SourceRegistryEntry {
   accessedAt: string;
 }
 
+/** Every source ID referenced anywhere in the bundle's lessons, deduped and
+ * sorted. The JSON-registry gate ({@link missingSourceIds}) and the real
+ * Postgres-row gate (`lib/db/graphEdges.ts`'s `findMissingSourceIds`, wired
+ * into `main` below) both start from this same required-ID set -- factored
+ * out so it is unit-testable on its own and never redefined twice. */
+export function requiredSourceIds(bundle: ReleaseBundle): string[] {
+  return [...new Set(Object.values(bundle.lessons).flatMap((lesson) => lesson.frontmatter.sources))].sort();
+}
+
 /** Returns source IDs referenced by lessons but absent from the registry. */
 export function missingSourceIds(bundle: ReleaseBundle, registry: SourceRegistryEntry[]): string[] {
   const known = new Set(registry.map((source) => source.id));
-  return [...new Set(Object.values(bundle.lessons).flatMap((lesson) => lesson.frontmatter.sources))]
-    .filter((id) => !known.has(id))
-    .sort();
+  return requiredSourceIds(bundle).filter((id) => !known.has(id));
 }
 
 /** Returns the explicit publication-gate failures in a validated bundle. */
@@ -255,6 +272,26 @@ async function main(): Promise<void> {
   }
 
   const db = drizzle(process.env.DATABASE_URL, { schema });
+
+  // SOURCESYNC-001 -- the release-side half of the two-tier source-registry
+  // gate content/README.md documents: missingSourceIds (above) only proves
+  // every lesson source ID resolves in content/source-registry.json, the
+  // authoring-side JSON file. That file is not evidence the real Postgres
+  // `sources` rows exist -- a registry entry can be authored and never
+  // synced (`npm run db:sync-sources`). Refuse the whole release, never a
+  // partial one, the same "fail loudly, never partially publish" discipline
+  // missingSourceIds/publishGateFailures above already use. Deliberately
+  // placed AFTER the DATABASE_URL check (it needs the real `db` connection
+  // that check just proved exists) and BEFORE the catalog_releases write
+  // below -- a broken/un-synced source must never let a release ship.
+  const missingSourceRows = await findMissingSourceIds(db, requiredSourceIds(bundle));
+  if (missingSourceRows.length > 0) {
+    throw new Error(
+      `content:build refused: lesson source IDs have no matching row in the real Postgres sources table ` +
+        `(run "npm run db:sync-sources" to sync content/source-registry.json first): ${missingSourceRows.join(", ")}`,
+    );
+  }
+
   const id = crypto.randomUUID();
   await db.insert(catalogReleases).values({
     id,

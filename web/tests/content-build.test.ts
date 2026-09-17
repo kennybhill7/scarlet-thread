@@ -23,6 +23,7 @@ import {
   computeChecksum,
   publishGateFailures,
   missingSourceIds,
+  requiredSourceIds,
   slugFor,
   type CompileLessonInput,
 } from "../scripts/content/build";
@@ -205,6 +206,35 @@ test("BUILD: every lesson source ID must resolve in the authoring registry", () 
   const registry = [{ id: "known", author: "A", title: "T", publisher: "P", url: "https://example.test", licence: "metadata", accessedAt: "2026-09-15" }];
   assert.deepEqual(missingSourceIds(bundle, registry), ["missing"]);
   assert.deepEqual(missingSourceIds(bundle, [...registry, { ...registry[0], id: "missing" }]), []);
+});
+
+// ===========================================================================
+// requiredSourceIds — SOURCESYNC-001. Both the JSON-registry gate
+// (missingSourceIds, above) and the real-Postgres-row gate
+// (lib/db/graphEdges.ts's findMissingSourceIds, wired into main()) start
+// from this same required-ID set. Pure, no DB/filesystem access -- this is
+// the "new pure/exported piece" SOURCESYNC-001 adds to this file, exercised
+// the same way missingSourceIds/publishGateFailures already are above,
+// never by running main() against a real DB.
+// ===========================================================================
+
+test("REQUIRED-SOURCES: collects every lesson's source IDs, deduped and sorted", () => {
+  const bundle = compileReleaseBundle([
+    { slug: "genesis/03", frontmatter: fixtureFrontmatter({ sources: ["b-source", "a-source"] }), body: "Body 1" },
+    { slug: "matthew/01", frontmatter: fixtureFrontmatter({ sources: ["a-source", "c-source"] }), body: "Body 2" },
+  ]);
+  assert.deepEqual(requiredSourceIds(bundle), ["a-source", "b-source", "c-source"]);
+});
+
+test("REQUIRED-SOURCES: a bundle with no lessons citing sources returns an empty array", () => {
+  const bundle = compileReleaseBundle([
+    { slug: "genesis/03", frontmatter: fixtureFrontmatter({ sources: [] }), body: "Body" },
+  ]);
+  assert.deepEqual(requiredSourceIds(bundle), []);
+});
+
+test("REQUIRED-SOURCES: an empty bundle (no lessons at all) returns an empty array", () => {
+  assert.deepEqual(requiredSourceIds(compileReleaseBundle([])), []);
 });
 
 test("BUILD: refuses to build (no bundle, no checksum) when ANY lesson fails validation", () => {
