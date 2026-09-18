@@ -11,16 +11,20 @@
  * Author: Kenneth Hill
  */
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
 import {
+  CURRICULUM_DIR,
+  findHeadingBlockLines,
   findMarkdownFiles,
   findPositionsBlockLines,
+  hasNonEmptyHeadingSection,
   lintAssertionLanguage,
   parseFrontmatterYaml,
+  REQUIRED_TEACH_BACK_HEADING,
   runValidation,
   splitFrontmatter,
   validateLessonSource,
@@ -150,6 +154,44 @@ test("POSITIONS: an unclosed '## Positions' block runs to the end of the body", 
 });
 
 // ===========================================================================
+// LESSONSHAPE-001 — findHeadingBlockLines (the generalized form
+// findPositionsBlockLines now delegates to) and hasNonEmptyHeadingSection
+// (the new required-section-exists check).
+// ===========================================================================
+
+test("HEADING BLOCKS: findPositionsBlockLines and findHeadingBlockLines(lines, \"Positions\") agree exactly -- the wrapper is a real delegation, not a parallel implementation", () => {
+  const lines = ["Intro.", "## Positions", "Reformed holds X.", "## Teach-Back Prompts", "Not inside."];
+  assert.deepEqual(
+    [...findPositionsBlockLines(lines)].sort((a, b) => a - b),
+    [...findHeadingBlockLines(lines, "Positions")].sort((a, b) => a - b),
+  );
+});
+
+test("HEADING BLOCKS: findHeadingBlockLines works for an arbitrary heading, not just 'Positions'", () => {
+  const lines = ["Intro.", "## Teach-Back Prompts", "Prompt one.", "Prompt two.", "## Next Heading", "Excluded."];
+  const inside = findHeadingBlockLines(lines, "Teach-Back Prompts");
+  assert.deepEqual([...inside].sort((a, b) => a - b), [1, 2, 3]);
+});
+
+test("REQUIRED_TEACH_BACK_HEADING names exactly 'Teach-Back Prompts'", () => {
+  assert.equal(REQUIRED_TEACH_BACK_HEADING, "Teach-Back Prompts");
+});
+
+test("hasNonEmptyHeadingSection: false when the heading is entirely absent", () => {
+  assert.equal(hasNonEmptyHeadingSection("# Fixture\n\nJust some prose.\n", REQUIRED_TEACH_BACK_HEADING), false);
+});
+
+test("hasNonEmptyHeadingSection: false when the heading is present but only blank lines follow it", () => {
+  const body = `## ${REQUIRED_TEACH_BACK_HEADING}\n\n\n## Some Other Heading\n\nreal content, but under the wrong heading`;
+  assert.equal(hasNonEmptyHeadingSection(body, REQUIRED_TEACH_BACK_HEADING), false);
+});
+
+test("hasNonEmptyHeadingSection: true when the heading has real, non-blank content under it", () => {
+  const body = `## ${REQUIRED_TEACH_BACK_HEADING}\n\n1. Explain without notes.\n`;
+  assert.equal(hasNonEmptyHeadingSection(body, REQUIRED_TEACH_BACK_HEADING), true);
+});
+
+// ===========================================================================
 // lintAssertionLanguage — mutation-proving: verdict language outside a
 // Positions block or quote fails; the same language inside either passes.
 // ===========================================================================
@@ -214,6 +256,10 @@ const VALID_SOURCE = [
   "",
   "Plain observational prose, no verdict language.",
   "",
+  "## Teach-Back Prompts",
+  "",
+  "1. Explain this passage without your notes (synthetic fixture prompt).",
+  "",
 ].join("\n");
 
 test("VALIDATE: a well-formed synthetic lesson passes with no errors", () => {
@@ -263,6 +309,10 @@ test("VALIDATE: the same verdict language inside a Positions block (with a sourc
     "",
     "Reformed interpreters hold that this passage teaches that Adam represents humanity.",
     "",
+    "## Teach-Back Prompts",
+    "",
+    "1. Explain this passage without your notes (synthetic fixture prompt).",
+    "",
   ].join("\n");
   const result = validateLessonSource("fixture.md", source);
   assert.equal(result.ok, true, result.errors.join(" | "));
@@ -303,12 +353,115 @@ test("VALIDATE: verdict language behind assertionReviewed passes, but is reporte
     "---",
     "This passage teaches that Adam represents humanity.",
     "",
+    "## Teach-Back Prompts",
+    "",
+    "1. Explain this passage without your notes (synthetic fixture prompt).",
+    "",
   ].join("\n");
   const result = validateLessonSource("fixture.md", source);
   assert.equal(result.ok, true, result.errors.join(" | "));
   assert.equal(result.warnings.length, 1);
   assert.ok(result.warnings[0].includes("assertionReviewed"));
   assert.ok(result.warnings[0].includes("this-passage-teaches-that"));
+});
+
+// ===========================================================================
+// LESSONSHAPE-001 — the new REQUIRED "## Teach-Back Prompts" section rule,
+// at the full validateLessonSource level (not just hasNonEmptyHeadingSection
+// in isolation above).
+// ===========================================================================
+
+/** VALID_SOURCE minus its own `## Teach-Back Prompts` section -- the "this
+ * heading is entirely absent" case, built by removing exactly what VALID_SOURCE
+ * added, so the rest of the fixture (frontmatter, plain prose) stays identical
+ * to the passing baseline above. */
+const SOURCE_MISSING_TEACH_BACK = VALID_SOURCE.replace(
+  "\n\n## Teach-Back Prompts\n\n1. Explain this passage without your notes (synthetic fixture prompt).\n",
+  "",
+);
+
+test("VALIDATE: a lesson with no '## Teach-Back Prompts' heading at all fails, naming the file and the missing heading", () => {
+  const result = validateLessonSource("content/curriculum/fixture/missing-teach-back.md", SOURCE_MISSING_TEACH_BACK);
+  assert.equal(result.ok, false);
+  assert.ok(
+    result.errors.some((error) => error.includes("Teach-Back Prompts") && error.includes("missing")),
+    `expected a clear, specific missing-section error; got: ${result.errors.join(" | ")}`,
+  );
+});
+
+test("VALIDATE: a lesson with a bare '## Teach-Back Prompts' heading (no real content under it) fails, same as absent", () => {
+  const source = [
+    "---",
+    "passage:",
+    "  start: 1.3.1",
+    "  end: 1.3.24",
+    "stage: 3",
+    "methodFocus: Observation vs. inference",
+    "author: Kenneth Hill",
+    "status: draft",
+    "---",
+    "# A synthetic fixture lesson",
+    "",
+    "Plain observational prose, no verdict language.",
+    "",
+    "## Teach-Back Prompts",
+    "",
+    "",
+  ].join("\n");
+  const result = validateLessonSource("fixture.md", source);
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.some((error) => error.includes("Teach-Back Prompts")));
+});
+
+test("VALIDATE: a lesson WITH a non-empty '## Teach-Back Prompts' section (VALID_SOURCE itself) passes with no error naming that heading", () => {
+  const result = validateLessonSource("fixture.md", VALID_SOURCE);
+  assert.equal(result.ok, true, result.errors.join(" | "));
+  assert.ok(!result.errors.some((error) => error.includes("Teach-Back Prompts")));
+});
+
+test("VALIDATE: an otherwise-valid lesson missing only '## Teach-Back Prompts' fails for exactly that reason, no other error", () => {
+  const result = validateLessonSource("fixture.md", SOURCE_MISSING_TEACH_BACK);
+  assert.equal(result.ok, false);
+  assert.equal(result.errors.length, 1, result.errors.join(" | "));
+  assert.ok(result.errors[0].includes("Teach-Back Prompts"));
+});
+
+// ===========================================================================
+// LESSONSHAPE-001 — real validation against this repo's actual checked-in
+// content/curriculum/ files. As of this task there is exactly one real
+// lesson, content/curriculum/genesis/03-the-fall.md, already `status:
+// published` and live in production (RELEASEREADER-001/SOURCESYNC-001) --
+// and it predates the '## Teach-Back Prompts' rule this task adds, so it
+// does NOT have that section yet. That means it is EXPECTED and CORRECT for
+// this real file to now fail content:validate -- a follow-up
+// content-authoring task adds the missing section, not this one. This test
+// proves the failure is the real, specific one this task's own rule
+// produces (not some unrelated breakage), and that this task did not
+// silently make it pass by weakening the rule. It does NOT assert the
+// `content:validate` CLI process exits 0 -- that command is expected to
+// exit non-zero against this repo's real content right now.
+// ===========================================================================
+
+test("REAL CONTENT: content/curriculum/genesis/03-the-fall.md (the one real, published lesson in this repo) currently fails validation for exactly the missing '## Teach-Back Prompts' section, and for no other reason", () => {
+  const { results } = runValidation(CURRICULUM_DIR);
+  const genesis3 = results.find((result) => result.filePath.replace(/\\/g, "/").endsWith("genesis/03-the-fall.md"));
+  assert.ok(genesis3, "content/curriculum/genesis/03-the-fall.md should exist and be found by runValidation");
+  assert.equal(
+    genesis3?.ok,
+    false,
+    "EXPECTED failure: this real, already-published lesson predates the '## Teach-Back Prompts' rule and does not yet carry that section -- a follow-up content-authoring task adds it, not LESSONSHAPE-001",
+  );
+  assert.ok(
+    genesis3?.errors.some((error) => error.includes("Teach-Back Prompts")),
+    `expected the real, specific missing-section error; got: ${genesis3?.errors.join(" | ")}`,
+  );
+  // The lesson does not already have a "## Teach-Back Prompts" heading in
+  // its real source today -- sanity-checking the premise of this test
+  // directly, not just trusting the validator's own verdict.
+  assert.ok(
+    !readFileSync(genesis3!.filePath, "utf8").includes("## Teach-Back Prompts"),
+    "sanity check: the real file must not already contain this heading, or this test's premise is stale",
+  );
 });
 
 // ===========================================================================

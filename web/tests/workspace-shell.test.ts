@@ -162,10 +162,13 @@ function sampleStudyClaim(kind: ClaimKind, overrides: Partial<StudyClaim> = {}):
 }
 
 /** RELEASEREADER-001 fixture: the minimal real `PublishedLessonMatch` shape
- * `ContextSection`/`TheologySection` actually read (`contextProse`/
- * `positionsProse`) — `frontmatter` is a real, schema-valid value even
- * though neither section renders it today, so this fixture stays honest
- * about the real contract rather than a partial stand-in. */
+ * `ContextSection`/`TheologySection`/`ApplySection`/`TeachSection` actually
+ * read (`contextProse`/`positionsProse`/`literaryDesignProse`/
+ * `practiceBridgeProse`/`teachBackPromptsProse`) — `frontmatter` is a real,
+ * schema-valid value even though no section renders it today, so this
+ * fixture stays honest about the real contract rather than a partial
+ * stand-in. LESSONSHAPE-001 adds the three new fields, all defaulting to
+ * `null` like the original two. */
 function sampleCuratedLesson(overrides: Partial<PublishedLessonMatch> = {}): PublishedLessonMatch {
   return {
     slug: "genesis-3",
@@ -181,12 +184,45 @@ function sampleCuratedLesson(overrides: Partial<PublishedLessonMatch> = {}): Pub
     },
     contextProse: null,
     positionsProse: null,
+    literaryDesignProse: null,
+    practiceBridgeProse: null,
+    teachBackPromptsProse: null,
     ...overrides,
   };
 }
 
 function application(status: string, overrides: Partial<GatingApplication> = {}): GatingApplication {
   return { status, deletedAt: null, ...overrides };
+}
+
+/** LESSONSHAPE-001 fixture: a real, full `Application` record (not just the
+ * narrower `GatingApplication` shape `application()` above builds) — the
+ * `render()` helper's `applications` prop needs the full shape
+ * `WorkspaceShell`/`ApplySection`/gating actually receive. */
+function sampleApplication(status: string, overrides: Partial<Application> = {}): Application {
+  return {
+    id: "application-1",
+    workspaceId: "workspace-1",
+    sessionId: "session-1",
+    sourceClaimId: "claim-1",
+    originalAudienceMeaning: "A sample answer.",
+    enduringPrinciple: "A sample answer.",
+    canonicalBridge: "A sample answer.",
+    applicationClass: "A sample answer.",
+    promiseScope: "A sample answer.",
+    modernDomain: "work",
+    situation: "A sample answer.",
+    responseType: "action",
+    faithfulResponse: "A sample answer.",
+    cautions: "A sample answer.",
+    availableAfter: null,
+    status,
+    revision: 1,
+    createdAt: "2026-01-01T00:00:00.000Z",
+    updatedAt: "2026-01-01T00:00:00.000Z",
+    deletedAt: null,
+    ...overrides,
+  };
 }
 
 // ===========================================================================
@@ -542,6 +578,66 @@ test("RENDER: a curatedLesson missing ONE section falls back to that section's o
     "theology must fall back to its own notice when the lesson has no Positions prose, even though Context has real content",
   );
   assert.ok(!html.includes('data-testid="theology-curated-content"'));
+});
+
+// ---------------------------------------------------------------------------
+// LESSONSHAPE-001 — curatedLesson threading into Apply/Teach. Apply unlocks
+// on a theology-kind claim (`hasClaimOfKind(claims, "theology")`); Teach
+// unlocks on a finalized application (`hasFinalizedApplication`). Same
+// three-case pattern RELEASEREADER-001 used above for Context/Theology:
+// no-curated-lesson regression guard, both-present, one-present-one-absent.
+// ---------------------------------------------------------------------------
+
+test("RENDER: no curatedLesson -- Apply and Teach render exactly as before this task, with no curated-content testid at all (regression guard)", () => {
+  const html = render({
+    session: sampleSession(),
+    claims: [sampleStudyClaim("theology")],
+    applications: [sampleApplication("finalized")],
+  });
+  assert.ok(html.includes('data-testid="apply-form"'), "Apply's real form should still mount");
+  assert.ok(!html.includes('data-testid="apply-curated-example"'), "no curated example should render with no lesson");
+  assert.ok(!html.includes('data-testid="teach-curated-prompts"'), "no curated prompts should render with no lesson");
+});
+
+test("RENDER: a curatedLesson with both practiceBridgeProse and teachBackPromptsProse renders both, above each section's own real composer", () => {
+  const lesson = sampleCuratedLesson({
+    practiceBridgeProse: "Real worked bridge example for the test fixture lesson.",
+    teachBackPromptsProse: "Real teach-back prompts for the test fixture lesson.",
+  });
+  const html = render({
+    session: sampleSession(),
+    claims: [sampleStudyClaim("theology")],
+    applications: [sampleApplication("finalized")],
+    curatedLesson: lesson,
+  });
+  assert.ok(html.includes("Real worked bridge example for the test fixture lesson."), "practice bridge prose did not render");
+  assert.ok(html.includes('data-testid="apply-curated-example"'));
+  assert.ok(html.includes("Real teach-back prompts for the test fixture lesson."), "teach-back prompts prose did not render");
+  assert.ok(html.includes('data-testid="teach-curated-prompts"'));
+  // Both sections' own real composer must still be present alongside the curated content.
+  assert.ok(html.includes('data-testid="apply-form"'), "Apply's real form must still mount with curated content present");
+  const applyIndex = html.indexOf('data-testid="apply-curated-example"');
+  const applyFormIndex = html.indexOf('data-testid="apply-form"');
+  assert.ok(applyFormIndex < applyIndex, "apply-form (the wrapper) should contain the curated example, appearing first in the markup");
+});
+
+test("RENDER: a curatedLesson with only practiceBridgeProse (no teachBackPromptsProse) shows the Apply example without any Teach curated content", () => {
+  const lesson = sampleCuratedLesson({
+    practiceBridgeProse: "Real worked bridge example only -- this lesson has no teach-back prompts yet.",
+    teachBackPromptsProse: null,
+  });
+  const html = render({
+    session: sampleSession(),
+    claims: [sampleStudyClaim("theology")],
+    applications: [sampleApplication("finalized")],
+    curatedLesson: lesson,
+  });
+  assert.ok(html.includes("Real worked bridge example only -- this lesson has no teach-back prompts yet."));
+  assert.ok(html.includes('data-testid="apply-curated-example"'));
+  assert.ok(
+    !html.includes('data-testid="teach-curated-prompts"'),
+    "Teach must show no curated content when the lesson has no teachBackPromptsProse, even though Apply has real content",
+  );
 });
 
 test("RENDER: all eight sections appear, each naming both its plain label and its BUILD_PLAN product name", () => {

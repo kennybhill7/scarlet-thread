@@ -139,7 +139,8 @@ export interface WorkspaceShellProps {
    * for every passage with no lesson authored yet) is threaded straight
    * through to `ContextSection`/`TheologySection` unchanged — this file makes
    * no gating or content decision of its own with it, exactly like `claims`/
-   * `applications` above.
+   * `applications` above. LESSONSHAPE-001 extends the SAME pass-through to
+   * `ApplySection`/`TeachSection` — no second mechanism.
    */
   curatedLesson?: PublishedLessonMatch | null;
 }
@@ -252,6 +253,7 @@ export function WorkspaceShell({
           {section.contentMode === "apply" ? (
             <ApplySection
               claims={claims}
+              curatedLesson={curatedLesson}
               onSaved={handleApplicationSaved}
               session={session}
               unlocked={section.unlocked}
@@ -259,7 +261,12 @@ export function WorkspaceShell({
             />
           ) : null}
           {section.contentMode === "teach" ? (
-            <TeachSection workspaceId={workspaceId} session={session} unlocked={section.unlocked} />
+            <TeachSection
+              curatedLesson={curatedLesson}
+              session={session}
+              unlocked={section.unlocked}
+              workspaceId={workspaceId}
+            />
           ) : null}
           {section.contentMode === "placeholder" ? <PlaceholderSection section={section} /> : null}
         </details>

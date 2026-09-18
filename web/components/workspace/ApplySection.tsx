@@ -6,6 +6,7 @@ import { optionsFrom } from "@/components/study/ClaimComposer";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { Field } from "@/components/ui/Field";
+import type { PublishedLessonMatch } from "@/lib/content/publishedLessons";
 import {
   MODERN_DOMAINS,
   RESPONSE_TYPES,
@@ -330,9 +331,32 @@ export interface ApplySectionProps {
   /** This session's own claims (any kind) — filtered to theology internally via `theologyClaimsFor`. */
   claims: StudyClaim[];
   onSaved: (application: Application) => void;
+  /**
+   * LESSONSHAPE-001 — the one published lesson (if any) covering this
+   * session's range, threaded through by `WorkspaceShell` exactly like
+   * `ContextSection`/`TheologySection` already receive it. When
+   * `curatedLesson?.practiceBridgeProse` is present, it renders as a clearly
+   * labeled, read-only worked example ABOVE the learner's own real
+   * Application composer below — never in place of it, and never presented
+   * as something the learner is required to match (BUILD_PLAN §5.1's own
+   * "not required in every lesson" note on Practice Bridge examples, and
+   * this app's own "curated content supplements, never replaces" discipline
+   * — see `ContextSection.tsx`'s header for the precedent this follows).
+   * Optional, defaulting to `null`: every session with no lesson authored
+   * yet renders exactly as `ApplySection` did before this task — a real
+   * regression guard, proven in `tests/workspace-shell.test.ts`.
+   */
+  curatedLesson?: PublishedLessonMatch | null;
 }
 
-export function ApplySection({ workspaceId, session, unlocked, claims, onSaved }: ApplySectionProps) {
+export function ApplySection({
+  workspaceId,
+  session,
+  unlocked,
+  claims,
+  onSaved,
+  curatedLesson = null,
+}: ApplySectionProps) {
   const [draft, setDraft] = useState<ApplicationDraft>(BLANK_APPLICATION_DRAFT);
   const [saved, setSaved] = useState<Application | null>(null);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
@@ -386,6 +410,14 @@ export function ApplySection({ workspaceId, session, unlocked, claims, onSaved }
 
   return (
     <div style={bodyStyle} data-testid="apply-form">
+      {curatedLesson?.practiceBridgeProse ? (
+        <div style={noticeStyle} data-testid="apply-curated-example">
+          <p>
+            <strong>A worked example — one way to walk this bridge (not something you need to match):</strong>
+          </p>
+          <p>{curatedLesson.practiceBridgeProse}</p>
+        </div>
+      ) : null}
       <fieldset>
         <legend>Which of your theology claims does this bridge from?</legend>
         <div role="group">

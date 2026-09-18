@@ -245,6 +245,41 @@ export interface LintMatch {
 }
 
 /**
+ * LESSONSHAPE-001 — the generalized form of the "Positions" heading-block
+ * technique immediately below, parameterized by heading text instead of
+ * hardcoded to "Positions". This is the exact same algorithm
+ * `lib/content/publishedLessons.ts`'s own `findHeadingBlockLines`
+ * (RELEASEREADER-001) already uses on the reading side of this pipeline —
+ * that file is `lib/content/` (app-side, reads an already-compiled release
+ * bundle) and this one is `scripts/content/` (script-side, walks real
+ * lesson source files); the two layers deliberately do not import from each
+ * other (`content/README.md`'s own "compiler vs. reader" split), so this is
+ * a second, independent implementation of the identical documented
+ * technique rather than a shared module — exactly the same trade
+ * `publishedLessons.ts`'s own header comment already made and documented
+ * for "Positions" itself.
+ *
+ * A markdown ATX level-2 heading whose text exactly matches `headingText`
+ * (`## <headingText>`, trimmed, case-sensitive) opens a block; the block
+ * includes that heading line itself and every line after it, up to (not
+ * including) the next `##` heading or the end of the body.
+ */
+export function findHeadingBlockLines(bodyLines: string[], headingText: string): Set<number> {
+  const inside = new Set<number>();
+  let active = false;
+  bodyLines.forEach((line, index) => {
+    const trimmed = line.trim();
+    if (/^##\s+/.test(trimmed)) {
+      active = trimmed.replace(/^##\s+/, "").trim() === headingText;
+      if (active) inside.add(index);
+      return;
+    }
+    if (active) inside.add(index);
+  });
+  return inside;
+}
+
+/**
  * The "Positions" convention this task defines (§5.1 asks for "a real,
  * simple convention you define and document"): a markdown ATX level-2
  * heading whose text is exactly "Positions" (`## Positions`) opens a
@@ -252,20 +287,38 @@ export interface LintMatch {
  * it, up to (not including) the next `##` heading or the end of the body.
  * Nothing fancier — no HTML-comment delimiters, no case-insensitivity, so
  * the convention stays trivially greppable by a human author too.
+ *
+ * A thin, name-preserving wrapper over {@link findHeadingBlockLines} — kept
+ * as its own exported function (rather than inlining `"Positions"` at every
+ * call site) because `tests/content-validate.test.ts` already calls it
+ * directly by this name, and because "the Positions block" is a real,
+ * named concept elsewhere in this file (`lintAssertionLanguage`,
+ * `validateLessonSource`'s sources[]-when-Positions heuristic).
  */
 export function findPositionsBlockLines(bodyLines: string[]): Set<number> {
-  const inside = new Set<number>();
-  let active = false;
-  bodyLines.forEach((line, index) => {
-    const trimmed = line.trim();
-    if (/^##\s+/.test(trimmed)) {
-      active = trimmed.replace(/^##\s+/, "").trim() === "Positions";
-      if (active) inside.add(index);
-      return;
-    }
-    if (active) inside.add(index);
-  });
-  return inside;
+  return findHeadingBlockLines(bodyLines, "Positions");
+}
+
+/**
+ * LESSONSHAPE-001 — whether `body` has a `## <headingText>` block with real,
+ * non-blank content under it. Used by the new required-section rule below
+ * (`## Teach-Back Prompts`): a bare heading with nothing under it is treated
+ * the same as the heading being entirely absent — the identical "prose or
+ * nothing" standard `lib/content/publishedLessons.ts`'s `extractHeadingProse`
+ * already applies on the reading side, reimplemented narrowly here
+ * (existence + non-empty check only, no prose extraction, no `null` return)
+ * so `scripts/content/` does not import from `lib/content/` — see
+ * `findHeadingBlockLines` above for why these two layers each keep their own
+ * copy of this technique.
+ */
+export function hasNonEmptyHeadingSection(body: string, headingText: string): boolean {
+  const lines = body.split(/\r?\n/);
+  const blockLines = [...findHeadingBlockLines(lines, headingText)].sort((a, b) => a - b);
+  if (blockLines.length === 0) return false;
+  // blockLines[0] is always the heading line itself (see findHeadingBlockLines)
+  // — skip it so a heading with nothing but blank lines under it correctly
+  // counts as "no real content", not "present".
+  return blockLines.slice(1).some((index) => lines[index].trim().length > 0);
 }
 
 /**
@@ -304,6 +357,10 @@ export interface LessonValidationResult {
   frontmatter?: LessonFrontmatter;
   body?: string;
 }
+
+/** LESSONSHAPE-001 — the one required-but-optional-content heading, named
+ * once here so the error message and the check itself never drift apart. */
+export const REQUIRED_TEACH_BACK_HEADING = "Teach-Back Prompts";
 
 export function validateLessonSource(filePath: string, raw: string): LessonValidationResult {
   const warnings: string[] = [];
@@ -362,6 +419,26 @@ export function validateLessonSource(filePath: string, raw: string): LessonValid
       'lesson has a "## Positions" block but sources[] is empty -- §5.1 requires every positions block to name ' +
         "sourced traditions; at minimum sources[] must be non-empty (heuristic; see schema.ts's SCOPE NOTE on why " +
         "full per-tradition source resolution isn't built yet).",
+    );
+  }
+
+  // LESSONSHAPE-001 — §5.1's own CI-rules bullet: "a teach-back prompt set
+  // exists". Unlike `## Context`/`## Literary Design`/`## Practice Bridge
+  // Example` (all optional, undocumented to this validator on purpose — see
+  // content/README.md), `## Teach-Back Prompts` is REQUIRED on every lesson,
+  // mechanized the same way the `## Positions`/sources[] heuristic above is:
+  // a structural check ("the heading exists with real, non-blank content
+  // under it"), not a semantic one that confirms all five named prompts
+  // (BUILD_PLAN.md §5.2) are actually present -- that judgment call stays
+  // with a human reviewer, exactly the discipline the assertion-line lint
+  // and the Positions/sources[] heuristic above both already use.
+  if (!hasNonEmptyHeadingSection(split.body, REQUIRED_TEACH_BACK_HEADING)) {
+    errors.push(
+      `lesson is missing a non-empty "## ${REQUIRED_TEACH_BACK_HEADING}" section -- BUILD_PLAN.md §5.1 requires ` +
+        "every lesson to ship a teach-back prompt set (a blind-explain prompt, a five-minute-outline prompt, a " +
+        'likely-objection prompt, a "what this passage does not establish" prompt, and a "defend one connection ' +
+        'or give a reasoned no_warrant_yet" prompt -- see content/README.md). Add a ' +
+        `"## ${REQUIRED_TEACH_BACK_HEADING}" heading with real content under it.`,
     );
   }
 

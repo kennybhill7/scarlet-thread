@@ -6,6 +6,7 @@ import { humanizeToken, optionsFrom } from "@/components/study/ClaimComposer";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { Field } from "@/components/ui/Field";
+import type { PublishedLessonMatch } from "@/lib/content/publishedLessons";
 import {
   TEACHING_SECTION_KINDS,
   type StudySession,
@@ -743,9 +744,23 @@ export interface TeachSectionProps {
   unlocked: boolean;
   /** Additive, optional — called with the saved record after a successful write. Not required for the section to function. */
   onSaved?: (draft: TeachingDraft) => void;
+  /**
+   * LESSONSHAPE-001 — the one published lesson (if any) covering this
+   * session's range, threaded through by `WorkspaceShell` the same way
+   * `ContextSection`/`TheologySection`/`ApplySection` already receive it.
+   * When `curatedLesson?.teachBackPromptsProse` is present, it renders as a
+   * clearly labeled, read-only set of suggested prompts ABOVE the learner's
+   * own real teaching-draft form and outline builder below — a model to
+   * draw from, never a substitute for the learner's own teach-back attempt
+   * (this section's own existing copy already frames every field as the
+   * learner's own reasoning; this task changes none of that framing).
+   * Optional, defaulting to `null`: every session with no lesson authored
+   * yet renders exactly as `TeachSection` did before this task.
+   */
+  curatedLesson?: PublishedLessonMatch | null;
 }
 
-export function TeachSection({ workspaceId, session, unlocked, onSaved }: TeachSectionProps) {
+export function TeachSection({ workspaceId, session, unlocked, onSaved, curatedLesson = null }: TeachSectionProps) {
   const titleId = useId();
   const [fields, setFields] = useState<TeachDraftFields>(BLANK_TEACH_FIELDS);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
@@ -906,6 +921,14 @@ export function TeachSection({ workspaceId, session, unlocked, onSaved }: TeachS
 
   return (
     <div style={bodyStyle}>
+      {curatedLesson?.teachBackPromptsProse ? (
+        <div style={noticeStyle} data-testid="teach-curated-prompts">
+          <p>
+            <strong>Suggested teach-back prompts for this passage (a model to draw from, not something you must match):</strong>
+          </p>
+          <p>{curatedLesson.teachBackPromptsProse}</p>
+        </div>
+      ) : null}
       <form onSubmit={submit}>
         <Field
           disabled={status === "saving"}

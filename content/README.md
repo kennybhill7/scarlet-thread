@@ -135,6 +135,107 @@ in `sources[]` (a lightweight heuristic standing in for §5.1's real rule —
 "every positions block names ≥2 traditions each with their own source" —
 until real per-tradition source resolution exists).
 
+## The `## Literary Design` convention (optional)
+
+LESSONSHAPE-001. Same technique as `## Positions` above — a markdown ATX
+level-2 heading whose text is exactly `## Literary Design` opens a block
+running from that heading to the next `## `-level heading or the end of the
+body, extracted via `lib/content/publishedLessons.ts`'s `extractHeadingProse`
+(the same generic function `contextProse`/`positionsProse` already use,
+parameterized by heading text — no new parsing logic exists for this
+heading). `BUILD_PLAN.md` §5.2 names "literary design notes" as part of what
+each lesson ships, but §5.1's own required-CI-rules bullet does not name it —
+so, like `## Context`, it is optional: no schema field requires it, and
+`content:validate`/`content:build` never check for it. There is no dedicated
+workspace UI slot for it as of LESSONSHAPE-001 (unlike `## Context`,
+`## Positions`, `## Practice Bridge Example`, and `## Teach-Back Prompts`,
+which each render somewhere in the study workspace) — `literaryDesignProse`
+is available on `PublishedLessonMatch` for a future task to surface.
+
+```markdown
+## Literary Design
+
+Notes on the passage's own structure -- chiasm, repetition, inclusio,
+narrative arc -- as an aid to reading it well. This is about how the text
+is built, not a claim about what that structure means theologically.
+```
+
+## The `## Practice Bridge Example` convention (optional)
+
+LESSONSHAPE-001. Same technique again. `BUILD_PLAN.md` §5.2 names "a worked
+Practice Bridge example" as part of what each lesson ships, and §5.1 says so
+explicitly: "Worked Practice Bridge examples must follow the bridge shape
+but are not required in every lesson" — optional, the same tier as
+`## Context`/`## Literary Design`. When present, `practiceBridgeProse`
+renders in the Apply section (`components/workspace/ApplySection.tsx`) as a
+clearly labeled, read-only worked example ABOVE the learner's own real
+Application composer — the composer always still mounts regardless of
+whether this section exists; curated content supplements the learner's own
+attempt, never replaces it, the same rule `## Context`/`## Positions`
+already follow for Context/Theology.
+
+```markdown
+## Practice Bridge Example
+
+One way to walk the bridge from this passage's original meaning to a
+modern situation: what it meant to its original audience, the enduring
+principle carried forward, how that principle bridges to today, and a
+concrete modern application worked all the way through, as an example.
+The learner's own attempt below is a separate, required step -- this is a
+model, not an answer key.
+```
+
+## The `## Teach-Back Prompts` convention (REQUIRED)
+
+LESSONSHAPE-001. Unlike every other named heading in this document,
+`## Teach-Back Prompts` is REQUIRED — §5.1's own CI-rules bullet says so in
+as many words: "a teach-back prompt set exists." `validate.ts`'s
+`validateLessonSource` fails the whole lesson file — a real, specific error
+naming the file — when this heading is entirely absent, or present but empty
+(only blank lines under it counts as absent too, the same "bare heading has
+no real content" standard `extractHeadingProse` already applies when
+*reading* `## Context`/`## Positions`). As with `## Positions`'s own
+sources[]-when-present heuristic, this is a STRUCTURAL check only ("the
+heading exists with real, non-blank content under it"), never a semantic
+one — the compiler does not confirm all five prompts named below actually
+appear; a human reviewer still does that judgment call.
+
+BUILD_PLAN.md §5.2 names five specific prompts a complete teach-back set
+should carry. This is the expected shape for whoever authors this section —
+a labeled list is fine; it does not need to be machine-parsed sub-structure:
+
+1. **Blind explain** — explain the passage's meaning without notes.
+2. **Five-minute outline** — outline how you would teach this in five
+   minutes.
+3. **Likely objection** — name a likely objection to your own reading, and
+   how you would answer it.
+4. **What this passage does not establish** — name one thing this passage
+   does NOT establish, even if a popular reading assumes it does.
+5. **Defend or decline** — defend one connection you have drawn from this
+   passage, or give a reasoned `no_warrant_yet` if you cannot yet defend one.
+
+When present, `teachBackPromptsProse` renders in the Teach section
+(`components/workspace/TeachSection.tsx`) as a clearly labeled set of
+suggested prompts, ABOVE the learner's own real teaching-draft form and
+outline builder — never in place of it.
+
+```markdown
+## Teach-Back Prompts
+
+1. Explain this passage's meaning without your notes.
+2. Outline how you would teach it in five minutes.
+3. Name a likely objection to your reading, and how you would answer it.
+4. Name one thing this passage does not establish.
+5. Defend one connection you have drawn from it, or give a reasoned
+   `no_warrant_yet`.
+```
+
+The currently-published `content/curriculum/genesis/03-the-fall.md` predates
+this rule and does not yet have a `## Teach-Back Prompts` section — as of
+LESSONSHAPE-001 it correctly FAILS `content:validate`/`content:build` until a
+follow-up content-authoring task adds one. That is the intended, expected
+behavior of this rule, not a bug.
+
 ## The assertion-line lint — a review aid, not a proof
 
 `validate.ts`'s `lintAssertionLanguage` flags four declarative

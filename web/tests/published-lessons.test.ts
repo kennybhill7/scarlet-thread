@@ -77,6 +77,39 @@ const SYNTHETIC_BODY_BOTH_SECTIONS = [
   "This should never leak into either extracted section.",
 ].join("\n");
 
+/** LESSONSHAPE-001 — the same synthetic fixture shape, extended with all
+ * three new headings this task adds (`## Literary Design`,
+ * `## Practice Bridge Example`, `## Teach-Back Prompts`), so
+ * `findLessonMatchingRange`'s wiring for the three new `PublishedLessonMatch`
+ * fields can be proven against one lesson body carrying real content under
+ * every heading at once. */
+const SYNTHETIC_BODY_ALL_SECTIONS = [
+  "# Test Fixture Lesson (synthetic, not real content)",
+  "",
+  "Some intro prose.",
+  "",
+  "## Context",
+  "",
+  "Synthetic context prose.",
+  "",
+  "## Positions",
+  "",
+  "- View A (synthetic): some fictional tradition holds X.",
+  "",
+  "## Literary Design",
+  "",
+  "Synthetic literary design prose, noting a fictional chiasm.",
+  "",
+  "## Practice Bridge Example",
+  "",
+  "Synthetic worked bridge example, original meaning to modern situation.",
+  "",
+  "## Teach-Back Prompts",
+  "",
+  "1. Synthetic blind-explain prompt.",
+  "2. Synthetic five-minute-outline prompt.",
+].join("\n");
+
 // ===========================================================================
 // findHeadingBlockLines / extractHeadingProse — the generalized
 // "Positions"-block technique from scripts/content/validate.ts's
@@ -243,6 +276,62 @@ test("findLessonMatchingRange: a lesson with only ## Context (no ## Positions) r
   const match = findLessonMatchingRange(bundle, range("1.3.1", "1.3.6"));
   assert.equal(match?.contextProse, "Only context prose exists in this fixture lesson.");
   assert.equal(match?.positionsProse, null);
+});
+
+// ---------------------------------------------------------------------------
+// LESSONSHAPE-001 — literaryDesignProse / practiceBridgeProse /
+// teachBackPromptsProse wiring through findLessonMatchingRange. No new
+// extraction logic to prove here (extractHeadingProse's own coverage above
+// already exercises the technique generically) — these tests exist to prove
+// the three new PublishedLessonMatch fields are actually populated from the
+// right headings, not left null or swapped with each other/the existing two.
+// ---------------------------------------------------------------------------
+
+test("findLessonMatchingRange: literaryDesignProse, practiceBridgeProse, and teachBackPromptsProse are each extracted from their own heading, independent of Context/Positions", () => {
+  const bundle = fixtureBundle({
+    "genesis/03-the-fall": {
+      frontmatter: fixtureFrontmatter({ passage: range("1.3.1", "1.3.24") }),
+      body: SYNTHETIC_BODY_ALL_SECTIONS,
+    },
+  });
+  const match = findLessonMatchingRange(bundle, range("1.3.1", "1.3.6"));
+  assert.ok(match);
+  assert.equal(match?.contextProse, "Synthetic context prose.");
+  assert.ok(match?.positionsProse?.includes("View A"));
+  assert.equal(match?.literaryDesignProse, "Synthetic literary design prose, noting a fictional chiasm.");
+  assert.equal(
+    match?.practiceBridgeProse,
+    "Synthetic worked bridge example, original meaning to modern situation.",
+  );
+  assert.equal(
+    match?.teachBackPromptsProse,
+    "1. Synthetic blind-explain prompt.\n2. Synthetic five-minute-outline prompt.",
+  );
+});
+
+test("findLessonMatchingRange: a lesson with none of the three new headings reports all three as null, not a missing lesson", () => {
+  const bundle = fixtureBundle({
+    lesson: {
+      frontmatter: fixtureFrontmatter({ passage: range("1.3.1", "1.3.24") }),
+      body: "# Fixture\n\nJust plain prose, no named sections at all.",
+    },
+  });
+  const match = findLessonMatchingRange(bundle, range("1.3.1", "1.3.6"));
+  assert.ok(match, "a lesson still exists for this range even with no curated sections");
+  assert.equal(match?.literaryDesignProse, null);
+  assert.equal(match?.practiceBridgeProse, null);
+  assert.equal(match?.teachBackPromptsProse, null);
+});
+
+test("findLessonMatchingRange: a bare (empty) ## Teach-Back Prompts heading reports null, same as absent", () => {
+  const bundle = fixtureBundle({
+    lesson: {
+      frontmatter: fixtureFrontmatter({ passage: range("1.3.1", "1.3.24") }),
+      body: "## Teach-Back Prompts\n\n\n## Some Other Heading\n\nUnrelated.",
+    },
+  });
+  const match = findLessonMatchingRange(bundle, range("1.3.1", "1.3.6"));
+  assert.equal(match?.teachBackPromptsProse, null);
 });
 
 test("findLessonMatchingRange: exactly one verse (start === end) is a valid session range and matches normally", () => {

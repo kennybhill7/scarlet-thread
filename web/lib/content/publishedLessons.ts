@@ -148,8 +148,24 @@ export function parseReleaseBundle(raw: unknown): ReleaseBundle | null {
 // Range containment + lesson selection — pure.
 // ---------------------------------------------------------------------------
 
-/** What the reader hands back to `ContextSection`/`TheologySection` — only
- * what they actually render, never the full lesson record. */
+/** What the reader hands back to `ContextSection`/`TheologySection`/
+ * `ApplySection`/`TeachSection` — only what they actually render, never the
+ * full lesson record.
+ *
+ * LESSONSHAPE-001 adds three fields via the same `extractHeadingProse`
+ * technique as `contextProse`/`positionsProse` above — no new parsing logic,
+ * just three more heading names. `literaryDesignProse`/`practiceBridgeProse`
+ * are optional content (BUILD_PLAN.md §5.1 names only a teach-back prompt
+ * set in its required-CI-rules bullet; literary design notes aren't named
+ * there at all, and worked Practice Bridge examples are explicitly "not
+ * required in every lesson"), so both are `null` for the ordinary case of a
+ * lesson that doesn't carry one — exactly like `contextProse`/
+ * `positionsProse`. `teachBackPromptsProse` IS required at publish time by
+ * `scripts/content/validate.ts`'s new rule, but is typed nullable here too:
+ * a malformed or legacy bundle (e.g. a release published before that rule
+ * existed) must never crash this reader — the same "fail closed, never
+ * assume" discipline this module's header already states for
+ * `parseReleaseBundle`. */
 export interface PublishedLessonMatch {
   slug: string;
   frontmatter: LessonFrontmatter;
@@ -157,6 +173,12 @@ export interface PublishedLessonMatch {
   contextProse: string | null;
   /** Prose under `## Positions`, or `null` if this lesson has none. */
   positionsProse: string | null;
+  /** Prose under `## Literary Design`, or `null` if this lesson has none (optional content — see this interface's own header comment). */
+  literaryDesignProse: string | null;
+  /** Prose under `## Practice Bridge Example`, or `null` if this lesson has none (optional content — see this interface's own header comment). */
+  practiceBridgeProse: string | null;
+  /** Prose under `## Teach-Back Prompts`, or `null` if this lesson has none — required at publish time (see this interface's own header comment), but still nullable here for fail-closed safety. */
+  teachBackPromptsProse: string | null;
 }
 
 /**
@@ -187,6 +209,9 @@ export function findLessonMatchingRange(
       frontmatter: lesson.frontmatter,
       contextProse: extractHeadingProse(lesson.body, "Context"),
       positionsProse: extractHeadingProse(lesson.body, "Positions"),
+      literaryDesignProse: extractHeadingProse(lesson.body, "Literary Design"),
+      practiceBridgeProse: extractHeadingProse(lesson.body, "Practice Bridge Example"),
+      teachBackPromptsProse: extractHeadingProse(lesson.body, "Teach-Back Prompts"),
     };
   }
   return null;
