@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-18T02:38:56.245Z",
+  "updatedAt": "2026-09-18T12:37:04.459Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -811,13 +811,13 @@
       "notes": "Milestone, not a code task -- no branch/commit, pure production-database action. Closes the loop opened by GEN3LESSON-001/CONTENTBUILDGATE-001/SOURCEREGISTRY-001/SOURCESYNC-001: the first real, published, cited curriculum content this app has ever served. Follow-up worth Ken's attention: production's schema was multiple migrations stale for an unknown period before today -- worth checking whether any currently-deployed Vercel build depended on those tables and was affected, and worth adding a real migration step to the deploy process (or a standing habit) so this gap does not silently reopen as more schema work merges."
     },
     "LESSONSHAPE-001": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/LESSONSHAPE-001-claude",
+      "commitSha": "fef9818",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Dispatched 2026-09-17 -- BUILD_PLAN.md Section 5.2 names a fuller lesson shape than CONTENTPIPE-001/GEN3LESSON-001 built: 'Method focus... sourced context... literary design notes... 0-5 typed connections... named positions... a worked Practice Bridge example... a teach-back prompt set.' Only method/context/positions exist today. Ken chose to complete Genesis 3 to the real spec before writing more lessons, rather than write more lessons at the current reduced depth. This task adds THREE of the missing pieces -- literary design notes and a Practice Bridge example (both optional prose, same extractHeadingProse technique as Context/Positions) and a REQUIRED teach-back prompt set (Section 5.1's own CI rule: 'a teach-back prompt set exists' -- validate.ts must enforce this, unlike the optional pieces). Deliberately does NOT touch typed connections (structurally different -- real graph_edges rows, not prose -- scoped as a separate follow-on task, CONNECTIONCURATION-001, to avoid two agents touching publishedLessons.ts/build.ts/schema.ts at once). Deliberately does NOT author new Genesis 3 content -- infra only, mirroring CONTENTPIPE-001-before-GEN3LESSON-001 sequencing."
+      "lastEvidence": "Merged into design/mountain-journey and master (fef9818, fast-forward, pushed both). The dispatched agent stalled (600s no-progress watchdog) after reporting 'typecheck passes clean, now lint' -- Claude found substantial real, uncommitted, complete work in its worktree and picked it up directly rather than restarting, same pattern as RELEASEREADER-001 earlier this session. Full diff review of all 9 changed files before committing anything. Independently re-verified: typecheck/lint clean; ran content-validate.test.ts (44/44), published-lessons.test.ts and workspace-shell.test.ts directly; ran the REAL content:validate CLI and confirmed it fails against the actual checked-in Genesis 3 lesson with exactly the expected, specific error naming the missing '## Teach-Back Prompts' section (pasted real output, not trusted); full suite 1579 pass/0 fail/4 cancelled (same pre-existing env gap). Confirmed the new required-section rule was not weakened to force a pass.",
+      "notes": "Adds ## Literary Design and ## Practice Bridge Example (optional prose, same extractHeadingProse technique) and ## Teach-Back Prompts (REQUIRED per BUILD_PLAN Section 5.1's own CI-rules bullet, mechanized via a new hasNonEmptyHeadingSection check in validate.ts). Wires ApplySection.tsx/TeachSection.tsx with a curatedLesson prop (same pattern ContextSection/TheologySection already use) showing a worked example / suggested prompts above the learner's own real composer. Deliberately did NOT touch typed connections (CONNECTIONCURATION-001, held until this merged to avoid file overlap -- now unblocked) or author any Genesis 3 content. Closed 2026-09-18 by Claude. Real, known, correct consequence: the live, published Genesis 3 lesson now fails content:validate until a follow-up content task adds a Teach-Back Prompts section -- the lesson stays live in production either way (this only affects the validate/build pipeline, not what is already served)."
     },
     "CONNECTIONCURATION-001": {
       "status": "pending",
