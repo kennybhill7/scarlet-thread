@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-18T12:37:04.459Z",
+  "updatedAt": "2026-09-18T12:51:02.929Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -820,13 +820,13 @@
       "notes": "Adds ## Literary Design and ## Practice Bridge Example (optional prose, same extractHeadingProse technique) and ## Teach-Back Prompts (REQUIRED per BUILD_PLAN Section 5.1's own CI-rules bullet, mechanized via a new hasNonEmptyHeadingSection check in validate.ts). Wires ApplySection.tsx/TeachSection.tsx with a curatedLesson prop (same pattern ContextSection/TheologySection already use) showing a worked example / suggested prompts above the learner's own real composer. Deliberately did NOT touch typed connections (CONNECTIONCURATION-001, held until this merged to avoid file overlap -- now unblocked) or author any Genesis 3 content. Closed 2026-09-18 by Claude. Real, known, correct consequence: the live, published Genesis 3 lesson now fails content:validate until a follow-up content task adds a Teach-Back Prompts section -- the lesson stays live in production either way (this only affects the validate/build pipeline, not what is already served)."
     },
     "CONNECTIONCURATION-001": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/CONNECTIONCURATION-001-claude",
+      "commitSha": "a05cc4c",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Dispatched 2026-09-17 -- the connections half of Section 5.2's fuller lesson shape (see LESSONSHAPE-001's notes for full context). connectionIds[] already exists in frontmatter (CONTENTPIPE-001, format-checked only, never resolved to a real row -- schema.ts's own SCOPE NOTE names this exact gap). This task resolves them for real: extends the reader (lib/content/publishedLessons.ts) to query graph_edges (joined with sources for citation) for each id a lesson's connectionIds[] names, and wires components/workspace/ConnectSection.tsx's ALREADY-EXISTING 'no curated connections yet' notice (confirmed present, never wired) to show them -- same curatedLesson-prop pattern RELEASEREADER-001 already established for ContextSection/TheologySection, reused not reinvented. Sequenced to start only after LESSONSHAPE-001 merges (both touch publishedLessons.ts/schema.ts) to avoid two agents on the same files. Does NOT author any real connection rows -- that is real theological/literary judgment (which passages, what ConnectionType, what EvidenceLabel, real sourcing) deferred to the content-authoring task once research grounds it."
+      "lastEvidence": "Merged into design/mountain-journey and master (a05cc4c, fast-forward, pushed both). Independently re-verified, not merely trusted: full diff review of all 5 changed files -- confirmed the logic-vs-IO split held (findLessonMatchingRange stays pure, returns curatedConnections: [] unconditionally; the new resolveCuratedConnections is the second and only other IO function in the file, co-located with findPublishedLessonForRange), confirmed the LEFT JOIN (never trusts the sourceId FK blindly), confirmed order-preserving id resolution with silent skip-and-warn (never throw) on an unresolved connectionIds[] entry, confirmed ConnectSection.tsx's real regression guard (empty curatedConnections renders the original fixed notice unchanged) and that the learner's own write-capable comparison form/no-warrant-yet panel always still mounts regardless. Ran typecheck/lint myself (clean), ran published-lessons.test.ts + workspace-shell.test.ts directly (87/87, matches report), full suite (1594 pass/0 fail/4 cancelled -- same pre-existing env gap).",
+      "notes": "Closes the last infra piece of BUILD_PLAN Section 5.2's fuller lesson shape (see LESSONSHAPE-001's own notes for full context): connectionIds[] now resolve against real graph_edges rows (joined to sources for citation) instead of being format-checked-only strings, and ConnectSection.tsx's already-existing but unwired 'no curated connections yet' notice now shows real curated connections when a lesson has them. Closed 2026-09-18 by Claude. Scope discipline confirmed: no real graph_edges rows authored, content/curriculum/genesis/03-the-fall.md untouched. All three LESSONSHAPE-001/CONNECTIONCURATION-001 infra pieces plus design/GENESIS_3_EXPANSION_RESEARCH.md (a fresh, independently-reviewed research pass -- literary design, 5 recommended typed connections with real type/evidence-label sourcing, teach-back framing) are now in place. The only remaining step for the Genesis 3 vertical slice to reach BUILD_PLAN's real Section 5.2 shape is content authoring: adding ## Literary Design / ## Practice Bridge Example / ## Teach-Back Prompts to content/curriculum/genesis/03-the-fall.md and authoring 0-5 real graph_edges rows for the recommended connections, grounded in the new research doc. Not started here."
     }
   }
 }
