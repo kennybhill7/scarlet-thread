@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-17T19:25:30.520Z",
+  "updatedAt": "2026-09-18T02:38:56.245Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -809,6 +809,24 @@
       "lastRunId": null,
       "lastEvidence": "Real production database actions, run by Claude with Ken's explicit approval. A read-only check first found production's Postgres was 7 migrations behind master (last applied 2026-07-29) -- missing the entire v2 Study schema and the graph_edges/sources/catalog_releases tables entirely. Flagged to Ken before acting since it was larger in scope than originally approved. With his go-ahead: ran drizzle-kit migrate for real (all 13 migrations applied cleanly); ran the source-registry sync for real (11 source rows written to the now-real sources table); ran content:build for real (compiled 1 lesson, checksum 6ce50ba4bd766bf4437a6af33f47a80a9e790d0cf3bb7213af727b39d62cd677, wrote catalog_releases row 5821416d-f648-410e-bc21-518f39655e26).",
       "notes": "Milestone, not a code task -- no branch/commit, pure production-database action. Closes the loop opened by GEN3LESSON-001/CONTENTBUILDGATE-001/SOURCEREGISTRY-001/SOURCESYNC-001: the first real, published, cited curriculum content this app has ever served. Follow-up worth Ken's attention: production's schema was multiple migrations stale for an unknown period before today -- worth checking whether any currently-deployed Vercel build depended on those tables and was affected, and worth adding a real migration step to the deploy process (or a standing habit) so this gap does not silently reopen as more schema work merges."
+    },
+    "LESSONSHAPE-001": {
+      "status": "pending",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Dispatched 2026-09-17 -- BUILD_PLAN.md Section 5.2 names a fuller lesson shape than CONTENTPIPE-001/GEN3LESSON-001 built: 'Method focus... sourced context... literary design notes... 0-5 typed connections... named positions... a worked Practice Bridge example... a teach-back prompt set.' Only method/context/positions exist today. Ken chose to complete Genesis 3 to the real spec before writing more lessons, rather than write more lessons at the current reduced depth. This task adds THREE of the missing pieces -- literary design notes and a Practice Bridge example (both optional prose, same extractHeadingProse technique as Context/Positions) and a REQUIRED teach-back prompt set (Section 5.1's own CI rule: 'a teach-back prompt set exists' -- validate.ts must enforce this, unlike the optional pieces). Deliberately does NOT touch typed connections (structurally different -- real graph_edges rows, not prose -- scoped as a separate follow-on task, CONNECTIONCURATION-001, to avoid two agents touching publishedLessons.ts/build.ts/schema.ts at once). Deliberately does NOT author new Genesis 3 content -- infra only, mirroring CONTENTPIPE-001-before-GEN3LESSON-001 sequencing."
+    },
+    "CONNECTIONCURATION-001": {
+      "status": "pending",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Dispatched 2026-09-17 -- the connections half of Section 5.2's fuller lesson shape (see LESSONSHAPE-001's notes for full context). connectionIds[] already exists in frontmatter (CONTENTPIPE-001, format-checked only, never resolved to a real row -- schema.ts's own SCOPE NOTE names this exact gap). This task resolves them for real: extends the reader (lib/content/publishedLessons.ts) to query graph_edges (joined with sources for citation) for each id a lesson's connectionIds[] names, and wires components/workspace/ConnectSection.tsx's ALREADY-EXISTING 'no curated connections yet' notice (confirmed present, never wired) to show them -- same curatedLesson-prop pattern RELEASEREADER-001 already established for ContextSection/TheologySection, reused not reinvented. Sequenced to start only after LESSONSHAPE-001 merges (both touch publishedLessons.ts/schema.ts) to avoid two agents on the same files. Does NOT author any real connection rows -- that is real theological/literary judgment (which passages, what ConnectionType, what EvidenceLabel, real sourcing) deferred to the content-authoring task once research grounds it."
     }
   }
 }
