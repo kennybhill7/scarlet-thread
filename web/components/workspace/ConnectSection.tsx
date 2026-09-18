@@ -5,13 +5,14 @@ import type { CSSProperties } from "react";
 
 import Link from "next/link";
 
-import { optionsFrom } from "@/components/study/ClaimComposer";
+import { humanizeToken, optionsFrom } from "@/components/study/ClaimComposer";
 import { MotifRadarPanel } from "@/components/motif-radar";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { Field } from "@/components/ui/Field";
 import { formatCanonicalRangeKey } from "@/lib/bible/range";
 import type { Thread } from "@/lib/contracts";
+import type { CuratedConnection, PublishedLessonMatch } from "@/lib/content/publishedLessons";
 import {
   CONNECTION_TYPES,
   type StudySession,
@@ -106,9 +107,23 @@ import { bodyStyle, noticeStyle } from "./styles";
  *   - Motif candidates: `MotifRadarPanel` (`components/motif-radar.tsx`,
  *     RADARUI-001, unmodified) is mounted directly — the app's own radar,
  *     reused rather than reimplemented.
- *   - Curated connections: no curated-connections content or pipeline exists
- *     yet (same situation CLAIMPANES-001 found for passage_contexts/
- *     doctrines) — an honest notice renders instead of fabricating any.
+ *   - Curated connections (CONNECTIONCURATION-001, 2026-09-18): when
+ *     `curatedLesson?.curatedConnections` (`lib/content/publishedLessons.ts`
+ *     — real `graph_edges` rows resolved from this lesson's own
+ *     `connectionIds[]`, joined to `sources` for citation) is non-empty,
+ *     each one renders — both passages, its type, its evidence label, and
+ *     its source citation when the edge's `sourceId` resolved — INSTEAD OF
+ *     the fixed `data-testid="connect-no-curated-notice"` notice below,
+ *     exactly the `ContextSection.tsx` precedent this file's own header cited
+ *     as "no pipeline exists yet" before this task closed that gap. A lesson
+ *     with no `curatedLesson`, or one whose `curatedConnections` resolved to
+ *     `[]` (no `connectionIds[]` authored, or every id failed to resolve),
+ *     renders the ORIGINAL fixed notice unchanged — a real regression guard,
+ *     proven in `tests/workspace-shell.test.ts`. Curated connections
+ *     supplement the learner's own comparison, never replace it: the real,
+ *     write-capable form below (and the "No warrant yet" panel) always mounts
+ *     regardless of whether curated connections exist, same "supplements,
+ *     never replaces" discipline `ContextSection.tsx`'s header states.
  *   - User threads: v1 threads are real, so `GET /api/threads` (the existing,
  *     already-authenticated route `app/api/threads/route.ts` — no new API
  *     added here) is fetched client-side, mirroring `MotifRadarPanel`'s own
@@ -179,6 +194,56 @@ const panelStyle: CSSProperties = {
 };
 
 // ---------------------------------------------------------------------------
+// CONNECTIONCURATION-001 — curated-connection row styles. Same visual shape
+// (row list, a header line carrying type/evidenceLabel, a ranges line) as
+// `ThreadDetail.tsx`'s own `ConnectionsPanel` uses for USER connections, but
+// built from THIS file's own `--shell-*` custom properties rather than
+// `ThreadDetail.tsx`'s `--page-*`/`--crimson`/`--brass` tokens — the two
+// files are different visual systems (this one the dark Passage Workspace
+// shell, that one the thread browse page), so the tokens are not portable,
+// only the row shape is.
+// ---------------------------------------------------------------------------
+
+const curatedConnectionListStyle: CSSProperties = {
+  display: "grid",
+  gap: 10,
+  margin: 0,
+  padding: 0,
+  listStyle: "none",
+};
+
+const curatedConnectionRowStyle: CSSProperties = {
+  border: "1px solid var(--shell-border)",
+  borderRadius: 8,
+  padding: "8px 10px",
+  display: "grid",
+  gap: 6,
+};
+
+const curatedConnectionHeaderStyle: CSSProperties = {
+  display: "flex",
+  gap: 8,
+  flexWrap: "wrap",
+  fontFamily: "var(--font-label)",
+  fontSize: 12,
+  fontWeight: 600,
+  color: "var(--gold)",
+};
+
+const curatedConnectionRangesStyle: CSSProperties = {
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
+  fontSize: 13,
+  color: "var(--shell-text)",
+};
+
+const curatedConnectionSourceStyle: CSSProperties = {
+  fontSize: 12,
+  color: "var(--shell-muted-2)",
+};
+
+// ---------------------------------------------------------------------------
 // Result of a save — a discriminated union because the two Connect actions
 // (typed connection vs. no_warrant_yet) write different records.
 // ---------------------------------------------------------------------------
@@ -186,6 +251,38 @@ const panelStyle: CSSProperties = {
 export type ConnectSectionSavedResult =
   | { kind: "connection"; connection: UserConnection }
   | { kind: "no_warrant_yet"; session: StudySession };
+
+// ---------------------------------------------------------------------------
+// CuratedConnectionRow — one resolved `graph_edges` row, rendered read-only.
+// Hookless, like `EvidenceLabelField` above, so it stays a plain function a
+// test can call directly and inspect (same technique `ClaimComposer.tsx`'s
+// `PromoteFields` and `EvidenceLabelField` above already establish).
+// ---------------------------------------------------------------------------
+
+export function CuratedConnectionRow({ connection }: { connection: CuratedConnection }) {
+  return (
+    <li data-testid="connect-curated-connection" style={curatedConnectionRowStyle}>
+      <div style={curatedConnectionHeaderStyle}>
+        <span data-field="type">{humanizeToken(connection.type)}</span>
+        <span data-field="evidenceLabel">{humanizeToken(connection.evidenceLabel)}</span>
+      </div>
+      <div data-testid="connect-curated-connection-ranges" style={curatedConnectionRangesStyle}>
+        <span data-field="fromRange">{formatCanonicalRangeKey(connection.fromRange)}</span>
+        <span aria-hidden="true">&harr;</span>
+        <span data-field="toRange">{formatCanonicalRangeKey(connection.toRange)}</span>
+      </div>
+      {connection.source ? (
+        <p data-testid="connect-curated-connection-source" style={curatedConnectionSourceStyle}>
+          {connection.source.author}, &ldquo;
+          <a href={connection.source.url} rel="noreferrer" target="_blank">
+            {connection.source.title}
+          </a>
+          &rdquo;
+        </p>
+      ) : null}
+    </li>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // EvidenceLabelField — HOOKLESS, deliberately (exactly ClaimComposer.tsx's
@@ -333,9 +430,29 @@ export interface ConnectSectionProps {
   onSaved: (result: ConnectSectionSavedResult) => void;
   /** Test seam only, mirrors MotifRadarPanel's own `fetchImpl` prop. Omitted, real `fetch` is used. */
   fetchImpl?: FetchImpl;
+  /**
+   * CONNECTIONCURATION-001 — the one published lesson (if any) covering this
+   * session's range, threaded through by `WorkspaceShell` exactly like
+   * `ContextSection`/`TheologySection`/`ApplySection`/`TeachSection` already
+   * receive it. `curatedLesson?.curatedConnections` (empty array for every
+   * lesson with no `connectionIds[]`, or none that resolved) decides whether
+   * this section's fixed "no curated connections yet" notice or the real
+   * resolved rows render — see this file's header comment. Optional,
+   * defaulting to `null`: every session with no lesson, or a lesson with zero
+   * curated connections, renders exactly as this section did before this
+   * task — a real regression guard, proven in `tests/workspace-shell.test.ts`.
+   */
+  curatedLesson?: PublishedLessonMatch | null;
 }
 
-export function ConnectSection({ workspaceId, session, unlocked, onSaved, fetchImpl = fetch }: ConnectSectionProps) {
+export function ConnectSection({
+  workspaceId,
+  session,
+  unlocked,
+  onSaved,
+  fetchImpl = fetch,
+  curatedLesson = null,
+}: ConnectSectionProps) {
   const startId = useId();
   const endId = useId();
 
@@ -366,6 +483,7 @@ export function ConnectSection({ workspaceId, session, unlocked, onSaved, fetchI
 
   const toRange = parseTypedRange(toStart, toEnd);
   const readiness = connectionReadiness({ toRange, selection, rationale });
+  const curatedConnections = curatedLesson?.curatedConnections ?? [];
 
   async function submitConnection(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -423,10 +541,25 @@ export function ConnectSection({ workspaceId, session, unlocked, onSaved, fetchI
 
   return (
     <div style={bodyStyle}>
-      <p style={noticeStyle} data-testid="connect-no-curated-notice">
-        No curated connections yet for this passage — Phase 1&rsquo;s curated connections tables have not been
-        built. What follows is your own comparison, typed and evidence-labeled in your own words.
-      </p>
+      {curatedConnections.length > 0 ? (
+        <section aria-label="Curated connections" style={panelStyle} data-testid="connect-curated-connections">
+          <p style={legendStyle}>Curated connections</p>
+          <p style={noticeStyle}>
+            Reviewed connections for this passage, from this app&rsquo;s curated cross-reference graph — supplementing
+            your own comparison below, never replacing it.
+          </p>
+          <ul style={curatedConnectionListStyle}>
+            {curatedConnections.map((connection) => (
+              <CuratedConnectionRow connection={connection} key={connection.id} />
+            ))}
+          </ul>
+        </section>
+      ) : (
+        <p style={noticeStyle} data-testid="connect-no-curated-notice">
+          No curated connections yet for this passage — Phase 1&rsquo;s curated connections tables have not been
+          built. What follows is your own comparison, typed and evidence-labeled in your own words.
+        </p>
+      )}
 
       <section aria-label="What the app's own radar has noticed" style={panelStyle}>
         <p style={legendStyle}>Suggested by your own repetition</p>

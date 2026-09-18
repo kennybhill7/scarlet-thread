@@ -20,6 +20,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { catalogReleases, graphEdges } from "@/db/schema";
 import { CANONICAL_VERSIFICATION_ID, type CanonicalRangeV1 } from "@/lib/contracts/range-v1";
 import type { LessonFrontmatter } from "@/scripts/content/schema";
 import type { ReleaseBundle } from "@/scripts/content/build";
@@ -29,6 +30,8 @@ import {
   findLessonMatchingRange,
   findPublishedLessonForRange,
   parseReleaseBundle,
+  resolveCuratedConnections,
+  type CuratedConnection,
 } from "@/lib/content/publishedLessons";
 
 // ---------------------------------------------------------------------------
@@ -350,29 +353,187 @@ test("findLessonMatchingRange: when two lessons both cover the same range, the F
   assert.equal(match?.slug, "aardvark/lesson");
 });
 
+// ---------------------------------------------------------------------------
+// CONNECTIONCURATION-001 — `curatedConnections` is ALWAYS `[]` straight out
+// of `findLessonMatchingRange`, regardless of what `connectionIds[]` the
+// lesson's own frontmatter carries: this function is pure (no DB), so it has
+// no way to resolve real `graph_edges` rows. Only `findPublishedLessonForRange`
+// (below, via `resolveCuratedConnections`) ever populates real rows -- proven
+// separately in that section.
+// ---------------------------------------------------------------------------
+
+test("findLessonMatchingRange: curatedConnections is always [] -- pure, no DB to resolve real graph_edges rows, even when connectionIds[] is non-empty", () => {
+  const bundle = fixtureBundle({
+    lesson: {
+      frontmatter: fixtureFrontmatter({
+        passage: range("1.3.1", "1.3.24"),
+        connectionIds: ["some-real-looking-id", "another-id"],
+      }),
+      body: "x",
+    },
+  });
+  const match = findLessonMatchingRange(bundle, range("1.3.1", "1.3.6"));
+  assert.ok(match);
+  assert.deepEqual(match?.curatedConnections, []);
+});
+
+test("findLessonMatchingRange: curatedConnections is [] (not undefined) for a lesson with no connectionIds at all -- matches frontmatter.connectionIds's own .default([])", () => {
+  const bundle = fixtureBundle({
+    lesson: { frontmatter: fixtureFrontmatter({ passage: range("1.3.1", "1.3.24") }), body: "x" },
+  });
+  const match = findLessonMatchingRange(bundle, range("1.3.1", "1.3.6"));
+  assert.deepEqual(match?.curatedConnections, []);
+});
+
 // ===========================================================================
-// findPublishedLessonForRange — the one real-IO function, exercised with a
-// tiny in-memory fake `Database` (dependency injection, no live Postgres).
+// findPublishedLessonForRange / resolveCuratedConnections — the two real-IO
+// functions, exercised with a tiny in-memory fake `Database` (dependency
+// injection, no live Postgres — this repo has exactly one Postgres instance,
+// production, so there is no test DB to point at instead).
 // ===========================================================================
 
 type FakeRow = { bundle: unknown; releasedAt: string };
 
-function fakeDb(rows: FakeRow[]) {
-  // Minimal stand-in for the one query shape this function issues:
-  // db.select({bundle}).from(catalogReleases).orderBy(desc(releasedAt)).limit(1)
+/** The exact flat shape `resolveCuratedConnections`'s own `.select({...})`
+ * asks for — a `graph_edges` row left-joined to its `sources` row, columns
+ * flattened rather than nested (this repo's own `lib/db/*.ts` convention —
+ * grepped, no precedent anywhere in this codebase for a nested-object
+ * `.select()`). `sourceId: null` (with every other `source*` field also
+ * `undefined`) stands in for what a real `LEFT JOIN` with no matching
+ * `sources` row returns. */
+type GraphEdgeFakeRow = {
+  id: string;
+  type: string;
+  evidenceLabel: string;
+  fromRange: CanonicalRangeV1;
+  toRange: CanonicalRangeV1;
+  sourceId: string | null;
+  sourceAuthor?: string;
+  sourceTitle?: string;
+  sourcePublisher?: string;
+  sourceUrl?: string;
+  sourceLicence?: string;
+};
+
+function fixtureGraphEdgeRow(overrides: Partial<GraphEdgeFakeRow> = {}): GraphEdgeFakeRow {
+  return {
+    id: "edge-1",
+    type: "parallel",
+    evidenceLabel: "strong",
+    fromRange: range("1.3.1", "1.3.1"),
+    toRange: range("1.3.15", "1.3.15"),
+    sourceId: "source-1",
+    sourceAuthor: "OpenBible.info (SYNTHETIC FIXTURE)",
+    sourceTitle: "OpenBible.info Cross Reference Dataset (SYNTHETIC FIXTURE)",
+    sourcePublisher: "OpenBible.info",
+    sourceUrl: "https://example.invalid/synthetic-source",
+    sourceLicence: "CC BY 4.0",
+    ...overrides,
+  };
+}
+
+/**
+ * Table-identity-aware: `findPublishedLessonForRange` issues one query shape
+ * against `catalogReleases` (`select().from().orderBy().limit()`) and
+ * `resolveCuratedConnections` issues a DIFFERENT shape against `graphEdges`
+ * (`select().from().leftJoin().where()`) — this fake dispatches on the real
+ * `table` object identity (`table === catalogReleases` / `table ===
+ * graphEdges`, both imported straight from `@/db/schema`, never re-declared)
+ * so one fake `Database` can stand in for both, the same way a real Postgres
+ * connection would answer either query correctly. `graphEdgeRows` is what a
+ * real `WHERE id IN (...)` would have already filtered down to — callers
+ * simulate "id has no matching row" simply by leaving it out of this array,
+ * not by teaching this fake to actually filter.
+ */
+function fakeDb(rows: FakeRow[], graphEdgeRows: GraphEdgeFakeRow[] = []) {
   return {
     select: () => ({
-      from: () => ({
-        orderBy: () => ({
-          limit: (n: number) => {
-            const sorted = [...rows].sort((a, b) => (a.releasedAt < b.releasedAt ? 1 : -1));
-            return Promise.resolve(sorted.slice(0, n).map((row) => ({ bundle: row.bundle })));
-          },
-        }),
-      }),
+      from: (table: unknown) => {
+        if (table === catalogReleases) {
+          return {
+            orderBy: () => ({
+              limit: (n: number) => {
+                const sorted = [...rows].sort((a, b) => (a.releasedAt < b.releasedAt ? 1 : -1));
+                return Promise.resolve(sorted.slice(0, n).map((row) => ({ bundle: row.bundle })));
+              },
+            }),
+          };
+        }
+        if (table === graphEdges) {
+          return {
+            leftJoin: () => ({
+              where: () => Promise.resolve(graphEdgeRows),
+            }),
+          };
+        }
+        throw new Error("fakeDb: unexpected table passed to .from() -- this fake only stands in for catalogReleases and graphEdges");
+      },
     }),
   };
 }
+
+// ---------------------------------------------------------------------------
+// resolveCuratedConnections — the new real-IO function this task adds.
+// ---------------------------------------------------------------------------
+
+test("resolveCuratedConnections: an empty connectionIds[] returns [] WITHOUT issuing any query at all", async () => {
+  const db = {
+    select: () => {
+      throw new Error("must not query when connectionIds is empty");
+    },
+  };
+  const result = await resolveCuratedConnections(db as never, []);
+  assert.deepEqual(result, []);
+});
+
+test("resolveCuratedConnections: every id resolves -- returns one CuratedConnection per id, with its joined source citation", async () => {
+  const row = fixtureGraphEdgeRow({ id: "edge-1" });
+  const db = fakeDb([], [row]);
+  const result = await resolveCuratedConnections(db as never, ["edge-1"]);
+  assert.equal(result.length, 1);
+  const connection: CuratedConnection = result[0];
+  assert.equal(connection.id, "edge-1");
+  assert.equal(connection.type, "parallel");
+  assert.equal(connection.evidenceLabel, "strong");
+  assert.deepEqual(connection.fromRange, range("1.3.1", "1.3.1"));
+  assert.deepEqual(connection.toRange, range("1.3.15", "1.3.15"));
+  assert.deepEqual(connection.source, {
+    author: "OpenBible.info (SYNTHETIC FIXTURE)",
+    title: "OpenBible.info Cross Reference Dataset (SYNTHETIC FIXTURE)",
+    publisher: "OpenBible.info",
+    url: "https://example.invalid/synthetic-source",
+    licence: "CC BY 4.0",
+  });
+});
+
+test("resolveCuratedConnections: an id with NO matching graph_edges row is skipped silently -- never throws, fails closed", async () => {
+  const db = fakeDb([], [fixtureGraphEdgeRow({ id: "edge-real" })]);
+  const result = await resolveCuratedConnections(db as never, ["edge-real", "edge-does-not-exist"]);
+  assert.equal(result.length, 1, "only the resolvable id should produce a CuratedConnection");
+  assert.equal(result[0].id, "edge-real");
+});
+
+test("resolveCuratedConnections: ALL ids unresolved -> [] (never throws, never a partial crash)", async () => {
+  const db = fakeDb([], []);
+  const result = await resolveCuratedConnections(db as never, ["nothing-matches", "still-nothing"]);
+  assert.deepEqual(result, []);
+});
+
+test("resolveCuratedConnections: result order follows connectionIds' OWN order, not the rows' return order", async () => {
+  const db = fakeDb([], [
+    fixtureGraphEdgeRow({ id: "edge-b", fromRange: range("1.4.1", "1.4.1") }),
+    fixtureGraphEdgeRow({ id: "edge-a", fromRange: range("1.5.1", "1.5.1") }),
+  ]);
+  const result = await resolveCuratedConnections(db as never, ["edge-a", "edge-b"]);
+  assert.deepEqual(result.map((connection) => connection.id), ["edge-a", "edge-b"]);
+});
+
+test("resolveCuratedConnections: a resolved edge whose sourceId does not join to a real sources row reports source: null, never a thrown error", async () => {
+  const db = fakeDb([], [fixtureGraphEdgeRow({ id: "edge-orphan", sourceId: null, sourceAuthor: undefined, sourceTitle: undefined, sourcePublisher: undefined, sourceUrl: undefined, sourceLicence: undefined })]);
+  const result = await resolveCuratedConnections(db as never, ["edge-orphan"]);
+  assert.equal(result.length, 1);
+  assert.equal(result[0].source, null);
+});
 
 test("findPublishedLessonForRange: no catalog_releases rows at all -> null", async () => {
   const result = await findPublishedLessonForRange(fakeDb([]) as never, range("1.3.1", "1.3.6"));
@@ -398,6 +559,56 @@ test("findPublishedLessonForRange: a malformed bundle on the latest release fail
   const db = fakeDb([{ bundle: { schemaVersion: "not-a-number" }, releasedAt: "2026-01-01T00:00:00.000Z" }]);
   const result = await findPublishedLessonForRange(db as never, range("1.3.1", "1.3.6"));
   assert.equal(result, null);
+});
+
+// ---------------------------------------------------------------------------
+// CONNECTIONCURATION-001 — findPublishedLessonForRange's real merge of
+// resolveCuratedConnections into the matched lesson's curatedConnections.
+// ---------------------------------------------------------------------------
+
+test("findPublishedLessonForRange: a matched lesson's connectionIds[] are resolved into real curatedConnections, replacing the [] placeholder", async () => {
+  const bundle = fixtureBundle({
+    "genesis/03-the-fall": {
+      frontmatter: fixtureFrontmatter({ passage: range("1.3.1", "1.3.24"), connectionIds: ["edge-1"] }),
+      body: SYNTHETIC_BODY_BOTH_SECTIONS,
+    },
+  });
+  const db = fakeDb(
+    [{ bundle, releasedAt: "2026-01-01T00:00:00.000Z" }],
+    [fixtureGraphEdgeRow({ id: "edge-1" })],
+  );
+  const result = await findPublishedLessonForRange(db as never, range("1.3.1", "1.3.6"));
+  assert.ok(result);
+  assert.equal(result?.curatedConnections.length, 1);
+  assert.equal(result?.curatedConnections[0]?.id, "edge-1");
+});
+
+test("findPublishedLessonForRange: a matched lesson with an empty connectionIds[] returns curatedConnections: [] WITHOUT querying graph_edges at all", async () => {
+  const bundle = fixtureBundle({
+    lesson: { frontmatter: fixtureFrontmatter({ passage: range("1.3.1", "1.3.24"), connectionIds: [] }), body: "x" },
+  });
+  // No graphEdgeRows provided, AND this fake throws if .from(graphEdges) is
+  // ever reached with a table it does not recognise handled -- but more to
+  // the point, resolveCuratedConnections's own empty-array short-circuit
+  // means .select() is never even called for the graphEdges table here, so
+  // this proves the "no cost for an ordinary lesson" claim in that
+  // function's own header comment.
+  const db = fakeDb([{ bundle, releasedAt: "2026-01-01T00:00:00.000Z" }]);
+  const result = await findPublishedLessonForRange(db as never, range("1.3.1", "1.3.6"));
+  assert.deepEqual(result?.curatedConnections, []);
+});
+
+test("findPublishedLessonForRange: a matched lesson whose connectionIds[] id has NO matching graph_edges row still resolves -- curatedConnections: [], not a thrown error or a missing lesson", async () => {
+  const bundle = fixtureBundle({
+    lesson: {
+      frontmatter: fixtureFrontmatter({ passage: range("1.3.1", "1.3.24"), connectionIds: ["edge-does-not-exist"] }),
+      body: "x",
+    },
+  });
+  const db = fakeDb([{ bundle, releasedAt: "2026-01-01T00:00:00.000Z" }], []);
+  const result = await findPublishedLessonForRange(db as never, range("1.3.1", "1.3.6"));
+  assert.ok(result, "the lesson itself must still be found even though its one connection could not resolve");
+  assert.deepEqual(result?.curatedConnections, []);
 });
 
 // ===========================================================================

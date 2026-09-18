@@ -140,7 +140,9 @@ export interface WorkspaceShellProps {
    * through to `ContextSection`/`TheologySection` unchanged — this file makes
    * no gating or content decision of its own with it, exactly like `claims`/
    * `applications` above. LESSONSHAPE-001 extends the SAME pass-through to
-   * `ApplySection`/`TeachSection` — no second mechanism.
+   * `ApplySection`/`TeachSection`, and CONNECTIONCURATION-001 extends it again
+   * to `ConnectSection` (its `curatedConnections[]` field) — no second
+   * mechanism, ever.
    */
   curatedLesson?: PublishedLessonMatch | null;
 }
@@ -248,6 +250,7 @@ export function WorkspaceShell({
               session={session}
               unlocked={section.unlocked}
               onSaved={handleConnectSaved}
+              curatedLesson={curatedLesson}
             />
           ) : null}
           {section.contentMode === "apply" ? (

@@ -41,7 +41,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { CANONICAL_VERSIFICATION_ID, type CanonicalRangeV1 } from "@/lib/contracts/range-v1";
-import type { PublishedLessonMatch } from "@/lib/content/publishedLessons";
+import type { CuratedConnection, PublishedLessonMatch } from "@/lib/content/publishedLessons";
 import {
   STUDY_SESSION_STEPS,
   type Application,
@@ -168,7 +168,10 @@ function sampleStudyClaim(kind: ClaimKind, overrides: Partial<StudyClaim> = {}):
  * schema-valid value even though no section renders it today, so this
  * fixture stays honest about the real contract rather than a partial
  * stand-in. LESSONSHAPE-001 adds the three new fields, all defaulting to
- * `null` like the original two. */
+ * `null` like the original two. CONNECTIONCURATION-001 adds
+ * `curatedConnections`, defaulting to `[]` — matches
+ * `PublishedLessonMatch.curatedConnections`'s own real honest default for a
+ * lesson with no resolved connections. */
 function sampleCuratedLesson(overrides: Partial<PublishedLessonMatch> = {}): PublishedLessonMatch {
   return {
     slug: "genesis-3",
@@ -187,6 +190,28 @@ function sampleCuratedLesson(overrides: Partial<PublishedLessonMatch> = {}): Pub
     literaryDesignProse: null,
     practiceBridgeProse: null,
     teachBackPromptsProse: null,
+    curatedConnections: [],
+    ...overrides,
+  };
+}
+
+/** CONNECTIONCURATION-001 fixture: a real `CuratedConnection` shape
+ * (`lib/content/publishedLessons.ts`) — the resolved `graph_edges` row plus
+ * joined `sources` citation `ConnectSection` actually reads. */
+function sampleCuratedConnection(overrides: Partial<CuratedConnection> = {}): CuratedConnection {
+  return {
+    id: "edge-1",
+    type: "parallel",
+    evidenceLabel: "strong",
+    fromRange: RANGE,
+    toRange: { versificationId: CANONICAL_VERSIFICATION_ID, start: "19.22.1", end: "19.22.1" },
+    source: {
+      author: "OpenBible.info (SYNTHETIC FIXTURE)",
+      title: "OpenBible.info Cross Reference Dataset (SYNTHETIC FIXTURE)",
+      publisher: "OpenBible.info",
+      url: "https://example.invalid/synthetic-source",
+      licence: "CC BY 4.0",
+    },
     ...overrides,
   };
 }
@@ -638,6 +663,91 @@ test("RENDER: a curatedLesson with only practiceBridgeProse (no teachBackPrompts
     !html.includes('data-testid="teach-curated-prompts"'),
     "Teach must show no curated content when the lesson has no teachBackPromptsProse, even though Apply has real content",
   );
+});
+
+// ---------------------------------------------------------------------------
+// CONNECTIONCURATION-001 — curatedLesson threading into Connect. Connect
+// unlocks on `hasAttemptedComparison(claims)` (a "context" or
+// "interpretation" kind claim, `lib/workspace/gating.ts`) -- a claim of
+// EITHER of those two kinds unlocks it, so `sampleStudyClaim("interpretation")`
+// below is what unlocks Connect specifically (unlike the Context/Theology
+// tests above, which use "observation", and the Apply/Teach tests, which use
+// "theology"). Same three-case pattern RELEASEREADER-001/LESSONSHAPE-001
+// established: no-curatedLesson regression guard, curated-connections
+// present, and -- because curatedConnections is an ARRAY, not a single prose
+// string -- a real empty-array case (a lesson exists but has zero curated
+// connections) proven to render IDENTICALLY to no curated lesson at all.
+// ---------------------------------------------------------------------------
+
+test("RENDER: no curatedLesson -- Connect shows today's exact 'no curated connections' notice, unchanged (regression guard)", () => {
+  const html = render({
+    session: sampleSession(),
+    claims: [sampleStudyClaim("interpretation")],
+  });
+  assert.ok(html.includes('data-testid="connect-no-curated-notice"'), "connect notice missing");
+  assert.ok(
+    !html.includes('data-testid="connect-curated-connections"'),
+    "no curated-connections testid should render with no lesson",
+  );
+  assert.ok(html.includes('data-testid="connect-form"'), "Connect's real form should still mount");
+});
+
+test("RENDER: a curatedLesson with zero curatedConnections renders IDENTICALLY to no curated lesson at all -- an empty array is not 'has curated content'", () => {
+  const lesson = sampleCuratedLesson({ curatedConnections: [] });
+  const html = render({
+    session: sampleSession(),
+    claims: [sampleStudyClaim("interpretation")],
+    curatedLesson: lesson,
+  });
+  assert.ok(html.includes('data-testid="connect-no-curated-notice"'), "the fixed notice must still render for zero curated connections");
+  assert.ok(!html.includes('data-testid="connect-curated-connections"'));
+});
+
+test("RENDER: a curatedLesson with real curatedConnections renders each one -- type, evidence label, both ranges, and its source citation -- instead of the fixed notice", () => {
+  const lesson = sampleCuratedLesson({
+    curatedConnections: [
+      sampleCuratedConnection({ id: "edge-1", type: "parallel", evidenceLabel: "strong" }),
+    ],
+  });
+  const html = render({
+    session: sampleSession(),
+    claims: [sampleStudyClaim("interpretation")],
+    curatedLesson: lesson,
+  });
+  assert.ok(html.includes('data-testid="connect-curated-connections"'));
+  assert.ok(!html.includes('data-testid="connect-no-curated-notice"'), "the fixed notice must not also render");
+  assert.ok(html.includes('data-testid="connect-curated-connection"'), "the individual connection row is missing");
+  assert.ok(html.includes("Parallel"), "the connection's type did not render");
+  assert.ok(html.includes("Strong"), "the connection's evidence label did not render");
+  assert.ok(html.includes("1.3.1"), "the connection's fromRange did not render");
+  assert.ok(html.includes("19.22.1"), "the connection's toRange did not render");
+  assert.ok(html.includes("OpenBible.info Cross Reference Dataset (SYNTHETIC FIXTURE)"), "the connection's source citation did not render");
+  assert.ok(html.includes("https://example.invalid/synthetic-source"), "the source citation's url did not render");
+  // The learner's own real, write-capable form must still be fully present.
+  assert.ok(html.includes('data-testid="connect-form"'), "Connect's real form must still mount with curated connections present");
+});
+
+test("RENDER: multiple curatedConnections each render their own row", () => {
+  const lesson = sampleCuratedLesson({
+    curatedConnections: [
+      sampleCuratedConnection({ id: "edge-1" }),
+      sampleCuratedConnection({
+        id: "edge-2",
+        type: "type_antitype",
+        evidenceLabel: "explicit",
+        toRange: { versificationId: CANONICAL_VERSIFICATION_ID, start: "23.53.1", end: "23.53.1" },
+        source: null,
+      }),
+    ],
+  });
+  const html = render({
+    session: sampleSession(),
+    claims: [sampleStudyClaim("interpretation")],
+    curatedLesson: lesson,
+  });
+  const matches = html.match(/data-testid="connect-curated-connection"/g) ?? [];
+  assert.equal(matches.length, 2, "both curated connections should each render their own row");
+  assert.ok(html.includes("23.53.1"), "the second connection's toRange did not render");
 });
 
 test("RENDER: all eight sections appear, each naming both its plain label and its BUILD_PLAN product name", () => {

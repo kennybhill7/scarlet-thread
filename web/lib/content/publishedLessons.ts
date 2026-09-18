@@ -16,10 +16,15 @@
  *
  * LOGIC-VS-IO SPLIT (`scripts/lib/importCrossReferences.ts` /
  * `scripts/lib/releaseMigrate.ts` precedent, named in this task's own
- * acceptance criteria): everything below `findPublishedLessonForRange` is
- * pure — no DB, no filesystem — and is exercised directly by
- * `tests/published-lessons.test.ts` with small injected fixtures. Only
- * `findPublishedLessonForRange` itself touches the database.
+ * acceptance criteria): everything ABOVE the "Real IO" section marker below
+ * is pure — no DB, no filesystem — and is exercised directly by
+ * `tests/published-lessons.test.ts` with small injected fixtures.
+ * `findPublishedLessonForRange` and (as of CONNECTIONCURATION-001)
+ * `resolveCuratedConnections` are the only two functions in this file that
+ * touch the database — both live together in that one marked section, both
+ * take their `Database` connection as an explicit parameter, and both are
+ * exercised in tests against a small in-memory fake `Database`, never a real
+ * connection.
  *
  * BUNDLE SHAPE — read verbatim from `scripts/content/build.ts` (a
  * readOnlyPath here), not guessed: a `ReleaseBundle` is
@@ -44,15 +49,35 @@
  * parser — so it produces identical results for "Positions" and the new
  * "Context" heading this task adds no schema/lint support for, only reading.
  *
+ * CONNECTIONCURATION-001 adds `curatedConnections` to `PublishedLessonMatch`:
+ * a lesson's frontmatter `connectionIds[]` (`scripts/content/schema.ts` —
+ * validated there only as well-formed ID-shaped strings, per that file's own
+ * SCOPE NOTE, never that they resolve to a real row) resolved against the
+ * real curated `graph_edges` table (`db/schema.ts`, GRAPHEDGES-001), joined
+ * to each edge's `sources` row for citation. That resolution is a second
+ * real database query, so it CANNOT live in `findLessonMatchingRange` (pure,
+ * no DB, exercised by fixtures) without blurring this file's own
+ * logic-vs-IO split. Instead `findLessonMatchingRange` keeps returning
+ * `curatedConnections: []` unconditionally (its honest, pure default — it
+ * has no database to ask), and the new `resolveCuratedConnections` —
+ * co-located with `findPublishedLessonForRange` in the "Real IO" section
+ * below, the only other function in this file that touches Postgres —
+ * fills in the real rows. `findPublishedLessonForRange` calls both in
+ * sequence and merges the result, so every CALLER-visible `PublishedLessonMatch`
+ * still carries real `curatedConnections`; only the pure fixture tests in
+ * `tests/published-lessons.test.ts` that call `findLessonMatchingRange`
+ * directly see the `[]` placeholder, by construction.
+ *
  * Author: Kenneth Hill
  */
 
-import { desc } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 
-import { catalogReleases } from "@/db/schema";
+import { catalogReleases, graphEdges, sources } from "@/db/schema";
 import type { Database } from "@/lib/db";
 import { rangeContainsRange } from "@/lib/bible/range";
 import type { CanonicalRangeV1 } from "@/lib/contracts/range-v1";
+import type { ConnectionType, EvidenceLabel } from "@/lib/contracts/study-v2";
 import { LessonFrontmatterSchema, type LessonFrontmatter } from "@/scripts/content/schema";
 import type { ReleaseBundle } from "@/scripts/content/build";
 
@@ -148,6 +173,26 @@ export function parseReleaseBundle(raw: unknown): ReleaseBundle | null {
 // Range containment + lesson selection — pure.
 // ---------------------------------------------------------------------------
 
+/**
+ * One curated `graph_edges` row resolved for a lesson's `connectionIds[]`,
+ * shaped for `ConnectSection` to render — a real, typed, evidence-labeled
+ * connection, not a raw `GraphEdgeRecordV1` (`lib/contracts/graph-v1.ts`):
+ * `sourceId` is replaced with the actual joined citation fields the UI
+ * needs, and `communityVotes`/`createdAt` are dropped as noise this reader's
+ * one caller never renders. `source` is `null` — never a thrown error — when
+ * the edge's `sourceId` somehow does not resolve to a real `sources` row
+ * (should not happen given the real FK, but this reader never assumes a
+ * foreign key holds; see `resolveCuratedConnections` below).
+ */
+export interface CuratedConnection {
+  id: string;
+  type: ConnectionType;
+  evidenceLabel: EvidenceLabel;
+  fromRange: CanonicalRangeV1;
+  toRange: CanonicalRangeV1;
+  source: { author: string; title: string; publisher: string; url: string; licence: string } | null;
+}
+
 /** What the reader hands back to `ContextSection`/`TheologySection`/
  * `ApplySection`/`TeachSection` — only what they actually render, never the
  * full lesson record.
@@ -179,6 +224,17 @@ export interface PublishedLessonMatch {
   practiceBridgeProse: string | null;
   /** Prose under `## Teach-Back Prompts`, or `null` if this lesson has none — required at publish time (see this interface's own header comment), but still nullable here for fail-closed safety. */
   teachBackPromptsProse: string | null;
+  /**
+   * CONNECTIONCURATION-001 — real `graph_edges` rows resolved from this
+   * lesson's `frontmatter.connectionIds[]`. Empty array — never `null` —
+   * both when the lesson has no `connectionIds` at all (matches
+   * `frontmatter.connectionIds`'s own `.default([])`, `scripts/content/schema.ts`)
+   * and when every id failed to resolve to a real row. `findLessonMatchingRange`
+   * itself always returns `[]` here (it is pure — no DB); only
+   * `findPublishedLessonForRange`, via `resolveCuratedConnections`, ever
+   * populates real rows — see this file's header comment.
+   */
+  curatedConnections: CuratedConnection[];
 }
 
 /**
@@ -212,14 +268,112 @@ export function findLessonMatchingRange(
       literaryDesignProse: extractHeadingProse(lesson.body, "Literary Design"),
       practiceBridgeProse: extractHeadingProse(lesson.body, "Practice Bridge Example"),
       teachBackPromptsProse: extractHeadingProse(lesson.body, "Teach-Back Prompts"),
+      // Pure default — this function has no DB to ask. See this file's
+      // header comment ("CONNECTIONCURATION-001") and `resolveCuratedConnections`
+      // below: only `findPublishedLessonForRange` ever replaces this with
+      // real rows.
+      curatedConnections: [],
     };
   }
   return null;
 }
 
 // ---------------------------------------------------------------------------
-// Real IO — the one function in this file that touches Postgres.
+// Real IO — the functions in this file that touch Postgres:
+// `findPublishedLessonForRange` (unchanged in shape since RELEASEREADER-001)
+// and `resolveCuratedConnections` (CONNECTIONCURATION-001, new).
 // ---------------------------------------------------------------------------
+
+/**
+ * Resolves `connectionIds` (a lesson's `frontmatter.connectionIds[]`)
+ * against the real curated `graph_edges` table, left-joined to `sources` for
+ * citation — the same two tables `lib/db/graphEdges.ts` already queries
+ * together (read as precedent before writing this), reusing its `Database`
+ * -parameter dependency-injection shape rather than importing the app's `db`
+ * singleton directly.
+ *
+ * `graph_edges.id IN (...)` (`inArray`) is one query for every id in
+ * `connectionIds`, not one query per id — the same bulk-lookup shape
+ * `findMissingSourceIds` (`lib/db/graphEdges.ts`) already uses for exactly
+ * this reason. Returns `[]` immediately, without issuing a query at all,
+ * when `connectionIds` is empty (the ordinary case for a lesson with no
+ * `connectionIds` at all).
+ *
+ * FAIL CLOSED, NEVER THROW on an unresolved id: `schema.ts`'s own SCOPE NOTE
+ * states `connectionIds[]` is validated only as well-formed ID-shaped
+ * strings, "never that they resolve to a real row" — so an id with no
+ * matching `graph_edges` row is a real, expected possibility (a typo, a
+ * lesson written against a connection not yet imported, a since-corrected
+ * id), not a data-integrity bug this reader should crash the page over. Such
+ * an id is silently skipped from the returned array — mirroring
+ * `parseReleaseBundle`'s own "fail closed, never assume" discipline
+ * elsewhere in this file — with a `console.warn` (cheap, server-side only,
+ * never thrown or surfaced to the page) recording the gap for whoever is
+ * watching server logs. The RESULT array preserves `connectionIds`' own
+ * order (skipping the unresolved ones in place) rather than whatever order
+ * Postgres happens to return rows in.
+ *
+ * `source` is `null` on an individual connection only in the practically
+ * unreachable case that a resolved edge's `sourceId` foreign key does not
+ * resolve to a real `sources` row — this function never trusts that FK
+ * blindly (a `LEFT JOIN`, not an `INNER JOIN`), so a dangling reference
+ * degrades that one connection's citation to `null` rather than dropping the
+ * connection or throwing.
+ */
+export async function resolveCuratedConnections(
+  db: Database,
+  connectionIds: readonly string[],
+): Promise<CuratedConnection[]> {
+  if (connectionIds.length === 0) return [];
+
+  const uniqueIds = [...new Set(connectionIds)];
+  const rows = await db
+    .select({
+      id: graphEdges.id,
+      type: graphEdges.type,
+      evidenceLabel: graphEdges.evidenceLabel,
+      fromRange: graphEdges.fromRange,
+      toRange: graphEdges.toRange,
+      sourceId: sources.id,
+      sourceAuthor: sources.author,
+      sourceTitle: sources.title,
+      sourcePublisher: sources.publisher,
+      sourceUrl: sources.url,
+      sourceLicence: sources.licence,
+    })
+    .from(graphEdges)
+    .leftJoin(sources, eq(graphEdges.sourceId, sources.id))
+    .where(inArray(graphEdges.id, uniqueIds));
+
+  const rowsById = new Map(rows.map((row) => [row.id, row]));
+
+  const resolved: CuratedConnection[] = [];
+  for (const id of connectionIds) {
+    const row = rowsById.get(id);
+    if (!row) {
+      console.warn(`publishedLessons.resolveCuratedConnections: connectionIds[] entry "${id}" has no matching graph_edges row -- skipped`);
+      continue;
+    }
+    resolved.push({
+      id: row.id,
+      type: row.type as ConnectionType,
+      evidenceLabel: row.evidenceLabel as EvidenceLabel,
+      fromRange: row.fromRange,
+      toRange: row.toRange,
+      source:
+        row.sourceId !== null
+          ? {
+              author: row.sourceAuthor!,
+              title: row.sourceTitle!,
+              publisher: row.sourcePublisher!,
+              url: row.sourceUrl!,
+              licence: row.sourceLicence!,
+            }
+          : null,
+    });
+  }
+  return resolved;
+}
 
 /**
  * Finds the most recent `catalog_releases` row (`ORDER BY released_at DESC
@@ -232,6 +386,15 @@ export function findLessonMatchingRange(
  * ALSO fails closed to "no curated lesson" rather than breaking the page —
  * this function itself only promises not to throw on malformed-but-reachable
  * data, not on a dead connection.
+ *
+ * CONNECTIONCURATION-001: once a match is found, its `curatedConnections`
+ * (`[]` from {@link findLessonMatchingRange} itself, which is pure) is
+ * replaced with the real rows {@link resolveCuratedConnections} resolves for
+ * the matched lesson's own `frontmatter.connectionIds[]` — a second real
+ * query, issued only when a lesson actually matched (never speculatively for
+ * every release row). A lesson with an empty `connectionIds[]` still costs
+ * nothing extra: {@link resolveCuratedConnections} returns `[]` without
+ * querying at all in that case.
  */
 export async function findPublishedLessonForRange(
   db: Database,
@@ -247,5 +410,9 @@ export async function findPublishedLessonForRange(
   const bundle = parseReleaseBundle(latestRelease.bundle);
   if (!bundle) return null;
 
-  return findLessonMatchingRange(bundle, sessionRange);
+  const match = findLessonMatchingRange(bundle, sessionRange);
+  if (!match) return null;
+
+  const curatedConnections = await resolveCuratedConnections(db, match.frontmatter.connectionIds);
+  return { ...match, curatedConnections };
 }
