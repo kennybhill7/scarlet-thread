@@ -21,8 +21,8 @@ import styles from "./PassagePicker.module.css";
 /**
  * PICKERLIB-001 (contract C3) — pick a passage as book -> chapter -> start
  * verse -> end verse and emit a `CanonicalRangeV1`, instead of asking a
- * learner to type "book.chapter.verse" keys (see the raw inputs in
- * `workspace/ConnectSection.tsx`). NOT wired into any screen yet.
+ * learner to type "book.chapter.verse" keys. Wired into
+ * `workspace/ConnectSection.tsx` by RANGEPICKER-002 (`surface="shell"`).
  *
  * Two layers, same split as the rest of this repo's tested components:
  *   - `PassagePickerView` — hookless, props in / markup out. Tested with
@@ -64,6 +64,18 @@ export interface PassagePickerViewProps {
   /** Parent-supplied error (e.g. "Choose a passage"); shown and marked on the first control that needs attention. */
   error?: string;
   className?: string;
+  /**
+   * Which colour family the picker sits on. "page" (default): the reading
+   * page (`--page-*`, follows the parchment/midnight reading theme). "shell":
+   * the always-dark Passage Workspace shell (`--shell-*`, theme-independent).
+   * The two are NOT interchangeable: `:root` defines both families at once, so
+   * a `var(--page-x, var(--shell-x))` chain never actually falls back, and a
+   * parchment-theme picker dropped into the dark shell paints muted page text
+   * on `--shell-bg` (RANGEPICKER-002 measured ~3.9:1). Contrast of both
+   * surfaces, in both reading themes, is asserted in
+   * tests/passage-picker-contrast.test.ts.
+   */
+  surface?: "page" | "shell";
 }
 
 function range(from: number, to: number): number[] {
@@ -129,6 +141,7 @@ export function PassagePickerView({
   disabled = false,
   error,
   className,
+  surface = "page",
 }: PassagePickerViewProps) {
   const options: PassagePickerOptions = { allowCrossChapter };
   const check = checkPickerState(state, canon, options);
@@ -194,7 +207,7 @@ export function PassagePickerView({
   const fieldClass = [styles.picker, className].filter(Boolean).join(" ");
 
   return (
-    <fieldset className={fieldClass} disabled={disabled} data-testid="passage-picker">
+    <fieldset className={fieldClass} disabled={disabled} data-testid="passage-picker" data-surface={surface}>
       <legend className={styles.legend}>{label}</legend>
       <div className={styles.grid}>
         <div className={`${styles.cell} ${styles.cellWide}`}>
@@ -310,6 +323,8 @@ export interface PassagePickerProps {
   className?: string;
   /** Override the generated id prefix (stable ids for tests / anchors). */
   idPrefix?: string;
+  /** See `PassagePickerViewProps.surface`. */
+  surface?: "page" | "shell";
 }
 
 /** Stateful wrapper around `PassagePickerView`. */
@@ -323,6 +338,7 @@ export function PassagePicker({
   error,
   className,
   idPrefix,
+  surface,
 }: PassagePickerProps) {
   const generatedId = useId();
   const options: PassagePickerOptions = { allowCrossChapter };
@@ -348,6 +364,7 @@ export function PassagePicker({
       disabled={disabled}
       error={error}
       className={className}
+      surface={surface}
     />
   );
 }

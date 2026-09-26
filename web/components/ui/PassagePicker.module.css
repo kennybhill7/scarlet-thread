@@ -1,12 +1,39 @@
-/* Same token pattern as Field/Chip/Button: page tokens first, shell tokens as
-   the fallback, so it reads on the parchment page, the midnight page, and the
-   dark shell without assuming which scope it is in. */
+/* Colour comes from six local --pp-* roles, bound once per SURFACE below. A
+   picker used to write `var(--page-x, var(--shell-x))` everywhere, but
+   `:root` defines BOTH families, so that chain always resolved to --page-* and
+   never fell back: inside the dark Passage Workspace shell (--shell-bg) a
+   parchment-theme picker put --page-muted (#686e69) text on #07080a, 3.9:1.
+   Each surface now names the pair that is actually meant to sit on it.
+   tests/passage-picker-contrast.test.ts parses this block and app/globals.css
+   and asserts every role pair in BOTH reading themes (text 4.5:1, control
+   border / focus ring / invalid border 3:1) — change a binding here and that
+   test recomputes it. */
 .picker {
+  /* surface="page" (default): the reading page, --page-bg / --page-card. */
+  --pp-label: var(--page-muted);
+  --pp-ink: var(--page-ink);
+  --pp-fill: var(--page-card-alt);
+  --pp-border: var(--page-ink-3);
+  --pp-error: var(--crimson);
+  --pp-focus: var(--brass);
+
   display: flex;
   flex-direction: column;
   gap: 10px;
   border: 0;
   min-width: 0;
+}
+
+.picker[data-surface="shell"] {
+  /* The always-dark Passage Workspace shell, --shell-bg. --shell-border is a
+     deliberate 1.34:1 hairline (globals.css), fine for a divider but not for
+     the edge of a form control, so the select border uses --shell-muted. */
+  --pp-label: var(--shell-muted-2);
+  --pp-ink: var(--shell-text);
+  --pp-fill: var(--shell-surface);
+  --pp-border: var(--shell-muted);
+  --pp-error: var(--shell-crimson-text);
+  --pp-focus: var(--gold);
 }
 
 .legend {
@@ -17,7 +44,7 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   font-size: 10.5px;
-  color: var(--page-muted, var(--shell-muted));
+  color: var(--pp-label);
 }
 
 .grid {
@@ -45,7 +72,7 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   font-size: 10.5px;
-  color: var(--page-muted, var(--shell-muted));
+  color: var(--pp-label);
 }
 
 /* 44px minimum touch target (WCAG 2.5.5 / platform guidance). */
@@ -55,15 +82,15 @@
   line-height: 1.3;
   min-height: 44px;
   width: 100%;
-  color: var(--page-ink, var(--shell-text));
-  background: var(--page-card-alt, var(--shell-surface));
-  border: 1px solid var(--page-border, var(--shell-border));
+  color: var(--pp-ink);
+  background: var(--pp-fill);
+  border: 1px solid var(--pp-border);
   border-radius: var(--r-md);
   padding: 10px 12px;
 }
 
 .select:focus-visible {
-  outline: 2px solid var(--gold);
+  outline: 2px solid var(--pp-focus);
   outline-offset: 1px;
   border-color: transparent;
 }
@@ -76,7 +103,7 @@
 /* Invalid is never colour alone: the border is thicker AND the message below
    names the problem (aria-describedby points at it). */
 .select[aria-invalid="true"] {
-  border-color: var(--crimson, var(--shell-crimson-text));
+  border-color: var(--pp-error);
   border-width: 2px;
   padding: 9px 11px;
 }
@@ -84,12 +111,12 @@
 .status {
   font-size: 12.5px;
   line-height: 1.4;
-  color: var(--page-muted, var(--shell-muted));
+  color: var(--pp-label);
 }
 
 .error {
   font-size: 12.5px;
   line-height: 1.4;
   font-weight: 600;
-  color: var(--crimson, var(--shell-crimson-text));
+  color: var(--pp-error);
 }
