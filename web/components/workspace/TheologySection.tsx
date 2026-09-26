@@ -1,5 +1,6 @@
 "use client";
 
+import { LessonProse } from "@/components/lesson";
 import { ClaimComposer } from "@/components/study";
 import type { ClaimComposerSavedResult } from "@/components/study";
 import type { PublishedLessonMatch } from "@/lib/content/publishedLessons";
@@ -67,13 +68,16 @@ export function TheologySection({
   return (
     <div style={bodyStyle}>
       {curatedLesson?.positionsProse ? (
-        <p style={noticeStyle} data-testid="theology-curated-content">
-          {curatedLesson.positionsProse}
-        </p>
+        <LessonProse
+          heading="Positions this lesson reports"
+          markdown={curatedLesson.positionsProse}
+          testId="theology-curated-content"
+        />
       ) : (
         <p style={noticeStyle} data-testid="theology-no-curated-notice">
-          No curated doctrine content yet for this passage — Phase 4&rsquo;s Positions Library has not been built.
-          What follows is your own claim, warranted by your own evidence.
+          {curatedLesson
+            ? "This lesson does not report any named positions for this passage. Your own attempt always comes first. Below, record your own claim, warranted by your own evidence."
+            : "No lesson has been written for this passage yet. You can still record your own observations, and your own attempt always comes first. Below, record your own claim, warranted by your own evidence."}
         </p>
       )}
       <ClaimComposer

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { optionsFrom } from "@/components/study/ClaimComposer";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
+import { LessonProse } from "@/components/lesson";
 import { Field } from "@/components/ui/Field";
 import type { PublishedLessonMatch } from "@/lib/content/publishedLessons";
 import {
@@ -411,11 +412,11 @@ export function ApplySection({
   return (
     <div style={bodyStyle} data-testid="apply-form">
       {curatedLesson?.practiceBridgeProse ? (
-        <div style={noticeStyle} data-testid="apply-curated-example">
-          <p>
+        <div data-testid="apply-curated-example">
+          <p style={noticeStyle}>
             <strong>A worked example — one way to walk this bridge (not something you need to match):</strong>
           </p>
-          <p>{curatedLesson.practiceBridgeProse}</p>
+          <LessonProse markdown={curatedLesson.practiceBridgeProse} />
         </div>
       ) : null}
       <fieldset>

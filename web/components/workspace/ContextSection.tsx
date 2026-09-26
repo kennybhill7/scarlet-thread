@@ -1,5 +1,6 @@
 "use client";
 
+import { LessonDetails, LessonProse } from "@/components/lesson";
 import { ClaimComposer } from "@/components/study";
 import type { ClaimComposerSavedResult } from "@/components/study";
 import type { PublishedLessonMatch } from "@/lib/content/publishedLessons";
@@ -63,16 +64,40 @@ export function ContextSection({
 
   return (
     <div style={bodyStyle}>
+      {curatedLesson?.introProse ? (
+        <LessonProse
+          heading="What this lesson practices"
+          markdown={curatedLesson.introProse}
+          testId="context-lesson-intro"
+        />
+      ) : null}
       {curatedLesson?.contextProse ? (
-        <p style={noticeStyle} data-testid="context-curated-content">
-          {curatedLesson.contextProse}
-        </p>
+        <LessonProse
+          heading="Context from this lesson"
+          markdown={curatedLesson.contextProse}
+          testId="context-curated-content"
+        />
       ) : (
         <p style={noticeStyle} data-testid="context-no-curated-notice">
-          No curated context yet for this passage — Phase 1&rsquo;s curated context tables have not been built. What
-          follows is your own attempt at what this passage meant to its original audience.
+          {curatedLesson
+            ? "This lesson has no context notes for this passage. Your own attempt always comes first. Below, write what you think this passage meant to its original audience."
+            : "No lesson has been written for this passage yet. You can still record your own observations, and your own attempt always comes first. Below, write what you think this passage meant to its original audience."}
         </p>
       )}
+      {curatedLesson?.literaryDesignProse ? (
+        <LessonDetails
+          markdown={curatedLesson.literaryDesignProse}
+          summary="How this passage is built"
+          testId="context-literary-design"
+        />
+      ) : null}
+      {curatedLesson?.questionsToCarryProse ? (
+        <LessonDetails
+          markdown={curatedLesson.questionsToCarryProse}
+          summary="Questions to carry"
+          testId="context-questions-to-carry"
+        />
+      ) : null}
       <ClaimComposer
         offeredKinds={offeredKinds}
         onSaved={onSaved}

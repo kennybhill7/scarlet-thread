@@ -12,6 +12,7 @@ import { test } from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
+import { LessonDetails } from "@/components/lesson/LessonDetails";
 import { LessonProse } from "@/components/lesson/LessonProse";
 
 function render(markdown: string, extra: Record<string, unknown> = {}): string {
@@ -143,4 +144,12 @@ test("the real Genesis 3 lesson body renders with structure intact (bold lead-in
   assert.ok(contextHtml.includes('lang="he"'), "Hebrew words get a lang span");
   assert.ok(!contextHtml.includes("**"));
   assert.ok((contextHtml.match(/<li /g) ?? []).length >= 5, "the key-word bullets render as list items");
+});
+
+test("LessonDetails: collapsed by default (no open attribute), summary visible, prose inside; blank markdown renders nothing", () => {
+  const html = renderToStaticMarkup(createElement(LessonDetails, { summary: "How this passage is built", markdown: "**Bold** point.\n\n- item", testId: "d" }));
+  assert.match(html, /^<details data-testid="d" style="[^"]*"><summary [^>]*>How this passage is built<\/summary>/);
+  assert.ok(!/<details[^>]*\bopen/.test(html));
+  assert.ok(html.includes("<strong>Bold</strong>") && html.includes("<li "));
+  assert.equal(renderToStaticMarkup(createElement(LessonDetails, { summary: "x", markdown: "   \n" })), "");
 });

@@ -168,7 +168,7 @@ function sampleStudyClaim(kind: ClaimKind, overrides: Partial<StudyClaim> = {}):
 
 /** RELEASEREADER-001 fixture: the minimal real `PublishedLessonMatch` shape
  * `ContextSection`/`TheologySection`/`ApplySection`/`TeachSection` actually
- * read (`contextProse`/`positionsProse`/`literaryDesignProse`/
+ * read (`introProse`/`questionsToCarryProse` (LESSONRENDER-001)/`contextProse`/`positionsProse`/`literaryDesignProse`/
  * `practiceBridgeProse`/`teachBackPromptsProse`) — `frontmatter` is a real,
  * schema-valid value even though no section renders it today, so this
  * fixture stays honest about the real contract rather than a partial
@@ -190,11 +190,13 @@ function sampleCuratedLesson(overrides: Partial<PublishedLessonMatch> = {}): Pub
       author: "Test Author",
       status: "published",
     },
+    introProse: null,
     contextProse: null,
     positionsProse: null,
     literaryDesignProse: null,
     practiceBridgeProse: null,
     teachBackPromptsProse: null,
+    questionsToCarryProse: null,
     curatedConnections: [],
     ...overrides,
   };
@@ -671,6 +673,144 @@ test("RENDER: a curatedLesson with only practiceBridgeProse (no teachBackPrompts
     !html.includes('data-testid="teach-curated-prompts"'),
     "Teach must show no curated content when the lesson has no teachBackPromptsProse, even though Apply has real content",
   );
+});
+
+// ---------------------------------------------------------------------------
+// LESSONRENDER-001 — lesson prose is rendered as Markdown (headings, lists,
+// bold, quotes, paragraph breaks), the intro / Literary Design / Questions to
+// Carry get slots, notices are learner-voice, and the learner's own composers
+// stay mounted in every case. Regression guard for the old bug: the whole
+// section collapsing into ONE plain <p>.
+// ---------------------------------------------------------------------------
+
+const CONTEXT_COMPOSER_MARKER = "What did this passage mean to its first audience?";
+const THEOLOGY_COMPOSER_MARKER = "What do you believe this passage teaches, and why?";
+
+function richLesson(overrides: Partial<PublishedLessonMatch> = {}): PublishedLessonMatch {
+  return sampleCuratedLesson({
+    introProse: "This lesson practices **telling facts from positions**.\n\nIt keeps them in separate sections.",
+    contextProse: "**Where it sits.** The opening chapters.\n\n- first point about context\n- second point about context\n\n### A sub-heading\n\n1. numbered one\n2. numbered two\n\n> a quoted line",
+    positionsProse: "**Tradition A.** Holds one reading.\n\n**Tradition B.** Holds another.",
+    literaryDesignProse: "The passage is built in a *concentric* pattern.\n\n- a\n- b",
+    practiceBridgeProse: "**Passage element.** 3:11-13.\n\n1. Step one\n2. Step two",
+    teachBackPromptsProse: "1. **Blind explain.** Without notes.\n\n2. **Outline.** In five minutes.",
+    questionsToCarryProse: "1. First open question?\n2. Second open question?",
+    ...overrides,
+  });
+}
+
+test("RENDER (LESSONRENDER-001): Context renders the intro, real Markdown structure, and both collapsed details, with the composer still mounted", () => {
+  const html = render({
+    session: sampleSession(),
+    claims: [sampleStudyClaim("observation")],
+    curatedLesson: richLesson(),
+  });
+  assert.ok(html.includes("What this lesson practices"), "intro heading missing");
+  assert.ok(html.includes("<strong>telling facts from positions</strong>"), "intro bold did not render as <strong>");
+  assert.ok(html.includes('data-testid="context-lesson-intro"'));
+  assert.match(html, /<ul [^>]*><li [^>]*>first point about context<\/li><li [^>]*>second point about context<\/li><\/ul>/);
+  assert.match(html, /<ol [^>]*><li [^>]*>numbered one<\/li>/);
+  assert.match(html, /<h5 [^>]*>A sub-heading<\/h5>/);
+  assert.match(html, /<blockquote /);
+  assert.ok(!html.includes("**"), "no literal ** may reach the learner");
+  // The regression the audit found: context prose must not be one <p> containing list markers.
+  assert.ok(!html.includes("- first point about context"), "list markers must not survive as text");
+  // Collapsed details: present, and NOT open.
+  const literary = html.slice(html.indexOf('data-testid="context-literary-design"') - 10);
+  assert.ok(html.includes('data-testid="context-literary-design"'));
+  assert.ok(html.includes("How this passage is built"));
+  assert.ok(!/<details data-testid="context-literary-design"[^>]*\bopen/.test(html), "Literary Design must be collapsed by default");
+  assert.ok(literary.includes("<em>concentric</em>"));
+  assert.ok(html.includes('data-testid="context-questions-to-carry"'));
+  assert.ok(!/<details data-testid="context-questions-to-carry"[^>]*\bopen/.test(html), "Questions to carry must be collapsed by default");
+  assert.ok(html.includes("First open question?"));
+  // The learner's own composer is still mounted, after the curated content.
+  assert.ok(html.includes(CONTEXT_COMPOSER_MARKER), "the real composer must stay mounted");
+  assert.ok(html.indexOf('data-testid="context-curated-content"') < html.indexOf(CONTEXT_COMPOSER_MARKER));
+  assert.ok(!html.includes('data-testid="context-no-curated-notice"'));
+});
+
+test("RENDER (LESSONRENDER-001): a lesson with an intro but no Context section shows the intro plus the lesson-specific notice, and still mounts the composer", () => {
+  const html = render({
+    session: sampleSession(),
+    claims: [sampleStudyClaim("observation")],
+    curatedLesson: richLesson({ contextProse: null }),
+  });
+  assert.ok(html.includes('data-testid="context-lesson-intro"'));
+  assert.ok(html.includes('data-testid="context-no-curated-notice"'));
+  assert.match(html, /This lesson has no context notes for this passage/);
+  assert.ok(!html.includes("No lesson has been written for this passage yet"), "must not claim there is no lesson when there is one");
+  assert.ok(html.includes(CONTEXT_COMPOSER_MARKER));
+});
+
+test("RENDER (LESSONRENDER-001): no lesson -- neutral learner-voice notices in Context and Theology, no developer voice, composers present, no lesson slots", () => {
+  const html = render({
+    session: sampleSession(),
+    claims: [sampleStudyClaim("observation")],
+  });
+  assert.ok(html.includes("No lesson has been written for this passage yet. You can still record your own observations, and your own attempt always comes first."));
+  assert.ok(!/phase \d|has not been built|curated (context|doctrine) tables?/i.test(html), "developer-voice copy leaked");
+  assert.ok(html.includes(CONTEXT_COMPOSER_MARKER), "Context composer must stay mounted with no lesson");
+  assert.ok(html.includes(THEOLOGY_COMPOSER_MARKER), "Theology composer must stay mounted with no lesson");
+  for (const id of ["context-lesson-intro", "context-literary-design", "context-questions-to-carry", "context-curated-content", "theology-curated-content"]) {
+    assert.ok(!html.includes(`data-testid="${id}"`), `${id} must not render with no lesson`);
+  }
+});
+
+test("RENDER (LESSONRENDER-001): Theology renders positions as separate paragraphs (not one <p>) above the still-mounted composer", () => {
+  const html = render({
+    session: sampleSession(),
+    claims: [sampleStudyClaim("observation")],
+    curatedLesson: richLesson(),
+  });
+  const start = html.indexOf('data-testid="theology-curated-content"');
+  assert.ok(start !== -1);
+  const block = html.slice(start, html.indexOf(THEOLOGY_COMPOSER_MARKER));
+  assert.ok(block.includes("<strong>Tradition A.</strong>"));
+  assert.ok(block.includes("<strong>Tradition B.</strong>"));
+  assert.ok((block.match(/<p /g) ?? []).length >= 2, "positions paragraphs must be separate <p> elements");
+  assert.ok(html.includes("Positions this lesson reports"));
+  assert.ok(html.includes(THEOLOGY_COMPOSER_MARKER));
+});
+
+test("RENDER (LESSONRENDER-001): Apply and Teach render their Markdown as lists, keeping their existing labels and the learner's own forms", () => {
+  const html = render({
+    session: sampleSession(),
+    claims: [sampleStudyClaim("theology")],
+    applications: [sampleApplication("finalized")],
+    curatedLesson: richLesson(),
+  });
+  const apply = html.slice(html.indexOf('data-testid="apply-curated-example"'));
+  assert.ok(apply.includes("A worked example — one way to walk this bridge (not something you need to match):"));
+  assert.match(apply, /<ol [^>]*><li [^>]*>Step one<\/li><li [^>]*>Step two<\/li><\/ol>/);
+  const teach = html.slice(html.indexOf('data-testid="teach-curated-prompts"'));
+  assert.ok(teach.includes("Suggested teach-back prompts for this passage (a model to draw from, not something you must match):"));
+  assert.ok(teach.includes("<strong>Blind explain.</strong>"));
+  assert.match(teach, /<ol [^>]*start="2"|<ol [^>]*><li /);
+  assert.ok(html.includes('data-testid="apply-form"'), "Apply's real form must stay mounted");
+  assert.ok(!html.includes("**"));
+});
+
+test("RENDER (LESSONRENDER-001): hostile lesson prose is inert through every section (no script, no javascript: anchors, no raw HTML)", () => {
+  const evil = '<script>alert(1)</script>\n\n[go](javascript:alert(1)) <img src=x onerror=alert(1)>';
+  const html = render({
+    session: sampleSession(),
+    claims: [sampleStudyClaim("theology")],
+    applications: [sampleApplication("finalized")],
+    curatedLesson: richLesson({
+      introProse: evil,
+      contextProse: evil,
+      positionsProse: evil,
+      literaryDesignProse: evil,
+      practiceBridgeProse: evil,
+      teachBackPromptsProse: evil,
+      questionsToCarryProse: evil,
+    }),
+  });
+  assert.ok(!html.includes("<script"), "a <script> element reached the DOM");
+  assert.ok(!html.includes("<img "), "an <img> element reached the DOM");
+  assert.ok(!/href="javascript:/i.test(html), "a javascript: href reached the DOM");
+  assert.ok(html.includes(CONTEXT_COMPOSER_MARKER) && html.includes(THEOLOGY_COMPOSER_MARKER), "composers stay mounted even for hostile content");
 });
 
 // ---------------------------------------------------------------------------
