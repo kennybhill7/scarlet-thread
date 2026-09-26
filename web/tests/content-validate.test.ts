@@ -427,41 +427,22 @@ test("VALIDATE: an otherwise-valid lesson missing only '## Teach-Back Prompts' f
 });
 
 // ===========================================================================
-// LESSONSHAPE-001 — real validation against this repo's actual checked-in
-// content/curriculum/ files. As of this task there is exactly one real
-// lesson, content/curriculum/genesis/03-the-fall.md, already `status:
-// published` and live in production (RELEASEREADER-001/SOURCESYNC-001) --
-// and it predates the '## Teach-Back Prompts' rule this task adds, so it
-// does NOT have that section yet. That means it is EXPECTED and CORRECT for
-// this real file to now fail content:validate -- a follow-up
-// content-authoring task adds the missing section, not this one. This test
-// proves the failure is the real, specific one this task's own rule
-// produces (not some unrelated breakage), and that this task did not
-// silently make it pass by weakening the rule. It does NOT assert the
-// `content:validate` CLI process exits 0 -- that command is expected to
-// exit non-zero against this repo's real content right now.
+// Real validation against this repo's actual checked-in content/curriculum/
+// files. GEN3COMPLETE-001 added the required '## Teach-Back Prompts' section
+// (plus Literary Design / Practice Bridge Example / Questions to Carry) to
+// the one real lesson, so it now PASSES. This guards against the real lesson
+// silently losing the required section again.
 // ===========================================================================
 
-test("REAL CONTENT: content/curriculum/genesis/03-the-fall.md (the one real, published lesson in this repo) currently fails validation for exactly the missing '## Teach-Back Prompts' section, and for no other reason", () => {
+test("REAL CONTENT: content/curriculum/genesis/03-the-fall.md validates and carries every section BUILD_PLAN 5.2 requires", () => {
   const { results } = runValidation(CURRICULUM_DIR);
   const genesis3 = results.find((result) => result.filePath.replace(/\\/g, "/").endsWith("genesis/03-the-fall.md"));
   assert.ok(genesis3, "content/curriculum/genesis/03-the-fall.md should exist and be found by runValidation");
-  assert.equal(
-    genesis3?.ok,
-    false,
-    "EXPECTED failure: this real, already-published lesson predates the '## Teach-Back Prompts' rule and does not yet carry that section -- a follow-up content-authoring task adds it, not LESSONSHAPE-001",
-  );
-  assert.ok(
-    genesis3?.errors.some((error) => error.includes("Teach-Back Prompts")),
-    `expected the real, specific missing-section error; got: ${genesis3?.errors.join(" | ")}`,
-  );
-  // The lesson does not already have a "## Teach-Back Prompts" heading in
-  // its real source today -- sanity-checking the premise of this test
-  // directly, not just trusting the validator's own verdict.
-  assert.ok(
-    !readFileSync(genesis3!.filePath, "utf8").includes("## Teach-Back Prompts"),
-    "sanity check: the real file must not already contain this heading, or this test's premise is stale",
-  );
+  assert.equal(genesis3?.ok, true, `expected the real lesson to validate; got: ${genesis3?.errors.join(" | ")}`);
+  const source = readFileSync(genesis3!.filePath, "utf8");
+  for (const heading of ["## Context", "## Positions", "## Literary Design", "## Practice Bridge Example", "## Teach-Back Prompts"]) {
+    assert.ok(source.includes(heading), `the real lesson must contain ${heading}`);
+  }
 });
 
 // ===========================================================================
