@@ -34,11 +34,16 @@
  * Author: Kenneth Hill
  */
 
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import type { BibleIndex, BookData } from "@/lib/contracts";
+import { buildPassageCanon, toCanonTable } from "@/lib/bible/passageCanon";
+import type { CanonTable } from "@/lib/bible/range";
+
 import { unresolvedLessonConnectionIds, validateConnectionSet, type ConnectionFileRow, type ConnectionSetResult } from "./connectionSchema";
+import { unresolvedLessonPlaceIds, validatePlaceSet, type CompiledPlace, type PlaceSetResult } from "./placeSchema";
 import { parseLessonFrontmatter, VERDICT_PATTERNS, type LessonFrontmatter, type VerdictPattern } from "./schema";
 
 // ---------------------------------------------------------------------------
@@ -534,11 +539,69 @@ export function loadConnections(connectionsDir: string, registryIds: ReadonlySet
   return validateConnectionSet(files, registryIds);
 }
 
+/** `content/places/` -- sibling of `content/curriculum/`. */
+export const PLACES_DIR = path.join(SCRIPT_DIR, "..", "..", "..", "content", "places");
+/** `web/public/bible/` -- the shipped corpus the place passages are bounds-checked against. */
+export const BIBLE_PUBLIC_DIR = path.join(SCRIPT_DIR, "..", "..", "public", "bible");
+
+/** A real `CanonTable` from the shipped BSB corpus (chapter counts from
+ * `index.json`, verse counts from each book's own JSON) -- never a permissive
+ * stub. Only called when there are place rows to check. */
+export function loadRealCanonTable(bibleDir: string = BIBLE_PUBLIC_DIR): CanonTable {
+  const index = JSON.parse(readFileSync(path.join(bibleDir, "index.json"), "utf8")) as BibleIndex;
+  const canon = buildPassageCanon(
+    index.books,
+    (book) => JSON.parse(readFileSync(path.join(bibleDir, "BSB", `${book}.json`), "utf8")) as BookData,
+  );
+  return toCanonTable(canon);
+}
+
+function readOptionalText(filePath: string): string | null {
+  return existsSync(filePath) ? readFileSync(filePath, "utf8") : null;
+}
+
+function readOptionalJson(filePath: string): { ok: true; value: unknown } | { ok: false; error: string } | undefined {
+  const text = readOptionalText(filePath);
+  if (text === null) return undefined;
+  try {
+    return { ok: true, value: JSON.parse(text) as unknown };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+/** Real IO: reads `places.jsonl`, `DATASET.json` and `curation.json` from
+ * `placesDir` and validates them (`validatePlaceSet`). A missing directory
+ * (or missing files) is a valid, zero-row result. The canon is built from the
+ * real corpus lazily -- only if there are rows to check -- unless `canon` is
+ * injected (tests). */
+export function loadPlaces(
+  placesDir: string,
+  registryIds: ReadonlySet<string>,
+  canon?: CanonTable,
+): PlaceSetResult {
+  const jsonl = readOptionalText(path.join(placesDir, "places.jsonl"));
+  const hasRows = jsonl !== null && jsonl.trim() !== "";
+  return validatePlaceSet(
+    {
+      jsonl,
+      dataset: readOptionalJson(path.join(placesDir, "DATASET.json")),
+      curation: readOptionalJson(path.join(placesDir, "curation.json")),
+    },
+    registryIds,
+    canon ?? (hasRows ? loadRealCanonTable() : { chapterCount: () => undefined, verseCount: () => undefined }),
+  );
+}
+
 export interface RunValidationOptions {
   /** Defaults to `<curriculumDir>/../connections`. */
   connectionsDir?: string;
   /** Defaults to `<curriculumDir>/../source-registry.json`. */
   sourceRegistryPath?: string;
+  /** PLACES-001. Defaults to `<curriculumDir>/../places`. */
+  placesDir?: string;
+  /** PLACES-001. Injected canon (tests); defaults to the real shipped corpus. */
+  canon?: CanonTable;
 }
 
 export interface RunValidationResult {
@@ -551,6 +614,11 @@ export interface RunValidationResult {
   connectionErrors?: string[];
   /** Valid connection rows loaded from `connectionsDir` (empty if none). */
   connections?: ConnectionFileRow[];
+  /** PLACES-001 -- every `content/places/` problem, plus every lesson
+   * `placeIds[]` entry that names no place. Any entry also makes `ok` false. */
+  placeErrors?: string[];
+  /** Valid, compiled places loaded from `placesDir` (empty if none). */
+  places?: CompiledPlace[];
 }
 
 /** Real IO (reads every `.md` file under `curriculumDir`, every `.json`
@@ -576,11 +644,27 @@ export function runValidation(curriculumDir: string, options: RunValidationOptio
     ),
   ];
 
+  const placesDir = options.placesDir ?? path.resolve(curriculumDir, "..", "places");
+  const placeSet = loadPlaces(placesDir, loadSourceRegistryIds(registryPath), options.canon);
+  const placeErrors = [
+    ...placeSet.errors,
+    ...unresolvedLessonPlaceIds(
+      results.flatMap((result) =>
+        result.frontmatter
+          ? [{ slug: slugForLessonFile(result.filePath, curriculumDir), placeIds: result.frontmatter.placeIds }]
+          : [],
+      ),
+      new Set(placeSet.declaredIds),
+    ),
+  ];
+
   return {
-    ok: results.every((result) => result.ok) && connectionErrors.length === 0,
+    ok: results.every((result) => result.ok) && connectionErrors.length === 0 && placeErrors.length === 0,
     results,
     connectionErrors,
     connections: connectionSet.connections,
+    placeErrors,
+    places: placeSet.places,
   };
 }
 
@@ -589,7 +673,7 @@ function slugForLessonFile(filePath: string, curriculumDir: string): string {
 }
 
 async function main(): Promise<void> {
-  const { ok, results, connectionErrors = [], connections = [] } = runValidation(CURRICULUM_DIR);
+  const { ok, results, connectionErrors = [], connections = [], placeErrors = [], places = [] } = runValidation(CURRICULUM_DIR);
 
   if (results.length === 0) {
     console.log(
@@ -606,6 +690,7 @@ async function main(): Promise<void> {
   }
 
   for (const error of connectionErrors) console.log(`FAIL connections: ${error}`);
+  for (const error of placeErrors) console.log(`FAIL places: ${error}`);
 
   console.log("");
   console.log(`${results.filter((result) => result.ok).length}/${results.length} lesson file(s) valid.`);
@@ -614,6 +699,7 @@ async function main(): Promise<void> {
       ? `${connections.length} connection file(s) valid.`
       : `${connectionErrors.length} connection error(s).`,
   );
+  console.log(placeErrors.length === 0 ? `${places.length} place(s) valid.` : `${placeErrors.length} place error(s).`);
 
   if (!ok) process.exitCode = 1;
 }

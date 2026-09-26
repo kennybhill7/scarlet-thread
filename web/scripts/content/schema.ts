@@ -157,6 +157,9 @@ export const LessonFrontmatterSchema = z
      * downstream depends on every lesson naming one. */
     contextId: idLikeSchema("contextId").optional(),
     connectionIds: z.array(idLikeSchema("connectionIds[]")).default([]),
+    /** PLACES-001: ids of `content/places/places.jsonl` rows this lesson is about;
+     * `validate.ts` fails loudly on an id that names no place. */
+    placeIds: z.array(idLikeSchema("placeIds[]")).default([]),
     positionIds: z.array(idLikeSchema("positionIds[]")).default([]),
     sources: z.array(idLikeSchema("sources[]")).default([]),
     /** BUILD_PLAN tenet 6: "every curated lesson names its author." Required,

@@ -211,6 +211,9 @@ export function buildReleaseFromValidation(curriculumDir: string, validation: Ru
       // CURATEDEDGES-002 -- content/connections/ problems and unresolved
       // lesson connectionIds[] refuse the release just like a failed lesson.
       ...(validation.connectionErrors ?? []).map((error) => `connections: ${error}`),
+      // PLACES-001 -- content/places/ problems and unresolved lesson placeIds[]
+      // refuse the release the same way.
+      ...(validation.placeErrors ?? []).map((error) => `places: ${error}`),
     ];
     return { ok: false, errors };
   }
