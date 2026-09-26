@@ -1,0 +1,95 @@
+/* Same token pattern as Field/Chip/Button: page tokens first, shell tokens as
+   the fallback, so it reads on the parchment page, the midnight page, and the
+   dark shell without assuming which scope it is in. */
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 0;
+  min-width: 0;
+}
+
+.legend {
+  padding: 0;
+  margin-bottom: 8px;
+  font-family: var(--font-label);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 10.5px;
+  color: var(--page-muted, var(--shell-muted));
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 132px;
+  min-width: 0;
+}
+
+/* Book gets the whole first row: its names are the longest strings here. */
+.cellWide {
+  flex-basis: 100%;
+}
+
+.label {
+  font-family: var(--font-label);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 10.5px;
+  color: var(--page-muted, var(--shell-muted));
+}
+
+/* 44px minimum touch target (WCAG 2.5.5 / platform guidance). */
+.select {
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.3;
+  min-height: 44px;
+  width: 100%;
+  color: var(--page-ink, var(--shell-text));
+  background: var(--page-card-alt, var(--shell-surface));
+  border: 1px solid var(--page-border, var(--shell-border));
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+}
+
+.select:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Invalid is never colour alone: the border is thicker AND the message below
+   names the problem (aria-describedby points at it). */
+.select[aria-invalid="true"] {
+  border-color: var(--crimson, var(--shell-crimson-text));
+  border-width: 2px;
+  padding: 9px 11px;
+}
+
+.status {
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--page-muted, var(--shell-muted));
+}
+
+.error {
+  font-size: 12.5px;
+  line-height: 1.4;
+  font-weight: 600;
+  color: var(--crimson, var(--shell-crimson-text));
+}
