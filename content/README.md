@@ -60,6 +60,76 @@ e.g. `content/curriculum/genesis/03-the-fall.md`. The path (minus `.md`,
 forward-slash separated) becomes the lesson's slug in the compiled release
 bundle — see `web/scripts/content/build.ts`'s `slugFor`.
 
+## Connections
+
+`content/connections/<slug>.json` holds the authored, human-reviewed
+connections a lesson cites through its frontmatter `connectionIds[]`. One
+connection per file (an array is rejected). The directory does not have to
+exist: no directory means zero connections.
+
+```json
+{
+  "id": "conn-gen3-adam-romans5",
+  "fromRange": { "versificationId": "<CANONICAL_VERSIFICATION_ID>", "start": "1.3.1", "end": "1.3.24" },
+  "toRange":   { "versificationId": "<CANONICAL_VERSIFICATION_ID>", "start": "45.5.12", "end": "45.5.21" },
+  "type": "type_antitype",
+  "evidenceLabel": "explicit",
+  "rationale": "2-4 sentences, no verdict language, says why THIS type at THIS strength",
+  "sourceId": "source-...",
+  "viewpointId": null
+}
+```
+
+- **`id`** becomes `graph_edges.id` and is what a lesson's `connectionIds[]`
+  names. Unique across all files.
+- **`fromRange` / `toRange`** — `CanonicalRangeV1` (`versificationId` may be
+  omitted, as in lesson `passage`; a mismatched one is an error).
+- **`type`** — one of `CONNECTION_TYPES` (`lib/contracts/study-v2.ts`), except
+  `personal_resonance`: personal overlays live in `user_connections` and are
+  never written to `graph_edges`.
+- **`evidenceLabel`** — one of `EVIDENCE_LABELS`.
+- **`rationale`** — required, non-empty. Scanned with the same
+  `VERDICT_PATTERNS` as the assertion-line lint, with **no** escape hatch (no
+  `assertionReviewed`, no quoted-source exemption): it states why this type at
+  this strength, not what the passage proves.
+- **`sourceId`** — must exist in `content/source-registry.json`.
+- **`viewpointId`** — `null` (or omitted) when the connection is not tied to a
+  particular viewpoint.
+
+`content:validate` (and `content:build`, which runs it first) rejects: an
+unknown type or label, an empty rationale, verdict language in the rationale,
+a `sourceId` absent from the registry, duplicate ids, and any lesson
+`connectionIds[]` entry that names no connection file. The schema is
+`web/scripts/content/connectionSchema.ts`.
+
+**Gate order for a release** (every step refuses the whole release, never a
+partial one):
+
+1. `content:validate` checks (lessons + connections, above) — no database.
+2. Lesson `sources[]` present in `content/source-registry.json`.
+3. Publication status gate (every lesson `published`).
+4. `DATABASE_URL` present.
+5. Lesson `sources[]` present in the real `sources` table
+   (`npm run db:sync-sources` first).
+6. Lesson `connectionIds[]` each have a real `graph_edges` row with
+   `review_status = 'reviewed'` (`npm run db:sync-connections` first; an id
+   that only matches a bulk-imported row does not count).
+7. Write the `catalog_releases` row.
+
+**Syncing.** `npm run db:sync-connections` upserts every valid connection into
+`graph_edges` keyed on `id`, with `review_status = 'reviewed'` and the
+authored `rationale`. It needs migration 0013 applied first
+(`rationale`, `viewpoint_id`, `release_id`, `review_status` columns) and the
+`sources` rows synced. Like `db:sync-sources`, it is a human gate: it is never
+run against production as part of building it.
+
+**What the study page says.** `graph_edges.review_status` is `imported` for the
+bulk OpenBible/TSK rows and `reviewed` for these. The Connect panel shows a
+per-row provenance line (evidence label, rationale, source citation) and uses
+the word "Reviewed" in its heading only when every shown row is `reviewed`. If
+the production database has not had migration 0013 applied yet, the reader
+degrades to "no curated connections" rather than erroring.
+
 ## Frontmatter schema
 
 Validated by `web/scripts/content/schema.ts` (`LessonFrontmatterSchema`).
@@ -102,8 +172,9 @@ assertionReviewed: "reviewed 2026-09-12, quoting Kidner directly"  # optional
   curated lesson names its author").
 - **`status`** — `draft` | `in_review` | `published`.
 - **`contextId` / `connectionIds[]` / `positionIds[]` / `sources[]`** — id
-  strings referencing `passageContexts` / `graph_edges` (as authored rows,
-  distinct from GRAPHEDGES-001's bulk-imported ones) / `positions` / a full
+  strings referencing `passageContexts` / `graph_edges` (as authored rows from
+  `content/connections/`, see "Connections" above — distinct from GRAPHEDGES-001's
+  bulk-imported ones) / `positions` / a full
   sources table. **None of those tables exist yet** (`web/db/schema.ts`'s
   own GRAPHEDGES-001 comment: "passageContexts/doctrines/graph_edge_evidence
   remain unbuilt"). This schema can therefore only check these are
