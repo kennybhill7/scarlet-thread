@@ -1,0 +1,169 @@
+# DRAFT GitHub Actions workflow for Scarlet Thread (RELEASEOPS-001).
+#
+# Agents may not edit .github/. To use this, Ken installs it by hand:
+#     copy docs/ci/ci.yml.draft  ->  .github/workflows/ci.yml
+# This file has NEVER been run on GitHub Actions. Each step's command was run
+# locally from web/ (Windows, Node 24) as noted; anything not run is marked
+# UNVERIFIED. Expect to fix small things on the first real run.
+#
+# WHAT WAS VERIFIED LOCALLY (2026-09-25, from web/, with DATABASE_URL and
+# AUTH_SECRET both UNSET):
+#   npm ci                  ok
+#   npm run typecheck       ok, including with no .next/ and no next-env.d.ts
+#                           (both are gitignored, so a fresh CI checkout has
+#                           neither)
+#   npm run lint            ok (0 errors, 2 pre-existing <img> warnings)
+#   npm run build           ok (exit 0; needs no database and no auth secrets:
+#                           lib/db/index.ts falls back to a dummy URL, the
+#                           connection is lazy)
+#   npm test AFTER a build  1635 pass / 0 fail / 0 cancelled, exit 0
+#   npm test BEFORE a build 19 cancelled, exit 1 (the header wire tests and
+#                           auth-db-failure.test.ts start `next start` against
+#                           .next/). With SECURITY_HEADERS_WIRE_ALLOW_SKIP=1
+#                           and no build: still 4 cancelled, exit 1, because
+#                           tests/auth-db-failure.test.ts has its own wire
+#                           suite that the variable does not cover.
+# So the order below is build THEN test, and the skip variable is NOT set:
+# nothing is skipped, the wire tests run for real. If a runner cannot start
+# `next start` on port 3123, set SECURITY_HEADERS_WIRE_ALLOW_SKIP=1 on the
+# test step to accept losing the header wire evidence, and know that the
+# auth-db-failure wire suite will still fail. UNVERIFIED on Linux runners.
+#
+# KNOWN RED ON DAY ONE: `npm run content:validate` currently FAILS on the
+# Genesis 3 lesson (missing "## Teach-Back Prompts", required since
+# LESSONSHAPE-001). That step is `continue-on-error: true` below so the rest
+# of the pipeline is meaningful. Delete that line once GEN3COMPLETE-001 lands.
+#
+# SECRETS: the verify job needs NONE and must never be given a real
+# DATABASE_URL. Do not add one to it. Only the manual drift-check job uses a
+# secret, by name only.
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: web
+
+jobs:
+  verify:
+    name: typecheck, lint, content, build, test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      # Reads content/ from the repo root (one level above web/). Read-only:
+      # no database access. Expected to FAIL until the Genesis 3 lesson has a
+      # Teach-Back Prompts section (see header). Remove continue-on-error then.
+      - name: Content validate
+        run: npm run content:validate
+        continue-on-error: true
+
+      # No env vars on purpose (see header): proves the build does not need
+      # secrets. Do not add DATABASE_URL here.
+      - name: Build
+        run: npm run build
+
+      # After the build, so the header wire tests and the auth-db-failure
+      # wire tests have a .next/ to serve. To knowingly skip the header wire
+      # suite instead, add:  env: { SECURITY_HEADERS_WIRE_ALLOW_SKIP: "1" }
+      # (does not cover tests/auth-db-failure.test.ts; see header).
+      - name: Test
+        run: npm test
+
+  # MANUAL ONLY. Compares the repo's migration journal (count and SHA-256 of
+  # each migration file) with drizzle.__drizzle_migrations in the real
+  # database. READ-ONLY: one SELECT. Exit 0 in sync, 1 drift, 2 could not run.
+  #
+  # Setup Ken must do (UNVERIFIED, none of it exists yet):
+  #  1. Create a database role with SELECT only on
+  #     drizzle.__drizzle_migrations and put its connection string in a
+  #     repository or environment secret named DRIFT_CHECK_DATABASE_URL.
+  #     (A full-privilege owner URL would work too but is more than this
+  #     job needs.)
+  #  2. Create a GitHub Environment named "production-readonly" with
+  #     yourself as required reviewer, so the secret is only released after
+  #     you approve a run.
+  # Run it: Actions tab -> CI -> Run workflow, or before every release
+  # (RUNBOOK.md, "Migrate").
+  drift-check:
+    name: migration drift check (manual)
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: production-readonly
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Drift check
+        run: npm run db:drift-check
+        env:
+          DATABASE_URL: ${{ secrets.DRIFT_CHECK_DATABASE_URL }}
+
+# =============================================================================
+# VERCEL PREVIEW-DEPLOY SETTINGS  (instructions for Ken; UNVERIFIED)
+# =============================================================================
+# This file cannot configure Vercel. Nothing below has been checked against
+# the real Vercel project (the plan lists which URL is production as
+# unverified, and the Root Directory setting, OPS-001, as still open).
+#
+# 1. Root Directory: Project Settings -> General -> Root Directory = `web`
+#    (the Next.js app is in web/, not the repo root). Open item OPS-001.
+#
+# 2. Do not auto-build agent branches. Agents work on branches named
+#    `agent/<TASK>-<name>`. Project Settings -> Git -> "Ignored Build Step",
+#    set to a custom command:
+#        if [[ "$VERCEL_GIT_COMMIT_REF" == agent/* ]]; then exit 0; else exit 1; fi
+#    (Vercel convention: exit 0 = skip the build, exit 1 = build.) An agent
+#    branch is then only built when you deploy it by hand.
+#
+# 3. Preview environment variables: Project Settings -> Environment
+#    Variables. Make sure Preview does NOT contain the production
+#    DATABASE_URL. Give Preview a separate Neon branch URL or none. The
+#    2026-09-17 incident class is a build or preview touching a database it
+#    should not; there is one Postgres instance today, so previews with
+#    the production URL write to production.
+#
+# 4. Production branch = master. Keep migrations OFF the Vercel build: the
+#    build-time `drizzle-kit migrate` hook was removed on purpose (gate
+#    0.12). Migrations run only via RUNBOOK.md, "Migrate".
+#
+# 5. Optional: turn on "Require status checks" for master in GitHub branch
+#    protection using the `verify` job, once it is green.

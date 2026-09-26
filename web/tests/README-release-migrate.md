@@ -168,3 +168,15 @@ local proxy?), and paste the actual terminal output the way
 section does. Until then, treat this script as typechecked, linted,
 unit-tested, and built successfully, but **not yet proven against a real
 database** — the gap this section documents.
+
+## How the drift check fits
+
+`npm run db:drift-check` (`scripts/check-migration-drift.mts`, logic in
+`scripts/lib/migrationDrift.ts`, tests in `tests/migration-drift.test.ts`) is
+the read-only companion to this script. It never migrates: it compares the
+repo's migration journal (count, `when`, and SHA-256 of each `.sql` file, the
+same hash drizzle records) with `drizzle.__drizzle_migrations` and exits 1 on
+drift. Run it before `release-migrate` to see what is pending, and after it to
+confirm the database now matches. It is not part of this manual procedure and,
+like this script, has not yet been run against a real database. See
+`docs/RUNBOOK.md`, "Migrate".
