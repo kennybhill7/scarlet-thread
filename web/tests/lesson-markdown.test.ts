@@ -229,7 +229,7 @@ test("HOSTILE: javascript:, data:, vbscript:, http:, relative, protocol-relative
 test("sanitizeHttpsUrl: accepts https only, returns the parser-normalised form", () => {
   assert.equal(sanitizeHttpsUrl("https://example.com"), "https://example.com/");
   assert.equal(sanitizeHttpsUrl("HTTPS://Example.com/Path"), "https://example.com/Path");
-  for (const bad of ["", " ", "javascript:alert(1)", "http://a.b", "ftp://a.b", "https:", "https://", "//a.b", "https://a.b\u0000", "https://a.b/\n", "https://u@a.b"]) {
+  for (const bad of ["", " ", "javascript:alert(1)", "http://a.b", "ftp://a.b", "https:", "https://", "//a.b", "https://a.b\u0000", "https://a.b/\npath", "https://a.b/\tx", "https://u@a.b"]) {
     assert.equal(sanitizeHttpsUrl(bad), null, JSON.stringify(bad));
   }
   assert.equal(sanitizeHttpsUrl(`https://a.b/${"x".repeat(3000)}`), null);
