@@ -76,6 +76,7 @@ import { desc, eq, inArray } from "drizzle-orm";
 import { catalogReleases, graphEdges, sources } from "@/db/schema";
 import type { Database } from "@/lib/db";
 import { rangeContainsRange } from "@/lib/bible/range";
+import type { GraphEdgeReviewStatus } from "@/lib/contracts/graph-v1";
 import type { CanonicalRangeV1 } from "@/lib/contracts/range-v1";
 import type { ConnectionType, EvidenceLabel } from "@/lib/contracts/study-v2";
 import { LessonFrontmatterSchema, type LessonFrontmatter } from "@/scripts/content/schema";
@@ -190,6 +191,16 @@ export interface CuratedConnection {
   evidenceLabel: EvidenceLabel;
   fromRange: CanonicalRangeV1;
   toRange: CanonicalRangeV1;
+  /**
+   * CURATEDEDGES-002 -- `graph_edges.review_status`. Fail-closed: anything
+   * other than the literal `"reviewed"` (including a missing value) is
+   * `"imported"`, so the UI can never say "Reviewed" about a row this reader
+   * cannot positively confirm was authored/reviewed.
+   */
+  reviewStatus: GraphEdgeReviewStatus;
+  /** The authored rationale (`content/connections/*.json`), or `null` for a
+   * bulk-imported row (which has none). */
+  rationale: string | null;
   source: { author: string; title: string; publisher: string; url: string; licence: string } | null;
 }
 
@@ -327,23 +338,43 @@ export async function resolveCuratedConnections(
   if (connectionIds.length === 0) return [];
 
   const uniqueIds = [...new Set(connectionIds)];
-  const rows = await db
-    .select({
-      id: graphEdges.id,
-      type: graphEdges.type,
-      evidenceLabel: graphEdges.evidenceLabel,
-      fromRange: graphEdges.fromRange,
-      toRange: graphEdges.toRange,
-      sourceId: sources.id,
-      sourceAuthor: sources.author,
-      sourceTitle: sources.title,
-      sourcePublisher: sources.publisher,
-      sourceUrl: sources.url,
-      sourceLicence: sources.licence,
-    })
-    .from(graphEdges)
-    .leftJoin(sources, eq(graphEdges.sourceId, sources.id))
-    .where(inArray(graphEdges.id, uniqueIds));
+  // CURATEDEDGES-002 FAIL CLOSED: this query now selects `rationale` and
+  // `review_status`, columns that exist only after migration 0013. Migrations
+  // are applied to production by hand (a human gate), so this code can be
+  // deployed against a database that does not have them yet -- Postgres then
+  // rejects the whole SELECT ("column ... does not exist"). That must degrade
+  // to "no curated connections" (the lesson itself still renders), never a
+  // thrown error that takes the study page's curated lesson down with it.
+  // Any other query failure (connection drop, etc.) degrades the same way;
+  // both are logged server-side.
+  let rows;
+  try {
+    rows = await db
+      .select({
+        id: graphEdges.id,
+        type: graphEdges.type,
+        evidenceLabel: graphEdges.evidenceLabel,
+        fromRange: graphEdges.fromRange,
+        toRange: graphEdges.toRange,
+        rationale: graphEdges.rationale,
+        reviewStatus: graphEdges.reviewStatus,
+        sourceId: sources.id,
+        sourceAuthor: sources.author,
+        sourceTitle: sources.title,
+        sourcePublisher: sources.publisher,
+        sourceUrl: sources.url,
+        sourceLicence: sources.licence,
+      })
+      .from(graphEdges)
+      .leftJoin(sources, eq(graphEdges.sourceId, sources.id))
+      .where(inArray(graphEdges.id, uniqueIds));
+  } catch (error) {
+    console.warn(
+      "publishedLessons.resolveCuratedConnections: graph_edges query failed (migration 0013 not applied?) -- " +
+        `returning no curated connections: ${error instanceof Error ? error.message : String(error)}`,
+    );
+    return [];
+  }
 
   const rowsById = new Map(rows.map((row) => [row.id, row]));
 
@@ -360,6 +391,9 @@ export async function resolveCuratedConnections(
       evidenceLabel: row.evidenceLabel as EvidenceLabel,
       fromRange: row.fromRange,
       toRange: row.toRange,
+      // Positive confirmation only: exactly "reviewed" or it is "imported".
+      reviewStatus: row.reviewStatus === "reviewed" ? "reviewed" : "imported",
+      rationale: typeof row.rationale === "string" && row.rationale.trim() !== "" ? row.rationale : null,
       source:
         row.sourceId !== null
           ? {

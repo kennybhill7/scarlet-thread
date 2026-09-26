@@ -107,6 +107,10 @@ const { WorkspaceShell } = nodeRequire("@/components/workspace/WorkspaceShell.ts
   }) => unknown;
 };
 
+const { curatedConnectionsHeadingCopy } = nodeRequire("@/components/workspace/ConnectSection.tsx") as {
+  curatedConnectionsHeadingCopy: (connections: readonly CuratedConnection[]) => { allReviewed: boolean; text: string };
+};
+
 // ---------------------------------------------------------------------------
 // Fixtures
 // ---------------------------------------------------------------------------
@@ -205,6 +209,9 @@ function sampleCuratedConnection(overrides: Partial<CuratedConnection> = {}): Cu
     evidenceLabel: "strong",
     fromRange: RANGE,
     toRange: { versificationId: CANONICAL_VERSIFICATION_ID, start: "19.22.1", end: "19.22.1" },
+    // CURATEDEDGES-002: the default fixture is a bulk-imported (OpenBible) row.
+    reviewStatus: "imported",
+    rationale: null,
     source: {
       author: "OpenBible.info (SYNTHETIC FIXTURE)",
       title: "OpenBible.info Cross Reference Dataset (SYNTHETIC FIXTURE)",
@@ -748,6 +755,95 @@ test("RENDER: multiple curatedConnections each render their own row", () => {
   const matches = html.match(/data-testid="connect-curated-connection"/g) ?? [];
   assert.equal(matches.length, 2, "both curated connections should each render their own row");
   assert.ok(html.includes("23.53.1"), "the second connection's toRange did not render");
+});
+
+// ---------------------------------------------------------------------------
+// CURATEDEDGES-002 -- the word "Reviewed" is provenance, not decoration: it may
+// appear in the curated-connections heading ONLY when every shown row is
+// positively reviewStatus 'reviewed'.
+// ---------------------------------------------------------------------------
+
+/** Just the curated-connections <section> markup (the rest of the workspace legitimately says "Review" elsewhere). */
+function curatedSectionHtml(connections: CuratedConnection[]): string {
+  const html = render({
+    session: sampleSession(),
+    claims: [sampleStudyClaim("interpretation")],
+    curatedLesson: sampleCuratedLesson({ curatedConnections: connections }),
+  });
+  const start = html.indexOf('data-testid="connect-curated-connections"');
+  assert.ok(start >= 0, "the curated-connections section did not render");
+  const end = html.indexOf("</section>", start);
+  return html.slice(start, end);
+}
+
+/** Visible text only -- markup attributes (data-review-status) are not user-facing copy. */
+function visibleText(html: string): string {
+  return html.replace(/<[^>]*>/g, " ");
+}
+
+function reviewedConnection(overrides: Partial<CuratedConnection> = {}): CuratedConnection {
+  return sampleCuratedConnection({
+    id: "conn-gen3-adam-romans5",
+    type: "type_antitype",
+    evidenceLabel: "explicit",
+    reviewStatus: "reviewed",
+    rationale: "Romans 5:14 names Adam a type of the one to come, which is why this is typed type_antitype at explicit strength.",
+    source: {
+      author: "Synthetic Author (FIXTURE)",
+      title: "Synthetic Reviewed Source (FIXTURE)",
+      publisher: "Fixture Press",
+      url: "https://example.invalid/reviewed-source",
+      licence: "Link only",
+    },
+    ...overrides,
+  });
+}
+
+test("RENDER (CURATEDEDGES-002): an 'imported' row NEVER gets 'Reviewed' copy -- neither the heading nor its own provenance line", () => {
+  const section = curatedSectionHtml([sampleCuratedConnection({ id: "edge-1", reviewStatus: "imported" })]);
+  assert.ok(!/review/i.test(visibleText(section)), "an imported row must not produce any 'review' wording: " + visibleText(section));
+  assert.ok(section.includes("Imported cross-reference"), "the imported row's provenance line is missing");
+  assert.ok(section.includes('data-review-status="imported"'));
+});
+
+test("RENDER (CURATEDEDGES-002): heading says 'Reviewed' when EVERY shown row is reviewed", () => {
+  const section = curatedSectionHtml([reviewedConnection(), reviewedConnection({ id: "conn-2" })]);
+  assert.ok(section.includes("Reviewed connections for this passage"), "all-reviewed heading copy missing");
+  assert.equal(curatedConnectionsHeadingCopy([reviewedConnection()]).allReviewed, true);
+});
+
+test("RENDER (CURATEDEDGES-002): ONE imported row among reviewed rows makes the heading neutral (no 'Reviewed connections' claim over the whole list)", () => {
+  const section = curatedSectionHtml([reviewedConnection(), sampleCuratedConnection({ id: "edge-1", reviewStatus: "imported" })]);
+  assert.ok(!section.includes("Reviewed connections for this passage"), "mixed list must not carry the all-reviewed heading");
+  const heading = section.slice(section.indexOf('data-testid="connect-curated-heading-copy"'), section.indexOf("<ul"));
+  assert.ok(!/review/i.test(visibleText(heading)), "neutral heading copy must contain no 'review' wording: " + visibleText(heading));
+  // Per-row provenance stays honest in both directions.
+  assert.equal((section.match(/data-review-status="reviewed"/g) ?? []).length, 1);
+  assert.equal((section.match(/data-review-status="imported"/g) ?? []).length, 1);
+});
+
+test("HEADING COPY (CURATEDEDGES-002): empty list is never 'allReviewed'; a missing-status row counts as not reviewed", () => {
+  assert.equal(curatedConnectionsHeadingCopy([]).allReviewed, false);
+  assert.ok(!/review/i.test(curatedConnectionsHeadingCopy([]).text));
+  const bogus = { ...sampleCuratedConnection(), reviewStatus: undefined } as unknown as CuratedConnection;
+  assert.equal(curatedConnectionsHeadingCopy([bogus]).allReviewed, false);
+});
+
+test("RENDER (CURATEDEDGES-002): a reviewed row shows its provenance line -- evidence label, rationale text, and source citation", () => {
+  const section = curatedSectionHtml([reviewedConnection()]);
+  assert.ok(section.includes('data-testid="connect-curated-connection-provenance"'));
+  assert.ok(section.includes("Reviewed connection"), "reviewed row's provenance label missing");
+  assert.ok(section.includes("Evidence label: "), "provenance line's evidence-label prefix missing");
+  assert.ok(section.includes(">Explicit<"), "the evidence label value did not render in the provenance line");
+  assert.ok(section.includes("Romans 5:14 names Adam a type of the one to come"), "rationale text did not render");
+  assert.ok(section.includes("Synthetic Reviewed Source (FIXTURE)"), "source citation did not render");
+  assert.ok(section.includes("https://example.invalid/reviewed-source"));
+});
+
+test("RENDER (CURATEDEDGES-002): an imported row (no rationale) renders no rationale paragraph, but still shows its source", () => {
+  const section = curatedSectionHtml([sampleCuratedConnection({ id: "edge-1", reviewStatus: "imported", rationale: null })]);
+  assert.ok(!section.includes("connect-curated-connection-rationale"));
+  assert.ok(section.includes("OpenBible.info Cross Reference Dataset (SYNTHETIC FIXTURE)"));
 });
 
 test("RENDER: all eight sections appear, each naming both its plain label and its BUILD_PLAN product name", () => {

@@ -407,6 +407,9 @@ type GraphEdgeFakeRow = {
   evidenceLabel: string;
   fromRange: CanonicalRangeV1;
   toRange: CanonicalRangeV1;
+  /** CURATEDEDGES-002 -- absent on a pre-0013-shaped row (`undefined`). */
+  rationale?: string | null;
+  reviewStatus?: string;
   sourceId: string | null;
   sourceAuthor?: string;
   sourceTitle?: string;
@@ -533,6 +536,99 @@ test("resolveCuratedConnections: a resolved edge whose sourceId does not join to
   const result = await resolveCuratedConnections(db as never, ["edge-orphan"]);
   assert.equal(result.length, 1);
   assert.equal(result[0].source, null);
+});
+
+// ---------------------------------------------------------------------------
+// CURATEDEDGES-002 -- reviewStatus / rationale, and the migration-0013 fail-closed path.
+// ---------------------------------------------------------------------------
+
+test("resolveCuratedConnections: a reviewed authored row carries reviewStatus 'reviewed' and its rationale", async () => {
+  const db = fakeDb([], [fixtureGraphEdgeRow({ id: "conn-1", reviewStatus: "reviewed", rationale: "Paul names Adam as a type of Christ." })]);
+  const [connection] = await resolveCuratedConnections(db as never, ["conn-1"]);
+  assert.equal(connection.reviewStatus, "reviewed");
+  assert.equal(connection.rationale, "Paul names Adam as a type of Christ.");
+});
+
+test("resolveCuratedConnections: an 'imported' row keeps reviewStatus 'imported' and rationale null", async () => {
+  const db = fakeDb([], [fixtureGraphEdgeRow({ id: "edge-1", reviewStatus: "imported", rationale: null })]);
+  const [connection] = await resolveCuratedConnections(db as never, ["edge-1"]);
+  assert.equal(connection.reviewStatus, "imported");
+  assert.equal(connection.rationale, null);
+});
+
+test("resolveCuratedConnections: FAIL CLOSED -- a row with no reviewStatus at all, or any value other than exactly 'reviewed', is 'imported'", async () => {
+  const db = fakeDb([], [
+    fixtureGraphEdgeRow({ id: "edge-missing" }),
+    fixtureGraphEdgeRow({ id: "edge-weird", reviewStatus: "Reviewed", rationale: "   " }),
+  ]);
+  const result = await resolveCuratedConnections(db as never, ["edge-missing", "edge-weird"]);
+  assert.deepEqual(result.map((c) => c.reviewStatus), ["imported", "imported"]);
+  assert.equal(result[1].rationale, null, "a whitespace-only rationale must not render as a rationale");
+});
+
+test("resolveCuratedConnections: the SELECT actually asks for rationale and reviewStatus (so a pre-0013 database is what makes it fail, not a stale query)", async () => {
+  let selected: Record<string, unknown> | undefined;
+  const db = {
+    select: (shape: Record<string, unknown>) => {
+      selected = shape;
+      return { from: () => ({ leftJoin: () => ({ where: () => Promise.resolve([]) }) }) };
+    },
+  };
+  await resolveCuratedConnections(db as never, ["x"]);
+  assert.ok(selected && "rationale" in selected && "reviewStatus" in selected);
+});
+
+/** A DB whose graph_edges query rejects the way Postgres does when migration 0013 has not been applied. */
+function fakeDbMissingColumns(rows: FakeRow[]) {
+  return {
+    select: () => ({
+      from: (table: unknown) => {
+        if (table === catalogReleases) {
+          return {
+            orderBy: () => ({
+              limit: () => Promise.resolve(rows.map((row) => ({ bundle: row.bundle }))),
+            }),
+          };
+        }
+        return {
+          leftJoin: () => ({
+            where: () => Promise.reject(new Error('column "rationale" does not exist')),
+          }),
+        };
+      },
+    }),
+  };
+}
+
+test("resolveCuratedConnections: MIGRATION 0013 NOT APPLIED (query rejects with 'column does not exist') -> [] and never throws", async () => {
+  const warn = console.warn;
+  const warnings: string[] = [];
+  console.warn = (...args: unknown[]) => void warnings.push(args.join(" "));
+  try {
+    const result = await resolveCuratedConnections(fakeDbMissingColumns([]) as never, ["conn-1"]);
+    assert.deepEqual(result, []);
+  } finally {
+    console.warn = warn;
+  }
+  assert.ok(warnings.some((line) => line.includes("column \"rationale\" does not exist")), "the failure must still be logged server-side");
+});
+
+test("findPublishedLessonForRange: MIGRATION 0013 NOT APPLIED -- the lesson still resolves, with curatedConnections: [] (the page does not lose its curated lesson)", async () => {
+  const bundle = fixtureBundle({
+    lesson: { frontmatter: fixtureFrontmatter({ passage: range("1.3.1", "1.3.24"), connectionIds: ["conn-1"] }), body: "x" },
+  });
+  const warn = console.warn;
+  console.warn = () => undefined;
+  try {
+    const result = await findPublishedLessonForRange(
+      fakeDbMissingColumns([{ bundle, releasedAt: "2026-01-01T00:00:00.000Z" }]) as never,
+      range("1.3.1", "1.3.6"),
+    );
+    assert.ok(result, "the lesson itself must still be found");
+    assert.deepEqual(result?.curatedConnections, []);
+  } finally {
+    console.warn = warn;
+  }
 });
 
 test("findPublishedLessonForRange: no catalog_releases rows at all -> null", async () => {
