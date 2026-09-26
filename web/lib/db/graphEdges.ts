@@ -13,11 +13,13 @@
  * for exactly this reason.
  */
 
-import { desc, eq, gte, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, sql } from "drizzle-orm";
 
 import { graphEdges, sources } from "@/db/schema";
 import type { Database } from "@/lib/db";
 import type { GraphEdgeRecordV1, GraphEdgeSourceV1 } from "@/lib/contracts/graph-v1";
+import type { CanonicalRangeV1 } from "@/lib/contracts/range-v1";
+import type { ConnectionType, EvidenceLabel } from "@/lib/contracts/study-v2";
 
 /**
  * The one source row GRAPHEDGES-001 seeds — a real CC BY 4.0 attribution
@@ -159,6 +161,109 @@ export async function findMissingSourceIds(db: Database, ids: readonly string[])
   const unique = [...new Set(ids)];
   if (unique.length === 0) return [];
   const rows = await db.select({ id: sources.id }).from(sources).where(inArray(sources.id, unique));
+  return diffAbsentIds(unique, rows.map((row) => row.id));
+}
+
+// ---------------------------------------------------------------------------
+// CURATEDEDGES-002 — syncs `content/connections/*.json` (authored, reviewed
+// connection rows; frozen contract C1) into `graph_edges` with
+// `review_status = 'reviewed'`, and provides the release-side gate
+// (`findMissingConnectionIds`, wired into `scripts/content/build.ts`'s
+// `main()`) that refuses a release whose lesson `connectionIds[]` do not
+// resolve to real REVIEWED rows. Mirrors the SOURCESYNC-001 pair above
+// (`upsertSourceRegistryRows` / `findMissingSourceIds`).
+// ---------------------------------------------------------------------------
+
+/** One `content/connections/<slug>.json` row (contract C1), as validated by
+ * `scripts/content/connectionSchema.ts`. `id` becomes `graph_edges.id`. */
+export interface ConnectionRow {
+  id: string;
+  fromRange: CanonicalRangeV1;
+  toRange: CanonicalRangeV1;
+  type: ConnectionType;
+  evidenceLabel: EvidenceLabel;
+  rationale: string;
+  sourceId: string;
+  viewpointId: string | null;
+}
+
+/** Authored rows are not voted on: `community_votes` is NOT NULL, so 0. */
+const AUTHORED_COMMUNITY_VOTES = 0;
+
+/**
+ * Upserts authored connection rows into `graph_edges`, keyed on `id`
+ * (`onConflictDoUpdate` with `excluded.*`, same idiom and same reasons as
+ * {@link upsertSourceRegistryRows}: idempotent on unchanged input, a corrected
+ * rationale/type/label is picked up on the next sync, each conflicting row
+ * applies its OWN incoming values). Always writes `review_status =
+ * 'reviewed'` -- that is what an authored row IS. `community_votes` and
+ * `release_id` are deliberately left out of the conflict `set` (an existing
+ * row keeps them).
+ *
+ * KNOWN EDGE, fails loudly rather than silently overwriting: `graph_edges` also
+ * has a unique index on `(from_range, to_range, type)`. An authored row whose
+ * from/to/type exactly equals a bulk-imported row's (or another authored
+ * row's) under a DIFFERENT `id` violates it and the statement throws;
+ * `ON CONFLICT (id)` does not absorb that. Bulk rows are single-verse
+ * ranges typed "parallel", so this needs an authored single-verse parallel
+ * over the same verses.
+ */
+export async function upsertConnectionRows(
+  db: Database,
+  rows: readonly ConnectionRow[],
+  chunkSize: number = DEFAULT_CHUNK_SIZE,
+): Promise<void> {
+  for (let start = 0; start < rows.length; start += chunkSize) {
+    const chunk = rows.slice(start, start + chunkSize);
+    if (chunk.length === 0) continue;
+    await db
+      .insert(graphEdges)
+      .values(
+        chunk.map((row) => ({
+          id: row.id,
+          fromRange: row.fromRange,
+          toRange: row.toRange,
+          type: row.type,
+          evidenceLabel: row.evidenceLabel,
+          sourceId: row.sourceId,
+          communityVotes: AUTHORED_COMMUNITY_VOTES,
+          rationale: row.rationale,
+          viewpointId: row.viewpointId,
+          reviewStatus: "reviewed" as const,
+        })),
+      )
+      .onConflictDoUpdate({
+        target: graphEdges.id,
+        set: {
+          fromRange: sql`excluded.from_range`,
+          toRange: sql`excluded.to_range`,
+          type: sql`excluded.type`,
+          evidenceLabel: sql`excluded.evidence_label`,
+          sourceId: sql`excluded.source_id`,
+          rationale: sql`excluded.rationale`,
+          viewpointId: sql`excluded.viewpoint_id`,
+          reviewStatus: sql`excluded.review_status`,
+        },
+      });
+  }
+}
+
+/**
+ * Which of `ids` have NO `graph_edges` row that is BOTH present and
+ * `review_status = 'reviewed'`. A bare id match is not enough: an id that
+ * resolved to a bulk-imported (`'imported'`) row must still count as missing,
+ * or a lesson could "cite a reviewed connection" that no one reviewed.
+ * Deduped and sorted (via {@link diffAbsentIds}). Throws -- never returns
+ * "nothing missing" -- if the query itself fails (e.g. migration 0013 not yet
+ * applied), so the release gate fails loud.
+ */
+export async function findMissingConnectionIds(db: Database, ids: readonly string[]): Promise<string[]> {
+  const unique = [...new Set(ids)];
+  if (unique.length === 0) return [];
+  const rows = await db
+    .select({ id: graphEdges.id })
+    .from(graphEdges)
+    .where(and(inArray(graphEdges.id, unique), eq(graphEdges.reviewStatus, "reviewed")));
   return diffAbsentIds(unique, rows.map((row) => row.id));
 }
 

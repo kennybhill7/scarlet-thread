@@ -108,13 +108,34 @@ export const stageSchema = z
  * exist yet to define a real convention. */
 const NO_WHITESPACE_RE = /^\S+$/;
 
-function idLikeSchema(label: string) {
+export function idLikeSchema(label: string) {
   return z
     .string()
     .trim()
     .min(1, `${label} must not be empty`)
     .regex(NO_WHITESPACE_RE, `${label} must not contain whitespace`);
 }
+
+// ---------------------------------------------------------------------------
+// Verdict-language patterns — shared by `validate.ts`'s lesson-body lint and
+// `connectionSchema.ts`'s rationale check (CURATEDEDGES-002). Defined here
+// (not in validate.ts) so both can import them without a validate <->
+// connectionSchema import cycle; `validate.ts` re-exports them so every
+// existing importer keeps working.
+// ---------------------------------------------------------------------------
+
+export interface VerdictPattern {
+  id: string;
+  regex: RegExp;
+}
+
+/** The exact four phrases BUILD_PLAN.md §5.1 names, case-insensitive. */
+export const VERDICT_PATTERNS: VerdictPattern[] = [
+  { id: "this-passage-teaches-that", regex: /this passage teaches that/i },
+  { id: "the-correct-view-is", regex: /the correct view is/i },
+  { id: "this-proves", regex: /this proves/i },
+  { id: "this-means", regex: /this means/i },
+];
 
 // ---------------------------------------------------------------------------
 // status — §5.1: "status: draft | in_review | published"
