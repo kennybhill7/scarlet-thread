@@ -40,6 +40,14 @@ export interface GraphEdgeSourceV1 {
 }
 
 /**
+ * CURATEDEDGES-002: whether a human authored/reviewed this row.
+ * `"imported"` = bulk-imported (OpenBible/TSK), never reviewed;
+ * `"reviewed"` = compiled from `content/connections/*.json`.
+ */
+export const GRAPH_EDGE_REVIEW_STATUSES = ["imported", "reviewed"] as const;
+export type GraphEdgeReviewStatus = (typeof GRAPH_EDGE_REVIEW_STATUSES)[number];
+
+/**
  * One curated, reviewed connection between two passages. Unlike
  * `userConnections`, this carries no `workspaceId`/`userId` — curated
  * content is architecturally different (BUILD_PLAN §3.3: "read-only release
@@ -58,5 +66,15 @@ export interface GraphEdgeRecordV1 {
   evidenceLabel: EvidenceLabel;
   sourceId: string;
   communityVotes: number;
+  /**
+   * CURATEDEDGES-002 additive provenance fields. Optional so pre-0013 writers
+   * (the bulk importer) need not name them: the DB defaults `reviewStatus` to
+   * `"imported"` and leaves the rest NULL. Rows read back from a 0013+
+   * database always carry them.
+   */
+  rationale?: string | null;
+  viewpointId?: string | null;
+  releaseId?: string | null;
+  reviewStatus?: GraphEdgeReviewStatus;
   createdAt: string;
 }

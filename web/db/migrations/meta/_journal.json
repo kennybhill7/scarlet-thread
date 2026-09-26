@@ -92,6 +92,13 @@
       "when": 1789246220150,
       "tag": "0012_add_catalog_releases",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1790382136701,
+      "tag": "0013_add_graph_edges_review_columns",
+      "breakpoints": true
     }
   ]
 }
