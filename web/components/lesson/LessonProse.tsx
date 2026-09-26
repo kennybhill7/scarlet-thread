@@ -44,7 +44,7 @@ const cardStyle: CSSProperties = {
   color: "var(--page-ink)",
   border: "1px solid var(--page-border)",
   borderRadius: "var(--r-md)",
-  padding: "16px 18px",
+  padding: "16px 14px",
   margin: "0 0 12px",
   fontFamily: "var(--font-read)",
   fontSize: 17,

@@ -21,9 +21,10 @@ const detailsStyle: CSSProperties = {
 const summaryStyle: CSSProperties = {
   cursor: "pointer",
   minHeight: 44,
-  display: "flex",
-  alignItems: "center",
-  padding: "0 12px",
+  display: "list-item",
+  listStylePosition: "inside",
+  padding: "12px",
+  lineHeight: "20px",
   fontFamily: "var(--font-label)",
   fontWeight: 600,
   fontSize: 14,
