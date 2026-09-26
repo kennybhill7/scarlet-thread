@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-26T00:19:32.466Z",
+  "updatedAt": "2026-09-26T00:35:52.016Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -829,21 +829,21 @@
       "notes": "Closes the last infra piece of BUILD_PLAN Section 5.2's fuller lesson shape (see LESSONSHAPE-001's own notes for full context): connectionIds[] now resolve against real graph_edges rows (joined to sources for citation) instead of being format-checked-only strings, and ConnectSection.tsx's already-existing but unwired 'no curated connections yet' notice now shows real curated connections when a lesson has them. Closed 2026-09-18 by Claude. Scope discipline confirmed: no real graph_edges rows authored, content/curriculum/genesis/03-the-fall.md untouched. All three LESSONSHAPE-001/CONNECTIONCURATION-001 infra pieces plus design/GENESIS_3_EXPANSION_RESEARCH.md (a fresh, independently-reviewed research pass -- literary design, 5 recommended typed connections with real type/evidence-label sourcing, teach-back framing) are now in place. The only remaining step for the Genesis 3 vertical slice to reach BUILD_PLAN's real Section 5.2 shape is content authoring: adding ## Literary Design / ## Practice Bridge Example / ## Teach-Back Prompts to content/curriculum/genesis/03-the-fall.md and authoring 0-5 real graph_edges rows for the recommended connections, grounded in the new research doc. Not started here."
     },
     "CURATEDEDGES-002": {
-      "status": "pending",
-      "branch": null,
+      "status": "done",
+      "branch": "agent/CURATEDEDGES-002-claude",
       "commitSha": null,
-      "attempts": 0,
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-09-25 (no conflicts). Adds migration 0013 (NOT applied to production), connection compiler/sync/gates, honest Connect copy. Claude verified: content:validate 5 connection files valid against real registry; typecheck/lint clean; full suite 1765/0/4-cancelled; author ran 2 mutations. Missing 0013 degrades to no curated connections (page never breaks) and makes content:build refuse.",
       "notes": "Wave 1, 2026-09-25 (design/FOUR_HOUR_GRID_2026-09-25.md, plan task 3). graph_edges gains nullable rationale/viewpointId/releaseId/reviewStatus (default imported); content/connections/*.json (contract C1) validated + compiled; db:sync-connections script and a real-DB-row gate in content:build (SOURCESYNC-001 pattern); ConnectSection shows per-row provenance and never says Reviewed on an imported row. Migration 0013. Never run against production."
     },
     "GEN3COMPLETE-001": {
-      "status": "pending",
-      "branch": null,
+      "status": "done",
+      "branch": "agent/GEN3COMPLETE-001-claude",
       "commitSha": null,
-      "attempts": 0,
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-09-25 (7572979 + test fix 7dbfdf4). Claude read the whole new lesson text and connection JSON; real content:validate OK for lesson AND (after CURATEDEDGES merge) 5 connection files valid; full suite 1765/0 fail/4 cancelled. Hedges/unsourced items honestly flagged by author. NOT theologically reviewed: pending GEN3REVIEW-001. Release build is Ken-gated.",
       "notes": "Wave 1 (plan task 2). Author the missing Genesis 3 sections (Literary Design, Practice Bridge Example, Teach-Back Prompts, plus Questions to Carry) and the 5 connection JSON rows per GENESIS_3_EXPANSION_RESEARCH.md, plus registry entries. Content files only; assertion line binding; content:validate must pass. Publishing/release build is Ken-gated."
     },
     "RELEASEOPS-001": {
@@ -856,21 +856,21 @@
       "notes": "Wave 1 (plan task 1), reduced scope because .github/ is off-limits to agents: migration drift-check script (read-only, prod migration count vs journal) with tests, docs/RUNBOOK.md, ADRs, and a DRAFT ci workflow at docs/ci/ for Ken to install. Never executes against a real DB."
     },
     "PICKERLIB-001": {
-      "status": "pending",
-      "branch": null,
+      "status": "done",
+      "branch": "agent/PICKERLIB-001-claude",
       "commitSha": null,
-      "attempts": 0,
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-09-25 (new files only). Claude verified osis+picker tests 126/126, typecheck/lint clean, full suite clean. Not yet integrated into ConnectSection.",
       "notes": "Wave 1 (plan task 5, component half). New web/lib/bible/osis.ts (contract C2) and web/components/ui/PassagePicker.tsx (contract C3) with tests. No integration into ConnectSection/ClaimComposer this wave."
     },
     "OPENQ-AUDIT-001": {
-      "status": "pending",
-      "branch": null,
+      "status": "done",
+      "branch": "design/OPEN_QUESTIONS_AUDIT_2026-09-25.md",
       "commitSha": null,
-      "attempts": 0,
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Read-only audit delivered; see file. Key S1s: v2 study writes only sync when another study starts; artifact_revisions has no writer; conviction exclusion untested; IndexedDB not account-scoped.",
       "notes": "Wave 1 read-only audit: answer the six open questions in PRODUCT_EXPERIENCE_PLAN section G with file/line evidence, output design/OPEN_QUESTIONS_AUDIT_2026-09-25.md."
     }
   }
