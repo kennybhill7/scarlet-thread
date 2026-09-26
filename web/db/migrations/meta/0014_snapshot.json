@@ -1,5 +1,5 @@
 {
-  "id": "d23d3a69-00ac-4603-b094-07b62b200592",
+  "id": "2620f145-5ce6-4843-b71a-9df5d7a6f679",
   "prevId": "29682dd2-3855-49ce-a1c4-a82a338cc80a",
   "version": "7",
   "dialect": "postgresql",
@@ -1924,13 +1924,6 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": true,

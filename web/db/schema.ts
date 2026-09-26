@@ -1087,7 +1087,6 @@ export const places = pgTable(
     /** Unset this wave: places are synced, not bundled. */
     releaseId: text("release_id").references(() => catalogReleases.id, { onDelete: "restrict" }),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
   },
   (table) => [
     check("places_unlocated_no_coords_check", sql`${table.tier} <> 'unlocated' OR (${table.lon} IS NULL AND ${table.lat} IS NULL)`),

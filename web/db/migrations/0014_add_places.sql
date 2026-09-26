@@ -37,7 +37,6 @@ CREATE TABLE "places" (
 	"identifications_in_dataset" integer NOT NULL,
 	"release_id" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "places_unlocated_no_coords_check" CHECK ("places"."tier" <> 'unlocated' OR ("places"."lon" IS NULL AND "places"."lat" IS NULL)),
 	CONSTRAINT "places_located_has_coords_check" CHECK ("places"."tier" = 'unlocated' OR ("places"."lon" IS NOT NULL AND "places"."lat" IS NOT NULL)),
 	CONSTRAINT "places_coords_paired_check" CHECK (("places"."lon" IS NULL) = ("places"."lat" IS NULL)),

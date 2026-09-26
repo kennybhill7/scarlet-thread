@@ -243,12 +243,20 @@ export interface CompiledPlace {
 export function compilePlace(row: PlaceRow, canon: CanonTable): { ok: true; place: CompiledPlace } | { ok: false; errors: string[] } {
   const errors: string[] = [];
   const passages: CompiledPlacePassage[] = [];
+  const seenRanges = new Set<string>();
   const add = (osis: string, inDatasetVerseList: boolean, note: string | null) => {
     const range = parseOsis(osis, canon);
     if (range === null) {
       errors.push(`passage "${osis}" is not a valid in-bounds reference in the canon`);
       return;
     }
+    // place_passages is UNIQUE (place_id, range): two spellings of one range would violate it at sync time.
+    const key = `${range.start}-${range.end}`;
+    if (seenRanges.has(key)) {
+      errors.push(`passage "${osis}" resolves to a range (${key}) this place already has`);
+      return;
+    }
+    seenRanges.add(key);
     passages.push({ range, inDatasetVerseList, note });
   };
   for (const osis of row.passages) add(osis, true, null);
