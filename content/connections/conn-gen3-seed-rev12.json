@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen3-seed-rev12",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.3.15",
+    "end": "1.3.15"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "66.12.9",
+    "end": "66.12.17"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "Revelation 12 stages the figures Genesis 3:15 names, a woman, her offspring (Greek sperma, the Septuagint's word for zera), and the serpent, and 12:17 sets \"the rest of her offspring\" as a group distinct from the child of 12:5. Shared figures and vocabulary without a quotation formula are why the type is allusion, not quotation, and why the label is strong, not explicit. Cheek (Themelios, 2023) reports Beale and McDonough treating 12:17 as an allusion to Genesis 3:15; that is reported through Cheek and was not checked in their commentary. The identification of the serpent as the devil and Satan is Revelation 12:9's own statement; Genesis 3 does not use those words.",
+  "sourceId": "source-cheek-themelios-2023",
+  "viewpointId": null
+}

@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen3-ground-romans8",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.3.17",
+    "end": "1.3.19"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "45.8.19",
+    "end": "45.8.22"
+  },
+  "type": "contrast_reversal",
+  "evidenceLabel": "strong",
+  "rationale": "Romans 8:20-21 speaks of creation subjected to futility and of hope that it will be set free from bondage to decay; commentators reported here read this as taking up the cursed ground of Genesis 3:17-19 and casting its undoing as a future outcome. Genesis 3:17-19 states no promise of reversal in its own words, so promise_fulfillment would claim more than the text supports, and contrast_reversal names the later passage inverting an earlier stated condition. Sourcing caveat: the Genesis 3 background is reported as a near-consensus reading through secondary reports of Moo's NICNT commentary (Precept Austin), and Moo's own page was not read, so confidence is medium-high and the label is strong, not explicit.",
+  "sourceId": "source-moo-romans-8-20-precept-austin",
+  "viewpointId": null
+}
