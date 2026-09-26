@@ -91,6 +91,7 @@ seedModule("@/components/study/claim-composer.module.css", { default: cssProxy }
 seedModule("@/components/ui/Button.module.css", { default: cssProxy });
 seedModule("@/components/ui/Chip.module.css", { default: cssProxy });
 seedModule("@/components/ui/Field.module.css", { default: cssProxy });
+seedModule("@/components/ui/PassagePicker.module.css", { default: cssProxy });
 
 // ---------------------------------------------------------------------------
 // Load the real modules under test.
