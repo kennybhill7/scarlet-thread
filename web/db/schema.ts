@@ -962,11 +962,26 @@ export const graphEdges = pgTable(
      * import-time cutoff baking in a single arbitrary threshold.
      */
     communityVotes: integer("community_votes").notNull(),
+    /**
+     * CURATEDEDGES-002. Authored-row provenance, all additive. Bulk-imported
+     * OpenBible rows keep `rationale`/`viewpoint_id`/`release_id` NULL and
+     * `review_status = 'imported'` (the column default) — nothing about an
+     * imported row claims a human reviewed it. Rows compiled from
+     * `content/connections/*.json` (`db:sync-connections`) carry the authored
+     * `rationale` and are written with `review_status = 'reviewed'`. The
+     * study UI may only say "Reviewed" about a row whose value here is
+     * literally `'reviewed'`.
+     */
+    rationale: text("rationale"),
+    viewpointId: text("viewpoint_id"),
+    releaseId: text("release_id"),
+    reviewStatus: text("review_status").notNull().default("imported"),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
       .defaultNow()
       .notNull(),
   },
   (table) => [
+    check("graph_edges_review_status_check", sql`${table.reviewStatus} IN ('imported', 'reviewed')`),
     // Real unique index so re-running the import is idempotent (upsert or
     // skip-on-conflict), not an ever-growing duplicate set — the acceptance
     // criterion this task names explicitly.

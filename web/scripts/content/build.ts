@@ -61,7 +61,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 
 import * as schema from "@/db/schema";
 import { catalogReleases } from "@/db/schema";
-import { findMissingSourceIds } from "@/lib/db/graphEdges";
+import { findMissingConnectionIds, findMissingSourceIds } from "@/lib/db/graphEdges";
 
 import type { LessonFrontmatter } from "./schema";
 import { CURRICULUM_DIR, runValidation, type RunValidationResult } from "./validate";
@@ -174,6 +174,13 @@ export function requiredSourceIds(bundle: ReleaseBundle): string[] {
   return [...new Set(Object.values(bundle.lessons).flatMap((lesson) => lesson.frontmatter.sources))].sort();
 }
 
+/** CURATEDEDGES-002 -- every connection ID referenced by any lesson's
+ * `connectionIds[]`, deduped and sorted. Same role as {@link requiredSourceIds}
+ * for the connection gate wired into `main` below. */
+export function requiredConnectionIds(bundle: ReleaseBundle): string[] {
+  return [...new Set(Object.values(bundle.lessons).flatMap((lesson) => lesson.frontmatter.connectionIds))].sort();
+}
+
 /** Returns source IDs referenced by lessons but absent from the registry. */
 export function missingSourceIds(bundle: ReleaseBundle, registry: SourceRegistryEntry[]): string[] {
   const known = new Set(registry.map((source) => source.id));
@@ -195,11 +202,16 @@ export function publishGateFailures(bundle: ReleaseBundle): string[] {
  */
 export function buildReleaseFromValidation(curriculumDir: string, validation: RunValidationResult): BuildResult {
   if (!validation.ok) {
-    const errors = validation.results
-      .filter((result) => !result.ok)
-      .flatMap((result) =>
-        result.errors.map((error) => `${path.relative(curriculumDir, result.filePath)}: ${error}`),
-      );
+    const errors = [
+      ...validation.results
+        .filter((result) => !result.ok)
+        .flatMap((result) =>
+          result.errors.map((error) => `${path.relative(curriculumDir, result.filePath)}: ${error}`),
+        ),
+      // CURATEDEDGES-002 -- content/connections/ problems and unresolved
+      // lesson connectionIds[] refuse the release just like a failed lesson.
+      ...(validation.connectionErrors ?? []).map((error) => `connections: ${error}`),
+    ];
     return { ok: false, errors };
   }
 
@@ -226,7 +238,7 @@ async function main(): Promise<void> {
   const result = buildReleaseFromValidation(CURRICULUM_DIR, validation);
 
   if (!result.ok) {
-    console.error(`content:build refused -- ${result.errors.length} lesson(s) failed validation:`);
+    console.error(`content:build refused -- ${result.errors.length} validation error(s):`);
     for (const error of result.errors) console.error(`  - ${error}`);
     process.exitCode = 1;
     return;
@@ -289,6 +301,21 @@ async function main(): Promise<void> {
     throw new Error(
       `content:build refused: lesson source IDs have no matching row in the real Postgres sources table ` +
         `(run "npm run db:sync-sources" to sync content/source-registry.json first): ${missingSourceRows.join(", ")}`,
+    );
+  }
+
+  // CURATEDEDGES-002 -- same release-side gate, for connections: every lesson
+  // connectionIds[] entry must resolve to a real `graph_edges` row that is
+  // REVIEWED (an authored content/connections/*.json row synced via
+  // `npm run db:sync-connections`; a bulk-imported row does not count). Placed
+  // after the sources check (connections FK to sources, so sync-sources must
+  // come first) and before the catalog_releases write, so an un-synced
+  // connection can never let a release ship.
+  const missingConnectionRows = await findMissingConnectionIds(db, requiredConnectionIds(bundle));
+  if (missingConnectionRows.length > 0) {
+    throw new Error(
+      `content:build refused: lesson connection IDs have no matching REVIEWED row in the real Postgres graph_edges table ` +
+        `(run "npm run db:sync-connections" to sync content/connections/ first): ${missingConnectionRows.join(", ")}`,
     );
   }
 

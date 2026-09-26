@@ -15,6 +15,7 @@
     "db:seed": "tsx --env-file=.env.local db/seed.ts",
     "db:import-graph-edges": "tsx --env-file=.env.local scripts/import-cross-references.mts",
     "db:sync-sources": "tsx --env-file=.env.local scripts/sync-source-registry.mts",
+    "db:sync-connections": "tsx --env-file=.env.local scripts/sync-connections.mts",
     "db:studio": "drizzle-kit studio",
     "content:validate": "tsx scripts/content/validate.ts",
     "content:build": "tsx --env-file=.env.local scripts/content/build.ts"

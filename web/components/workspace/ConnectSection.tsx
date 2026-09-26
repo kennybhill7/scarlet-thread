@@ -238,6 +238,12 @@ const curatedConnectionRangesStyle: CSSProperties = {
   color: "var(--shell-text)",
 };
 
+const curatedConnectionRationaleStyle: CSSProperties = {
+  margin: 0,
+  fontSize: 13,
+  color: "var(--shell-text)",
+};
+
 const curatedConnectionSourceStyle: CSSProperties = {
   fontSize: 12,
   color: "var(--shell-muted-2)",
@@ -259,9 +265,37 @@ export type ConnectSectionSavedResult =
 // `PromoteFields` and `EvidenceLabelField` above already establish).
 // ---------------------------------------------------------------------------
 
+/**
+ * CURATEDEDGES-002 — the ONE place the word "Reviewed" may be chosen for the
+ * curated-connections panel. `connections` is what the panel is about to
+ * show; the panel-level heading copy says "Reviewed" only when the list is
+ * non-empty and EVERY row is positively `reviewStatus === "reviewed"`
+ * (`resolveCuratedConnections` maps anything else, including a missing
+ * column, to `"imported"`). One bulk-imported row anywhere in the list makes
+ * the whole heading neutral, and the neutral copy deliberately contains no
+ * "review" wording at all. Exported so tests can prove the rule directly.
+ */
+export function curatedConnectionsHeadingCopy(connections: readonly CuratedConnection[]): {
+  allReviewed: boolean;
+  text: string;
+} {
+  const allReviewed = connections.length > 0 && connections.every((connection) => connection.reviewStatus === "reviewed");
+  return {
+    allReviewed,
+    text: allReviewed
+      ? "Reviewed connections for this passage, each authored with a stated reason and source — supplementing your own comparison below, never replacing it."
+      : "Connections for this passage from this app’s cross-reference graph. Each one below states where it comes from — supplementing your own comparison below, never replacing it.",
+  };
+}
+
 export function CuratedConnectionRow({ connection }: { connection: CuratedConnection }) {
+  const reviewed = connection.reviewStatus === "reviewed";
   return (
-    <li data-testid="connect-curated-connection" style={curatedConnectionRowStyle}>
+    <li
+      data-testid="connect-curated-connection"
+      data-review-status={reviewed ? "reviewed" : "imported"}
+      style={curatedConnectionRowStyle}
+    >
       <div style={curatedConnectionHeaderStyle}>
         <span data-field="type">{humanizeToken(connection.type)}</span>
         <span data-field="evidenceLabel">{humanizeToken(connection.evidenceLabel)}</span>
@@ -271,6 +305,16 @@ export function CuratedConnectionRow({ connection }: { connection: CuratedConnec
         <span aria-hidden="true">&harr;</span>
         <span data-field="toRange">{formatCanonicalRangeKey(connection.toRange)}</span>
       </div>
+      <p data-testid="connect-curated-connection-provenance" style={curatedConnectionSourceStyle}>
+        <span data-field="provenance">{reviewed ? "Reviewed connection" : "Imported cross-reference"}</span>
+        {" · Evidence label: "}
+        <span data-field="provenanceEvidenceLabel">{humanizeToken(connection.evidenceLabel)}</span>
+      </p>
+      {connection.rationale ? (
+        <p data-testid="connect-curated-connection-rationale" style={curatedConnectionRationaleStyle}>
+          {connection.rationale}
+        </p>
+      ) : null}
       {connection.source ? (
         <p data-testid="connect-curated-connection-source" style={curatedConnectionSourceStyle}>
           {connection.source.author}, &ldquo;
@@ -544,9 +588,8 @@ export function ConnectSection({
       {curatedConnections.length > 0 ? (
         <section aria-label="Curated connections" style={panelStyle} data-testid="connect-curated-connections">
           <p style={legendStyle}>Curated connections</p>
-          <p style={noticeStyle}>
-            Reviewed connections for this passage, from this app&rsquo;s curated cross-reference graph — supplementing
-            your own comparison below, never replacing it.
+          <p data-testid="connect-curated-heading-copy" style={noticeStyle}>
+            {curatedConnectionsHeadingCopy(curatedConnections).text}
           </p>
           <ul style={curatedConnectionListStyle}>
             {curatedConnections.map((connection) => (

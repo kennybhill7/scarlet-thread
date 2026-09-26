@@ -232,3 +232,72 @@ test("migration 0011 is registered in the journal", () => {
     `journal should list an entry tagged "${MIGRATION_TAG}"`,
   );
 });
+
+// ---------------------------------------------------------------------------
+// 6. CURATEDEDGES-002 — reviewed-edge provenance columns + migration 0013
+// ---------------------------------------------------------------------------
+
+const MIGRATION_0013_TAG = "0013_add_graph_edges_review_columns";
+
+function readMigration0013(): string {
+  const file = fs
+    .readdirSync(migrationsDir)
+    .find((f) => f.startsWith(MIGRATION_0013_TAG) && f.endsWith(".sql"));
+  assert.ok(file, `expected a migration file starting with "${MIGRATION_0013_TAG}"`);
+  return fs.readFileSync(path.join(migrationsDir, file as string), "utf8");
+}
+
+test("graph_edges.rationale/viewpointId/releaseId are NULLABLE text columns (bulk-imported rows leave them NULL)", () => {
+  const cols = columnsOf(schema.graphEdges);
+  for (const [key, sqlName] of [
+    ["rationale", "rationale"],
+    ["viewpointId", "viewpoint_id"],
+    ["releaseId", "release_id"],
+  ] as const) {
+    assert.ok(cols[key], `graph_edges.${key} should exist`);
+    assert.equal(cols[key].name, sqlName);
+    assert.equal(cols[key].notNull, false, `graph_edges.${key} must be nullable`);
+    assert.equal(cols[key].dataType, "string");
+  }
+});
+
+test("graph_edges.reviewStatus is NOT NULL text, defaulting to 'imported' (an unreviewed row can never default to 'reviewed')", () => {
+  const cols = columnsOf(schema.graphEdges);
+  assert.ok(cols.reviewStatus);
+  assert.equal(cols.reviewStatus.name, "review_status");
+  assert.equal(cols.reviewStatus.notNull, true);
+  assert.equal(cols.reviewStatus.default, "imported");
+});
+
+test("migration 0013 adds exactly the four columns, review_status NOT NULL DEFAULT 'imported', plus the CHECK", () => {
+  const sql = readMigration0013();
+  assert.match(sql, /ALTER TABLE "graph_edges" ADD COLUMN "rationale" text;/);
+  assert.match(sql, /ALTER TABLE "graph_edges" ADD COLUMN "viewpoint_id" text;/);
+  assert.match(sql, /ALTER TABLE "graph_edges" ADD COLUMN "release_id" text;/);
+  assert.match(sql, /ALTER TABLE "graph_edges" ADD COLUMN "review_status" text DEFAULT 'imported' NOT NULL;/);
+  assert.match(
+    sql,
+    /ADD CONSTRAINT "graph_edges_review_status_check" CHECK \("graph_edges"\."review_status" IN \('imported', 'reviewed'\)\)/,
+  );
+  assert.equal((sql.match(/ALTER TABLE/g) ?? []).length, 5, "migration 0013 must contain exactly these five statements");
+});
+
+test("migration 0013 is purely additive (no DROP, no ALTER COLUMN, no DELETE/UPDATE of the 341k imported rows)", () => {
+  const sql = readMigration0013();
+  assert.doesNotMatch(sql, /DROP /i);
+  assert.doesNotMatch(sql, /ALTER COLUMN/i);
+  assert.doesNotMatch(sql, /\bUPDATE\b/i);
+  assert.doesNotMatch(sql, /\bDELETE\b/i);
+  assert.doesNotMatch(sql, /\bTRUNCATE\b/i);
+});
+
+test("migration 0013 is registered in the journal, after 0012, with a strictly later timestamp", () => {
+  const raw = fs.readFileSync(path.join(migrationsDir, "meta", "_journal.json"), "utf8");
+  const journal = JSON.parse(raw) as { entries: { idx: number; tag: string; when: number }[] };
+  const entry = journal.entries.find((e) => e.tag === MIGRATION_0013_TAG);
+  assert.ok(entry, `journal should list an entry tagged "${MIGRATION_0013_TAG}"`);
+  const prev = journal.entries.find((e) => e.tag.startsWith("0012_"));
+  assert.ok(prev);
+  assert.equal(entry.idx, prev.idx + 1);
+  assert.ok(entry.when > prev.when);
+});

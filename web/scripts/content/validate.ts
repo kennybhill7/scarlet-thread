@@ -38,7 +38,8 @@ import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { parseLessonFrontmatter, type LessonFrontmatter } from "./schema";
+import { unresolvedLessonConnectionIds, validateConnectionSet, type ConnectionFileRow, type ConnectionSetResult } from "./connectionSchema";
+import { parseLessonFrontmatter, VERDICT_PATTERNS, type LessonFrontmatter, type VerdictPattern } from "./schema";
 
 // ---------------------------------------------------------------------------
 // Frontmatter / body split — `tools/import_vault.py`'s `FRONTMATTER` regex,
@@ -224,18 +225,10 @@ export function parseFrontmatterYaml(text: string): FrontmatterYamlResult {
 // always reports a silenced match as a warning, not a swallowed one).
 // ---------------------------------------------------------------------------
 
-export interface VerdictPattern {
-  id: string;
-  regex: RegExp;
-}
-
-/** The exact four phrases BUILD_PLAN.md §5.1 names, case-insensitive. */
-export const VERDICT_PATTERNS: VerdictPattern[] = [
-  { id: "this-passage-teaches-that", regex: /this passage teaches that/i },
-  { id: "the-correct-view-is", regex: /the correct view is/i },
-  { id: "this-proves", regex: /this proves/i },
-  { id: "this-means", regex: /this means/i },
-];
+// `VerdictPattern` / `VERDICT_PATTERNS` now live in `./schema` (CURATEDEDGES-002:
+// `connectionSchema.ts` reuses them for connection rationales) and are
+// re-exported here so existing importers are unchanged.
+export { VERDICT_PATTERNS, type VerdictPattern };
 
 export interface LintMatch {
   /** 1-based line number within the lesson body (frontmatter excluded). */
@@ -478,22 +471,125 @@ export function findMarkdownFiles(dir: string): string[] {
   return files.sort();
 }
 
+/** `content/connections/` — sibling of `content/curriculum/`. */
+export const CONNECTIONS_DIR = path.join(SCRIPT_DIR, "..", "..", "..", "content", "connections");
+
+/** Recursively lists every `.json` file under `dir`, sorted. A missing
+ * `dir` (`content/connections/` does not exist until the first connection
+ * is authored) returns `[]`, never throws -- zero connections is a valid
+ * state. */
+export function findJsonFiles(dir: string): string[] {
+  let entries;
+  try {
+    entries = readdirSync(dir, { withFileTypes: true });
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
+    throw error;
+  }
+  const files: string[] = [];
+  for (const entry of entries) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...findJsonFiles(full));
+    } else if (entry.isFile() && entry.name.endsWith(".json")) {
+      files.push(full);
+    }
+  }
+  return files.sort();
+}
+
+/** Ids of `content/source-registry.json`-shaped entries at `registryPath`.
+ * A missing/unreadable/malformed registry yields an empty set (so every
+ * connection `sourceId` is then reported absent) -- `build.ts` separately
+ * refuses to build with an unloadable registry. */
+export function loadSourceRegistryIds(registryPath: string): Set<string> {
+  try {
+    const raw = JSON.parse(readFileSync(registryPath, "utf8")) as unknown;
+    if (!Array.isArray(raw)) return new Set();
+    return new Set(
+      raw.flatMap((entry) =>
+        typeof entry === "object" && entry !== null && typeof (entry as { id?: unknown }).id === "string"
+          ? [(entry as { id: string }).id]
+          : [],
+      ),
+    );
+  } catch {
+    return new Set();
+  }
+}
+
+/** Real IO: reads and validates every `*.json` under `connectionsDir`
+ * against the C1 schema and `registryIds` (see `validateConnectionSet`).
+ * No console output, no process-exit side effects. */
+export function loadConnections(connectionsDir: string, registryIds: ReadonlySet<string>): ConnectionSetResult {
+  const files = findJsonFiles(connectionsDir).map((filePath) => {
+    let parsed: { ok: true; value: unknown } | { ok: false; error: string };
+    try {
+      parsed = { ok: true, value: JSON.parse(readFileSync(filePath, "utf8")) as unknown };
+    } catch (error) {
+      parsed = { ok: false, error: error instanceof Error ? error.message : String(error) };
+    }
+    return { filePath: path.relative(connectionsDir, filePath).split(path.sep).join("/"), parsed };
+  });
+  return validateConnectionSet(files, registryIds);
+}
+
+export interface RunValidationOptions {
+  /** Defaults to `<curriculumDir>/../connections`. */
+  connectionsDir?: string;
+  /** Defaults to `<curriculumDir>/../source-registry.json`. */
+  sourceRegistryPath?: string;
+}
+
 export interface RunValidationResult {
   ok: boolean;
   results: LessonValidationResult[];
+  /** CURATEDEDGES-002 -- every `content/connections/` problem, plus every
+   * lesson `connectionIds[]` entry that names no connection file. Empty when
+   * fine. Any entry here also makes `ok` false. Optional only so hand-built
+   * lesson-only fixtures (tests) stay valid; `runValidation` always sets it. */
+  connectionErrors?: string[];
+  /** Valid connection rows loaded from `connectionsDir` (empty if none). */
+  connections?: ConnectionFileRow[];
 }
 
-/** Real IO (reads every `.md` file under `curriculumDir`) but no console
- * output and no process-exit side effects — `main` below owns reporting,
- * `build.ts` calls this directly to get validated lessons. */
-export function runValidation(curriculumDir: string): RunValidationResult {
+/** Real IO (reads every `.md` file under `curriculumDir`, every `.json`
+ * under the connections dir) but no console output and no process-exit side
+ * effects -- `main` below owns reporting, `build.ts` calls this directly to
+ * get validated lessons. */
+export function runValidation(curriculumDir: string, options: RunValidationOptions = {}): RunValidationResult {
   const files = findMarkdownFiles(curriculumDir);
   const results = files.map((filePath) => validateLessonSource(filePath, readFileSync(filePath, "utf8")));
-  return { ok: results.every((result) => result.ok), results };
+
+  const connectionsDir = options.connectionsDir ?? path.resolve(curriculumDir, "..", "connections");
+  const registryPath = options.sourceRegistryPath ?? path.resolve(curriculumDir, "..", "source-registry.json");
+  const connectionSet = loadConnections(connectionsDir, loadSourceRegistryIds(registryPath));
+  const connectionErrors = [
+    ...connectionSet.errors,
+    ...unresolvedLessonConnectionIds(
+      results.flatMap((result) =>
+        result.frontmatter
+          ? [{ slug: slugForLessonFile(result.filePath, curriculumDir), connectionIds: result.frontmatter.connectionIds }]
+          : [],
+      ),
+      new Set(connectionSet.declaredIds),
+    ),
+  ];
+
+  return {
+    ok: results.every((result) => result.ok) && connectionErrors.length === 0,
+    results,
+    connectionErrors,
+    connections: connectionSet.connections,
+  };
+}
+
+function slugForLessonFile(filePath: string, curriculumDir: string): string {
+  return path.relative(curriculumDir, filePath).split(path.sep).join("/").replace(/.md$/, "");
 }
 
 async function main(): Promise<void> {
-  const { ok, results } = runValidation(CURRICULUM_DIR);
+  const { ok, results, connectionErrors = [], connections = [] } = runValidation(CURRICULUM_DIR);
 
   if (results.length === 0) {
     console.log(
@@ -509,8 +605,15 @@ async function main(): Promise<void> {
     for (const warning of result.warnings) console.log(`  ! ${warning}`);
   }
 
+  for (const error of connectionErrors) console.log(`FAIL connections: ${error}`);
+
   console.log("");
   console.log(`${results.filter((result) => result.ok).length}/${results.length} lesson file(s) valid.`);
+  console.log(
+    connectionErrors.length === 0
+      ? `${connections.length} connection file(s) valid.`
+      : `${connectionErrors.length} connection error(s).`,
+  );
 
   if (!ok) process.exitCode = 1;
 }
