@@ -6,6 +6,12 @@ stage: 2
 methodFocus: "Distinguishing cited fact, textual/lexical observation, and named positions from the reader's own conclusion -- using Genesis 3:15 as the test case where translations and traditions visibly diverge."
 author: "Kenneth Hill"
 status: published
+connectionIds:
+  - conn-gen3-adam-romans5
+  - conn-gen3-serpent-2cor11
+  - conn-gen3-seed-rev12
+  - conn-gen3-seed-gen4-25
+  - conn-gen3-ground-romans8
 sources:
   - source-westminster-confession
   - source-westminster-larger-catechism
@@ -18,6 +24,22 @@ sources:
   - source-irenaeus-adv-haer
   - source-augustine-de-genesi-contra-manichaeos
   - source-westermann-genesis-1-11
+  - source-walsh-1977-genesis-2-3
+  - source-chiasm-exchange-genesis-2-3
+  - source-stefanovic-great-reversal
+  - source-henry-commentary-genesis-3
+  - source-studylight-genesis-3-8
+  - source-tips-translation-commentary-gen-3-14
+  - source-alter-art-of-biblical-narrative-theopolis
+  - source-buber-rosenzweig-leitwort
+  - source-mccoy-chiasmus-cts-journal
+  - source-moo-romans-nicnt
+  - source-schreiner-romans-becnt
+  - source-biblehub-2-cor-11-3
+  - source-cheek-themelios-2023
+  - source-collins-syntactical-note-gen-3-15
+  - source-alexander-seed-in-genesis
+  - source-moo-romans-8-20-precept-austin
 ---
 
 Genesis 3 is a short chapter that carries an enormous amount of interpretive weight, and it is a good place to practice a specific study skill: telling apart three different kinds of claim a lesson (or a commentary, or a study Bible footnote) can make about a passage. Some claims are cited facts -- what a word means, what a source says, where a passage sits in a book's structure. Some are textual or lexical observations -- what the Hebrew or Greek actually does, verifiable by anyone willing to check a lexicon or a parallel text. And some are named positions -- what a particular tradition or scholar concludes the passage means, which is a different kind of statement from the first two. Genesis 3:15 is the clearest test case for this in the whole chapter: major traditions read its "seed" differently, and that difference is worth seeing clearly rather than having one answer handed to you. This lesson keeps those three kinds of claim in separate sections on purpose.
@@ -60,3 +82,84 @@ Genesis 3:15 -- "I will put enmity between you and the woman, and between your o
 *A note on what is not included here:* the research behind this lesson could not locate an official or synodal Eastern Orthodox statement on Genesis 3:15 comparable to the confessional and magisterial texts cited above -- only a parish-level publication, which is not a tradition's own authoritative statement in the sense the other entries here are. Rather than represent Orthodox teaching from a source that does not carry that weight, this lesson omits a named Orthodox position pending better sourcing.
 
 These readings are reported here as each tradition's or scholar's own stated position, not ranked or adjudicated by this lesson. Where they agree -- most of the Christian traditions agree the verse promises a coming victory through a descendant of the woman -- that agreement is noted above; where they differ, including on whether "seed" is individual or collective and on whether "the woman" is identified with any particular person, the difference is left for the reader to weigh against the textual observations in the Context section above.
+
+## Literary Design
+
+These notes are about how Genesis 3 is built, not about what its construction is meant to teach theologically. Each item is labeled as a named proposal, a checkable observation, or a reported technique, so you can tell which kind of claim you are reading.
+
+**A named scholarly proposal, not a settled structure.** Jerome T. Walsh's 1977 article "Genesis 2:4b-3:24: A Synchronic Approach" (*Journal of Biblical Literature* 96.2: 161-177) is the standard reference point for reading the whole Eden narrative, not chapter 3 alone, as a concentric (chiastic) composition centered on the eating in 3:6. This lesson has only the citation page of Walsh's article, not its full text. The outline below is a widely reproduced paraphrase attributed to Walsh and to David Dorsey's later synthesis, as catalogued by the Biblical Chiasm Exchange, and it should be checked against the article before anyone quotes it as "Walsh's own outline":
+
+- **a** -- the man placed in the garden (2:4b-17)
+- **b** -- God's command about the tree (2:16)
+- **c** -- the woman created (2:22)
+- **d** -- the serpent tempts the woman (3:1-5)
+- **e** -- the eating (3:6), the center
+- **d′** -- the serpent is sentenced (3:14)
+- **c′** -- the woman is sentenced (3:16)
+- **b′** -- the man is sentenced, tied back to the tree and the command (3:17-19)
+- **a′** -- the man and woman driven out of the garden (3:22-24)
+
+Read the outline critically as you would any other secondhand source: two of its own entries overlap (2:16 sits inside 2:4b-17), which is one reason to check Walsh's own labeling. What the proposal claims is narrow: each "before" element has an answering "after" element in reverse order around a center. It is a claim about sequence and correspondence, not a claim about authorial intent that can be verified the way a word count can.
+
+**A related observation that does not need the chiasm label.** Zdravko Stefanovic ("The Great Reversal: Thematic Links Between Genesis 2 and 3," *Andrews University Seminary Studies*; the volume and year were not confirmed for this lesson) argues that chapter 3 systematically inverts conditions that chapter 2 establishes: ordered naming, relationship, and provision become alienation, blame, and loss. You can test this against the text without adopting a formal structure: compare the man's welcome of the woman in chapter 2 with his answer in 3:12.
+
+**The judgment scene: two facts a reader can check.**
+
+1. *The interrogation questions the man and the woman, not the serpent.* God asks the man "Where are you?" (3:9) and "Have you eaten from the tree of which I commanded you not to eat?" (3:11), and asks the woman "What is this you have done?" (3:13). At 3:14 the text moves directly to the serpent's sentence with no question put to it. Older commentary collected by Blue Letter Bible (Matthew Henry) and by StudyLight describes 3:8-13 in courtroom terms, as an examination of the man and woman that comes before the sentences. Whether the scene follows a formal ancient "covenant lawsuit" pattern is a further claim this lesson does not make: the sources behind it describe the scene as an examination but do not name a scholar who applies that specific form label to Genesis 3.
+2. *The sentences come in the order serpent, woman, man (3:14-19).* That is the order in which the three figures enter the temptation story (the serpent speaks in 3:1, the woman eats in 3:6, and she gives to her husband). It is easy to assume a judgment scene mirrors its crime scene in reverse, as the larger proposed structure above does across the whole narrative. Within this smaller unit, the sentencing order is not reversed; the asymmetry that is present is the unquestioned serpent.
+
+**Verse form and answering correspondences.** Modern translations commonly print 3:14-19 as verse lines. The United Bible Societies translation commentary on 3:14 (TIPs) reports lines with matching numbers of stresses in synonymous parallelism, citing "cursed are you above all cattle // and above all wild animals" and, for the woman's sentence, "multiply your pain in childbearing // in pain you shall bring forth children." Several of the sentences also visibly answer the action that provoked them, in wording anyone can check:
+
+- The serpent's sentence names the belly and dust: "On your belly will you go, and dust you will eat" (3:14).
+- The man's sentence begins from his act ("you have eaten from the tree of which I commanded you not to eat") and lands on the ground he eats from: "cursed is the ground because of you; through toil you will eat of it" (3:17). The curse is stated on the ground, not on the man directly.
+- 3:19's "For dust you are, and to dust you shall return" returns in words to the man's formation "from the dust of the ground" in 2:7.
+- The woman's sentence includes the *teshuqah* ("desire") clause of 3:16, which the Context section above already treats as lexically disputed; nothing further is claimed here.
+
+Calling these correspondences "fitting" or "measure for measure" is a label placed on the observations. The research behind this lesson supplies the observations but not a named scholar who argues that label oracle by oracle, so treat "measure for measure" as a description to test against the verses, not as a cited finding.
+
+**Narrative technique, as reported.** Robert Alter's *The Art of Biblical Narrative* (1981) is the standard reference for two general habits of biblical Hebrew narrative; this lesson reports them through a secondary summary by the Theopolis Institute, not from Alter's own text. First, dialogue carries the action: much of Genesis 3 is two exchanges, the serpent with the woman (3:1-5) and God with the man and woman (3:9-13), set inside brief narration. Second, description is sparse, so the few details given deserve attention: the serpent as "more crafty than any beast of the field" (3:1), and the tree as "good for food and pleasing to the eyes" and "desirable for obtaining wisdom" (3:6). A third device, key-word repetition (*Leitwort* style, associated with Martin Buber and Franz Rosenzweig; this lesson has it through secondary scholarship on their translation project, and the exact title and date of Buber's own essay were not verified), names a repeated root that binds a unit together. In Genesis 3 the roots *ʾakal* ("eat"), *yadaʿ* ("know"), and the *ʿarum* / *ʿarummim* ("crafty" / "naked") sound-play noted in the Context section recur at several points in the chapter. These are one technique seen at three places, not three unrelated observations.
+
+**A caution about finding chiasms.** Chiastic-structure proposals are a contested method in Hebrew Bible scholarship, and that caution belongs directly beside the outline above. Brad McCoy's article in the *CTS Journal* (Chafer Theological Seminary) surveys chiasmus as a structural device and reflects the ongoing disagreement over how to tell a chiasm an author built from a symmetrical-looking pattern that an interpreter can impose on almost any text by choosing flexible labels. The research behind this lesson did not find a scholar who applies that methodological critique specifically to Walsh's Genesis 2-3 proposal, so the caution here is a reasonable inference from the general literature, not a rebuttal found in print. A practical test for any proposed pairing: ask whether the two halves share words or clear situations in the text itself, or only share a label the interpreter supplied.
+
+## Practice Bridge Example
+
+This is one worked walk across the bridge, from what the passage says in its own setting to a concrete modern situation. It is a model of the shape, not an answer key: the learner's own attempt in the Apply section is a separate, required step, and a different passage element, situation, or response would be equally legitimate. It follows the fields the Application record uses.
+
+**Passage element.** Genesis 3:11-13. Asked whether he ate, the man answers, "The woman whom You gave me, she gave me fruit from the tree, and I ate it" (3:12, BSB); asked what she has done, the woman answers, "The serpent deceived me, and I ate" (3:13).
+
+**Original-audience meaning (a modeled inference, not a cited fact).** Observation: each answer names another party (the woman, and the God who "gave" her to him, in the man’s case; the serpent, in the woman’s) and each answer still ends with the speaker's own act, "and I ate." Inference: for first hearers of a chapter that Stefanovic reads as inverting the ordered relationships of chapter 2, the answers show the relationship between the couple, and between the man and God, turning into blame. The Context section supplies what is known about the setting; nothing in it lets this lesson say more about the first audience than that.
+
+**Enduring principle (the learner's inference, labeled as such).** Accounts of a wrong tend to route attention to other people and circumstances, and the part of the account that is about one's own act can be separated from the part that describes everyone else's contribution.
+
+**Bridge.** Carried forward: a person is questioned about something they did, other people really did contribute, and there is a pull to answer with the contributions first. Not carried forward: the interrogation's divine questioner, the sentences that follow, and anything specific to Eden. The bridge holds only where these features match the modern case.
+
+**Application class and promise scope.** Application class: principle carried by analogy, not a command addressed to the reader. Promise scope: none claimed; nothing in 3:11-13 is treated here as a promise to the reader.
+
+**Modern domain and situation.** Work. A construction superintendent is asked in a job review why a project ran over budget. A late delivery from a supplier is a real part of the story, and so is a change order the superintendent approved without pricing it.
+
+**Response type and faithful response.** Response type: repentance (owning one's own part). One faithful response is to state the own-part sentence first and plainly ("I approved the change order without pricing it"), and to give the supplier's late delivery afterward as context, not as a substitute.
+
+**Cautions.** The example does not say that other contributors are unimportant; naming them accurately is also honest. It should not be used to press someone to accept blame for outcomes outside their control, and it does not fit situations of harm by someone with power over the person questioned, where the blame-shifting frame does not apply and a qualified human resource is the right next step, not a Bible-study exercise. The passage is not a workplace-management text; the bridge is an analogy the learner is testing, and the learner may find it does not hold.
+
+## Questions to Carry
+
+These are left open on purpose. The lesson does not answer them, and you are not expected to answer them today.
+
+1. Genesis 3:9-13 questions the man and the woman but never the serpent. What in the text itself, apart from any later tradition, bears on why, and what kind of evidence would count in either direction?
+2. The word *zeraʿ* ("seed") appears in 3:15 and again at 4:25 when Eve names Seth. If you track the word through the following chapters, what would distinguish a word that is doing tracking work from a common noun that simply recurs?
+3. The rare word *ʿitstsabon* ("toil") appears in the woman's sentence, the man's sentence, and Lamech's naming of Noah in Genesis 5:29. What would you need to see to decide whether that link is deliberate?
+4. If the proposed concentric structure were set aside entirely, what patterns in 3:8-24 would still be visible by plain reading, and which would disappear?
+
+## Teach-Back Prompts
+
+Work from the text and your own notes on it. The five prompts below follow the shape every lesson in this course uses.
+
+1. **Blind explain.** Without notes: (a) narrate what happens in Genesis 3 in order, saying what happens, not what it means. (b) State what 3:15 says about "the seed" in the text's own words, before saying what any tradition concludes from it. (c) Name one place elsewhere in Scripture where this chapter's language (a word, an image, a character) visibly reappears, and say what kind of connection it is: a quotation, a named reference, an echo, or something else.
+
+2. **Five-minute outline, with citable reference points.** Outline how you would teach this passage in five minutes, with at least one point in each segment you could cite to a source or a verse. A workable frame: (0:00-1:00) where the chapter sits and the plain sequence of the narrative (see Context); (1:00-2:00) how the chapter is built, including the proposed concentric structure stated as a proposal, the unquestioned serpent, and the caution about chiasms (see Literary Design); (2:00-3:30) the crux verse, 3:15, read in a literal translation with the lexical facts first and then the named readings (see Context and Positions); (3:30-4:30) where the chapter's language travels later, with the evidence tier of each example named, not just listed (see the reviewed connections in prompt 5); (4:30-5:00) the boundary, stated on purpose as the last thing taught (prompt 4).
+
+3. **Likely objection.** State the strongest objection to a reading of your own, then say how you would answer it. One candidate the sources support, stated at full strength: the individual reading of "seed" in 3:15 is a later theological conclusion read back into a Hebrew text whose grammar on its own supports a collective sense, and treating 3:15 as a promise about one descendant imports later theology into an Old Testament verse. This is not an outsider's caricature. It is the position the Positions section reports for Westermann, Wenham, von Rad, and Walton, and Jonathan Cheek's 2023 *Themelios* article, which argues for a reading that keeps both an individual and a collective sense, itself names Walton and Abernethy-Goswell as current scholars who dispute the syntactic case Collins and Alexander make for a singular seed. Before you answer it, state what Collins and Alexander actually argue (Tyndale Bulletin, 1997) and where Cheek reports the disagreement remains. A related objection is worth naming without developing: the individual reading is a specifically Christian interpretive move that Rashi's own reading (Positions section) does not require, so the question is also whose tradition supplies the referent.
+
+4. **What this passage does not establish.** Choose one and state the textual basis. (a) Genesis 3 does not identify the serpent as Satan or the devil. The words "Satan" and "devil" do not occur in the chapter; the Hebrew names only *nachash*, "serpent," described in 3:1 as one of the beasts of the field. That identification is stated by later texts in their own words, for example Revelation 12:9 (the dragon is called "that ancient serpent called the devil and Satan," BSB) and Revelation 20:2 ("that ancient serpent who is the devil and Satan," BSB). Those are those books' statements, not Genesis 3's. (b) Genesis 3:15 does not, in its own words, name a single historical individual as "the woman" or as "her seed." The text says "the woman" and "her seed"; each specific identification reported in the Positions section (Mary, Christ, humanity collectively) is a conclusion a tradition or scholar draws, sourced there as such.
+
+5. **Defend one connection, or give a reasoned `no_warrant_yet`.** Choose a connection from this passage and defend it: name its type (for example quotation, explicit reference, allusion, motif, type and antitype, contrast and reversal), give its evidence label (explicit, strong, plausible, or devotional), and point to the words in both texts that support that grade. The reviewed connections attached to this lesson sit at different tiers, which is the point of the exercise: Romans 5:12-21 (Paul's own word for Adam as a "pattern" of the one to come, 5:14; Schreiner's BECNT commentary, cited here through a secondary paper, is reported to call the passage one of the hardest in Paul, so the label rests on Paul's making the connection, not on how the two correspond); 2 Corinthians 11:3 (Paul names the serpent and Eve directly; the Greek word for "cunning" differs from the Septuagint's adjective in Genesis 3:1, so the tie is narrative, not verbal); Revelation 12:9, 17 (shared figures and vocabulary without a quotation formula; Cheek reports Beale and McDonough reading 12:17 as an allusion to 3:15); Genesis 4:25 (a repeated word, with Collins and Alexander on one side and Walton and Abernethy-Goswell on the other, as Cheek reports); and Romans 8:19-22 (the ground-curse background is reported as a near-consensus reading through secondary reports of Moo's NICNT commentary, so its evidence is stronger than devotional but not first-hand here). Or give a reasoned `no_warrant_yet`: name a candidate you were drawn to and say what evidence is missing. A useful test case is Romans 16:20, often linked to 3:15; Cheek reports that Paul's Greek verb there differs from the Septuagint's rendering of the Genesis verb and that some scholars, Collins among them, see the wording as far from Genesis 3:15, so a `no_warrant_yet` on it, with the reason stated, is a legitimate outcome.
