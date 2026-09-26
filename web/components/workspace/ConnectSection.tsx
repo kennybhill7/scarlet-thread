@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 
 import Link from "next/link";
@@ -10,7 +10,16 @@ import { MotifRadarPanel } from "@/components/motif-radar";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { Field } from "@/components/ui/Field";
+import { PassagePicker, PassagePickerView } from "@/components/ui/PassagePicker";
+import type { PassageCanon } from "@/lib/bible/passageCanon";
+import {
+  usePassageCanon,
+  type PassageCanonState,
+  type PassageCanonStore,
+} from "@/lib/bible/passageCanonClient";
+import { EMPTY_PICKER_STATE } from "@/lib/bible/passagePickerState";
 import { formatCanonicalRangeKey } from "@/lib/bible/range";
+import type { CanonicalRangeV1 } from "@/lib/contracts/range-v1";
 import type { Thread } from "@/lib/contracts";
 import type { CuratedConnection, PublishedLessonMatch } from "@/lib/content/publishedLessons";
 import {
@@ -27,7 +36,7 @@ import {
   CONNECTION_RATIONALE_MIN_LENGTH,
   connectionReadiness,
   evidenceLabelOptionsFor,
-  parseTypedRange,
+  resetConnectionFormDraft,
   selectConnectionType,
   selectEvidenceLabel,
   type ConnectionSelectionDraft,
@@ -132,38 +141,32 @@ import { bodyStyle, noticeStyle } from "./styles";
  *     connection to one of their own real existing threads via
  *     `UserConnection.threadSlug`.
  *
- * RANGE ENTRY (acceptance criterion 1) — see `parseTypedRange`'s own header
- * comment in `lib/workspace/renderState.ts` for why this reuses the existing
- * canonical-key TEXT form (`book.chapter.verse`) rather than inventing a new
- * verse-picker widget: no reusable picker exists anywhere in this codebase
- * (grepped, not assumed), and this exact text form is already what
- * `ClaimComposer.tsx`'s own header shows a learner today.
+ * RANGE ENTRY (acceptance criterion 1; RANGEPICKER-002) — the learner CHOOSES
+ * the other passage (book, chapter, from verse, to chapter, to verse) with
+ * `components/ui/PassagePicker.tsx` (native selects, `allowCrossChapter` so
+ * Gen 1:1–2:3 works) instead of typing "book.chapter.verse" keys. The picker
+ * emits a `CanonicalRangeV1 | null` already bounded by the real canon, and that
+ * value feeds `connectionReadiness` / `buildUserConnectionDraft` unchanged, so
+ * the saved `UserConnection` has exactly the shape it had before. The canon
+ * (verse counts for all 66 books) is loaded lazily, inside this section, by
+ * `lib/bible/passageCanonClient.ts`; `ConnectRangeField` below renders the
+ * loading / error / ready states. The picker is uncontrolled, so a successful
+ * save bumps its `key` (see `resetConnectionFormDraft`) to blank it.
+ * `parseTypedRange` (renderState.ts) is no longer called from here.
  */
 
-const inputStyle: CSSProperties = {
-  fontFamily: "inherit",
-  fontSize: 13,
-  padding: "6px 8px",
-  borderRadius: 6,
-  border: "1px solid var(--shell-border)",
-  background: "var(--shell-bg)",
-  color: "var(--shell-text)",
-  width: "100%",
-};
-
-const inputLabelStyle: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 4,
-  fontSize: 12,
-  color: "var(--shell-muted-2)",
-  fontFamily: "var(--font-label)",
-};
-
-const rangeRowStyle: CSSProperties = {
-  display: "flex",
-  gap: 12,
+const rangeFieldStyle: CSSProperties = {
   marginBottom: 12,
+};
+
+// Reserved status line under the picker: same height whether it says
+// "Loading…" or nothing, so the ready state does not shift the form.
+const canonStatusStyle: CSSProperties = {
+  minHeight: 20,
+  margin: "6px 0 0",
+  fontSize: 12.5,
+  lineHeight: 1.4,
+  color: "var(--shell-muted-2)",
 };
 
 const fieldsetStyle: CSSProperties = {
@@ -464,6 +467,66 @@ export function UserThreadsPanel({ selected, onSelect, fetchImpl = fetch }: User
 }
 
 // ---------------------------------------------------------------------------
+// ConnectRangeField — the "other passage" picker and its canon-loading states.
+// HOOKLESS (like EvidenceLabelField): props in, markup out, so a test renders
+// every state directly. The canon is the one thing the picker cannot render
+// without; until it is `ready` the SAME picker markup is shown with an empty
+// canon and every select disabled (identical box, so nothing jumps when the
+// canon arrives), and the reserved status line below says why.
+// ---------------------------------------------------------------------------
+
+const NO_CANON: PassageCanon = [];
+const RANGE_LABEL = "Other passage";
+
+export interface ConnectRangeFieldProps {
+  canonState: PassageCanonState;
+  onRetry: () => void;
+  /** React `key` of the (uncontrolled) picker — bumped by a successful save to blank it. */
+  pickerKey: number;
+  disabled: boolean;
+  onChange: (range: CanonicalRangeV1 | null) => void;
+}
+
+export function ConnectRangeField({ canonState, onRetry, pickerKey, disabled, onChange }: ConnectRangeFieldProps) {
+  return (
+    <div data-field="toRange" data-canon-state={canonState.status} style={rangeFieldStyle}>
+      {canonState.status === "ready" ? (
+        <PassagePicker
+          allowCrossChapter
+          canon={canonState.canon}
+          disabled={disabled}
+          key={pickerKey}
+          label={RANGE_LABEL}
+          onChange={onChange}
+          surface="shell"
+        />
+      ) : (
+        <PassagePickerView
+          allowCrossChapter
+          canon={NO_CANON}
+          disabled
+          idPrefix="connect-to-range-pending"
+          label={RANGE_LABEL}
+          state={EMPTY_PICKER_STATE}
+          surface="shell"
+        />
+      )}
+      <div aria-live="polite" data-testid="connect-range-canon-status" style={canonStatusStyle}>
+        {canonState.status === "idle" || canonState.status === "loading" ? "Loading the Bible index…" : null}
+        {canonState.status === "error" ? (
+          <>
+            <span role="alert">{canonState.message}</span>{" "}
+            <Button data-testid="connect-range-retry" onClick={onRetry} type="button" variant="secondary">
+              Try again
+            </Button>
+          </>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // The stateful shell
 // ---------------------------------------------------------------------------
 
@@ -487,6 +550,8 @@ export interface ConnectSectionProps {
    * task — a real regression guard, proven in `tests/workspace-shell.test.ts`.
    */
   curatedLesson?: PublishedLessonMatch | null;
+  /** Test seam only: inject the passage-canon store (see `lib/bible/passageCanonClient.ts`). Omitted, the app-wide store loads the real corpus. */
+  canonStore?: PassageCanonStore;
 }
 
 export function ConnectSection({
@@ -496,13 +561,13 @@ export function ConnectSection({
   onSaved,
   fetchImpl = fetch,
   curatedLesson = null,
+  canonStore,
 }: ConnectSectionProps) {
-  const startId = useId();
-  const endId = useId();
+  const canon = usePassageCanon({ enabled: unlocked, store: canonStore });
 
   const [selection, setSelection] = useState<ConnectionSelectionDraft>(BLANK_CONNECTION_SELECTION);
-  const [toStart, setToStart] = useState("");
-  const [toEnd, setToEnd] = useState("");
+  const [toRange, setToRange] = useState<CanonicalRangeV1 | null>(null);
+  const [pickerKey, setPickerKey] = useState(0);
   const [rationale, setRationale] = useState("");
   const [threadSlug, setThreadSlug] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
@@ -525,7 +590,6 @@ export function ConnectSection({
     );
   }
 
-  const toRange = parseTypedRange(toStart, toEnd);
   const readiness = connectionReadiness({ toRange, selection, rationale });
   const curatedConnections = curatedLesson?.curatedConnections ?? [];
 
@@ -552,11 +616,12 @@ export function ConnectSection({
 
       setStatus("saved");
       setMessage("Saved to this device.");
-      setSelection(BLANK_CONNECTION_SELECTION);
-      setToStart("");
-      setToEnd("");
-      setRationale("");
-      setThreadSlug(null);
+      const blank = resetConnectionFormDraft(pickerKey);
+      setSelection(blank.selection);
+      setToRange(blank.toRange);
+      setPickerKey(blank.pickerKey);
+      setRationale(blank.rationale);
+      setThreadSlug(blank.threadSlug);
       onSaved({ kind: "connection", connection });
     } catch {
       setStatus("error");
@@ -618,38 +683,13 @@ export function ConnectSection({
           <span data-testid="connect-from-range">{formatCanonicalRangeKey(session.range)}</span>
         </header>
 
-        <div style={rangeRowStyle}>
-          <label htmlFor={startId} style={inputLabelStyle}>
-            Other passage — start (book.chapter.verse)
-            <input
-              disabled={status === "saving"}
-              id={startId}
-              data-field="toRangeStart"
-              onChange={(event) => setToStart(event.target.value)}
-              placeholder="e.g. 1.3.15"
-              style={inputStyle}
-              value={toStart}
-            />
-          </label>
-          <label htmlFor={endId} style={inputLabelStyle}>
-            Other passage — end (book.chapter.verse)
-            <input
-              disabled={status === "saving"}
-              id={endId}
-              data-field="toRangeEnd"
-              onChange={(event) => setToEnd(event.target.value)}
-              placeholder="e.g. 1.3.15"
-              style={inputStyle}
-              value={toEnd}
-            />
-          </label>
-        </div>
-        {(toStart.trim() || toEnd.trim()) && !toRange ? (
-          <p style={noticeStyle} data-testid="connect-range-invalid">
-            Not a valid range yet — both boundaries must be well-formed book.chapter.verse keys, in the same book,
-            start on or before end.
-          </p>
-        ) : null}
+        <ConnectRangeField
+          canonState={canon}
+          disabled={status === "saving"}
+          onChange={setToRange}
+          onRetry={canon.retry}
+          pickerKey={pickerKey}
+        />
 
         <fieldset style={fieldsetStyle}>
           <legend style={legendStyle}>What kind of connection is this?</legend>

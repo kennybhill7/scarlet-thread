@@ -346,6 +346,34 @@ export const BLANK_CONNECTION_SELECTION: ConnectionSelectionDraft = {
 };
 
 /**
+ * RANGEPICKER-002 — everything `ConnectSection`'s form holds between a save
+ * and the next connection. `toRange` is what `PassagePicker` last emitted
+ * (`CanonicalRangeV1 | null`); `pickerKey` is the React `key` on that picker.
+ * The picker is UNCONTROLLED (it only reads `value` at mount), so clearing
+ * `toRange` here would leave the old book/chapter/verses showing in the
+ * selects while the form believed no passage was chosen. Bumping `pickerKey`
+ * remounts it blank.
+ */
+export interface ConnectionFormDraft {
+  selection: ConnectionSelectionDraft;
+  toRange: CanonicalRangeV1 | null;
+  rationale: string;
+  threadSlug: string | null;
+  pickerKey: number;
+}
+
+/** The blank form state after a successful save: every field cleared, picker key advanced by one. */
+export function resetConnectionFormDraft(previousPickerKey: number): ConnectionFormDraft {
+  return {
+    selection: BLANK_CONNECTION_SELECTION,
+    toRange: null,
+    rationale: "",
+    threadSlug: null,
+    pickerKey: previousPickerKey + 1,
+  };
+}
+
+/**
  * The ONLY evidence label a `personal_resonance` connection may ever carry —
  * `db/schema.ts`'s `user_connections_personal_resonance_devotional_check`,
  * transcribed as a single-element array so the render side
@@ -411,6 +439,14 @@ export function selectEvidenceLabel(
 }
 
 /**
+ * SUPERSEDED IN THE UI (RANGEPICKER-002): `ConnectSection` no longer asks the
+ * learner to type keys — it mounts `components/ui/PassagePicker.tsx`, which
+ * emits a `CanonicalRangeV1` already validated against the real canon's chapter
+ * and verse counts. Kept exported (pure, still covered by
+ * tests/connect-pane.test.ts) because it remains the strict text-key ->
+ * `CanonicalRangeV1` parser for any future typed-key entry; nothing in the app
+ * calls it today. The historical rationale follows.
+ *
  * Parses the learner-typed "other passage" boundary keys into a
  * `CanonicalRangeV1`, or `null` for anything malformed. DESIGN DECISION
  * (acceptance criterion 1's "typing a reference" option, defended here since
@@ -458,9 +494,7 @@ export function connectionReadiness(params: {
 }): ConnectionReadiness {
   const missing: string[] = [];
   if (!params.toRange) {
-    missing.push(
-      "Enter the other passage's start and end as book.chapter.verse (e.g. 1.3.15), start on or before end, same book.",
-    );
+    missing.push("Choose the other passage: its book, chapter, and the verses it covers.");
   }
   if (!params.selection.type) missing.push("Choose a connection type.");
   if (!params.selection.evidenceLabel) missing.push("Choose an evidence label.");

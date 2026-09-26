@@ -557,12 +557,15 @@ test("VIEW: only design tokens / class names — no inline colours, and 44px tou
   assert.doesNotMatch(markup, /style=/);
   const css = readFileSync(webPath("components/ui/PassagePicker.module.css"), "utf8");
   assert.match(css, /\.select\s*{[^}]*min-height:\s*44px/);
-  assert.match(css, /\.select:focus-visible\s*{[^}]*outline:\s*2px solid var\(--gold\)/);
+  // RANGEPICKER-002: the ring colour is the per-surface --pp-focus role (gold on the shell, brass on the page);
+  // its contrast is proven in passage-picker-contrast.test.ts.
+  assert.match(css, /\.select:focus-visible\s*{[^}]*outline:\s*2px solid var\(--pp-focus\)/);
+  assert.match(css, /\.picker\[data-surface="shell"\]\s*{[^}]*--pp-focus:\s*var\(--gold\)/);
   assert.match(css, /\.select\[aria-invalid="true"\]/);
   assert.match(css, /\.select:disabled/);
   assert.doesNotMatch(css.replace(/\/\*[\s\S]*?\*\//g, ""), /#[0-9a-fA-F]{3,8}\b/, "no hardcoded hex colours — tokens only");
   const globals = readFileSync(webPath("app/globals.css"), "utf8");
-  for (const token of ["--gold", "--crimson", "--shell-crimson-text", "--page-card-alt", "--shell-surface", "--r-md"]) {
+  for (const token of ["--gold", "--brass", "--crimson", "--shell-crimson-text", "--shell-muted", "--shell-muted-2", "--shell-text", "--page-card-alt", "--page-ink-3", "--shell-surface", "--r-md"]) {
     assert.ok(globals.includes(`${token}:`), `${token} defined in globals.css`);
   }
 });
