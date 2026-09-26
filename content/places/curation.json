@@ -1,0 +1,137 @@
+{
+  "_about": "Hand-maintained overrides for tools/build-places.mjs. Key = the dataset's friendly_id. `tier`/`note`/`name`/`id` here win over the computed values; the override is recorded in places.jsonl (tierBasis \"curated\", computedTier = what the rules said). `identificationIndex` picks which dataset identification supplies the marker. `extraPassages` adds a reference the dataset verse list lacks (none needed today: the full dataset list already contains Luke 2:4 and Matthew 2:1, which the prototype had to add by hand). `exclude` drops an entry. The 21 entries below come from the GLOBE-001 prototype (design/globe-exploration/build-places.mjs) and are UNREVIEWED tier overrides: Ken approves or changes them (PRODUCT_EXPERIENCE_PLAN H row 7).",
+  "places": {
+    "Eden 1": {
+      "id": "eden",
+      "name": "Eden",
+      "tier": "unlocated",
+      "note": "No confident location: the top-scoring identification in the dataset is \"unknown location\", so no marker is placed on the globe."
+    },
+    "Ararat": {
+      "id": "ararat",
+      "name": "Ararat (region)",
+      "tier": "disputed",
+      "identificationIndex": 0,
+      "note": "Location disputed: \"Ararat\" names a region (Urartu); where the ark came to rest is not identified, so the marker is the region's representative point only."
+    },
+    "Babel": {
+      "id": "babel",
+      "name": "Babel / Shinar",
+      "tier": "uncertain",
+      "identificationIndex": 0,
+      "note": "Location uncertain: the dataset identifies Babel with Babylon, but scholars vary, and the exact site of the tower is not known."
+    },
+    "Ur 1": {
+      "id": "ur",
+      "name": "Ur",
+      "tier": "uncertain",
+      "identificationIndex": 0,
+      "note": "Location uncertain: Tell el-Muqayyar is the leading identification, but Urfa and other sites have also been proposed."
+    },
+    "Haran": {
+      "id": "haran",
+      "name": "Haran",
+      "tier": "likely",
+      "identificationIndex": 0
+    },
+    "Shechem": {
+      "id": "shechem",
+      "name": "Shechem",
+      "tier": "identified",
+      "identificationIndex": 0
+    },
+    "Bethel 1": {
+      "id": "bethel",
+      "name": "Bethel",
+      "tier": "likely",
+      "identificationIndex": 0
+    },
+    "Goshen 1": {
+      "id": "goshen",
+      "name": "Goshen (region)",
+      "tier": "uncertain",
+      "identificationIndex": 0,
+      "note": "Approximate: Goshen is a region in the eastern Nile delta; the marker is a representative point, not a boundary."
+    },
+    "Mount Sinai": {
+      "id": "sinai",
+      "name": "Mount Sinai",
+      "tier": "disputed",
+      "identificationIndex": 0,
+      "note": "Location disputed: the dataset lists 14 candidate mountains; the marker shows the highest-scoring one (Jebel Musa), which is a tradition, not a settled fact."
+    },
+    "Jericho 1": {
+      "id": "jericho",
+      "name": "Jericho",
+      "tier": "identified",
+      "identificationIndex": 0
+    },
+    "Jerusalem": {
+      "id": "jerusalem",
+      "name": "Jerusalem",
+      "tier": "identified",
+      "identificationIndex": 0
+    },
+    "Bethlehem 1": {
+      "id": "bethlehem",
+      "name": "Bethlehem",
+      "tier": "identified",
+      "identificationIndex": 0
+    },
+    "Nazareth": {
+      "id": "nazareth",
+      "name": "Nazareth",
+      "tier": "identified",
+      "identificationIndex": 0
+    },
+    "Capernaum": {
+      "id": "capernaum",
+      "name": "Capernaum",
+      "tier": "likely",
+      "identificationIndex": 0
+    },
+    "Damascus": {
+      "id": "damascus",
+      "name": "Damascus",
+      "tier": "identified",
+      "identificationIndex": 0
+    },
+    "Antioch 1": {
+      "id": "antioch",
+      "name": "Antioch (Syria)",
+      "tier": "identified",
+      "identificationIndex": 0
+    },
+    "Philippi": {
+      "id": "philippi",
+      "name": "Philippi",
+      "tier": "identified",
+      "identificationIndex": 0
+    },
+    "Corinth": {
+      "id": "corinth",
+      "name": "Corinth",
+      "tier": "identified",
+      "identificationIndex": 0
+    },
+    "Ephesus": {
+      "id": "ephesus",
+      "name": "Ephesus",
+      "tier": "identified",
+      "identificationIndex": 0
+    },
+    "Rome": {
+      "id": "rome",
+      "name": "Rome",
+      "tier": "identified",
+      "identificationIndex": 0
+    },
+    "Patmos": {
+      "id": "patmos",
+      "name": "Patmos",
+      "tier": "identified",
+      "identificationIndex": 0
+    }
+  },
+  "exclude": {}
+}
