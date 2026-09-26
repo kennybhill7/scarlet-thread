@@ -23,6 +23,8 @@ export interface PassageCanonBook {
   n: number;
   name: string;
   abbr: string;
+  /** Lets a picker group its book list; optional so synthetic canons stay small. */
+  testament?: "OT" | "NT";
   /** verseCounts[i] = number of verses in chapter i + 1. */
   verseCounts: readonly number[];
 }
@@ -46,6 +48,7 @@ export function buildPassageCanon(
       n: meta.n,
       name: meta.name,
       abbr: meta.abbr,
+      testament: meta.testament,
       verseCounts: data.c.map((verses) => verses.length),
     };
   });
