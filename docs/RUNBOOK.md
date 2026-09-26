@@ -54,11 +54,11 @@ Purpose: never again find production behind master (found 7 behind on 2026-09-17
 
 Content lives in `content/curriculum/<track>/<nn-slug>.md`. Pipeline and gates are in `docs/decisions/0005-content-release-pipeline.md`. Human runs this (section 7).
 
-1. `npm run content:validate` (read-only). Must pass. **As of 2026-09-25 it fails** on `genesis/03-the-fall.md` (missing `## Teach-Back Prompts`), so no new release can be built until that lesson is completed.
+1. `npm run content:validate` (read-only). Must pass. It also validates `content/connections/*.json` against the source registry.
 2. Confirm `web/.env.local` exists and its `DATABASE_URL` is the database you mean (it is production; there is no other).
 3. `npm run db:sync-sources`: upserts `content/source-registry.json` into Postgres `sources`. **Must come before the build:** `content:build` refuses if any lesson source id has no `sources` row. Idempotent.
 4. `npm run content:build`: validates, compiles, checksums (SHA-256) and inserts one `catalog_releases` row. Refuses unless every lesson has `status: published`. Prints the checksum and `Wrote catalog_releases row <id>`. Every run inserts a new row, even if nothing changed.
-5. **Connections:** there is **no** `sync-connections` script or `content/connections/` directory in the repo today (searched). Curated connections a lesson references by `connectionIds[]` must already exist as `graph_edges` rows; they are resolved at read time and an id with no row is skipped with a server-side warning, not an error. The authoring path for reviewed connection rows is planned work (CURATEDEDGES-002). Until then, do not tell yourself a release "includes" a connection you have not confirmed exists in `graph_edges`.
+5. **Connections (CURATEDEDGES-002):** reviewed connection rows live in `content/connections/*.json`. After migration 0013 is applied, run `npm run db:sync-connections` (upserts them into `graph_edges` with review_status=reviewed), **after** `db:sync-sources` (it pre-checks source ids) and **before** `content:build` (which refuses if a lesson's `connectionIds[]` has no reviewed row in the DB).
 6. `npm run db:import-graph-edges` is the one-time bulk OpenBible import, not part of a normal release.
 7. Verify (UNVERIFIED, manual): in `psql`, `select id, released_at, lesson_count, checksum from catalog_releases order by released_at desc limit 3;` The newest row is what the app serves. Then open the affected lesson in the app. Nothing at read time recomputes the checksum.
 
@@ -127,4 +127,4 @@ Agents may not:
 - Which URL is production and who can sign in today: UNVERIFIED (product plan, open questions).
 - No staging database. A disposable Neon branch is the only safe place to rehearse `release-migrate`.
 - No observability: a production error is invisible today (product plan section 1.7). Smoke checks above are manual.
-- No `sync-connections` step; CURATEDEDGES-002 is where reviewed connection rows would get one.
+- Migration 0013 (and later) must be applied to production by a human before the connection/place sync scripts can run; nothing applies migrations automatically.

@@ -29,10 +29,7 @@
 # test step to accept losing the header wire evidence, and know that the
 # auth-db-failure wire suite will still fail. UNVERIFIED on Linux runners.
 #
-# KNOWN RED ON DAY ONE: `npm run content:validate` currently FAILS on the
-# Genesis 3 lesson (missing "## Teach-Back Prompts", required since
-# LESSONSHAPE-001). That step is `continue-on-error: true` below so the rest
-# of the pipeline is meaningful. Delete that line once GEN3COMPLETE-001 lands.
+# (Genesis 3 now validates as of GEN3COMPLETE-001; content:validate is a blocking step.)
 #
 # SECRETS: the verify job needs NONE and must never be given a real
 # DATABASE_URL. Do not add one to it. Only the manual drift-check job uses a
@@ -80,12 +77,10 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      # Reads content/ from the repo root (one level above web/). Read-only:
-      # no database access. Expected to FAIL until the Genesis 3 lesson has a
-      # Teach-Back Prompts section (see header). Remove continue-on-error then.
+      # Reads content/ from the repo root (one level above web/), including
+      # content/connections/. Read-only: no database access.
       - name: Content validate
         run: npm run content:validate
-        continue-on-error: true
 
       # No env vars on purpose (see header): proves the build does not need
       # secrets. Do not add DATABASE_URL here.
