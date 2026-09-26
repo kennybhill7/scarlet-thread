@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-26T00:35:52.016Z",
+  "updatedAt": "2026-09-26T00:38:48.461Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -847,12 +847,12 @@
       "notes": "Wave 1 (plan task 2). Author the missing Genesis 3 sections (Literary Design, Practice Bridge Example, Teach-Back Prompts, plus Questions to Carry) and the 5 connection JSON rows per GENESIS_3_EXPANSION_RESEARCH.md, plus registry entries. Content files only; assertion line binding; content:validate must pass. Publishing/release build is Ken-gated."
     },
     "RELEASEOPS-001": {
-      "status": "pending",
-      "branch": null,
+      "status": "done",
+      "branch": "agent/RELEASEOPS-001-claude",
       "commitSha": null,
-      "attempts": 0,
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-09-25 (reduced scope: no .github edits). Drift-check script (read-only, 22 tests, 2 mutations), docs/RUNBOOK.md, ADRs 0002-0006, docs/ci/ci.yml.draft for Ken to install. Claude patched the runbook/CI draft after merge because CURATEDEDGES-002 made two statements stale. Human gates: install CI file, set Vercel root dir/ignored-build-step, create read-only DB role + secret, run the first drift check.",
       "notes": "Wave 1 (plan task 1), reduced scope because .github/ is off-limits to agents: migration drift-check script (read-only, prod migration count vs journal) with tests, docs/RUNBOOK.md, ADRs, and a DRAFT ci workflow at docs/ci/ for Ken to install. Never executes against a real DB."
     },
     "PICKERLIB-001": {
@@ -872,6 +872,42 @@
       "lastRunId": null,
       "lastEvidence": "Read-only audit delivered; see file. Key S1s: v2 study writes only sync when another study starts; artifact_revisions has no writer; conviction exclusion untested; IndexedDB not account-scoped.",
       "notes": "Wave 1 read-only audit: answer the six open questions in PRODUCT_EXPERIENCE_PLAN section G with file/line evidence, output design/OPEN_QUESTIONS_AUDIT_2026-09-25.md."
+    },
+    "LESSONRENDER-001": {
+      "status": "pending",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Wave 2, 2026-09-25 (plan task 4). Safe Markdown subset renderer, intro surfaced, Literary Design + Questions to Carry slots, learner-voice notices, screenshot proof. Ken approves copy."
+    },
+    "PLACES-001": {
+      "status": "pending",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Wave 2 (plan task 7). places/place_candidates/place_passages tables + migration 0014 (NOT applied to prod), content/places compiled from OpenBible geocoding CC BY 4.0, sync script (human-gated), placeIds frontmatter. Bundle format unchanged."
+    },
+    "RANGEPICKER-002": {
+      "status": "pending",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Wave 2 (plan task 5, integration half). PassagePicker replaces raw book.chapter.verse inputs in ConnectSection; client canon loader; contrast verified numerically."
+    },
+    "GEN3REVIEW-001": {
+      "status": "pending",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Wave 2 read-only review by Fable as seminary reviewer/citation auditor/pastor-teacher of the completed Genesis 3 lesson + connections. Output design/GEN3_REVIEW_2026-09-25.md. Gate for Ken approving publication."
     }
   }
 }
