@@ -19,7 +19,8 @@
     "db:sync-connections": "tsx --env-file=.env.local scripts/sync-connections.mts",
     "db:studio": "drizzle-kit studio",
     "content:validate": "tsx scripts/content/validate.ts",
-    "content:build": "tsx --env-file=.env.local scripts/content/build.ts"
+    "content:build": "tsx --env-file=.env.local scripts/content/build.ts",
+    "bible:canon": "tsx scripts/build-canon-counts.mts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.3",
