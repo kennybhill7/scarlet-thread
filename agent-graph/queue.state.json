@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-26T00:38:48.461Z",
+  "updatedAt": "2026-09-28T09:09:53.000Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -892,13 +892,13 @@
       "notes": "Wave 2 (plan task 7). places/place_candidates/place_passages tables + migration 0014 (NOT applied to prod), content/places compiled from OpenBible geocoding CC BY 4.0, sync script (human-gated), placeIds frontmatter. Bundle format unchanged."
     },
     "RANGEPICKER-002": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
+      "status": "done",
+      "branch": "master",
+      "commitSha": "5612eaca660dc56caa1d00e785c823111bcb3697",
       "attempts": 0,
       "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Wave 2 (plan task 5, integration half). PassagePicker replaces raw book.chapter.verse inputs in ConnectSection; client canon loader; contrast verified numerically."
+      "lastEvidence": "MERGED directly to master by Ken (interactive) on 2026-09-25 in 5612eac (merge of 33181e4 + 1b002d1), before this record was ever updated. CORRECTED 2026-09-28 by the cloud night-queue worker: this entry was stale at 'pending'/branch null/commitSha null even though origin/master's tip already carried the work three days earlier. Verified via git log origin/master (5612eac's parents are 33181e4 and 1b002d1; 1b002d1's own history contains the three RANGEPICKER-002 WIP commits) and git show --stat (web/components/ui/PassagePicker.tsx, PassagePicker.module.css, ConnectSection.tsx, lib/bible/passageCanonClient.ts, lib/workspace/renderState.ts, plus new test files connect-range-picker.test.ts, passage-canon-client.test.ts, passage-picker-contrast.test.ts). Fixed the record only (queue.state.json is the one path exception to protectedPaths) -- no code, tests, or other files touched; no task worked this run. This task also has no entry in agent-graph/tasks.json, so it was never in the cloud worker's binding scope regardless of status.",
+      "notes": "Wave 2 (plan task 5, integration half). PassagePicker replaces raw book.chapter.verse inputs in ConnectSection; client canon loader; contrast verified numerically. Bookkeeping-only correction -- work itself was already done directly on master by Ken; nothing new built this run."
     },
     "GEN3REVIEW-001": {
       "status": "pending",
