@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen2-order-1cor11",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.2.18",
+    "end": "1.2.23"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "46.11.8",
+    "end": "46.11.9"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "1 Corinthians 11:8-9 restates two specific narrated events without a quotation formula and without naming \"Genesis\": \"man did not come from woman, but woman from man\" tracks the taking of the side/rib from the man (2:21-23), and \"woman for man\" tracks God's own stated reason for forming her, a \"suitable helper\" for the man (2:18). Because the tie is a close, unmistakable paraphrase of a specific narrated sequence rather than a verbatim quotation introduced as one, this row is graded explicit_reference/strong rather than quotation/explicit. What doctrinal weight Paul's argument places on that sequence is a live, disputed question among named interpreters -- see this lesson's Positions block -- which this rationale does not adjudicate.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
