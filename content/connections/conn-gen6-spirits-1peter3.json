@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen6-spirits-1peter3",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.6.1",
+    "end": "1.6.8"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "60.3.19",
+    "end": "60.3.20"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "1 Peter 3:19-20's 'spirits in prison who disobeyed long ago... in the days of Noah' is read at least three different ways by named evangelical scholars: Christ preaching through Noah himself to Noah's living contemporaries (traced to Augustine and held by Wayne Grudem), Christ addressing the dead generally, or Christ proclaiming judgment to fallen angels tied to Genesis 6:1-4 and read through 1 Enoch (favored by Thomas Schreiner, who links it to Jude 1:6 and 2 Peter 2:4). Because which of these three readings is correct, and therefore whether the verse bears on Genesis 6:1-8's 'sons of God' content at all rather than only on Noah's own righteousness narrated just past this passage's boundary, is itself a long-disputed question, this connection is graded plausible rather than strong or explicit.",
+  "sourceId": "source-logos-witw-jesus-spirits-prison",
+  "viewpointId": null
+}
