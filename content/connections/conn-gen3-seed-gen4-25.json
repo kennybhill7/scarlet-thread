@@ -12,7 +12,7 @@
   },
   "type": "motif",
   "evidenceLabel": "strong",
-  "rationale": "The noun zera (\"seed\") appears in 3:15 and again at 4:25, where Eve names Seth \"another seed in place of Abel\" after Cain kills Abel; what is traced is a recurring word doing narrative work, which is why the type is motif and not covenant_development. Collins (Tyndale Bulletin 48.1, 1997) and Alexander (Tyndale Bulletin 48.2, 1997) argue on syntactic grounds for a singular seed and for the same pattern in other Genesis seed statements. Cheek reports that Walton and Abernethy-Goswell dispute this and read the pattern as collective, so the label is strong, not explicit: the case rests on named scholarship with named dissent, not on a text that names its own connection.",
-  "sourceId": "source-collins-syntactical-note-gen-3-15",
+  "rationale": "The noun zeraʿ (\"seed\") appears in 3:15 and again at 4:25, where Eve names Seth \"another seed in place of Abel\" (BSB); what is traced is a recurring word doing narrative work, which is why the type is motif and not covenant_development. Cheek (Themelios, 2023) reads 4:25 as Eve tracking the 3:15 seed but cites no scholar for or against that reading; the broader singular-vs-collective dispute (Collins and Alexander for a singular referent at 3:15, 22:17-18, and 24:60; Walton, Abernethy and Goswell against) is reported by Cheek for those verses, not for 4:25. The label is strong because the recurrence is verifiable and the reading is published, not because any text names the connection.",
+  "sourceId": "source-cheek-themelios-2023",
   "viewpointId": null
 }
