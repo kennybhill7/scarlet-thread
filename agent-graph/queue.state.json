@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-01T23:47:06.823Z",
+  "updatedAt": "2026-10-01T23:51:09.005Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1009,12 +1009,12 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 5 -- The genealogy from Adam to Noah."
     },
     "GEN-U07": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/GEN-U07-claude",
+      "commitSha": "dbd2bf0",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-10-01 (dbd2bf0) into design/mountain-journey and master, both pushed. content/curriculum/genesis/07-sons-of-god-and-the-nephilim.md (Genesis 6:1-8), status draft, stage 3 (resolved via the lens files machine-readable chapters field, not its title). 4 named positions kept genuinely separate (sons of God -- 3 readings; the Nephilim-origin grammar question; the 120-years dispute; the LORD griefs theological implications -- open theism vs accommodation). 3 new connections (2 Peter 2:4-5 strong, Jude 1:6-7 strong, 1 Peter 3:19-20 correctly downgraded to plausible), 16 new source-registry entries. FOUND AND FIXED A REAL STRUCTURAL DEFECT before merge: this worktree was created before GEN-U06 merged, so the agent authored its file as 06-sons-of-god-and-the-nephilim.md, colliding with GEN-U06s now-merged 06-the-generations-of-adam.md. Renamed to 07-... (commit 69df90f), reconfirmed clean validate. Independently re-verified: spot-checked all 8 verses of Genesis 6:1-8 plus Gen 8:21, 10:8-9, Job 1:6/2:1/38:7, Numbers 13:33, 1 Sam 15:11/15:29, 2 Peter 2:4-5, Jude 1:6-7, 1 Peter 3:19-20 against the real shipped corpus (exact matches including every ellipsis-compressed fragment and the corrected 120-years wording), grepped for banned phrases (zero hits), resolved all 17 source refs (zero missing), ran content:validate clean (13/13 lessons, 48 connections, 1259 places), ran the full test suite (same pre-existing pattern, unrelated), ran a real adversarial mutation (confirmed genuine validator failure, reverted). Merge conflict was again a formatting mismatch (pretty-printed vs compact), not a real content conflict -- resolved by JSON-diffing both sides (16 new ids, zero overlapping). Final registry: 209 entries, zero duplicate ids. This closes out wave 3 (4/4 lessons merged: MATT-U05, MATT-U04, GEN-U06, GEN-U07).",
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 6:1-8 -- Wickedness increases, the Nephilim, the LORD grieved."
     },
     "GEN-U08": {
