@@ -321,14 +321,22 @@ test("resolveStudySessionId: a save failure rejects rather than resolving to a s
   await assert.rejects(() => resolveStudySessionId("workspace-1", sampleRange(), deps));
 });
 
-test("resolveStudySessionId: a push failure rejects rather than resolving to a session id (offline write must not silently succeed)", async () => {
-  const { deps } = fakeDeps({
+test("STUDYOFFLINE-001: resolveStudySessionId resolves to the session id even when the push fails (offline must still let the learner in)", async () => {
+  // Reverses this file's own pre-STUDYOFFLINE-001 assertion ("a push failure
+  // rejects..."), deliberately: see StudyEntry.tsx's "WHY THE PUSH IS
+  // ATTEMPTED, BUT NO LONGER BLOCKS NAVIGATION ON FAILURE" header comment.
+  // The session must still have been saved locally — that part of the
+  // contract (durable before navigable) is unchanged.
+  const { deps, saved } = fakeDeps({
     pushChanges: async () => {
       throw new Error("network unreachable");
     },
   });
 
-  await assert.rejects(() => resolveStudySessionId("workspace-1", sampleRange(), deps));
+  const sessionId = await resolveStudySessionId("workspace-1", sampleRange(), deps);
+
+  assert.equal(sessionId, saved[0]?.id);
+  assert.equal(saved.length, 1, "the session must still be saved locally even though the push failed");
 });
 
 // ===========================================================================
@@ -358,11 +366,18 @@ test("beginStudyEntry: happy path -> created, with the session id resolveStudySe
 });
 
 // ===========================================================================
-// MUTATION-GUARD (acceptance criterion 6) — a save/push failure must NEVER
+// MUTATION-GUARD (acceptance criterion 6) — a SAVE failure must NEVER
 // produce a "created" result. This is the exact property this task's commit
 // mutation-proves by hand: break beginStudyEntry's catch branch so it
-// fabricates a "created" result instead, run this file, watch these two
-// NAMED tests fail, restore, watch them pass again.
+// fabricates a "created" result instead, run this file, watch this NAMED
+// test fail, restore, watch it pass again.
+//
+// STUDYOFFLINE-001 narrowed this guard from "a save OR push failure" to "a
+// save failure" — a push failure deliberately no longer blocks navigation
+// (see StudyEntry.tsx's own header comment); the test immediately below
+// ("a push failure must still resolve to 'created'...") pins the new,
+// intentional behavior this reversed, so it is not mistaken for a
+// regression later.
 // ===========================================================================
 
 test("MUTATION-GUARD: a save failure must resolve beginStudyEntry to status 'error', never 'created'", async () => {
@@ -381,8 +396,8 @@ test("MUTATION-GUARD: a save failure must resolve beginStudyEntry to status 'err
   );
 });
 
-test("MUTATION-GUARD: a push failure must resolve beginStudyEntry to status 'error', never 'created'", async () => {
-  const { deps } = fakeDeps({
+test("STUDYOFFLINE-001: a push failure must still resolve beginStudyEntry to status 'created' (offline start-a-study must work)", async () => {
+  const { deps, saved } = fakeDeps({
     pushChanges: async () => {
       throw new Error("network unreachable");
     },
@@ -390,11 +405,12 @@ test("MUTATION-GUARD: a push failure must resolve beginStudyEntry to status 'err
   const result = await beginStudyEntry("workspace-1", sampleRange(), deps);
   assert.equal(
     result.status,
-    "error",
-    `a push failure must never navigate: got status "${result.status}"${
-      "sessionId" in result ? ` (sessionId ${(result as { sessionId: string }).sessionId})` : ""
+    "created",
+    `a push failure (offline) must still navigate: got status "${result.status}"${
+      "message" in result ? ` (${(result as { message: string }).message})` : ""
     }`,
   );
+  assert.ok(result.status === "created" && result.sessionId === saved[0]?.id);
 });
 
 // ===========================================================================

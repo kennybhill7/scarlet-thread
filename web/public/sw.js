@@ -206,6 +206,226 @@ async function offlineChapterFallback(pathname) {
   });
 }
 
+/**
+ * STUDYOFFLINE-001 — the second offline-navigation rescue this worker
+ * performs, matching `offlineChapterFallback` above shape for shape: a
+ * /study/{sessionId} navigation that cannot reach the network at all (not
+ * merely "the server rendered a not-found" -- that case still reaches
+ * `app/(app)/study/[sessionId]/page.tsx` normally and is unaffected by this
+ * file) falls back to this device's own local study vault instead of a
+ * browser network-error page.
+ *
+ * WHY THIS IS NEEDED (acceptance criterion 2's "navigate to it immediately",
+ * and criterion 1's "study should be offline too", for the one case neither
+ * React nor the Next.js Server Component can reach at all): a client-side
+ * `router.push("/study/" + id)` while genuinely offline cannot complete as a
+ * soft (RSC) navigation -- its fetch throws a network error, and Next's own
+ * router reducer falls back to a full (MPA) document navigation on exactly
+ * that failure (confirmed against this repo's installed Next 16:
+ * `node_modules/next/dist/client/components/router-reducer/
+ * ppr-navigations.js`'s "network error ... Initiate an MPA navigation").
+ * That document request is a real `request.mode === "navigate"` fetch this
+ * worker already intercepts; `/study/*` pages are deliberately EXCLUDED from
+ * `CACHE_NAME` (see `isCacheableRequest`'s own header -- they carry
+ * per-user, per-workspace server-rendered content), so the exact-URL
+ * `caches.match(request)` lookup above always misses for them, and without
+ * this function the request fell all the way through to `Response.error()`
+ * -- a bare browser offline page, StudyEntry.tsx's own documented bug this
+ * task exists to fix.
+ *
+ * SCOPE: this renders a minimal, HONEST, READ-ONLY summary -- current step,
+ * and this session's own claims/applications already saved on this device --
+ * never the full interactive `WorkspaceShell` (reimplementing React's own
+ * accordion/composer UI in a bundler-free vanilla script is out of scope;
+ * see this task's final report for that disclosed limitation). It explicitly
+ * tells the learner curated lesson content could not be checked (criterion 3
+ * -- the same discipline `WorkspaceShell.tsx`'s own `curatedLessonStatus`
+ * prop applies when React IS running) rather than silently omitting it.
+ *
+ * SAFETY (IndexedDB schema -- read before changing this function): this
+ * worker never opens "bible-brain" with an EXPLICIT version number, and
+ * refuses to open it at all unless `indexedDB.databases()` already lists it.
+ * `lib/sync/store.ts`'s real `openDB("bible-brain", 5, { upgrade(db,
+ * oldVersion) { if (oldVersion < 1) ... } })` only creates its version-1
+ * object stores when `oldVersion` is genuinely 0 (the database never
+ * existed). A bare `indexedDB.open("bible-brain")` with no version, called
+ * from a context with no `onupgradeneeded` handler wired for the real
+ * schema, SILENTLY creates the database at version 1 with ZERO object
+ * stores the instant it does not already exist -- which would then make the
+ * real app's own next `openDB(..., 5, ...)` call see `oldVersion === 1` and
+ * SKIP recreating those stores entirely, a schema-corrupting bug this worker
+ * must never be able to trigger on a device that has never opened the real
+ * app. `indexedDB.databases()` is read-only enumeration and creates nothing,
+ * so checking it first is safe even when "bible-brain" has never existed.
+ */
+const STUDY_SESSION_PATH = /^\/study\/([^/]+)\/?$/;
+
+function parseStudySessionPath(pathname) {
+  const match = STUDY_SESSION_PATH.exec(pathname);
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+const EMPTY_LOCAL_STUDY_DATA = { supported: true, session: null, claims: [], applications: [] };
+const UNSUPPORTED_LOCAL_STUDY_DATA = { supported: false, session: null, claims: [], applications: [] };
+
+/** Raw IndexedDB read -- see this section's own header for why no version is ever passed to `indexedDB.open`. */
+async function readLocalStudySession(sessionId) {
+  if (typeof indexedDB === "undefined" || typeof indexedDB.databases !== "function") {
+    return UNSUPPORTED_LOCAL_STUDY_DATA;
+  }
+
+  let exists = false;
+  try {
+    const databases = await indexedDB.databases();
+    exists = databases.some((entry) => entry && entry.name === "bible-brain");
+  } catch {
+    return UNSUPPORTED_LOCAL_STUDY_DATA;
+  }
+  if (!exists) return EMPTY_LOCAL_STUDY_DATA;
+
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (value) => {
+      if (settled) return;
+      settled = true;
+      resolve(value);
+    };
+
+    let openRequest;
+    try {
+      openRequest = indexedDB.open("bible-brain");
+    } catch {
+      finish(UNSUPPORTED_LOCAL_STUDY_DATA);
+      return;
+    }
+
+    openRequest.onerror = () => finish(EMPTY_LOCAL_STUDY_DATA);
+    openRequest.onupgradeneeded = (event) => {
+      // Must never happen given the existence check above (no version was
+      // requested against an already-created database) -- if it somehow
+      // does, abort rather than let this worker perform a schema upgrade no
+      // application code reviewed.
+      try {
+        event.target.transaction.abort();
+      } catch {
+        // Best-effort only -- either way this resolves to "unsupported" below.
+      }
+    };
+    openRequest.onsuccess = () => {
+      const db = openRequest.result;
+      try {
+        const storeNames = ["session", "claim", "application"].filter((name) =>
+          db.objectStoreNames.contains(name),
+        );
+        if (!storeNames.includes("session")) {
+          db.close();
+          finish(EMPTY_LOCAL_STUDY_DATA);
+          return;
+        }
+        const transaction = db.transaction(storeNames, "readonly");
+        const result = { supported: true, session: null, claims: [], applications: [] };
+
+        transaction.objectStore("session").get(sessionId).onsuccess = (event) => {
+          result.session = event.target.result || null;
+        };
+        if (storeNames.includes("claim")) {
+          transaction.objectStore("claim").getAll().onsuccess = (event) => {
+            result.claims = (event.target.result || []).filter(
+              (row) => row && row.sessionId === sessionId && !row.deletedAt,
+            );
+          };
+        }
+        if (storeNames.includes("application")) {
+          transaction.objectStore("application").getAll().onsuccess = (event) => {
+            result.applications = (event.target.result || []).filter(
+              (row) => row && row.sessionId === sessionId && !row.deletedAt,
+            );
+          };
+        }
+        transaction.oncomplete = () => {
+          db.close();
+          finish(result);
+        };
+        transaction.onerror = () => {
+          db.close();
+          finish(EMPTY_LOCAL_STUDY_DATA);
+        };
+      } catch {
+        try {
+          db.close();
+        } catch {
+          // Already closed/unusable -- nothing further to do.
+        }
+        finish(EMPTY_LOCAL_STUDY_DATA);
+      }
+    };
+  });
+}
+
+function offlineStudyUnavailableDocument(reason) {
+  return offlinePageShell({
+    title: "Offline — study session unavailable",
+    bodyHtml: `
+<div class="offline-banner">${escapeHtml(reason)}</div>
+<h1>Study session unavailable offline</h1>
+<p>Connect to the internet once to open this study session, or start a new one from a chapter you've already read.</p>
+<nav><a href="/">‹ Back home</a></nav>`,
+  });
+}
+
+function offlineStudySessionDocument(data) {
+  if (!data.session || data.session.deletedAt) {
+    return offlineStudyUnavailableDocument(
+      "You're offline, and this study session isn't saved on this device yet.",
+    );
+  }
+
+  const claimsHtml = data.claims.length
+    ? data.claims
+        .map((claim) => `<li><strong>${escapeHtml(claim.kind || "claim")}:</strong> ${escapeHtml(claim.body || "")}</li>`)
+        .join("\n")
+    : "<li>No claims recorded on this device yet.</li>";
+  const applicationsHtml = data.applications.length
+    ? data.applications
+        .map(
+          (application) =>
+            `<li><strong>${escapeHtml(application.status || "draft")}:</strong> ${escapeHtml(
+              application.faithfulResponse || application.situation || "",
+            )}</li>`,
+        )
+        .join("\n")
+    : "<li>No applications recorded on this device yet.</li>";
+
+  return offlinePageShell({
+    title: "Study — offline",
+    bodyHtml: `
+<div class="offline-banner">You're offline. Showing what's saved on this device for this study session, not the full interactive workspace. Curated lesson content (Context, Positions, Literary Design, Practice Bridge, Teach-Back, connections) could not be checked. Reconnect and reopen this page for the full study workspace.</div>
+<h1>Study session (offline view)</h1>
+<p>Current step: ${escapeHtml(data.session.currentStep || "unknown")}</p>
+<h2>Claims</h2>
+<ul>${claimsHtml}</ul>
+<h2>Applications</h2>
+<ul>${applicationsHtml}</ul>
+<nav><a href="/">‹ Back home</a></nav>`,
+  });
+}
+
+/** Returns null for any path that isn't a /study/{sessionId} route, so the caller falls through to the untouched Response.error() behavior. */
+async function offlineStudySessionFallback(pathname) {
+  const sessionId = parseStudySessionPath(pathname);
+  if (!sessionId) return null;
+
+  const data = await readLocalStudySession(sessionId);
+  const html = data.supported
+    ? offlineStudySessionDocument(data)
+    : offlineStudyUnavailableDocument("You're offline, and this device can't check its saved study data right now.");
+
+  return new Response(html, {
+    status: 200,
+    headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" },
+  });
+}
+
 self.addEventListener("install", () => {
   self.skipWaiting();
 });
@@ -339,7 +559,9 @@ self.addEventListener("fetch", (event) => {
           // rescue, and only /read/{book}/{chapter} paths get anything back
           // from it (anything else resolves to null below).
           if (request.mode === "navigate") {
-            return offlineChapterFallback(url.pathname).then((fallback) => fallback ?? Response.error());
+            return offlineChapterFallback(url.pathname)
+              .then((fallback) => fallback ?? offlineStudySessionFallback(url.pathname))
+              .then((fallback) => fallback ?? Response.error());
           }
           return Response.error();
         }),

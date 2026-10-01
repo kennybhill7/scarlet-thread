@@ -44,13 +44,68 @@ import styles from "./ChapterReader.module.css";
  * of V2COMPOSER-001's identically-shaped `buildStudySessionDraft` rather
  * than an import of it.
  *
- * WHY THE PUSH IS NOT OPTIONAL: `/study/[sessionId]/page.tsx` (readOnlyPath)
- * is a Server Component that reads the session straight out of Postgres via
- * `getSessionV2` — it has no knowledge of this device's IndexedDB. A session
- * that exists only locally 404s the instant this file would navigate to it.
- * `resolveStudySessionId` therefore awaits `syncNowV2()` and lets it throw
- * before ever returning a navigable id — see `beginStudyEntry`'s catch below,
- * and acceptance criterion 6's mutation proof in tests/study-entry.test.ts.
+ * WHY THE PUSH IS ATTEMPTED, BUT NO LONGER BLOCKS NAVIGATION ON FAILURE
+ * (STUDYOFFLINE-001, revising STUDYENTRY-001's original "not optional"
+ * stance): `/study/[sessionId]/page.tsx` (readOnlyPath) is a Server Component
+ * that reads the session straight out of Postgres — it has no knowledge of
+ * this device's IndexedDB on its own. Before this task, that meant a session
+ * that exists only locally 404d the instant this file would navigate to it,
+ * so `resolveStudySessionId` awaited `syncNowV2()` and let it throw before
+ * ever returning a navigable id — the ENTIRE "start a study" affordance
+ * simply did not work offline (`beginStudyEntry` always resolved to
+ * `{status:"error"}` the moment `pushChanges()` rejected, i.e. every time
+ * there was no network). That was the literal bug STUDYOFFLINE-001 exists to
+ * fix: "studying it is not [offline]" even though reading already is.
+ *
+ * `resolveStudySessionId` below still AWAITS `deps.pushChanges()` — a
+ * learner who IS online sees IDENTICAL behavior to before this task: the
+ * push completes (or genuinely throws for a reason that is not "offline",
+ * e.g. a real rejection) before this function returns, so by the time
+ * `router.push` navigates, the server already knows about the session and
+ * `page.tsx`'s ordinary server-rendered path renders it exactly as it always
+ * has. What changed is ONLY the failure branch: a push failure (offline — no
+ * network to even attempt the request, the overwhelmingly common real-world
+ * case; `fetch` rejects immediately rather than hanging) is now SWALLOWED
+ * here rather than re-thrown, and this function still returns the session
+ * id. Three things make that safe to navigate to, none of them invented by
+ * this function:
+ *
+ *   1. `deps.saveSession` above already committed the session to this
+ *      device's own IndexedDB vault in one transaction with its outbox op
+ *      (`saveLocalStudySession`, `lib/sync/store.ts`) — the session is real
+ *      and durable on this device regardless of whether the push above
+ *      succeeded.
+ *   2. `/study/[sessionId]/page.tsx` now mounts `StudyPageClient`
+ *      (`app/(app)/study/[sessionId]/StudyPageClient.tsx`), which hydrates
+ *      from this exact IndexedDB vault and reconciles it with whatever the
+ *      server rendered — but ONLY reachable once the server itself is
+ *      reachable. For a genuinely offline navigation, Next's client router
+ *      falls back to a full (MPA) document navigation when its RSC fetch
+ *      fails over the network (confirmed against this repo's installed Next
+ *      16: `router-reducer/ppr-navigations.js`'s own "network error ...
+ *      Initiate an MPA navigation" handling) — which `public/sw.js`'s fetch
+ *      handler intercepts and answers from this same local vault directly
+ *      (see that file's `offlineStudySessionFallback`), without ever
+ *      reaching (or 404ing against) the Postgres-backed Server Component at
+ *      all.
+ *   3. `lib/sync/client.ts`'s background flush controller
+ *      (`createBackgroundSyncV2Controller`, SYNCFLUSH-001, already mounted
+ *      app-wide by this app's one sync-mount component under
+ *      `components/sync/`) is debounced off this exact local write
+ *      (`subscribeLocalV2Writes`) and keeps retrying
+ *      on the normal online/visibility/interval cadence — "the server must
+ *      eventually learn about this session without the learner doing
+ *      anything extra" is that controller's job, not this function's; this
+ *      function's own best-effort push above is purely an optimization for
+ *      the common online case (so the FIRST load of `/study/[id]` already
+ *      has it), never the only path it reaches the server through.
+ *
+ * `deps.saveSession` failing is a DIFFERENT, still-blocking case: if this
+ * device cannot even write the session locally, there is nothing durable to
+ * navigate to at all, so that still rejects and still surfaces as
+ * `{status:"error"}` via `beginStudyEntry`'s catch below — see acceptance
+ * criterion 6's mutation proof in tests/study-entry.test.ts, which this task
+ * updated (not weakened) to match the revised push-failure contract.
  *
  * ---------------------------------------------------------------------------
  * DEDUP RULE (acceptance criterion 3) — tapping "start a study" twice for the
@@ -259,6 +314,8 @@ export async function resolveStudySessionId(
 
   if (!existing) {
     const session = buildNewStudySession({ id: sessionId, workspaceId, range, now: deps.now() });
+    // A local-save failure is NOT swallowed -- there is nothing durable to
+    // navigate to without it. Let it propagate to beginStudyEntry's catch.
     await deps.saveSession(session);
   }
 
@@ -266,10 +323,24 @@ export async function resolveStudySessionId(
   // local session can itself still be sitting unsynced in this device's
   // outbox (e.g. ClaimComposer's own submit() — components/study/
   // ClaimComposer.tsx — writes locally through this same
-  // saveLocalStudySession but never calls syncNowV2 itself). Only after
-  // this resolves is the row guaranteed live in Postgres, which
-  // /study/[sessionId] requires.
-  await deps.pushChanges();
+  // saveLocalStudySession but never calls syncNowV2 itself).
+  //
+  // STUDYOFFLINE-001: a push FAILURE is deliberately swallowed here rather
+  // than left to propagate — see this function's own header comment ("WHY
+  // THE PUSH IS ATTEMPTED, BUT NO LONGER BLOCKS NAVIGATION ON FAILURE") for
+  // the full reasoning and what makes navigating anyway safe. A learner who
+  // IS online still waits for this to resolve (or to genuinely throw for a
+  // non-offline reason) before `beginStudyEntry` returns, exactly as before
+  // this task.
+  try {
+    await deps.pushChanges();
+  } catch {
+    // Swallowed deliberately. The session is already durable in this
+    // device's own vault (deps.saveSession above); the background sync
+    // controller (lib/sync/client.ts, already mounted app-wide) and, for a
+    // fully offline navigation to this id, public/sw.js's own local-vault
+    // read are what carry it the rest of the way.
+  }
 
   return sessionId;
 }
@@ -283,9 +354,17 @@ export type StudyEntryResult =
  * The exact function the control's click handler calls — never a
  * reimplementation of this logic inline in the component (same discipline
  * as ChapterReader.tsx's own `nextVerseSelection`/`resolveAlignment`). Never
- * throws: every failure resolves to `{ status: "error" }`, and that is the
- * ONLY outcome a save/push failure may produce — see the header comment and
- * tests/study-entry.test.ts's "MUTATION-GUARD" test.
+ * throws: every failure resolves to `{ status: "error" }`.
+ *
+ * STUDYOFFLINE-001: that failure set narrowed from "a save OR push failure"
+ * to "a save failure" (a push failure is now swallowed inside
+ * `resolveStudySessionId` and still resolves to `{status:"created"}` — see
+ * that function's own header comment). The MUTATION-GUARD property this
+ * still protects is unchanged in kind, just narrower in scope: a LOCAL SAVE
+ * failure (nothing durable was ever written) must never produce `"created"`
+ * — see tests/study-entry.test.ts's "MUTATION-GUARD" test for the save path,
+ * and its "a push failure now resolves to created" test for the behavior
+ * this task intentionally reversed.
  */
 export async function beginStudyEntry(
   workspaceId: string | null,

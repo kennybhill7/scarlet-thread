@@ -1,6 +1,5 @@
 import { notFound, redirect } from "next/navigation";
 
-import { WorkspaceShell } from "@/components/workspace";
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
 import { listThreads } from "@/lib/db/threads";
@@ -9,6 +8,7 @@ import type { Application, StudyClaim, StudySession } from "@/lib/contracts/stud
 import { getSessionV2, listApplicationsV2, listClaimsV2 } from "@/app/api/v2/_lib/queries";
 import { findPublishedLessonForRange, type PublishedLessonMatch } from "@/lib/content/publishedLessons";
 
+import { StudyPageClient } from "./StudyPageClient";
 import styles from "./study.module.css";
 
 /**
@@ -314,9 +314,16 @@ export default async function StudySessionPage({ params }: StudyPageProps) {
   // than an empty composer pointed at nothing (acceptance criterion 3).
   if (resolution.status === "not-found") notFound();
 
+  // STUDYOFFLINE-001: this used to mount `WorkspaceShell` directly. It now
+  // mounts `StudyPageClient` (same directory, owned) instead, which hydrates
+  // this exact server-resolved data from this device's own IndexedDB vault
+  // and reconciles the two before rendering the real `WorkspaceShell` — see
+  // that file's own header comment for the full architecture decision and
+  // why everything ABOVE this line (the auth/workspace/not-found resolution)
+  // is deliberately untouched by this task.
   return (
     <div className={styles.wrap}>
-      <WorkspaceShell
+      <StudyPageClient
         workspaceId={resolution.workspaceId}
         session={resolution.session}
         claims={resolution.claims}
