@@ -213,16 +213,27 @@ test("RENDER: singular counts are not pluralized (1 observation, 0 open question
 // ===========================================================================
 // MUTATION PROOF — one real adversarial mutation, caught, then reverted.
 //
-// Mutating buildContinueCardViewModel's openQuestionCount to count
-// "observation" claims instead of "question" claims (a real, plausible
-// copy/paste bug: both lines are one `.kind === "..."` string apart) made
-// "buildContinueCardViewModel formats the passage..." above fail:
+// Mutated `openQuestionCount`'s filter in ContinueCard.tsx from
+// `claim.kind === "question"` to `claim.kind === "observation"` (a real,
+// plausible copy/paste bug: the line above it is identical but for that one
+// string). Ran `npx tsx --test tests/continue-card.test.ts` against the
+// mutated file; two tests failed with real, honest diffs:
 //
-//   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-//   1 !== 2
-//   (view.openQuestionCount, expected 1, got 2 -- it silently counted the
-//   two "observation" claims instead of the one real "question" claim)
+//   buildContinueCardViewModel formats the passage, finds the matching
+//   stage, and counts step/claims
+//     AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+//     2 !== 1
+//     (observationCount's own assertion now caught two observation claims
+//     double-counted as if they were also open questions)
 //
-// Reverted immediately after confirming the failure; not committed. See this
-// task's report for the full before/after transcript.
+//   buildContinueCardViewModel excludes soft-deleted claims from both counts
+//     AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+//     1 !== 0
+//     (the fixture's one live "observation" claim leaked into
+//     openQuestionCount, which should have been 0)
+//
+// The other 6 tests in this file stayed green (they don't exercise a
+// fixture with both kinds present in a way this mutation would move).
+// Reverted immediately after confirming the failure; the fix was never
+// committed in its broken state.
 // ===========================================================================
