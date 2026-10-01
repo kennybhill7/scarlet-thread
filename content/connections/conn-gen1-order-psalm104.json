@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen1-order-psalm104",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.1.1",
+    "end": "1.1.31"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "19.104.1",
+    "end": "19.104.30"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Psalm 104 retells creation in roughly the same order Genesis 1 narrates it -- light and the heavens (104:2), the waters bounded and the dry land fixed (104:5-9), vegetation and provision for creatures (104:10-18), the sun and moon marking time and night (104:19-23), and the sea and its creatures (104:25-26) -- without quoting Genesis or naming it, which is why the type is parallel rather than quotation or explicit reference. Derek Kidner and Franz Delitzsch are each reported, through a secondary account of Richard M. Davidson's survey (not independently verified against Davidson's, Kidner's, or Delitzsch's own text here), as holding that the psalm's structure is modeled fairly closely, though not exactly, on Genesis 1's sequence. The label is strong rather than explicit because the correspondence is one of order and theme, not of shared wording the way Hebrews 4:4 quotes Genesis 2:2; it is strong rather than plausible because the reading is reported as well-established among named Psalms scholars, even though this lesson could not verify their own words directly.",
+  "sourceId": "source-davidson-grisda-psalm-104",
+  "viewpointId": null
+}

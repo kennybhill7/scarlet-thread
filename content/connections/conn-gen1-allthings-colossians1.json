@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen1-allthings-colossians1",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.1.1",
+    "end": "1.1.1"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "51.1.16",
+    "end": "51.1.17"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "Colossians 1:16 (BSB) -- \"For in Him all things were created, things in heaven and on earth, visible and invisible\" -- echoes Genesis 1:1's merism \"the heavens and the earth,\" a figure of speech using two opposite terms to name the whole created order, without naming Genesis or quoting it directly, which is why the type is allusion. One source read for this lesson (a collaborative project commentary, not a peer-reviewed academic one) states plainly that \"the Colossian letter assumes that the reader is familiar with the opening lines of the first book of the Bible\"; because that claim has not been checked against a peer-reviewed commentary such as Moo's or O'Brien's, the label here is plausible rather than strong. Christ, not a general statement about creation, is Paul's subject; the connection is to Genesis 1's creation account as the backdrop Paul's language assumes, not a claim this lesson makes about which of this lesson's four Positions readings of \"the days\" Paul held.",
+  "sourceId": "source-heatley-theologyofwork-colossians",
+  "viewpointId": null
+}
