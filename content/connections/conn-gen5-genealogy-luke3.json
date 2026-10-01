@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen5-genealogy-luke3",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.5.1",
+    "end": "1.5.32"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.3.36",
+    "end": "42.3.38"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Every one of this chapter's ten named generations (Adam, Seth, Enosh, Kenan, Mahalalel, Jared, Enoch, Methuselah, Lamech, Noah) reappears by name in Luke's genealogy at 3:36b-38, in reverse order, naming the identical father-son relationships this chapter states -- a complete, word-for-word correspondence checkable directly against the shipped BSB text of both passages. The type is parallel rather than quotation because Luke supplies no citation formula and never names Genesis as his source; it is not an allusion because the correspondence is total rather than a matter of shared vocabulary or imagery. One caution worth noting for a reader comparing the two lists directly: Luke 3:36 also names a different \"Cainan,\" son of Arphaxad, immediately before this stretch -- a figure from the post-flood genealogy of Genesis 10-11 (present in the Septuagint but not the Masoretic Text), not to be confused with the Kenan of this chapter (5:9-14), who appears two names later at 3:37. The label is strong rather than explicit because, although the names and relationships match completely, Luke's own text gives no indication that it is drawing specifically on Genesis 5 as opposed to a shared genealogical tradition more generally.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen5-enoch-hebrews11",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.5.21",
+    "end": "1.5.24"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "58.11.5",
+    "end": "58.11.5"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Hebrews 11:5 names Enoch directly and supplies a specific reason for his fate -- \"by faith\" -- that this chapter's own account (5:21-24) does not state in those words; this chapter records only that Enoch \"walked with God\" and that God \"had taken him away,\" without attributing the outcome to faith. Following the convention this curriculum's Genesis 3 and 4 lessons already use, a naming of the person plus a stated reason the source text does not itself supply is graded explicit_reference rather than quotation, even where wording overlaps. One further textual observation worth registering here: Hebrews 11:5's clause \"He could not be found, because God had taken him away\" (BSB) reproduces the Septuagint's own rendering of Genesis 5:24 (\"οὐχ ἡυρίσκετο... μετέθηκεν αὐτὸν ὁ θεός\") almost word for word, rather than paraphrasing the Hebrew wording this app's own BSB renders as \"he was no more, because God had taken him away\" -- a real, checkable difference between the Hebrew text this app ships and the Greek translation the New Testament author is working from, reported here as a textual observation rather than a claim about which wording is correct. No explicit citation formula (such as \"as it is written\") accompanies the clause in Hebrews, which is why this connection is graded explicit_reference and not quotation.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

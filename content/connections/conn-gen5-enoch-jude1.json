@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen5-enoch-jude1",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.5.1",
+    "end": "1.5.24"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "65.1.14",
+    "end": "65.1.15"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Jude 1:14 names \"Enoch, the seventh from Adam\" directly and ties him to a genealogical count checkable against this chapter's own list (Adam=1, Seth=2, Enosh=3, Kenan=4, Mahalalel=5, Jared=6, Enoch=7), matching the same structural position this lesson's Literary Design section documents from Richard S. Hess's reading of Genesis 5. The specific phrase \"the seventh from Adam,\" however, is not this chapter's own wording -- Genesis never numbers Enoch's generation in these terms -- and the prophecy Jude goes on to quote (\"Behold, the Lord is coming with myriads of His holy ones...\") is drawn from 1 Enoch 1:9, a non-canonical Jewish text, not from Genesis. The type is explicit_reference because Jude names the person directly and states a specific, checkable datum about him; it is not graded quotation because the material Jude quotes verbatim is 1 Enoch's wording, not this chapter's. The label is explicit because the naming and the genealogical datum are both stated outright, even though part of what is stated (the \"seventh from Adam\" phrasing itself) is drawn from a source outside Genesis rather than from this chapter's own words.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
