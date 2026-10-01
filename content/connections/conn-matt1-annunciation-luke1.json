@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt1-annunciation-luke1",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.1.18",
+    "end": "40.1.25"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.1.26",
+    "end": "42.1.38"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Both passages narrate an angel announcing a virginal conception of Jesus by the Holy Spirit, to the two people closest to the event, with one instruction worded identically in English translation: \"you are to give Him the name Jesus\" (Matthew 1:21, BSB) and \"you are to give Him the name Jesus\" (Luke 1:31, BSB). The label is \"strong\" rather than \"explicit\" because neither text cites, names, or quotes the other -- the two accounts differ in who receives the message (Joseph vs. Mary), setting, and most of their content (Luke includes the Davidic-throne promise and an extended dialogue; Matthew anchors in the Isaiah 7:14 formula quotation), so the connection rests on the shared event and the matching wording, not on either Gospel pointing to the other.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
