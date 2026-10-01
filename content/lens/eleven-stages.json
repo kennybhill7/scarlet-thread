@@ -1,0 +1,123 @@
+[
+  {
+    "slug": "acts-jude-the-church",
+    "title": "Acts – Jude — The 12 Disciples, God's Holy People",
+    "stage": 7,
+    "side": "descent",
+    "mirror": "gen-12-malachi-israel",
+    "chapters": [
+      "44.1"
+    ],
+    "summary": "Matches Gen 12–Malachi — Israel."
+  },
+  {
+    "slug": "gen-01-02-creation",
+    "title": "Genesis 1–2 — God and Righteous People in Paradise",
+    "stage": 1,
+    "side": "ascent",
+    "mirror": "rev-20-22-paradise-restored",
+    "chapters": [
+      "1.1"
+    ],
+    "summary": "This is the top of the left side. Its match at the bottom right is Rev 20-22 — Paradise Restored.\nRead them side by side before you go further."
+  },
+  {
+    "slug": "gen-03-05-sin-enters",
+    "title": "Genesis 3–5 — Satan and Sin Enter",
+    "stage": 2,
+    "side": "ascent",
+    "mirror": "rev-20-satan-cast-out",
+    "chapters": [
+      "1.3"
+    ],
+    "summary": "Matches Rev 20 — Satan Cast Out. What enters here is removed there, by name."
+  },
+  {
+    "slug": "gen-06-09-the-flood",
+    "title": "Genesis 6–9 — The World Judged and Destroyed",
+    "stage": 3,
+    "side": "ascent",
+    "mirror": "rev-06-19-the-world-judged",
+    "chapters": [
+      "1.6"
+    ],
+    "summary": "Matches Rev 06-19 — The World Judged. Same verdict, wider scope, final."
+  },
+  {
+    "slug": "gen-10-11-babel",
+    "title": "Genesis 10–11 — One World Government",
+    "stage": 4,
+    "side": "ascent",
+    "mirror": "rev-01-18-babylon",
+    "chapters": [
+      "1.10"
+    ],
+    "summary": "Matches Rev 01-18 — Babylon. Babel is the seed; Babylon the Great is the full-grown tree.\nNote that at Pentecost (Acts–Jude — The Church) the language curse is temporarily reversed."
+  },
+  {
+    "slug": "gen-12-malachi-israel",
+    "title": "Genesis 12 – Malachi — The 12 Tribes, God's Holy People",
+    "stage": 5,
+    "side": "ascent",
+    "mirror": "acts-jude-the-church",
+    "chapters": [
+      "1.12"
+    ],
+    "summary": "Matches Acts–Jude — The Church. Twelve tribes, then twelve disciples. Same office, new covenant."
+  },
+  {
+    "slug": "gospels-jesus-christ",
+    "title": "The Gospels — Jesus Christ (God)",
+    "stage": 6,
+    "side": "peak",
+    "mirror": null,
+    "chapters": [
+      "40.1"
+    ],
+    "summary": "Everything on the left side climbs toward Him and everything on the right side descends from Him.\nHe is not the middle of the story chronologically. He is the middle of it structurally."
+  },
+  {
+    "slug": "rev-01-18-babylon",
+    "title": "Revelation 1–18 — One World Government",
+    "stage": 8,
+    "side": "descent",
+    "mirror": "gen-10-11-babel",
+    "chapters": [
+      "66.13"
+    ],
+    "summary": "Matches Gen 10-11 — Babel. What God scattered at Babel gathers again here, and is destroyed\nrather than merely dispersed."
+  },
+  {
+    "slug": "rev-06-19-the-world-judged",
+    "title": "Revelation 6–19 — The World Judged and Destroyed",
+    "stage": 9,
+    "side": "descent",
+    "mirror": "gen-06-09-the-flood",
+    "chapters": [
+      "66.6"
+    ],
+    "summary": "Matches Gen 06-09 — The Flood."
+  },
+  {
+    "slug": "rev-20-satan-cast-out",
+    "title": "Revelation 20 — Satan and Sin Exit",
+    "stage": 10,
+    "side": "descent",
+    "mirror": "gen-03-05-sin-enters",
+    "chapters": [
+      "66.20"
+    ],
+    "summary": "Matches Gen 03-05 — Sin Enters. This is the single cleanest pair on the whole diagram."
+  },
+  {
+    "slug": "rev-20-22-paradise-restored",
+    "title": "Revelation 20–22 — God and Redeemed People in Paradise",
+    "stage": 11,
+    "side": "descent",
+    "mirror": "gen-01-02-creation",
+    "chapters": [
+      "66.21"
+    ],
+    "summary": "Matches Gen 01-02 — Creation — but it ends in a city, not a garden. Something was gained,\nnot just recovered."
+  }
+]

@@ -16,6 +16,17 @@
  * script loads these JSON files into Postgres for Ken's user row, the Climb
  * and Review screens should read from the API instead of this file. See
  * PROGRESS.md "Seed bridge" for the handoff.
+ *
+ * STAGES NO LONGER LIVE HERE (MOUNTAINWHY-001): `app/(app)/page.tsx`'s Gate
+ * 0.2 comment already notes this module's `getMountain()`/`getReview()` etc.
+ * are dead in production (the Climb home and Review page both moved to
+ * Postgres-backed reads; only the `MountainStage` TYPE is still imported
+ * from this file). Functions below are kept working anyway — stages.json was
+ * never personal data the way entries/threads/people are, so it moved out of
+ * this gitignored bridge into the tracked content pipeline:
+ * content/lens/eleven-stages.json (STAGES_PATH below), alongside
+ * lessons/connections/places (content/README.md). threads.json/people.json/
+ * entries.json are untouched by this task and stay exactly where they were.
  */
 import "server-only";
 
@@ -23,6 +34,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 const SEED_DIR = path.join(process.cwd(), "data", "seed");
+const STAGES_PATH = path.join(process.cwd(), "..", "content", "lens", "eleven-stages.json");
 
 interface SeedStage {
   slug: string;
@@ -75,10 +87,19 @@ let cache: {
  * and `/review` would throw ENOENT and fail the ENTIRE build over a missing
  * personal-data file that was excluded from git on purpose. An empty array
  * is the correct "no data seeded yet" state, not an error condition.
+ *
+ * MOUNTAINWHY-001: takes a full `filePath` now (was `file` joined onto
+ * `SEED_DIR`), so the stages caller below can point at
+ * content/lens/eleven-stages.json instead while threads/people/entries keep
+ * using SEED_DIR exactly as before. The same missing-file fallback still
+ * applies either way -- content/lens/ is tracked (so a fresh Vercel deploy
+ * DOES have it), but a build running before this file exists, or a
+ * misconfigured path, should still degrade to "no stages" rather than fail
+ * the whole build.
  */
-async function readJson<T>(file: string, fallback: T): Promise<T> {
+async function readJson<T>(filePath: string, fallback: T): Promise<T> {
   try {
-    const raw = await readFile(path.join(SEED_DIR, file), "utf-8");
+    const raw = await readFile(filePath, "utf-8");
     return JSON.parse(raw) as T;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return fallback;
@@ -89,10 +110,10 @@ async function readJson<T>(file: string, fallback: T): Promise<T> {
 async function loadSeed() {
   if (!cache) {
     const [stages, threads, people, entries] = await Promise.all([
-      readJson<SeedStage[]>("stages.json", []),
-      readJson<SeedThread[]>("threads.json", []),
-      readJson<SeedPerson[]>("people.json", []),
-      readJson<SeedEntry[]>("entries.json", []),
+      readJson<SeedStage[]>(STAGES_PATH, []),
+      readJson<SeedThread[]>(path.join(SEED_DIR, "threads.json"), []),
+      readJson<SeedPerson[]>(path.join(SEED_DIR, "people.json"), []),
+      readJson<SeedEntry[]>(path.join(SEED_DIR, "entries.json"), []),
     ]);
     cache = { stages, threads, people, entries };
   }

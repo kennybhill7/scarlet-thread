@@ -21,7 +21,8 @@
  *
  * KEYING CHOICE: primarily by stage slug (`STAGE_COVENANTS`), because that
  * is exactly the shape of the research doc's own §1.3 table — one row per
- * the app's 11 real stages (`web/data/seed/stages.json`), several of which
+ * the app's 11 real stages (`content/lens/eleven-stages.json`, moved there
+ * from `web/data/seed/stages.json` by MOUNTAINWHY-001), several of which
  * (stage 5 above all) carry more than one covenant fact. `stageSlugForRef`
  * and `covenantsForRef` are a derived convenience for callers (like the
  * reader) that only have a book/chapter, not a stage slug.
@@ -244,7 +245,7 @@ const STAGE_COVENANTS_BY_SLUG: ReadonlyMap<string, StageCovenantEntry> = new Map
   STAGE_COVENANTS.map((entry) => [entry.stageSlug, entry]),
 );
 
-/** Looked up by the app's real 11 stage slugs (`web/data/seed/stages.json`). */
+/** Looked up by the app's real 11 stage slugs (`content/lens/eleven-stages.json`). */
 export function covenantsForStage(stageSlug: string): StageCovenantEntry | undefined {
   return STAGE_COVENANTS_BY_SLUG.get(stageSlug);
 }

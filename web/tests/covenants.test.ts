@@ -2,7 +2,8 @@
  * COVENANTTIMELINE-001 — lib/bible/covenants.ts.
  *
  * Proves: (a) the data matches the app's real 11 stage slugs
- * (web/data/seed/stages.json, read-only) exactly, (b) stage 5 ("Israel")
+ * (content/lens/eleven-stages.json, read-only; MOUNTAINWHY-001 moved it from
+ * web/data/seed/stages.json) exactly, (b) stage 5 ("Israel")
  * carries a real four-covenant sequence rather than one flattened badge,
  * (c) stage 6 is flagged hideInReader per the research doc's own carried-
  * forward instruction, (d) the book/chapter -> stage resolver's boundaries,
@@ -18,10 +19,12 @@ import {
   stageSlugForRef,
 } from "@/lib/bible/covenants";
 
-// The app's real 11 stage slugs, transcribed from web/data/seed/stages.json
-// (gitignored, read directly during this task -- not importable from a test
-// run in a fresh worktree, so the expected slug list is pinned here instead
-// of read from the file at test time).
+// The app's real 11 stage slugs, transcribed from content/lens/eleven-stages.json
+// (MOUNTAINWHY-001 moved this out of the gitignored web/data/seed/stages.json
+// into the tracked content pipeline, but the slug list is still pinned here
+// rather than read from the file at test time, matching this test's original
+// discipline: slugs are a stable contract this test should catch drifting,
+// not something it should read back from the same file it's checking against).
 const REAL_STAGE_SLUGS = [
   "gen-01-02-creation",
   "gen-03-05-sin-enters",
