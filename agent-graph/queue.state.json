@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-01T20:45:12.476Z",
+  "updatedAt": "2026-10-01T20:51:00.940Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1107,12 +1107,12 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 1:18-25 -- The birth of Jesus, Joseph's dilemma."
     },
     "MATT-U03": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/MATT-U03-claude",
+      "commitSha": "41d38a8",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-10-01 (41d38a8) into design/mountain-journey and master, both pushed. content/curriculum/matthew/03-the-magi.md (Matthew 2:1-12, the Magi), status draft, stage 6, 2 named positions (4 readings of who the Magi were; 3 families of position on His star), none adjudicated. A genuinely new 4-point Matt 2:6 vs Micah 5:2 textual comparison checked directly against both shipped texts (found shepherd clause is drawn from Micah 5:4, not 5:2). 3 new connections (Micah 5:2-4 explicit, Isaiah 60:3/6 strong, Numbers 24:17 plausible), 12 new source-registry entries. FOUND AND FIXED A REAL STRUCTURAL DEFECT before merge: this worktree was created before MATT-U02 merged, so the agent authored its file as 02-the-magi.md, colliding with MATT-U02s now-merged 02-the-birth-of-jesus.md. Renamed to 03-the-magi.md to preserve sequential numbering (commit 2865785), reconfirmed clean validate after rename. Independently re-verified: spot-checked all BSB quotes (Matt 2:1-12, 2:15, 2:17, 2:23, Micah 5:2, Micah 5:4, Isaiah 60:3, Isaiah 60:6, Numbers 24:17) against the real shipped corpus (exact matches, including the corrected trailing punctuation at Matt 2:6 that the agent self-caught), grepped for banned phrases (zero hits), resolved all 12 source refs (zero missing), confirmed zero duplicate ids across the full 116-entry registry, ran content:validate clean (7/7 lessons, 28 connections, 1259 places), ran the full test suite (same pre-existing auth-db-failure.test.ts pattern, unrelated), ran a real adversarial mutation (injected a banned verdict phrase, confirmed genuine validator failure, reverted). Merge conflict in source-registry.json was pure append-only (no overlapping ids).",
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 2:1-12 -- The Magi."
     },
     "MATT-U04": {
