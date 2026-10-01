@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-01T20:11:21.007Z",
+  "updatedAt": "2026-10-01T20:21:56.922Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -964,12 +964,12 @@
       "lastEvidence": "Merged 2026-10-01 (491f8b9) into design/mountain-journey and master, both pushed. Stages moved into content/lens/eleven-stages.json; titles rephrased off unlabeled doctrinal assertion (Satan and Sin Enter -> The Serpent, the Exile, and the First Deaths; etc, full rationale in commit 9d76c2b and this merge commit); assertion-line lint extended to stage titles/summaries and wired into content:validate as a real exit-code-1 gate; /mountain-why disclosure page (DRAFT, author named, honestly states no documented external source exists for this grouping); canonical-order toggle with an honest, cross-checked finding that canonical and lens order are identical for these 11 stages. Independently re-verified: read every title/summary against its rationale, reintroduced the original flagged title myself directly into the committed file and confirmed a real process exit code 1 (not just a printed warning), reverted clean, reviewed the canonical-order cross-check against covenants.ts. Full suite 2115 pass/0 fail/4 cancelled. ALL NEW COPY IS DRAFT pending Kens review -- not final."
     },
     "GEN-U01": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/GEN-U01-claude",
+      "commitSha": "11db292",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-10-01 (11db292) into design/mountain-journey and master, both pushed. content/curriculum/genesis/01-creation.md (Genesis 1:1-2:3, Creation), status draft, stage 1, 4 named positions on the creation-days question (young-earth, day-age, literary-framework, gap theory), none adjudicated. 5 new connections (Exodus 20:8-11, Hebrews 4:3-4, John 1:1-3, Colossians 1:16-17, Psalm 104), 16 new source-registry entries. Independently re-verified: spot-checked Genesis 2:2-3 BSB quotes against the real shipped corpus (exact matches), confirmed chapter bounds (31/25 verses), confirmed empty placeIds frontmatter does not break validation, grepped for all 4 banned verdict phrases (zero hits), resolved all 19 source references against the registry programmatically (zero missing), ran content:validate clean (3/3 lessons, 14 connections, 1259 places), ran the full test suite (2114/2119 pass, 5 known pre-existing auth-db-failure.test.ts cancellations/build-skip unrelated to this change), ran a real adversarial mutation (injected a banned verdict phrase, confirmed the validator genuinely failed, reverted). Merge required manual conflict resolution in content/source-registry.json against concurrently-merged MATT-U01 (pure append-only, no overlapping ids, one missing comma fixed).",
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 1:1-2:3 -- Creation -- the six days and the seventh."
     },
     "GEN-U02": {
