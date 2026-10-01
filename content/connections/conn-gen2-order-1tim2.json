@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen2-order-1tim2",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.2.7",
+    "end": "1.2.22"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "54.2.13",
+    "end": "54.2.13"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "1 Timothy 2:13 names both figures directly -- \"Adam,\" \"Eve\" -- and states a sequence, \"formed first... then,\" that restates the narrated order of 2:7 (the man formed from dust) and 2:21-22 (the woman built from his side). Naming both the persons and the specific event, not just evoking shared imagery, is why this is graded explicit_reference rather than allusion; the label is explicit because the verse simply reasserts that order rather than adding an interpretive step of its own. What conclusion the order is meant to support in Paul's argument is a separate, disputed question this rationale does not resolve -- see this lesson's Positions block.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
