@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt1-genealogy-ruth4",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.1.3",
+    "end": "40.1.6"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "8.4.18",
+    "end": "8.4.22"
+  },
+  "type": "explicit_reference",
+  "rationale": "The ten names Matthew lists from Perez through David (40.1.3-6: Perez, Hezron, Ram, Amminadab, Nahshon, Salmon, Boaz, Obed, Jesse, David) match Ruth's closing genealogy (8.4.18-22) name for name and in the same order; this is directly checkable by reading the two lists side by side rather than inferred from either text's wording about the other. Matthew does not use a citation formula (\"as it is written,\" or similar) to flag the dependence, which is why the label is \"strong\" rather than \"explicit\": the match is certain at the level of the two name-lists, but Matthew's own text does not announce it is drawing on Ruth.",
+  "evidenceLabel": "strong",
+  "sourceId": "source-wikipedia-matthew-1-5",
+  "viewpointId": null
+}

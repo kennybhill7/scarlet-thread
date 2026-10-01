@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt1-genealogy-luke3",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.1.1",
+    "end": "40.1.17"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.3.23",
+    "end": "42.3.38"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Both texts are full genealogies of Jesus running the same general direction (Matthew descending from Abraham to Jesus, Luke ascending from Jesus to Adam), which makes a side-by-side reading directly checkable rather than inferred: comparing the two lists against each other, Matthew traces David's line through Solomon (1:6-7) while Luke traces it through a different son, Nathan (3:31), and the two name lists diverge at that point and again at Joseph's father (Jacob in 40.1.16, Heli in 42.3.23). The label is \"strong\" rather than \"explicit\" because neither Gospel names or cites the other; the comparison rests on reading both texts directly, not on either text pointing to the other.",
+  "sourceId": "source-graham-tgc-canada-genealogies-differ",
+  "viewpointId": null
+}

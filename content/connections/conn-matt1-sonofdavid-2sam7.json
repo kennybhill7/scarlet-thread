@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt1-sonofdavid-2sam7",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.1.1",
+    "end": "40.1.1"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "10.7.12",
+    "end": "10.7.16"
+  },
+  "type": "promise_fulfillment",
+  "evidenceLabel": "strong",
+  "rationale": "Matthew opens by naming Jesus \"the son of David\" (40.1.1), and the genealogy that follows exists in part to establish that claim by tracing an unbroken line to David (40.1.6, 17). Davies and Allison, as reported by the Wikipedia article on Matthew 1:1 used here, note that \"son of David\" functioned as a recognized messianic title in this period, tying the opening verse to the promise of an enduring house and throne in 2 Samuel 7:12-16. The label is \"strong\" rather than \"explicit\" because Matthew 1:1 does not quote or cite 2 Samuel 7 directly; the connection rests on the title's known usage, not a citation formula.",
+  "sourceId": "source-wikipedia-matthew-1-1",
+  "viewpointId": null
+}
