@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-01T23:40:45.670Z",
+  "updatedAt": "2026-10-01T23:43:21.046Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1116,12 +1116,12 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 2:1-12 -- The Magi."
     },
     "MATT-U04": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/MATT-U04-claude",
+      "commitSha": "340e144",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-10-01 (340e144) into design/mountain-journey and master, both pushed. content/curriculum/matthew/04-the-flight-into-egypt.md (Matthew 2:13-23, the flight to Egypt / massacre / return), status draft, stage 6, 3 named positions (3 readings of the Hosea 11:1 typology question; 4 proposals for what 2:23 is quoting, including a non-citation thesis; 2 positions on the massacres historicity, both argued from Josephus silence in opposite directions). 4 new connections (Hosea 11:1 explicit, Jeremiah 31:15 explicit, Exodus 4:19-20 strong, Exodus 1:15-22 plausible), 17 new source-registry entries. Independently re-verified: spot-checked all 11 verses of Matthew 2:13-23 plus Hosea 11:1, Jeremiah 31:15, Exodus 4:19, and Exodus 1:16/1:22 against the real shipped corpus (exact matches, including the subtle Jeremiah noun-order reversal and Hosea capitalization distinction), grepped for banned phrases (zero hits), resolved all 17 source refs (zero missing), confirmed zero duplicate ids across the full 176-entry registry, ran content:validate clean (11/11 lessons, 42 connections, 1259 places), ran the full test suite (same pre-existing auth-db-failure.test.ts pattern, unrelated), ran a real adversarial mutation (injected a banned verdict phrase, confirmed genuine validator failure, reverted). Merge conflict in source-registry.json was pure append-only (no overlapping ids).",
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 2:13-23 -- The flight to Egypt, the return to Nazareth."
     },
     "MATT-U05": {
