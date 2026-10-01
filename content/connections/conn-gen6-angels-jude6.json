@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen6-angels-jude6",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.6.1",
+    "end": "1.6.4"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "65.1.6",
+    "end": "65.1.7"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "Jude 1:6's 'angels who did not stay within their own domain but abandoned their proper dwelling... kept in eternal chains under darkness, bound for judgment' is read by a scholarly consensus dating to the mid-twentieth century, represented by Richard Bauckham's Word Biblical Commentary on Jude, as directly dependent on 1 Enoch 6-19's Watcher story -- an extrabiblical Second Temple elaboration of Genesis 6:1-4's 'sons of God' who 'saw that the daughters of men were beautiful' (6:2, BSB). Jude's own text names neither Genesis nor the phrase 'sons of God'; the link runs through 1 Enoch's development of that episode, not a direct citation of Genesis. Graded allusion, not explicit reference, because Jude does not cite Genesis itself; graded strong because the dependence on 1 Enoch's reworking of Genesis 6 is a well-evidenced scholarly reading of Jude's source material, not a speculative guess.",
+  "sourceId": "source-holyjoys-jude-enoch-nephilim",
+  "viewpointId": null
+}
