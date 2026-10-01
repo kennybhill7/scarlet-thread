@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 
 import { installBackgroundSyncV2, installOnlineSync, syncNow } from "@/lib/sync/client";
+import { StudyConflictNotice } from "@/components/sync/StudyConflictNotice";
 import { SyncStatusNotice } from "@/components/sync/SyncStatusNotice";
 
 /**
@@ -29,12 +30,8 @@ export function SyncRegistration() {
     });
 
     const backgroundV2 = installBackgroundSyncV2(() => {
-      // Every v2 failure mode (offline, network, a fresh server rejection)
-      // is already recoverable on its own: offline/network retries on the
-      // next online event or interval tick, and a fresh rejection either
-      // resolves on retry or parks after V2_OP_PARK_THRESHOLD rejections
-      // (see lib/sync/client.ts's runSyncV2) -- at which point
-      // SyncStatusNotice is what tells the learner, not a thrown error here.
+      // Network failures retry in the background. Revision conflicts are
+      // preserved for explicit learner review in StudyConflictNotice.
     });
 
     return () => {
@@ -43,5 +40,5 @@ export function SyncRegistration() {
     };
   }, []);
 
-  return <SyncStatusNotice />;
+  return <><SyncStatusNotice /><StudyConflictNotice /></>;
 }

@@ -1,37 +1,9 @@
 /**
- * STUDYOFFLINE-001 — acceptance criterion 4: a real two-device conflict test
- * that proves what this app's CURRENT sync protocol actually does when both
- * devices edit the same claim offline and both come back online, rather than
- * asserting something that isn't true.
- *
- * SETUP: ONE real local vault (`lib/sync/store.ts`, real `fake-indexeddb`,
- * exactly like every other suite in this repo) stands in for "device A".
- * "Device B" is modeled as a FAKE SERVER whose `/api/sync/v2/push` and
- * `/api/sync/v2/pull` behavior faithfully mirrors the REAL server's
- * documented contract (`lib/db/sync-v2.ts`'s `planWrite`: optimistic
- * concurrency via `baseRevision` vs. the stored row's `revision`, rejecting
- * a stale base with the real reason-string shape) and already holds device
- * B's accepted edit before device A's sync ever runs — exactly what "device
- * B pushed first while device A was still offline" looks like from the
- * server's point of view. This is the same technique
- * `tests/sync-flush.test.ts`'s own "two-device-style" test already uses
- * (that test drives `mergeRemoteChangesV2` directly; this one drives the
- * REAL push/pull round trip through `lib/sync/client.ts`'s `syncNowV2`, so
- * it proves the conflict end to end rather than only the merge step).
- *
- * WHAT THIS DOES NOT REPRODUCE (disclosed, not hidden — see this task's own
- * final report): `design/OPEN_QUESTIONS_AUDIT_2026-09-25.md`'s Q2(a) flags a
- * genuine check-then-write RACE in `lib/db/sync-v2.ts`'s `planWrite`/`write`
- * (the revision SELECT and the `INSERT ... ON CONFLICT DO UPDATE` are not one
- * atomic compare-and-swap) — two TRULY CONCURRENT pushes carrying the SAME
- * baseRevision could both pass the check and the second write could silently
- * clobber the first. Reproducing that needs real concurrent requests against
- * a real Postgres connection; `lib/db/sync-v2.ts`/`db/schema.ts` are outside
- * this task's owned paths to change, and this test harness has no real
- * database to race requests against. What IS reproduced below is the far
- * more common, SEQUENTIAL case (device B's push completes before device A's
- * push is even attempted) — and that case alone is enough to answer the
- * acceptance criterion's question honestly.
+ * Real vault + real sync client against a fake server implementing the actual
+ * baseRevision rejection contract. Device B's push has completed before A
+ * reconnects. Originally this proved the permanently stale-op limitation;
+ * now it pins down preservation before review and explicit recovery below.
+ * This harness does not reproduce concurrent PostgreSQL check/write races.
  */
 import "fake-indexeddb/auto";
 
@@ -146,7 +118,7 @@ function createFakeServer(initialClaim: StudyClaim) {
   };
 }
 
-test("TWO-DEVICE CONFLICT: both devices edit the same claim offline; device B's edit (already synced) wins on the server, device A's own prose is preserved locally and never silently overwritten -- but also never reaches the server", async () => {
+test("TWO-DEVICE CONFLICT: both devices edit the same claim offline; device B's edit (already synced) wins on the server, device A's own prose is preserved locally and never silently overwritten -- awaiting explicit learner reconciliation", async () => {
   const store = await import("@/lib/sync/store");
   const client = await import("@/lib/sync/client");
 
@@ -206,41 +178,25 @@ test("TWO-DEVICE CONFLICT: both devices edit the same claim offline; device B's 
     );
     assert.equal(afterFirstSync?.revision, 2, "device A's local revision must not be clobbered by the pull's revision-2 row from B either");
 
-    // Drive two more syncs so the op crosses V2_OP_PARK_THRESHOLD (3) --
-    // exactly SYNCFLUSH-001's own documented parking behavior, proving this
-    // is not a permanent crash/wedge for the LEARNER even though the
-    // conflict itself never resolves.
-    await assert.rejects(client.syncNowV2(), client.SyncRejectedErrorV2);
-    await client.syncNowV2(); // 3rd rejection crosses the threshold -- parks, does not throw this round
+    // A durable comparison now holds this entity out of background pushes.
+    // Unrelated writes still sync; this edit stays pending and protected.
+    await client.syncNowV2();
+    await client.syncNowV2();
+    const stillPending = (await store.getPendingV2Ops()).find(candidate => candidate.opId === op.opId);
+    assert.ok(stillPending);
+    assert.equal(stillPending.baseRevision, 1);
+    assert.ok((await store.listStudyConflictsV2()).some(conflict => conflict.entityId === deviceAsEdit.id));
 
-    const stillPending = (await store.getPendingV2Ops()).find((candidate) => candidate.opId === op.opId);
-    assert.ok(stillPending, "device A's edit must still be queued -- never silently dropped");
-    assert.equal(stillPending.parked, true);
-
-    // CLAIM 2 -- after parking, further syncs (e.g. the background flush
+    // Further syncs (e.g. the background flush
     // controller's normal cadence) stop throwing, but STILL never silently
     // overwrite device A's local copy with B's pulled row (mergeRemoteChangesV2's
-    // pending-op-skip rule applies to a parked op exactly like any other).
+    // pending-op-skip rule still applies to the held conflict).
     await client.syncNowV2();
     const afterParked = (await store.listLocalV2Entities("claim")).find((row) => row.id === deviceAsEdit.id);
     assert.equal(afterParked?.body, "Device A's edit -- made offline, never saw B's");
 
-    // CLAIM 3 -- the honest, disclosed gap this test exists to surface: the
-    // SERVER's own canonical copy is permanently device B's edit. Device A's
-    // op carries a FIXED baseRevision of 1; the server will never again be
-    // at revision 1 for this id, so this op can never be accepted as-is.
-    // There is no conflict-resolution UI in this app (out of this task's
-    // scope) and no artifact_revisions writer
-    // (design/OPEN_QUESTIONS_AUDIT_2026-09-25.md Q2(c) -- never implemented,
-    // outside this task's owned paths) to reconcile the two. The real,
-    // current behavior is: FIRST-ACCEPTED-WINS on the server, forever, for
-    // this id; the LOSING device's edit survives ONLY locally, on that one
-    // device, invisible to every other device and to the server, until a
-    // human intervenes. This is not "last-write-wins by clock" (B is not
-    // newer by any timestamp this test set -- B's updatedAt is EARLIER than
-    // A's) -- it is first-accepted-wins, which is a materially different
-    // (and, for a learner, more surprising) guarantee than BUILD_PLAN tenet
-    // 4's prose would suggest on its own.
+    // Without learner reconciliation, background sync must not choose either
+    // version. B remains canonical even though A has the later clock.
     assert.equal(server.claims.get(deviceAsEdit.id)?.body, "Device B's edit -- accepted first");
     assert.ok(
       Date.parse(deviceBsAcceptedEdit.updatedAt) < Date.parse(deviceAsEdit.updatedAt),
@@ -251,4 +207,129 @@ test("TWO-DEVICE CONFLICT: both devices edit the same claim offline; device B's 
     const pending = await store.getPendingV2Ops();
     await store.removePendingV2Ops(pending.filter((candidate) => candidate.entityId === deviceAsEdit.id).map((candidate) => candidate.opId));
   }
+});
+
+
+test("two-device recovery: review both durable versions, reconcile offline, sync with a fresh revision; another edit conflicts again", async () => {
+  const store = await import("@/lib/sync/store");
+  const client = await import("@/lib/sync/client");
+  const id = "claim-recovery";
+  const mine = baseClaim({ id, revision: 2, body: "My offline interpretation", updatedAt: "2026-01-02T09:00:00.000Z" });
+  const theirs = baseClaim({ id, revision: 2, body: "Other device interpretation", updatedAt: "2026-01-02T08:00:00.000Z" });
+  const server = createFakeServer(theirs);
+  const originalFetch = globalThis.fetch;
+  await store.saveLocalStudyClaim(mine);
+  globalThis.fetch = server.fetchImpl as typeof fetch;
+  try {
+    await assert.rejects(client.syncNowV2(), client.SyncRejectedErrorV2);
+    const review = (await store.listStudyConflictsV2()).find(c => c.entityId === id)!;
+    assert.ok(review);
+    assert.equal(review.local.body, mine.body);
+    assert.equal(review.remote.body, theirs.body);
+    // Reloading reads durable review data without the network.
+    assert.deepEqual((await store.listStudyConflictsV2()).find(c => c.entityId === id), review);
+    globalThis.fetch = async () => { throw new Error("offline"); };
+    await store.resolveStudyConflictV2(review, { ...review.local, body: "Both interpretations reconciled" });
+    const queued = (await store.getPendingV2Ops()).filter(op => op.entityId === id);
+    assert.equal(queued.length, 1);
+    assert.equal(queued[0].baseRevision, 2);
+    assert.ok(!review.opIds.includes(queued[0].opId));
+    assert.equal((queued[0].payload as StudyClaim).revision, 3);
+    await assert.rejects(client.syncNowV2(), /offline/);
+    await store.mergeRemoteChangesV2({ claim: [theirs] });
+    assert.equal((await store.listLocalV2Entities("claim")).find(c => c.id === id)?.body, "Both interpretations reconciled");
+    globalThis.fetch = server.fetchImpl as typeof fetch;
+    // A third edit arrives before the resolution push. No overwrite.
+    const third = { ...theirs, revision: 3, body: "Another edit during review" };
+    server.claims.set(id, third);
+    await assert.rejects(client.syncNowV2(), client.SyncRejectedErrorV2);
+    assert.equal(server.claims.get(id)?.body, third.body);
+    const again = (await store.listStudyConflictsV2()).find(c => c.entityId === id)!;
+    assert.equal(again.local.body, "Both interpretations reconciled");
+    assert.equal(again.remote.body, third.body);
+    await store.resolveStudyConflictV2(again, { ...again.local, body: "All three reconciled" });
+    await client.syncNowV2();
+    assert.equal(server.claims.get(id)?.body, "All three reconciled");
+    assert.equal(server.claims.get(id)?.revision, 4);
+    assert.equal((await store.getPendingV2Ops()).filter(op => op.entityId === id).length, 0);
+    assert.equal((await store.listStudyConflictsV2()).filter(c => c.entityId === id).length, 0);
+  } finally {
+    globalThis.fetch = originalFetch;
+    await store.removePendingV2Ops((await store.getPendingV2Ops()).filter(op => op.entityId === id).map(op => op.opId));
+  }
+});
+
+test("stale review cannot erase a newer local edit or a newer server snapshot", async () => {
+  const store = await import("@/lib/sync/store");
+  const id = "claim-stale-review";
+  await store.saveLocalStudyClaim(baseClaim({ id, revision: 2, body: "First local edit" }));
+  const ops = (await store.getPendingV2Ops()).filter(op => op.entityId === id);
+  await store.recordV2Rejections(ops.map(op => ({ opId: op.opId, reason: "Revision conflict: test" })));
+  await store.captureStudyConflictsV2({ claim: [baseClaim({ id, revision: 2, body: "Remote edit" })] });
+  const review = (await store.listStudyConflictsV2()).find(c => c.entityId === id)!;
+  await store.saveLocalStudyClaim(baseClaim({ id, revision: 3, body: "Newer local edit" }));
+  const before = (await store.getPendingV2Ops()).filter(op => op.entityId === id);
+  await assert.rejects(store.resolveStudyConflictV2(review, review.local), /changed while/);
+  assert.deepEqual((await store.getPendingV2Ops()).filter(op => op.entityId === id), before);
+  assert.equal((await store.listLocalV2Entities("claim")).find(c => c.id === id)?.body, "Newer local edit");
+  await store.captureStudyConflictsV2({ claim: [baseClaim({ id, revision: 3, body: "Newer remote edit" })] });
+  await assert.rejects(store.resolveStudyConflictV2(review, review.local), /changed while/);
+  await store.removePendingV2Ops(before.map(op => op.opId));
+});
+
+test("captured conflict holds later edits out of pushes while unrelated work syncs; parked ops can recover", async () => {
+  const store = await import("@/lib/sync/store");
+  const client = await import("@/lib/sync/client");
+  const id = "claim-parked-recovery";
+  await store.saveLocalStudyClaim(baseClaim({ id, revision: 2, body: "Mine" }));
+  const pending = (await store.getPendingV2Ops()).filter(op => op.entityId === id);
+  for (let i = 0; i < store.V2_OP_PARK_THRESHOLD; i++) {
+    await store.recordV2Rejections(pending.map(op => ({ opId: op.opId, reason: "Revision conflict: stale" })));
+  }
+  const server = createFakeServer(baseClaim({ id, revision: 2, body: "Theirs" }));
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = server.fetchImpl as typeof fetch;
+  try {
+    await client.syncNowV2();
+    await store.saveLocalStudyClaim(baseClaim({ id, revision: 3, body: "Later local edit must not bypass review" }));
+    const otherId = "unrelated-claim-recovery";
+    await store.saveLocalStudyClaim(baseClaim({ id: otherId, revision: 1 }));
+    await client.syncNowV2();
+    assert.equal(server.claims.get(id)?.body, "Theirs");
+    assert.ok(server.claims.has(otherId));
+    const review = (await store.listStudyConflictsV2()).find(c => c.entityId === id)!;
+    assert.equal(review.local.body, "Later local edit must not bypass review");
+    await store.resolveStudyConflictV2(review, { ...review.local, body: "Explicit combined result" });
+    await client.syncNowV2();
+    assert.equal(server.claims.get(id)?.body, "Explicit combined result");
+  } finally {
+    globalThis.fetch = originalFetch;
+    await store.removePendingV2Ops((await store.getPendingV2Ops()).filter(op => op.entityId === id).map(op => op.opId));
+  }
+});
+
+test("resolution abort rolls back the entity, stale ops, comparison and archive together", async () => {
+  const store = await import("@/lib/sync/store");
+  const id = "claim-atomic-recovery";
+  await store.saveLocalStudyClaim(baseClaim({ id, revision: 2, body: "Unsynced original" }));
+  const pending = (await store.getPendingV2Ops()).filter(op => op.entityId === id);
+  await store.recordV2Rejections(pending.map(op => ({ opId: op.opId, reason: "Revision conflict: stale" })));
+  await store.captureStudyConflictsV2({ claim: [baseClaim({ id, revision: 2, body: "Remote original" })] });
+  const review = (await store.listStudyConflictsV2()).find(c => c.entityId === id)!;
+  const before = (await store.getPendingV2Ops()).filter(op => op.entityId === id);
+  const originalPut = IDBObjectStore.prototype.put;
+  let intercepted = false;
+  IDBObjectStore.prototype.put = function (...args: Parameters<typeof originalPut>) {
+    const request = originalPut.apply(this, args);
+    if (this.name === "syncQueueV2") { intercepted = true; this.transaction.abort(); }
+    return request;
+  };
+  try {
+    await assert.rejects(store.resolveStudyConflictV2(review, { ...review.local, body: "Merged" }));
+  } finally { IDBObjectStore.prototype.put = originalPut; }
+  assert.ok(intercepted);
+  assert.deepEqual((await store.getPendingV2Ops()).filter(op => op.entityId === id), before);
+  assert.deepEqual((await store.listStudyConflictsV2()).find(c => c.entityId === id), review);
+  assert.equal((await store.listLocalV2Entities("claim")).find(c => c.id === id)?.body, "Unsynced original");
+  await store.removePendingV2Ops(before.map(op => op.opId));
 });
