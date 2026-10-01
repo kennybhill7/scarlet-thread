@@ -50,6 +50,45 @@ function syncResponse() {
   );
 }
 
+/**
+ * SYNCFLUSH-001 — the v2 analogue of `syncResponse()`, an empty-but-valid
+ * `/api/sync/v2/{push,pull}` snapshot. `flushPendingWrites` (lib/sync/clear.ts)
+ * now drains the v2 outbox before v1 and always pulls v2 even with an empty
+ * queue, so every test below that stubs a v1-only "happy path" fetch for
+ * `flushPendingWrites` needs this too, or `syncNowV2()`'s pull throws on an
+ * unparseable (v1-shaped) body before v1 is ever reached.
+ */
+function syncResponseV2() {
+  return new Response(
+    JSON.stringify({
+      serverTime: isoNow(),
+      session: [],
+      claim: [],
+      evidence: [],
+      motif: [],
+      motifSighting: [],
+      connection: [],
+      application: [],
+      teachingDraft: [],
+      rejected: [],
+    }),
+    { status: 200, headers: { "content-type": "application/json" } },
+  );
+}
+
+/** True for a request against one of the `/api/sync/v2/*` routes, by URL — works for any fetch() call shape (string, URL, or Request). */
+function isV2SyncRequest(input: unknown): boolean {
+  const url =
+    typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.toString()
+        : input instanceof Request
+          ? input.url
+          : "";
+  return url.includes("/api/sync/v2/");
+}
+
 function setOnline(onLine: boolean) {
   Object.defineProperty(globalThis, "navigator", {
     value: { onLine },
@@ -413,19 +452,23 @@ test("a server-rejected write blocks the export and stays queued", async () => {
   assert.ok(pending);
 
   const originalFetch = globalThis.fetch;
-  globalThis.fetch = async () =>
-    new Response(
-      JSON.stringify({
-        entries: [],
-        threads: [],
-        progress: [],
-        logs: [],
-        people: [],
-        rejected: [{ id: pending.id, reason: "Injected rejection" }],
-        serverTime: isoNow(),
-      }),
-      { status: 200, headers: { "content-type": "application/json" } },
-    );
+  // v2 answers happy-empty (nothing here exercises the v2 outbox); only the
+  // v1 push rejects, which is what this test is actually about.
+  globalThis.fetch = (async (input: unknown) =>
+    isV2SyncRequest(input)
+      ? syncResponseV2()
+      : new Response(
+          JSON.stringify({
+            entries: [],
+            threads: [],
+            progress: [],
+            logs: [],
+            people: [],
+            rejected: [{ id: pending.id, reason: "Injected rejection" }],
+            serverTime: isoNow(),
+          }),
+          { status: 200, headers: { "content-type": "application/json" } },
+        )) as typeof fetch;
   try {
     await assert.rejects(flushPendingWrites(), SyncRejectedError);
     assert.deepEqual(
@@ -468,6 +511,7 @@ test("a write that lands mid-sync blocks the export", async () => {
   const originalFetch = globalThis.fetch;
   let raced = 0;
   globalThis.fetch = async (input) => {
+    if (isV2SyncRequest(input)) return syncResponseV2();
     if (String(input).startsWith("/api/sync/pull")) {
       raced += 1;
       const now = isoNow();
@@ -503,6 +547,7 @@ test("the single retry drains a write that landed mid-sync", async () => {
   const originalFetch = globalThis.fetch;
   let pulls = 0;
   globalThis.fetch = async (input) => {
+    if (isV2SyncRequest(input)) return syncResponseV2();
     if (String(input).startsWith("/api/sync/pull")) {
       pulls += 1;
       if (pulls === 1) {
