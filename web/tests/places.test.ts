@@ -23,7 +23,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { PgDialect } from "drizzle-orm/pg-core";
 import type { SQL } from "drizzle-orm";
@@ -59,8 +59,12 @@ const corpusCanon = toCanonTable(
   buildPassageCanon(bibleIndex.books, (n) => JSON.parse(readFileSync(webPath(`public/bible/BSB/${n}.json`), "utf8")) as BookData),
 );
 
+// fileURLToPath (not a manual `.pathname` slice) correctly decodes percent-escaped
+// characters a repo path can contain -- a literal space in a Windows directory
+// name (e.g. "Bible Study App") becomes `%20` in a URL's pathname, and reading
+// that string back as a filesystem path without decoding it does not resolve.
 const REGISTRY_FILE = repoPath("content/source-registry.json");
-const registryIds = loadSourceRegistryIds(REGISTRY_FILE.pathname.replace(/^\/([A-Za-z]:)/, "$1"));
+const registryIds = loadSourceRegistryIds(fileURLToPath(REGISTRY_FILE));
 
 function readPlaceRows(): PlaceRow[] {
   const text = readFileSync(repoPath("content/places/places.jsonl"), "utf8");
