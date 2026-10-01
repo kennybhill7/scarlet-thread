@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-01T23:19:54.565Z",
+  "updatedAt": "2026-10-01T23:40:45.670Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1125,12 +1125,12 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 2:13-23 -- The flight to Egypt, the return to Nazareth."
     },
     "MATT-U05": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/MATT-U05-claude",
+      "commitSha": "18b9fbf",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-10-01 (18b9fbf) into design/mountain-journey and master, both pushed. content/curriculum/matthew/05-john-the-baptist.md (Matthew 3:1-12, John the Baptist), status draft, stage 6, 2 named positions (3 readings of Holy Spirit and fire; 4 readings of the Pharisees-and-Sadducees historicity question). 3 new connections (Isaiah 40:3 explicit, 2 Kings 1:8 strong, Luke 3:1-18 strong), 8 new source-registry entries. Clean merge, no conflict. Independently re-verified: spot-checked all 12 verses of Matthew 3:1-12 plus Isaiah 40:3, 2 Kings 1:8, and 5 Luke 3 verses against the real shipped corpus (exact matches, including every claimed Matthew-vs-Luke wording difference), grepped for banned phrases (zero hits), resolved all 8 source refs (zero missing), confirmed zero duplicate ids across the full 160-entry registry, ran content:validate clean (10/10 lessons, 38 connections, 1259 places), ran the full test suite (same pre-existing auth-db-failure.test.ts pattern, unrelated), ran a real adversarial mutation (injected a banned verdict phrase, confirmed genuine validator failure, reverted).",
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 3:1-12 -- John the Baptist."
     },
     "MATT-U06": {
