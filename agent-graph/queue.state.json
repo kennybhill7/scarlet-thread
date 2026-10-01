@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-01T20:51:00.940Z",
+  "updatedAt": "2026-10-01T20:53:22.411Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -982,12 +982,12 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 2:4-25 -- The garden, the man, the woman."
     },
     "GEN-U04": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/GEN-U04-claude",
+      "commitSha": "e975ca9",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-10-01 (e975ca9) into design/mountain-journey and master, both pushed. content/curriculum/genesis/04-cain-and-abel.md (Genesis 4:1-16, Cain and Abel), status draft, stage 2, placeIds eden+nod. 4 named positions (why Abels offering was regarded; the 4:7 sin-crouching grammatical crux including a real minority sin-offering reading; who Cains wife/feared people were; what the mark of Cain was), none adjudicated. Directly names and rejects, on textual grounds, the historical mark-of-Cain-as-dark-skin misreading used to justify slavery/segregation. 5 new connections (1 John 3:11-12, Hebrews 11:4, Hebrews 12:24, Matthew 23:35, Jude 1:11, all graded explicit), 22 new source-registry entries. Independently re-verified: spot-checked all 16 verses of Genesis 4:1-16 plus Genesis 3:9/3:24 and all 5 connection-target NT quotes (Matt 23:35, Heb 12:24, Heb 11:4, 1 John 3:11-12, Jude 1:11) against the real shipped corpus (exact matches), grepped for banned phrases (zero hits), resolved all 24 source refs (zero missing), confirmed zero duplicate ids across the full 138-entry registry, confirmed both eden and nod placeIds resolve, ran content:validate clean (8/8 lessons, 33 connections, 1259 places), ran the full test suite (same pre-existing auth-db-failure.test.ts pattern, unrelated), ran a real adversarial mutation (injected a banned verdict phrase, confirmed genuine validator failure, reverted). Merge conflict in source-registry.json was pure append-only (no overlapping ids).",
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 4:1-16 -- Cain and Abel."
     },
     "GEN-U05": {
