@@ -143,7 +143,10 @@ export function PlaceLens({ onOpenInConnect, initialSelectedId }: PlaceLensProps
   }
 
   return (
-    <div className={styles.wrap} data-testid="place-lens">
+    <section className={styles.wrap} data-testid="place-lens" aria-labelledby={`${idPrefix}-heading`}>
+      <h2 id={`${idPrefix}-heading`} className={styles.srOnly}>
+        Place lens
+      </h2>
       <div className={styles.toolbar}>
         <div className={styles.viewToggle} role="group" aria-label="View">
           <button
@@ -219,6 +222,6 @@ export function PlaceLens({ onOpenInConnect, initialSelectedId }: PlaceLensProps
         {state.dataset.attribution} ({state.dataset.sourceUrl}). Coastlines: Natural Earth (public domain), via{" "}
         <code>world-atlas</code> (Mike Bostock, ISC licence).
       </p>
-    </div>
+    </section>
   );
 }
