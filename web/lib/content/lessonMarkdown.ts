@@ -82,7 +82,6 @@ export function sanitizeHttpsUrl(raw: string): string | null {
   // Reject any control character or whitespace up front: the URL parser would
   // silently strip some of them, which is exactly how `java\tscript:`-style
   // tricks and hidden characters get past naive filters.
-  // eslint-disable-next-line no-control-regex
   if (/[\u0000- \u007f-\u009f]/.test(candidate)) return null;
   if (!/^https:\/\//i.test(candidate)) return null;
   let parsed: URL;
