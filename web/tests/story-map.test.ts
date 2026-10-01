@@ -54,6 +54,11 @@ const cssProxy = new Proxy({}, { get: (_target, key) => (typeof key === "string"
 seedModule("server-only", {});
 seedModule("@/lib/db", { db: {} });
 seedModule("@/components/map/StoryMap.module.css", { default: cssProxy });
+// NAV-001 — page.tsx now also statically imports BackToJourney (for its
+// happy-path render), which pulls in its own real CSS Module; `nodeRequire`
+// evaluates that import the moment the page module loads below, even though
+// this file never renders the component itself.
+seedModule("@/components/climb/BackToJourney.module.css", { default: cssProxy });
 
 const pageModule = nodeRequire("@/app/(app)/map/page.tsx") as {
   loadStoryMapViewModel: typeof import("../app/(app)/map/page").loadStoryMapViewModel;

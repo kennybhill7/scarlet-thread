@@ -59,6 +59,12 @@ function seedModule(specifier: string, exports: Record<string, unknown>) {
   return resolved;
 }
 
+// NAV-001 — the page now also mounts the real BackToJourney control above
+// MirrorSplitView; it has its own CSS Module, which plain node:test cannot
+// parse (same reason the rest of this file stubs CSS Modules).
+const cssProxy = new Proxy({}, { get: (_target, key) => (typeof key === "string" ? key : undefined) });
+seedModule("@/components/climb/BackToJourney.module.css", { default: cssProxy });
+
 class RedirectSignal extends Error {
   constructor(readonly url: string) {
     super(`NEXT_REDIRECT:${url}`);

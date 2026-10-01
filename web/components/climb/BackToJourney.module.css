@@ -1,0 +1,21 @@
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 10px var(--pad-page);
+  background: var(--shell-bg);
+  border-bottom: 1px solid var(--shell-border);
+  color: var(--shell-muted-2);
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.back:hover {
+  color: var(--shell-text);
+}

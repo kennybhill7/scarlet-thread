@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { stages as stagesTable } from "@/db/schema";
 import type { Stage } from "@/lib/contracts";
 import { ThreadDetail } from "@/components/threads/ThreadDetail";
+import { BackToJourney } from "@/components/climb/BackToJourney";
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
 import { listThreads } from "@/lib/db/threads";
@@ -240,7 +241,14 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
     );
   }
 
+  // NAV-001 — a persistent, real "back to Journey" control (plan §A.2),
+  // added only to this happy-path render -- the SetupIncomplete branch above
+  // stays as minimal and visually distinct as this route group's own
+  // established convention already makes it.
   return (
-    <ThreadDetail slug={slug} stages={stagesResolution.stages} workspaceId={resolution.workspaceId} />
+    <>
+      <BackToJourney />
+      <ThreadDetail slug={slug} stages={stagesResolution.stages} workspaceId={resolution.workspaceId} />
+    </>
   );
 }

@@ -109,6 +109,9 @@ seedModule("@/components/ui/Button.module.css", { default: cssProxy });
 seedModule("@/components/ui/Chip.module.css", { default: cssProxy });
 seedModule("@/components/ui/Field.module.css", { default: cssProxy });
 seedModule("@/components/study/claim-composer.module.css", { default: cssProxy });
+// NAV-001 — the page now also mounts the real BackToJourney control above
+// ThreadDetail; it has its own CSS Module.
+seedModule("@/components/climb/BackToJourney.module.css", { default: cssProxy });
 
 // ---------------------------------------------------------------------------
 // Swappable stubs behind the page's data-access seam. The page captures its

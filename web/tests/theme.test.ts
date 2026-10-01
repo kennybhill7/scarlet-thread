@@ -535,16 +535,22 @@ test("ClimbHero's Settings link carries data-tap, reaching the global 44px tap-t
     {},
     { get: (_target, key) => (typeof key === "string" ? key : undefined) },
   );
-  const resolved = nodeRequire.resolve("@/components/climb/ClimbHero.module.css");
-  (nodeRequire.cache as Record<string, unknown>)[resolved] = {
-    id: resolved,
-    filename: resolved,
-    loaded: true,
-    path: path.dirname(resolved),
-    paths: [],
-    children: [],
-    exports: { __esModule: true, default: cssProxy },
+  const seedCss = (specifier: string) => {
+    const resolvedCss = nodeRequire.resolve(specifier);
+    (nodeRequire.cache as Record<string, unknown>)[resolvedCss] = {
+      id: resolvedCss,
+      filename: resolvedCss,
+      loaded: true,
+      path: path.dirname(resolvedCss),
+      paths: [],
+      children: [],
+      exports: { __esModule: true, default: cssProxy },
+    };
   };
+  seedCss("@/components/climb/ClimbHero.module.css");
+  // NAV-001 — ClimbHero now mounts the real ContinueCard component, which
+  // imports its own CSS Module; needs the same stubbing as ClimbHero's own.
+  seedCss("@/components/climb/ContinueCard.module.css");
 
   const { ClimbHero } = nodeRequire("@/components/climb/ClimbHero") as {
     ClimbHero: typeof import("@/components/climb/ClimbHero").ClimbHero;
@@ -556,6 +562,11 @@ test("ClimbHero's Settings link carries data-tap, reaching the global 44px tap-t
       totalStages: 11,
       threadCount: 0,
       openQuestions: 0,
+      // NAV-001 — ClimbHero now requires a continueCard view model (it
+      // renders the real Continue/Begin card in place of the old static
+      // CTA); this test only asserts on the Settings link, so the "begin"
+      // variant is the simplest honest fixture.
+      continueCard: { status: "begin", href: "/read/1/1" },
     }) as never,
   );
 
