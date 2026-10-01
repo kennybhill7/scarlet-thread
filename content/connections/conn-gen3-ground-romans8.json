@@ -10,9 +10,9 @@
     "start": "45.8.19",
     "end": "45.8.22"
   },
-  "type": "contrast_reversal",
-  "evidenceLabel": "strong",
-  "rationale": "Romans 8:20-21 speaks of creation subjected to futility and of hope that it will be set free from bondage to decay. Commentary aggregated by Precept Austin reads Romans 8:20-21 against Genesis 3:17-19 without naming a scholar; Redemptive History and Theology cites Moo (NICNT, p. 516) on the 'in hope' clause. Moo's own page was not read, and no source read here calls the reading a consensus, so the label is strong, not explicit. Genesis 3:17-19 states no promise of reversal in its own words, so promise_fulfillment would claim more than the text supports, and contrast_reversal names the later passage inverting an earlier stated condition.",
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "Romans 8:20-21 speaks of creation subjected to futility and of hope that it will be set free from bondage to decay; it restates Genesis 3:17-19's ground-level curse rather than inverting it -- the undoing is Paul's stated future hope, not something the Romans text itself accomplishes, so contrast_reversal would claim more than the text does. As a literary relation this is Paul evoking the curse without naming Genesis, which is why allusion is the more accurate type. Commentary aggregated by Precept Austin reads Romans 8:20-21 against Genesis 3:17-19 without naming a scholar; Redemptive History and Theology cites Moo (NICNT, p. 516) on the 'in hope' clause, but Moo's own page was not read and no source read here calls the reading a consensus, so the label is plausible, not strong, until a named commentator is independently verified. Genesis 3:17-19 states no promise of reversal in its own words, so promise_fulfillment would also claim more than the text supports.",
   "sourceId": "source-preceptaustin-romans-8-20",
   "viewpointId": null
 }
