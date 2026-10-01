@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-01T15:50:55.544Z",
+  "updatedAt": "2026-10-01T15:51:52.441Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -954,6 +954,15 @@
       "attempts": 1,
       "lastRunId": null,
       "lastEvidence": "Merged 2026-10-01 (fd32ad5) into design/mountain-journey and master, both pushed. Tabs relabeled Journey/Read/Review; Continue/Begin card on Journey resolves the real v2 session in its own fail-closed try/catch; Lenses row (Story Map/Places/Mirror/Threads) links to real routes, with Places newly minimally hosted and Mirror/Threads computed from live data rather than hardcoded; /prototype/* env-gated; Back to Journey on every lens. Independently re-verified: reviewed the Continue-card and Lenses-row logic in full, typecheck/lint/171 tests clean. My own first adversarial-mutation attempt silently failed to apply (bad sed escaping) -- caught it, redid with a real edit, confirmed 2 tests genuinely catch a wrong Threads link. Full combined-tree suite 2071 pass/0 fail/4 cancelled."
+    },
+    "MOUNTAINWHY-001": {
+      "status": "pending",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Wave 4 final task, 2026-10-01 (plan task 10, last of the original first-10, S). Disclose the Mountain as one interpretive lens: a Why this shape? screen with author/sources; stage titles re-phrased from unlabeled doctrinal assertion (e.g. Satan and Sin Enter/Exit) to descriptive text; the assertion-line lint extended to cover stage titles; a canonical-order toggle. Depends on NAV-001 (done). Human gate: Ken writes/approves the disclosure text -- draft only, do not present as final."
     }
   }
 }
