@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-28T09:09:53.000Z",
+  "updatedAt": "2026-10-01T01:38:03.280Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -874,22 +874,20 @@
       "notes": "Wave 1 read-only audit: answer the six open questions in PRODUCT_EXPERIENCE_PLAN section G with file/line evidence, output design/OPEN_QUESTIONS_AUDIT_2026-09-25.md."
     },
     "LESSONRENDER-001": {
-      "status": "pending",
-      "branch": null,
+      "status": "done",
+      "branch": "agent/LESSONRENDER-001-claude",
       "commitSha": null,
-      "attempts": 0,
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Wave 2, 2026-09-25 (plan task 4). Safe Markdown subset renderer, intro surfaced, Literary Design + Questions to Carry slots, learner-voice notices, screenshot proof. Ken approves copy."
+      "lastEvidence": "Merged 2026-09-30 after a 5-day session gap (rate-limited 2026-09-25). Found real, complete, committed work in the worktree; rebased cleanly onto current HEAD, reviewed diff + 2 real screenshots myself, ran 178 touched tests + typecheck/lint clean. Safe Markdown subset renderer (no HTML, https-only sanitized links, bounded recursion), intro surfaced, Literary Design/Questions-to-Carry slots, learner-voice notices replacing developer-voice ones."
     },
     "PLACES-001": {
-      "status": "pending",
-      "branch": null,
+      "status": "done",
+      "branch": "agent/PLACES-001-claude",
       "commitSha": null,
-      "attempts": 0,
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Wave 2 (plan task 7). places/place_candidates/place_passages tables + migration 0014 (NOT applied to prod), content/places compiled from OpenBible geocoding CC BY 4.0, sync script (human-gated), placeIds frontmatter. Bundle format unchanged."
+      "lastEvidence": "Merged 2026-09-30. 1,259 real places compiled from OpenBible.info Bible Geocoding Data (CC BY 4.0, pinned commit 7eb18a5), CHECK-constraint-enforced honesty verified across all 1259 rows directly. Migration 0014 NOT applied to production. Claude found and fixed two real gaps after independent re-verification in the real checkout: (1) a hardcoded CURATED_TABLE_NAMES exemption set in tests/schema-v2.test.ts; (2) a real path-decoding bug in tests/places.test.ts -- a manual .pathname slice left %20 for every space, silently reading a nonexistent file given this repo's own real, space-containing path ('Bible Study App'); passed in the agent's own scratch worktree (no spaces there) and only surfaced on independent re-verification. Full suite 1946/0/4-cancelled."
     },
     "RANGEPICKER-002": {
       "status": "done",
@@ -901,13 +899,21 @@
       "notes": "Wave 2 (plan task 5, integration half). PassagePicker replaces raw book.chapter.verse inputs in ConnectSection; client canon loader; contrast verified numerically. Bookkeeping-only correction -- work itself was already done directly on master by Ken; nothing new built this run."
     },
     "GEN3REVIEW-001": {
-      "status": "pending",
+      "status": "done",
       "branch": null,
       "commitSha": null,
       "attempts": 0,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "design/GEN3_REVIEW_2026-09-25.md delivered by Fable: not ready to stay published as-is, 3 S1 source-fidelity errors (incl. one already live in production) plus S2 usability findings. Correction notes added to both research docs. GEN3FIX-001 (first attempt lost nothing-written to the rate limit) is being re-dispatched 2026-09-30.",
       "notes": "Wave 2 read-only review by Fable as seminary reviewer/citation auditor/pastor-teacher of the completed Genesis 3 lesson + connections. Output design/GEN3_REVIEW_2026-09-25.md. Gate for Ken approving publication."
+    },
+    "PICKERCANON-001": {
+      "status": "done",
+      "branch": "agent/PICKERCANON-001-claude",
+      "commitSha": null,
+      "attempts": 1,
+      "lastRunId": null,
+      "lastEvidence": "Merged 2026-09-30. Agent was rate-limited before writing the critical drift test or updating the old 66-book-fetch test fixtures. Claude completed both directly: split pure logic into scripts/lib/buildCanonCounts.ts, wrote tests/canon-counts-drift.test.ts (byte-for-byte against the real corpus), rewrote tests/passage-canon-client.test.ts for the new loadCanonCounts contract. canon.json replaces a ~4MB/66-file fetch with one ~4KB file. Full suite clean."
     }
   }
 }
