@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt1-naming-luke2",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.1.21",
+    "end": "40.1.25"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.2.21",
+    "end": "42.2.21"
+  },
+  "type": "motif",
+  "evidenceLabel": "plausible",
+  "rationale": "Both Gospels report the name \"Jesus\" being given to the child in direct obedience to an angelic command: Matthew states the angel's instruction (40.1.21) and its fulfillment (40.1.25, \"And he gave Him the name Jesus\"), while Luke 2:21 independently reports \"He was named Jesus, the name the angel had given Him before He had been conceived\" -- referring back to Luke's own account of the angel's instruction to Mary (42.1.31), not to Matthew's account of the instruction to Joseph. The label is \"plausible\" rather than \"strong\" because this is this lesson's own observation of a recurring pattern across two independent infancy narratives, not a named scholar's specific argument for pairing these two verses.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

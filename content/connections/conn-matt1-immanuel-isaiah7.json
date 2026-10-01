@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt1-immanuel-isaiah7",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.1.22",
+    "end": "40.1.23"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.7.14",
+    "end": "23.7.14"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Matthew introduces the verse with his own fulfillment-citation formula, \"All this took place to fulfill what the Lord had said through the prophet\" (40.1.22), and then quotes Isaiah 7:14 directly -- the clearest case this app's type taxonomy describes, since the label rests on Matthew's own stated formula rather than on an inferred resemblance. Matthew's Greek quotation reads \"they will call\" (third person plural), while the Septuagint's own text of Isaiah 7:14 reads \"you will call\" (second person singular) -- a directly checkable difference that nuances but does not weaken the explicit tie Matthew's own formula establishes.",
+  "sourceId": "source-wikipedia-matthew-1-23",
+  "viewpointId": null
+}
