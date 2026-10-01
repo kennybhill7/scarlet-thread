@@ -1,0 +1,322 @@
+/* PLACELENS-001 — always the dark Passage Workspace shell (--shell-* tokens),
+   same surface="shell" convention PassagePicker.module.css documents: this
+   lens is opened FROM a passage/study screen (PRODUCT_EXPERIENCE_PLAN §A),
+   never the parchment reading page. No hex literals — every color is a
+   --shell- or --gold token from app/globals.css. */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: var(--shell-text);
+  font-family: var(--font-ui);
+  background: var(--shell-surface);
+  border: 1px solid var(--shell-border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.viewToggle {
+  display: inline-flex;
+  gap: 4px;
+  border: 1px solid var(--shell-border-hi);
+  border-radius: 999px;
+  padding: 3px;
+}
+
+.viewToggleButton {
+  font-family: var(--font-label);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 14px;
+  background: transparent;
+  color: var(--shell-muted-2);
+  cursor: pointer;
+}
+
+.viewToggleButton[aria-pressed="true"] {
+  background: var(--shell-surface-hi);
+  color: var(--shell-text);
+}
+
+.viewToggleButton:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.zoomControls {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.zoomButton {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  border: 1px solid var(--shell-border-hi);
+  border-radius: 6px;
+  padding: 6px 10px;
+  background: var(--shell-surface-hi);
+  color: var(--shell-text);
+  cursor: pointer;
+}
+
+.zoomButton:focus-visible,
+.marker:focus-visible,
+.listButton:focus-visible,
+.passageOpenLink:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  touch-action: none;
+  border-radius: 8px;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 42%, var(--shell-surface-hi), var(--shell-bg) 72%);
+  cursor: grab;
+}
+
+.stage:active {
+  cursor: grabbing;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sphere {
+  fill: var(--shell-surface);
+  stroke: var(--shell-border-hi);
+  stroke-width: 1;
+}
+
+.graticule {
+  fill: none;
+  stroke: var(--shell-border);
+  stroke-width: 0.5;
+}
+
+.land {
+  fill: var(--shell-surface-hi);
+  stroke: var(--shell-muted);
+  stroke-width: 0.4;
+}
+
+.arc {
+  fill: none;
+  stroke: var(--shell-crimson-text);
+  stroke-width: 1.4;
+  opacity: 0.85;
+}
+
+.markerOverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.marker {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border-radius: 50%;
+  border: 2px solid var(--shell-crimson-text);
+  background: var(--shell-crimson);
+  padding: 0;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.marker[data-stroke="dashed"] {
+  border-style: dashed;
+  background: var(--shell-surface);
+}
+
+.marker[data-selected="true"] {
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  box-shadow: 0 0 0 4px rgba(224, 74, 69, 0.28);
+}
+
+.candidate {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  border: 1px dashed var(--shell-muted-2);
+  background: transparent;
+  pointer-events: none;
+}
+
+.details {
+  border-top: 1px solid var(--shell-border);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detailsName {
+  font-family: var(--font-display);
+  font-size: 18px;
+  margin: 0;
+}
+
+.tierBadge {
+  display: inline-block;
+  width: fit-content;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--shell-border-hi);
+  color: var(--shell-text-2);
+}
+
+.tierBadge[data-contested="true"] {
+  border-style: dashed;
+  color: var(--shell-crimson-text);
+}
+
+.detailsNote {
+  font-size: 13px;
+  color: var(--shell-text-2);
+  margin: 0;
+}
+
+.candidateList {
+  font-size: 12px;
+  color: var(--shell-muted-2);
+  margin: 0;
+}
+
+.passageList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.passageItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--shell-border);
+}
+
+.passageRef {
+  color: var(--shell-text);
+}
+
+.passageHandAdded {
+  color: var(--shell-muted-2);
+  font-size: 11px;
+}
+
+.passageOpenLink {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: none;
+  border: 1px solid var(--shell-border-hi);
+  border-radius: 6px;
+  padding: 3px 8px;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.listButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  text-align: left;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--shell-text);
+  background: var(--shell-surface-hi);
+  border: 1px solid var(--shell-border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.listButton[aria-current="true"] {
+  border-color: var(--gold);
+}
+
+.listUnlocated {
+  color: var(--shell-muted);
+  font-style: italic;
+}
+
+.attribution {
+  font-size: 11px;
+  color: var(--shell-muted);
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--shell-muted-2);
+  margin: 0;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage {
+    scroll-behavior: auto;
+  }
+}
