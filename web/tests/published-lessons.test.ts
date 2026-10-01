@@ -26,6 +26,7 @@ import type { LessonFrontmatter } from "@/scripts/content/schema";
 import type { ReleaseBundle } from "@/scripts/content/build";
 import {
   extractHeadingProse,
+  extractIntroProse,
   findHeadingBlockLines,
   findLessonMatchingRange,
   findPublishedLessonForRange,
@@ -106,6 +107,10 @@ const SYNTHETIC_BODY_ALL_SECTIONS = [
   "## Practice Bridge Example",
   "",
   "Synthetic worked bridge example, original meaning to modern situation.",
+  "",
+  "## Questions to Carry",
+  "",
+  "1. Synthetic open question, left unanswered on purpose.",
   "",
   "## Teach-Back Prompts",
   "",
@@ -310,6 +315,58 @@ test("findLessonMatchingRange: literaryDesignProse, practiceBridgeProse, and tea
     match?.teachBackPromptsProse,
     "1. Synthetic blind-explain prompt.\n2. Synthetic five-minute-outline prompt.",
   );
+});
+
+// ---------------------------------------------------------------------------
+// LESSONRENDER-001 — introProse (text before the first `## ` heading) and
+// questionsToCarryProse (`## Questions to Carry`).
+// ---------------------------------------------------------------------------
+
+test("extractIntroProse: returns the trimmed text before the first ## heading, and nothing from the sections after it", () => {
+  const intro = extractIntroProse("\n\nOpening paragraph one.\n\nOpening paragraph two.\n\n## Context\n\nContext text.\n");
+  assert.equal(intro, "Opening paragraph one.\n\nOpening paragraph two.");
+});
+
+test("extractIntroProse: null when the body starts directly with a ## heading, or is blank", () => {
+  assert.equal(extractIntroProse("## Context\n\nText."), null);
+  assert.equal(extractIntroProse("   \n\n  \n## Context\n\nText."), null);
+  assert.equal(extractIntroProse(""), null);
+});
+
+test("extractIntroProse: a ### sub-heading does not end the intro; only ## does; a body with no ## heading is all intro", () => {
+  assert.equal(extractIntroProse("Lead.\n\n### Sub\n\nStill intro.\n\n## Context\n\nX"), "Lead.\n\n### Sub\n\nStill intro.");
+  assert.equal(extractIntroProse("Only prose, no sections."), "Only prose, no sections.");
+});
+
+test("extractIntroProse: CRLF bodies are handled", () => {
+  assert.equal(extractIntroProse("Lead line.\r\n\r\n## Context\r\n\r\nX"), "Lead line.");
+});
+
+test("findLessonMatchingRange: introProse and questionsToCarryProse come from the intro and '## Questions to Carry', not mixed with other sections", () => {
+  const bundle = fixtureBundle({
+    "genesis/03-the-fall": {
+      frontmatter: fixtureFrontmatter({ passage: range("1.3.1", "1.3.24") }),
+      body: SYNTHETIC_BODY_ALL_SECTIONS,
+    },
+  });
+  const match = findLessonMatchingRange(bundle, range("1.3.1", "1.3.6"));
+  assert.ok(match);
+  assert.equal(match?.introProse, "# Test Fixture Lesson (synthetic, not real content)\n\nSome intro prose.");
+  assert.equal(match?.questionsToCarryProse, "1. Synthetic open question, left unanswered on purpose.");
+  assert.equal(match?.teachBackPromptsProse, "1. Synthetic blind-explain prompt.\n2. Synthetic five-minute-outline prompt.");
+});
+
+test("findLessonMatchingRange: a lesson with no intro and no Questions to Carry reports both as null", () => {
+  const bundle = fixtureBundle({
+    lesson: {
+      frontmatter: fixtureFrontmatter({ passage: range("1.3.1", "1.3.24") }),
+      body: "## Context\n\nOnly context.",
+    },
+  });
+  const match = findLessonMatchingRange(bundle, range("1.3.1", "1.3.6"));
+  assert.ok(match);
+  assert.equal(match?.introProse, null);
+  assert.equal(match?.questionsToCarryProse, null);
 });
 
 test("findLessonMatchingRange: a lesson with none of the three new headings reports all three as null, not a missing lesson", () => {

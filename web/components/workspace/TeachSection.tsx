@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useState } from "react";
 
+import { LessonProse } from "@/components/lesson";
 import { humanizeToken, optionsFrom } from "@/components/study/ClaimComposer";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
@@ -922,11 +923,11 @@ export function TeachSection({ workspaceId, session, unlocked, onSaved, curatedL
   return (
     <div style={bodyStyle}>
       {curatedLesson?.teachBackPromptsProse ? (
-        <div style={noticeStyle} data-testid="teach-curated-prompts">
-          <p>
+        <div data-testid="teach-curated-prompts">
+          <p style={noticeStyle}>
             <strong>Suggested teach-back prompts for this passage (a model to draw from, not something you must match):</strong>
           </p>
-          <p>{curatedLesson.teachBackPromptsProse}</p>
+          <LessonProse markdown={curatedLesson.teachBackPromptsProse} />
         </div>
       ) : null}
       <form onSubmit={submit}>

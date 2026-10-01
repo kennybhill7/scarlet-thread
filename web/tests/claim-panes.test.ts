@@ -411,7 +411,8 @@ test("RENDER ContextSection: unlocked mounts the real composer narrowed to 'inte
   );
   assert.ok(!html.includes('data-testid="context-locked"'));
   assert.ok(html.includes('data-testid="context-no-curated-notice"'));
-  assert.match(html, /no curated context yet/i);
+  assert.match(html, /no lesson has been written for this passage yet/i);
+  assert.ok(!/phase \d/i.test(html), "no developer-voice phase references in learner copy");
   assert.ok(html.includes("What did this passage mean to its first audience?"), "the real composer, narrowed via offeredKinds, must mount");
   assert.ok(html.includes(">1.3.1–1.3.6<"), "range must reach the composer");
 });
@@ -443,7 +444,8 @@ test("RENDER TheologySection: unlocked mounts the real composer narrowed to 'the
   );
   assert.ok(!html.includes('data-testid="theology-locked"'));
   assert.ok(html.includes('data-testid="theology-no-curated-notice"'));
-  assert.match(html, /no curated doctrine content yet/i);
+  assert.match(html, /no lesson has been written for this passage yet/i);
+  assert.ok(!/phase \d/i.test(html), "no developer-voice phase references in learner copy");
   assert.ok(html.includes("What do you believe this passage teaches, and why?"));
 });
 

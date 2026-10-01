@@ -134,6 +134,22 @@ export function extractHeadingProse(body: string, headingText: string): string |
   return prose.length > 0 ? prose : null;
 }
 
+/**
+ * LESSONRENDER-001 — the lesson's INTRO: the text before the first `## `
+ * heading, trimmed. Uses the same heading test as {@link findHeadingBlockLines}
+ * (`## ` after trimming — a `### ` sub-heading does NOT end the intro), so
+ * the intro and the named sections partition the body consistently. Returns
+ * `null` — never an empty string — when there is no non-blank text before the
+ * first `## ` heading (including a body that starts directly with one).
+ */
+export function extractIntroProse(body: string): string | null {
+  const lines = body.split(/\r?\n/);
+  const firstHeading = lines.findIndex((line) => /^##\s+/.test(line.trim()));
+  const introLines = firstHeading === -1 ? lines : lines.slice(0, firstHeading);
+  const intro = introLines.join("\n").trim();
+  return intro.length > 0 ? intro : null;
+}
+
 // ---------------------------------------------------------------------------
 // Runtime bundle validation — jsonb is `unknown`; re-validate before trusting.
 // ---------------------------------------------------------------------------
@@ -225,6 +241,12 @@ export interface CuratedConnection {
 export interface PublishedLessonMatch {
   slug: string;
   frontmatter: LessonFrontmatter;
+  /**
+   * LESSONRENDER-001 — the lesson's opening text, before its first `## `
+   * heading (`extractIntroProse`), or `null` if it has none. Shown as "What
+   * this lesson practices".
+   */
+  introProse: string | null;
   /** Prose under `## Context`, or `null` if this lesson has none. */
   contextProse: string | null;
   /** Prose under `## Positions`, or `null` if this lesson has none. */
@@ -235,6 +257,8 @@ export interface PublishedLessonMatch {
   practiceBridgeProse: string | null;
   /** Prose under `## Teach-Back Prompts`, or `null` if this lesson has none — required at publish time (see this interface's own header comment), but still nullable here for fail-closed safety. */
   teachBackPromptsProse: string | null;
+  /** LESSONRENDER-001 — prose under `## Questions to Carry`, or `null` if this lesson has none (optional content). */
+  questionsToCarryProse: string | null;
   /**
    * CONNECTIONCURATION-001 — real `graph_edges` rows resolved from this
    * lesson's `frontmatter.connectionIds[]`. Empty array — never `null` —
@@ -274,11 +298,13 @@ export function findLessonMatchingRange(
     return {
       slug,
       frontmatter: lesson.frontmatter,
+      introProse: extractIntroProse(lesson.body),
       contextProse: extractHeadingProse(lesson.body, "Context"),
       positionsProse: extractHeadingProse(lesson.body, "Positions"),
       literaryDesignProse: extractHeadingProse(lesson.body, "Literary Design"),
       practiceBridgeProse: extractHeadingProse(lesson.body, "Practice Bridge Example"),
       teachBackPromptsProse: extractHeadingProse(lesson.body, "Teach-Back Prompts"),
+      questionsToCarryProse: extractHeadingProse(lesson.body, "Questions to Carry"),
       // Pure default — this function has no DB to ask. See this file's
       // header comment ("CONNECTIONCURATION-001") and `resolveCuratedConnections`
       // below: only `findPublishedLessonForRange` ever replaces this with
