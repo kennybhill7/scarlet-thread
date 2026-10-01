@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-01T14:44:41.730Z",
+  "updatedAt": "2026-10-01T15:16:14.007Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -932,13 +932,12 @@
       "lastEvidence": "Merged 2026-10-01 (0b31b4a) into design/mountain-journey and master, both pushed. First attempt (2026-09-25) rate-limited with nothing written; second attempt stalled (600s no-progress) but left 5 real commits, all 4 lettered steps done (B groundwork, A+B background flush + parking, A UI notice, C drain-before-signout) plus 2 uncommitted test files I committed myself. Reviewed the real production code line by line (store.ts/client.ts/clear.ts) before trusting it -- confirmed the wire-stripping of local-only bookkeeping fields is actually implemented, not just claimed in a comment. Found and fixed 3 real bugs in the one test file the agent was mid-write on when it stalled (a hook-bearing component called as a plain function instead of via createElement; two HTML-entity-escaping mismatches; a createElement typecheck overload issue) -- zero bugs in the production code itself. Ran one adversarial mutation of my own (off-by-one on the park threshold), 4 tests caught it. Full suite 1973 pass/0 fail/4 cancelled."
     },
     "STUDYOFFLINE-001": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/STUDYOFFLINE-001-claude",
+      "commitSha": "2e45b39",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Wave 3, 2026-10-01 (plan task 6, L). Workspace reads local-first: session/claims/applications hydrate from IndexedDB with server reconciliation; Start a study works offline with a local id and deferred push; curated content shows an honest not-downloaded state offline. Depends on RANGEPICKER (done) and SYNCFLUSH-001 (done, shares lib/sync/store.ts -- built from post-SYNCFLUSH HEAD)."
+      "lastEvidence": "Merged 2026-10-01 (2e45b39) into design/mountain-journey and master, both pushed. Study workspace now hydrates from IndexedDB with server reconciliation; Start a study no longer blocks on a live push; a service-worker fallback answers a fully-offline /study/{id} navigation from the local vault directly; curated content states plainly when it could not be rechecked offline. Independently re-verified before merging, with particular scrutiny on the two highest-risk pieces: the service worker raw IndexedDB access (confirmed indexedDB.databases() is checked before ever opening the DB, specifically to avoid silently corrupting the real apps version-5 schema on a fresh device; confirmed every dynamic string is escaped before reaching the DOM) and the StudyEntry.tsx failure-handling change (confirmed a local-save failure still blocks, only a push failure is now swallowed, with the session already durable first). Ran the two-device conflict test directly and confirmed its honest claim: prose is preserved locally and never silently overwritten, but a true conflict genuinely never reaches the server (first-accepted-wins, matching the open-questions audit, not oversold). One adversarial mutation of my own on the reconciliation rule, caught by 2 tests. Full suite 1998 pass/0 fail/4 cancelled."
     },
     "PLACELENS-001": {
       "status": "pending",
