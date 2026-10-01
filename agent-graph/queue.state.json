@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-01T15:16:14.007Z",
+  "updatedAt": "2026-10-01T15:19:22.347Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -940,13 +940,12 @@
       "lastEvidence": "Merged 2026-10-01 (2e45b39) into design/mountain-journey and master, both pushed. Study workspace now hydrates from IndexedDB with server reconciliation; Start a study no longer blocks on a live push; a service-worker fallback answers a fully-offline /study/{id} navigation from the local vault directly; curated content states plainly when it could not be rechecked offline. Independently re-verified before merging, with particular scrutiny on the two highest-risk pieces: the service worker raw IndexedDB access (confirmed indexedDB.databases() is checked before ever opening the DB, specifically to avoid silently corrupting the real apps version-5 schema on a fresh device; confirmed every dynamic string is escaped before reaching the DOM) and the StudyEntry.tsx failure-handling change (confirmed a local-save failure still blocks, only a push failure is now swallowed, with the session already durable first). Ran the two-device conflict test directly and confirmed its honest claim: prose is preserved locally and never silently overwritten, but a true conflict genuinely never reaches the server (first-accepted-wins, matching the open-questions audit, not oversold). One adversarial mutation of my own on the reconciliation rule, caught by 2 tests. Full suite 1998 pass/0 fail/4 cancelled."
     },
     "PLACELENS-001": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/PLACELENS-001-claude",
+      "commitSha": "83e1b06",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Wave 3 (plan task 8, L). The 2D place lens: orthographic SVG globe, real coastlines (Natural Earth, public domain), drag/inertia reused from Globe.tsx, zoom-to-region over static relief, confidence-as-geometry, passage list, Open in Connect, <=80KB gz chunk, offline after download, axe clean. Depends on PLACES-001 (done) and RANGEPICKER (done). Human gate: Ken judges the wow on his phone before tours are built."
+      "lastEvidence": "Merged 2026-10-01 (83e1b06) into design/mountain-journey and master, both pushed. The 2D place lens: d3-geo orthographic globe over real Natural Earth 110m coastlines (public domain), 1,259 real places styled by tier, drag/inertia reused from the opening sequence globe, passage list, Open-in-Connect contract (unwired to a host page, per scope), full keyboard/screen-reader list equivalent, offline via its own Cache API bucket. Real measured bundle: ~15.2KB gz (budget 80KB). Independently re-verified: ran the honesty test directly against the real 1,259-place dataset (every unlocated place -> zero markers at any rotation; every disputed/uncertain place visibly dashed), one adversarial mutation of my own (uniform solid styling) caught by 2 tests, typecheck/lint clean, 48 new tests, full combined-tree suite 2046 pass/0 fail/4 cancelled. Honestly incomplete and said so: no real axe-core/browser a11y run, no relief raster. Human gate (the plans own): Ken judges the wow on a real phone before tours are built."
     }
   }
 }
