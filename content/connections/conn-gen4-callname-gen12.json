@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen4-callname-gen12",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.4.26",
+    "end": "1.4.26"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.12.8",
+    "end": "1.12.8"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "The Hebrew phrase behind \"called upon the name of the LORD\" (BSB) at 4:26 recurs at 12:8, and again at 13:4, 21:33, and 26:25 for Abram, then Isaac. Ephraim Landau's 2026 Jewish Bible Quarterly article treats all five occurrences as one set, noting that \"in the latter four of these verses, a patriarch 'calls the name (of) the Lord' following some act which he performs\" (an altar at 12:8 and 26:25, a return to an altar at 13:4, a planted tree at 21:33), while \"in Gen. 4:26, the 'calling' is referred to as something generally done by people, without any details except that it began in the time of Enosh\" -- a textual difference between the first occurrence and its later recurrences, not just a repetition. Landau concludes that \"the lack of evidence in all five of these verses allows for various interpretations involving either 'invoking' Him or 'worshipping' Him,\" and separately reports a third reading, favored by several medieval commentators he names, that the phrase means proclaiming God's character to onlookers. This rationale follows Landau's own caution rather than resolving which sense fits 4:26.",
+  "sourceId": "source-landau-jbq-2026-qara-invoking",
+  "viewpointId": null
+}

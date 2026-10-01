@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen4-lamech-matt18",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.4.23",
+    "end": "1.4.24"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.18.21",
+    "end": "40.18.22"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "Lamech's boast ends \"if Cain is avenged sevenfold, then Lamech seventy-sevenfold\" (4:24, BSB); the Septuagint renders the number ἑβδομηκοντάκις ἑπτά at this verse, and the Greek text of Matthew 18:22 (Jesus's answer to Peter's offer of \"up to seven times\") uses the identical phrase ἑβδομηκοντάκις ἑπτά -- a verbatim match in wording, not only in theme. Bengel's Gnomen names the connection directly: \"The termination κις makes the whole number seventy-seven. Thus the LXX., in Genesis 4:24, use the same phrase regarding Lamech.\" The Pulpit Commentary likewise reports that some read Matthew's number as \"making an allusion to the retribution exacted from Lamech.\" No quotation formula introduces the number in Matthew, which is why the type is allusion rather than quotation. The connection is a reversal of direction -- unlimited vengeance answered with unlimited forgiveness -- not a claim about which of the two live translations of the Greek (\"seventy-seven\" or \"seventy times seven\") is correct; that translation question is disputed independently of whether the allusion itself holds.",
+  "sourceId": "source-biblehub-commentaries-matt-18-22",
+  "viewpointId": null
+}
