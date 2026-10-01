@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen1-word-john1",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.1.1",
+    "end": "1.1.1"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "43.1.1",
+    "end": "43.1.3"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "John opens his Gospel with the same two words that open Genesis in Greek translation, \"in the beginning\" (en arche), and immediately attributes the making of \"all things\" to the Word (John 1:3, BSB: \"Through Him all things were made, and without Him nothing was made that has been made\"), echoing Genesis 1's repeated \"and God said.\" There is no quotation formula and John does not name Genesis, so the type is allusion rather than quotation or explicit reference. The reading is widely reported in New Testament scholarship as a deliberate echo (reported here through a secondary account of D.A. Carson's commentary, not independently verified against Carson's own text), which is why the label is strong rather than explicit: the connection rests on shared opening vocabulary and theme rather than a cited quotation.",
+  "sourceId": "source-carson-john-pillar-commentary",
+  "viewpointId": null
+}

@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen1-rest-hebrews4",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.2.2",
+    "end": "1.2.2"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "58.4.1",
+    "end": "58.4.11"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Hebrews 4:4 (BSB) introduces its quotation with its own formula -- \"For somewhere He has spoken about the seventh day in this manner\" -- and then quotes Genesis 2:2 almost verbatim: \"And on the seventh day God rested from all His works.\" That introductory formula and near-verbatim wording are why the type is quotation rather than allusion, and why the label is explicit rather than inferred. The surrounding unit, Hebrews 4:1-11, builds an extended argument about a \"Sabbath rest for the people of God\" (4:9) on that one quoted clause; the wider range is included because the argument depends on the whole unit, not on 4:4 read in isolation, but the quotation itself anchors at 4:3-4.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
