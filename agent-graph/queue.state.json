@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-01T23:43:21.046Z",
+  "updatedAt": "2026-10-01T23:47:06.823Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1000,12 +1000,12 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 4:17-26 -- Cain's line and the line of Seth begins."
     },
     "GEN-U06": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/GEN-U06-claude",
+      "commitSha": "10852b1",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-10-01 (10852b1) into design/mountain-journey and master, both pushed. content/curriculum/genesis/06-the-generations-of-adam.md (Genesis 5, the genealogy from Adam to Noah), status draft, stage 2. 3 named positions (how to read the ages -- literal/scribal-conversion/numerological/polemical-contrast; what the Methuselah/flood-year coincidence means; what Enochs unique ending is compared to). 3 new connections (Luke 3:36-38 strong, a complete 10-for-10 name match; Hebrews 11:5 explicit; Jude 1:14-15 explicit), 17 new source-registry entries. Independently re-verified: spot-checked all 32 verses of Genesis 5 plus Gen 7:6, 9:28-29, Hebrews 11:5, Jude 1:14-15, Luke 3:36-38 against the real shipped corpus (exact matches), independently RECOMPUTED the chapters own arithmetic from raw ages myself (Methuselah dies AM 1656, flood begins AM 1656 -- confirmed exactly), grepped for banned phrases (zero hits), resolved all 20 source refs (zero missing), ran content:validate clean (12/12 lessons, 45 connections, 1259 places), ran the full test suite (same pre-existing pattern, unrelated), ran a real adversarial mutation (confirmed genuine validator failure, reverted). Merge conflict in source-registry.json was NOT simple append-only this time -- the agents commit used pretty-printed JSON (1532 lines) instead of this files established compact style, so git flagged nearly the whole file; resolved by parsing both sides as JSON, finding the real diff (17 new ids, zero overlapping), and rewriting in the established compact style. Final registry: 193 entries, zero duplicate ids.",
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 5 -- The genealogy from Adam to Noah."
     },
     "GEN-U07": {
