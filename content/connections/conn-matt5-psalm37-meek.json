@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt5-psalm37-meek",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.5.5",
+    "end": "40.5.5"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "19.37.11",
+    "end": "19.37.11"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "Psalm 37:11 reads \"the meek will inherit the land and delight in abundant prosperity\" (BSB); Matthew 5:5 reads \"Blessed are the meek, for they will inherit the earth\" (BSB) -- the same two key terms (meek; inherit) and the same promise, with \"land\" and \"earth\" translating the same semantic range (the underlying word can denote either the land of Israel or the whole earth). No quotation formula introduces the line in Matthew, which is why the label is allusion rather than quotation; the wording is close enough that Ian Paul (Psephizo) independently calls it a near-exact match (\"'Meek' quotes Ps 37:11 almost exactly\").",
+  "sourceId": "source-psephizo-understanding-beatitudes",
+  "viewpointId": null
+}

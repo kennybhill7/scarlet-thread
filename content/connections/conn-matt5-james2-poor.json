@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt5-james2-poor",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.5.3",
+    "end": "40.5.3"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "59.2.5",
+    "end": "59.2.5"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "James 2:5 asks, \"Has not God chosen the poor of this world to be rich in faith and to inherit the kingdom He promised those who love Him?\" (BSB) -- sharing \"poor\" and \"kingdom\" with Matthew 5:3's \"the poor in spirit, for theirs is the kingdom of heaven\" and with Luke 6:20's \"the poor, for yours is the kingdom of God\" (see conn-matt5-luke6-plain). Scot McKnight (Missio Dei Journal, 2011) documents extensive beatitude-thematic echoes across the letter of James generally (\"five of the nine beatitudes are found in James\"), but the material read here does not single out 2:5 by verse against a specific beatitude. The verse-level pairing reported here is this lesson's own textual observation of shared vocabulary, not a citation to a named scholar's verse-specific argument, which is why the label is plausible rather than strong.",
+  "sourceId": "source-mcknight-missio-dei-james-jesus",
+  "viewpointId": null
+}

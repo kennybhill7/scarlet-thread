@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt5-luke6-plain",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.5.1",
+    "end": "40.5.12"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.6.20",
+    "end": "42.6.26"
+  },
+  "type": "parallel",
+  "evidenceLabel": "explicit",
+  "rationale": "Both passages record Jesus using the same macarism (\"Blessed are...\") form, addressed in a teaching setting with disciples present, and share a near-verbatim reward clause: \"great is your reward in heaven, for in the same way they persecuted the prophets before you\" (Matt 5:12, BSB) against \"great is your reward in heaven. For their fathers treated the prophets in the same way\" (Luke 6:23, BSB). The two accounts diverge in wording anyone can check against the text: Matthew's \"poor in spirit\" (5:3) against Luke's unqualified \"poor\" (6:20), Matthew's \"hunger and thirst for righteousness\" (5:6) against Luke's plain \"hunger\" (6:21), third-person address in Matthew's first eight against Luke's direct second person throughout, and four \"woes\" in Luke (6:24-26) with no Matthean counterpart. Why the two accounts differ -- one underlying occasion redacted two ways, two separate occasions, or a shared sayings tradition each evangelist drew on independently -- is a live source-critical question reported in Positions, not settled by this connection.",
+  "sourceId": "source-psephizo-beatitudes-luke-matthew",
+  "viewpointId": null
+}
