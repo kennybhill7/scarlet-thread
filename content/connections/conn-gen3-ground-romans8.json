@@ -12,7 +12,7 @@
   },
   "type": "contrast_reversal",
   "evidenceLabel": "strong",
-  "rationale": "Romans 8:20-21 speaks of creation subjected to futility and of hope that it will be set free from bondage to decay; commentators reported here read this as taking up the cursed ground of Genesis 3:17-19 and casting its undoing as a future outcome. Genesis 3:17-19 states no promise of reversal in its own words, so promise_fulfillment would claim more than the text supports, and contrast_reversal names the later passage inverting an earlier stated condition. Sourcing caveat: the Genesis 3 background is reported as a near-consensus reading through secondary reports of Moo's NICNT commentary (Precept Austin), and Moo's own page was not read, so confidence is medium-high and the label is strong, not explicit.",
-  "sourceId": "source-moo-romans-8-20-precept-austin",
+  "rationale": "Romans 8:20-21 speaks of creation subjected to futility and of hope that it will be set free from bondage to decay. Commentary aggregated by Precept Austin reads Romans 8:20-21 against Genesis 3:17-19 without naming a scholar; Redemptive History and Theology cites Moo (NICNT, p. 516) on the 'in hope' clause. Moo's own page was not read, and no source read here calls the reading a consensus, so the label is strong, not explicit. Genesis 3:17-19 states no promise of reversal in its own words, so promise_fulfillment would claim more than the text supports, and contrast_reversal names the later passage inverting an earlier stated condition.",
+  "sourceId": "source-preceptaustin-romans-8-20",
   "viewpointId": null
 }
