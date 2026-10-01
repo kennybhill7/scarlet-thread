@@ -15,6 +15,17 @@ connectionIds:
 placeIds:
   - eden
 sources:
+  - source-arnold-genesis-ncbc-2008
+  - source-petersen-bible-odyssey-primeval-history
+  - source-wikipedia-book-of-genesis
+  - source-plichta-serpents-ane
+  - source-biblehub-bdb-nachash
+  - source-biblehub-bdb-arum
+  - source-biblehub-bdb-itstsabon
+  - source-biblehub-bdb-teshuqah
+  - source-biblehub-bdb-shuph
+  - source-blb-lxx-genesis-3-15
+  - source-volkmer-biola-2017
   - source-westminster-confession
   - source-westminster-larger-catechism
   - source-belgic-confession
@@ -108,7 +119,7 @@ These notes are about how Genesis 3 is built, not about what its construction is
 
 Read the outline critically as you would any other secondhand source: two of its own entries overlap (2:16 sits inside 2:4b-17), which is one reason to check Walsh's own labeling. What the proposal claims is narrow: each "before" element has an answering "after" element in reverse order around a center. It is a claim about sequence and correspondence, not a claim about authorial intent that can be verified the way a word count can.
 
-**A related observation that does not need the chiasm label.** Zdravko Stefanovic ("The Great Reversal: Thematic Links Between Genesis 2 and 3," *Andrews University Seminary Studies*; the volume and year were not confirmed for this lesson) argues that chapter 3 systematically inverts conditions that chapter 2 establishes: ordered naming, relationship, and provision become alienation, blame, and loss. You can test this against the text without adopting a formal structure: compare the man's welcome of the woman in chapter 2 with his answer in 3:12.
+**A related observation that does not need the chiasm label.** Zdravko Stefanovic ("The Great Reversal: Thematic Links Between Genesis 2 and 3," *Andrews University Seminary Studies* 32.1-2 (1994): 47-56) argues that chapter 3 systematically inverts conditions that chapter 2 establishes: ordered naming, relationship, and provision become alienation, blame, and loss. You can test this against the text without adopting a formal structure: compare the man's welcome of the woman in chapter 2 with his answer in 3:12.
 
 **The judgment scene: two facts a reader can check.**
 
