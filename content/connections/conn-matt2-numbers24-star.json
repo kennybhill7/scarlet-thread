@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt2-numbers24-star",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.2.1",
+    "end": "40.2.10"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "4.24.17",
+    "end": "4.24.17"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "Numbers 24:17 reads, in Balaam's oracle of a coming ruler, \"A star will come forth from Jacob, and a scepter will arise from Israel.\" Matthew's Magi describe following \"His star\" (40.2.2), with \"the star\" reappearing to guide them the rest of the way to the Child (40.2.9-10). Moises Mayordomo's assessment, reported via the intertextual.bible aggregator used here, is that the verbal correspondence between the two passages is low -- essentially the single shared word \"star\" -- and that Matthew never cites Numbers directly or marks the allusion. The label is plausible rather than strong because the connection rests on a single shared term and a thematic resemblance (a star tied to a coming ruler) rather than on matching phrases or a citation formula; Mayordomo's own chapter was not independently read for this lesson.",
+  "sourceId": "source-intertextual-bible-num24-17-matt2-2",
+  "viewpointId": null
+}
