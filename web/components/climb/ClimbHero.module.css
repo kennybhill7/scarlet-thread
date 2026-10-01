@@ -17,16 +17,6 @@
   color: var(--gold);
 }
 
-/* STORYMAP-001 — groups the Story Map link + the settings gear so the
- * existing `justify-content: space-between` on `.eyebrowRow` still puts one
- * thing at each end (the eyebrow label vs. this whole icon cluster), instead
- * of spreading three items apart individually. */
-.eyebrowIcons {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
 .settingsLink {
   color: var(--shell-muted);
   font-size: 16px;
@@ -79,40 +69,6 @@
   color: var(--shell-muted);
 }
 
-.cta {
-  /* Was previously a <Button> wrapped in this <Link> -- two nested
-     interactive elements, invalid HTML and unreliable for keyboard/AT focus
-     (CODEX_AUDIT.md A-034). One interactive element, styled like the primary
-     button, instead.
-     SCARLETTHREAD-001: restyled to the shell's type-only action row --
-     "Primary action is type, not a pill" -- matching Button.module.css's
-     `.actionRow` variant (this stays a plain Link, not a wrapped <Button>,
-     for the same one-interactive-element reason as above, so the two are
-     kept in sync by hand rather than sharing a class). This is the Home
-     screen's one primary action. */
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-  min-height: 56px;
-  margin-top: 6px;
-  padding: 0 2px;
-  border-radius: 0;
-  border-top: 1px solid var(--shell-border);
-  background: transparent;
-  color: var(--shell-text);
-  font-family: var(--font-narrow);
-  font-weight: 700;
-  font-size: 12.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  text-align: left;
-}
-
-.ctaArrow {
-  flex: 0 0 auto;
-  color: var(--shell-crimson);
-  font-size: 15px;
-  line-height: 1;
-}
+/* NAV-001 — the old `.cta`/`.ctaArrow` static "Begin at Genesis 1" row lived
+ * here; it is now `ContinueCard.module.css`'s `.card`/`.arrow` (the real
+ * Continue/Begin card, same visual treatment carried over). */

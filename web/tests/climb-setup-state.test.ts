@@ -107,6 +107,14 @@ type Stubs = {
   listEntries: (userId: string, filters: unknown) => Promise<Entry[]>;
   listThreads: (userId: string) => Promise<{ slug: string }[]>;
   dbSelectStages: () => Promise<Stage[]>;
+  // NAV-001 — the Continue/Begin card's own data seam. Every existing test
+  // below leaves these at their harmless defaults (no workspace rows, no
+  // sessions), which resolves the Continue card to "begin" -- none of this
+  // file's existing assertions look at `continueCard`/`lenses` at all, so
+  // these three only need to exist and not throw.
+  getOrCreatePersonalWorkspace: (userId: string) => Promise<string>;
+  listSessionsV2: (workspaceId: string) => Promise<unknown[]>;
+  listClaimsV2: (workspaceId: string, filters: { sessionId: string }) => Promise<unknown[]>;
 };
 
 const stubs: Stubs = {
@@ -115,6 +123,9 @@ const stubs: Stubs = {
   listEntries: async () => [],
   listThreads: async () => [],
   dbSelectStages: async () => twoStages,
+  getOrCreatePersonalWorkspace: async () => "workspace-1",
+  listSessionsV2: async () => [],
+  listClaimsV2: async () => [],
 };
 
 function resetStubs() {
@@ -123,11 +134,15 @@ function resetStubs() {
   stubs.listEntries = async () => [];
   stubs.listThreads = async () => [];
   stubs.dbSelectStages = async () => twoStages;
+  stubs.getOrCreatePersonalWorkspace = async () => "workspace-1";
+  stubs.listSessionsV2 = async () => [];
+  stubs.listClaimsV2 = async () => [];
 }
 
 // CSS Modules resolve every requested class to its own name. ClimbHero.tsx
-// (kept exactly as-is; it is not in this task's ownedPaths) statically
-// imports its own module CSS, which plain node:test cannot parse.
+// statically imports its own module CSS, which plain node:test cannot parse
+// -- and, as of NAV-001, so do the two new components it and page.tsx now
+// mount (ContinueCard, LensesRow), each with its own CSS Module.
 const cssProxy = new Proxy(
   {},
   {
@@ -137,6 +152,8 @@ const cssProxy = new Proxy(
 
 seedModule("server-only", {});
 seedModule("@/components/climb/ClimbHero.module.css", { default: cssProxy });
+seedModule("@/components/climb/ContinueCard.module.css", { default: cssProxy });
+seedModule("@/components/climb/LensesRow.module.css", { default: cssProxy });
 // OPENING-001 — page.tsx now wraps its returned JSX in the real
 // OpeningSequence client component (no server-side stubbing needed for the
 // component itself: it has no server-only dependency, and its hooks only
@@ -167,6 +184,18 @@ seedModule("@/lib/db/entries", {
 });
 seedModule("@/lib/db/threads", {
   listThreads: (userId: string) => stubs.listThreads(userId),
+});
+// NAV-001 — the Continue card's own data seam (`resolveContinueCard` in
+// page.tsx), same stubbing shape `tests/study-page.test.ts` and
+// `tests/thread-detail.test.ts` already established for this exact pair of
+// modules.
+seedModule("@/lib/db/workspaces", {
+  getOrCreatePersonalWorkspace: (userId: string) => stubs.getOrCreatePersonalWorkspace(userId),
+});
+seedModule("@/app/api/v2/_lib/queries", {
+  listSessionsV2: (workspaceId: string) => stubs.listSessionsV2(workspaceId),
+  listClaimsV2: (workspaceId: string, filters: { sessionId: string }) => stubs.listClaimsV2(workspaceId, filters),
+  V2_LIST_MAX_LIMIT: 200,
 });
 // Mountain.tsx is a real Client Component that imports `next/navigation`'s
 // `useRouter` (already seeded above) and its own CSS module; stub it to a
@@ -538,4 +567,167 @@ test("stage titles split into reference/short label the same way the seed bridge
       ["Revelation 21–22", "The Ending"],
     ],
   );
+});
+
+// ===========================================================================
+// NAV-001 — the Continue/Begin card and the Lenses row. `loadClimbViewModel`
+// unit coverage first (deps injected directly, no module stubbing), then a
+// couple of full-page RENDER checks through the real `ClimbPage` wiring.
+// ===========================================================================
+
+test("NAV-001: no v2 session dependency wired at all -> Begin, never a thrown error", async () => {
+  const view = await loadClimbViewModel("user-1", {
+    getStages: async () => twoStages,
+    getEntries: async () => [],
+    getThreadCount: async () => 0,
+    // resolveWorkspaceId/listSessions deliberately omitted.
+  });
+
+  assert.equal(view.status, "ok");
+  if (view.status !== "ok") return;
+  assert.deepEqual(view.data.continueCard, { status: "begin", href: "/read/1/1" });
+});
+
+test("NAV-001: an active session resolves to Continue with real passage/stage/step/claim data", async () => {
+  const view = await loadClimbViewModel("user-1", {
+    getStages: async () => twoStages,
+    getEntries: async () => [],
+    getThreadCount: async () => 0,
+    resolveWorkspaceId: async () => "workspace-1",
+    listSessions: async () => [
+      {
+        id: "session-9",
+        workspaceId: "workspace-1",
+        range: { versificationId: "eng-protestant-66-31102-v1", start: "1.1.1", end: "1.1.31" },
+        mode: "encounter",
+        workflowState: "active",
+        connectionState: "unexamined",
+        catalogReleaseId: null,
+        readGateAt: null,
+        currentStep: "observe",
+        revision: 1,
+        createdAt: "2026-01-01T00:00:00.000Z",
+        updatedAt: "2026-01-02T00:00:00.000Z",
+        deletedAt: null,
+      },
+    ],
+    listSessionClaims: async () => [{ id: "c1", workspaceId: "workspace-1", sessionId: "session-9", kind: "observation", epistemicBasis: "text_explicit", body: "", passage: { versificationId: "eng-protestant-66-31102-v1", start: "1.1.1", end: "1.1.1" }, confidence: "tentative", provenance: "learner", doctrineStatus: "open", viewpointId: null, status: "draft", revision: 1, createdAt: "", updatedAt: "" }],
+    getBooks: async () => [{ n: 1, name: "Genesis", abbr: "Gen", chapters: 50, testament: "OT" }],
+  });
+
+  assert.equal(view.status, "ok");
+  if (view.status !== "ok") return;
+  assert.deepEqual(view.data.continueCard, {
+    status: "continue",
+    sessionId: "session-9",
+    passageLabel: "Genesis 1",
+    stageLabel: "The Beginning",
+    stepLabel: "step 2 of 8",
+    observationCount: 1,
+    openQuestionCount: 0,
+  });
+});
+
+test("NAV-001: a closed (not active) session does not count -> Begin", async () => {
+  const view = await loadClimbViewModel("user-1", {
+    getStages: async () => twoStages,
+    getEntries: async () => [],
+    getThreadCount: async () => 0,
+    resolveWorkspaceId: async () => "workspace-1",
+    listSessions: async () => [
+      {
+        id: "session-closed",
+        workspaceId: "workspace-1",
+        range: { versificationId: "eng-protestant-66-31102-v1", start: "1.1.1", end: "1.1.31" },
+        mode: "encounter",
+        workflowState: "closed",
+        connectionState: "unexamined",
+        catalogReleaseId: null,
+        readGateAt: null,
+        currentStep: "read",
+        revision: 1,
+        createdAt: "2026-01-01T00:00:00.000Z",
+        updatedAt: "2026-01-02T00:00:00.000Z",
+        deletedAt: null,
+      },
+    ],
+  });
+
+  assert.equal(view.status, "ok");
+  if (view.status !== "ok") return;
+  assert.deepEqual(view.data.continueCard, { status: "begin", href: "/read/1/1" });
+});
+
+test("NAV-001: a session-resolution failure degrades to Begin, not setup-incomplete -- the rest of the Journey page still renders", async () => {
+  const view = await loadClimbViewModel("user-1", {
+    getStages: async () => twoStages,
+    getEntries: async () => [],
+    getThreadCount: async () => 0,
+    resolveWorkspaceId: thrower("connect ECONNREFUSED 127.0.0.1:5432"),
+    listSessions: async () => [],
+  });
+
+  assert.equal(view.status, "ok", "a v2 session read failure must not fail the whole Journey page");
+  if (view.status !== "ok") return;
+  assert.deepEqual(view.data.continueCard, { status: "begin", href: "/read/1/1" });
+});
+
+test("NAV-001: the Lenses row picks the lowest-numbered mirrored stage and the learner's own thread", async () => {
+  const view = await loadClimbViewModel("user-1", {
+    getStages: async () => twoStages, // genesis <-> revelation, mutual mirror
+    getEntries: async () => [],
+    getThreadCount: async () => 1,
+    getThreads: async () => [
+      { slug: "seed-of-the-woman", title: "", definition: "", seeing: "", createdAt: "", updatedAt: "" },
+    ],
+  });
+
+  assert.equal(view.status, "ok");
+  if (view.status !== "ok") return;
+  assert.deepEqual(view.data.lenses, [
+    { key: "story-map", label: "Story Map", href: "/map" },
+    { key: "places", label: "Places", href: "/places" },
+    { key: "mirror", label: "Mirror", href: "/mirror/genesis-the-beginning" },
+    { key: "threads", label: "Threads", href: "/threads/seed-of-the-woman" },
+  ]);
+});
+
+test("RENDER: the real ClimbPage mounts the Continue card and the Lenses row", async () => {
+  resetStubs();
+  stubs.listSessionsV2 = async () => [
+    {
+      id: "session-9",
+      workspaceId: "workspace-1",
+      range: { versificationId: "eng-protestant-66-31102-v1", start: "1.1.1", end: "1.1.31" },
+      mode: "encounter",
+      workflowState: "active",
+      connectionState: "unexamined",
+      catalogReleaseId: null,
+      readGateAt: null,
+      currentStep: "connect",
+      revision: 1,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      updatedAt: "2026-01-02T00:00:00.000Z",
+      deletedAt: null,
+    },
+  ];
+
+  const html = await renderHtml();
+
+  assert.ok(html.includes('data-testid="continue-card"'), `Continue card missing:\n${html}`);
+  assert.ok(html.includes('data-status="continue"'), `expected the continue variant:\n${html}`);
+  assert.ok(html.includes("step 4 of 8"), `step label missing/wrong:\n${html}`);
+  assert.ok(html.includes('data-testid="lenses-row"'), `Lenses row missing:\n${html}`);
+  assert.ok(html.includes('href="/map"'), `Story Map lens missing:\n${html}`);
+  assert.ok(html.includes('href="/places"'), `Places lens missing:\n${html}`);
+});
+
+test("RENDER: a learner with no active session sees the real ClimbPage's Begin card", async () => {
+  resetStubs();
+
+  const html = await renderHtml();
+
+  assert.ok(html.includes('data-testid="continue-card"'));
+  assert.ok(html.includes('data-status="begin"'));
+  assert.ok(html.includes("Start at Genesis 1"));
 });

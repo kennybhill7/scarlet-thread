@@ -1,13 +1,21 @@
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+
 import { redirect } from "next/navigation";
 
 import { stages as stagesTable } from "@/db/schema";
-import type { Entry, Stage } from "@/lib/contracts";
+import type { BookMeta, Entry, Stage, Thread } from "@/lib/contracts";
+import type { StudyClaim, StudySession } from "@/lib/contracts/study-v2";
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
 import { listEntries } from "@/lib/db/entries";
 import { listThreads } from "@/lib/db/threads";
+import { getOrCreatePersonalWorkspace } from "@/lib/db/workspaces";
 import type { MountainStage } from "@/lib/vault/seed";
+import { listClaimsV2, listSessionsV2, V2_LIST_MAX_LIMIT } from "@/app/api/v2/_lib/queries";
 import { ClimbHero } from "@/components/climb/ClimbHero";
+import { buildContinueCardViewModel, type ContinueCardViewModel } from "@/components/climb/ContinueCard";
+import { buildLensLinks, LensesRow, type LensLink } from "@/components/climb/LensesRow";
 import { Mountain } from "@/components/climb/Mountain";
 import { OpeningSequence } from "@/components/opening/OpeningSequence";
 
@@ -100,6 +108,10 @@ export interface ClimbData {
   totalStages: number;
   threadCount: number;
   openQuestions: number;
+  /** NAV-001 — the Journey page's top Continue/Begin card. */
+  continueCard: ContinueCardViewModel;
+  /** NAV-001 — the Journey page's Lenses row (Story Map/Places/Mirror/Threads). */
+  lenses: LensLink[];
 }
 
 export type ClimbViewModel =
@@ -110,13 +122,92 @@ export type ClimbDataDeps = {
   getStages: () => Promise<Stage[]>;
   getEntries: (userId: string) => Promise<Entry[]>;
   getThreadCount: (userId: string) => Promise<number>;
+  /**
+   * NAV-001 — optional, real by default (`listThreads`): this learner's own
+   * threads, for the Lenses row's Threads link (see `LensesRow.tsx`'s own
+   * header for why there is no `/threads` index page to link to instead).
+   * Omitted (as every pre-NAV-001 test fixture does) collapses to an empty
+   * list, which `buildLensLinks` treats as "no thread yet" (falls back to
+   * `/review`) -- never a thrown error, same optional/call-guarded shape
+   * `app/(app)/study/[sessionId]/page.tsx`'s `StudyPageDeps` already
+   * established for this codebase.
+   */
+  getThreads?: (userId: string) => Promise<Thread[]>;
+  /**
+   * NAV-001 — optional, real by default (`getOrCreatePersonalWorkspace`):
+   * this learner's personal v2 workspace id, the first step in resolving a
+   * resumable study session for the Continue card. Omitted means "no session
+   * resolution attempted" -- the Continue card falls back to Begin, never a
+   * thrown error (a v2 session-resolution failure must not fail the whole
+   * Journey page; see `resolveContinueCard` below).
+   */
+  resolveWorkspaceId?: (userId: string) => Promise<string>;
+  /** NAV-001 — optional, real by default (`listSessionsV2`): this workspace's v2 study sessions. */
+  listSessions?: (workspaceId: string) => Promise<StudySession[]>;
+  /** NAV-001 — optional, real by default (`listClaimsV2`): one session's own claims, for the Continue card's observation/open-question counts. */
+  listSessionClaims?: (workspaceId: string, sessionId: string) => Promise<StudyClaim[]>;
+  /** NAV-001 — optional, real by default (a `public/bible/index.json` read): the book index, for formatting the Continue card's passage label. */
+  getBooks?: () => Promise<BookMeta[]>;
 };
+
+/** `app/(app)/map/page.tsx`'s own `loadRealBibleIndex` is this same read, duplicated here rather than imported (that function is private to that module, and this task's owned paths don't include it). */
+async function loadRealBookIndex(): Promise<BookMeta[]> {
+  const raw = await readFile(path.join(process.cwd(), "public", "bible", "index.json"), "utf8");
+  const data = JSON.parse(raw) as { books: BookMeta[] };
+  return data.books;
+}
 
 const defaultDataDeps: ClimbDataDeps = {
   getStages: () => db.select().from(stagesTable),
   getEntries: (userId) => listEntries(userId, {}),
   getThreadCount: async (userId) => (await listThreads(userId)).length,
+  getThreads: listThreads,
+  resolveWorkspaceId: getOrCreatePersonalWorkspace,
+  listSessions: (workspaceId) => listSessionsV2(workspaceId, { limit: V2_LIST_MAX_LIMIT }),
+  listSessionClaims: (workspaceId, sessionId) => listClaimsV2(workspaceId, { sessionId }),
+  getBooks: loadRealBookIndex,
 };
+
+const BEGIN_HREF = "/read/1/1";
+
+/**
+ * Resolves the Journey page's Continue/Begin card. Deliberately its OWN
+ * try/catch, separate from `loadClimbViewModel`'s outer one -- same
+ * discipline `app/(app)/study/[sessionId]/page.tsx`'s "CURATED LESSON DATA"
+ * resolution uses for the identical reason: a v2 session-resolution failure
+ * (this workspace's rows just haven't synced from a device's IndexedDB vault
+ * yet, a transient read error, etc.) is NOT a "configuration problem" the way
+ * a failed `getStages`/`getEntries` read is -- it must degrade to the
+ * honest, always-safe "Begin" state rather than failing the whole Journey
+ * page the way `loadClimbViewModel`'s other dependencies do.
+ */
+async function resolveContinueCard(
+  userId: string,
+  stages: MountainStage[],
+  deps: ClimbDataDeps,
+): Promise<ContinueCardViewModel> {
+  if (!deps.resolveWorkspaceId || !deps.listSessions) {
+    return { status: "begin", href: BEGIN_HREF };
+  }
+  try {
+    const workspaceId = await deps.resolveWorkspaceId(userId);
+    const sessions = await deps.listSessions(workspaceId);
+    const active = sessions
+      .filter((session) => session.workflowState === "active" && !session.deletedAt)
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    const top = active[0];
+    if (!top) return { status: "begin", href: BEGIN_HREF };
+
+    const [claims, books] = await Promise.all([
+      deps.listSessionClaims ? deps.listSessionClaims(workspaceId, top.id) : Promise.resolve<StudyClaim[]>([]),
+      deps.getBooks ? deps.getBooks() : Promise.resolve<BookMeta[]>([]),
+    ]);
+
+    return buildContinueCardViewModel({ session: top, claims, stages, books });
+  } catch {
+    return { status: "begin", href: BEGIN_HREF };
+  }
+}
 
 /**
  * The one seam between the page and the database. Errors here (missing
@@ -130,19 +221,31 @@ export async function loadClimbViewModel(
   deps: ClimbDataDeps = defaultDataDeps,
 ): Promise<ClimbViewModel> {
   try {
-    const [stageRows, entryRows, threadCount] = await Promise.all([
+    const [stageRows, entryRows, threads] = await Promise.all([
       deps.getStages(),
       deps.getEntries(userId),
-      deps.getThreadCount(userId),
+      // NAV-001 — `getThreads` (when supplied; it defaults to the real
+      // `listThreads`) subsumes `getThreadCount`'s own job: both call the
+      // same real query in production, so calling both would issue it
+      // twice. `getThreadCount` is called ONLY as a fallback when
+      // `getThreads` is absent (every pre-NAV-001 `loadClimbViewModel`
+      // fixture omits `getThreads` and supplies its own decoupled
+      // `getThreadCount` stub -- that path is unchanged).
+      deps.getThreads ? deps.getThreads(userId) : Promise.resolve<Thread[] | null>(null),
     ]);
+    const threadCount = threads !== null ? threads.length : await deps.getThreadCount(userId);
 
     const stages = buildMountainStages(stageRows, entryRows);
     const stagesWithWork = stages.filter((stage) => stage.observationCount > 0).length;
     const openQuestions = stages.reduce((sum, stage) => sum + stage.questionCount, 0);
 
+    const continueCard = await resolveContinueCard(userId, stages, deps);
+    const firstThreadSlug = threads?.[0]?.slug ?? null;
+    const lenses = buildLensLinks({ stages, firstThreadSlug });
+
     return {
       status: "ok",
-      data: { stages, stagesWithWork, totalStages: stages.length, threadCount, openQuestions },
+      data: { stages, stagesWithWork, totalStages: stages.length, threadCount, openQuestions, continueCard, lenses },
     };
   } catch {
     return { status: "setup-incomplete" };
@@ -252,7 +355,7 @@ export default async function ClimbPage() {
     );
   }
 
-  const { stages, stagesWithWork, totalStages, threadCount, openQuestions } = view.data;
+  const { stages, stagesWithWork, totalStages, threadCount, openQuestions, continueCard, lenses } = view.data;
 
   // OPENING-001 — first-run-only globe -> map -> Eden sequence, shown before
   // this real content on a fresh device (see OpeningSequence.tsx's header
@@ -268,8 +371,10 @@ export default async function ClimbPage() {
           totalStages={totalStages}
           threadCount={threadCount}
           openQuestions={openQuestions}
+          continueCard={continueCard}
         />
         <Mountain stages={stages} />
+        <LensesRow lenses={lenses} />
       </div>
     </OpeningSequence>
   );
