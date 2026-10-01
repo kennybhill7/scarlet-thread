@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-01T02:06:10.909Z",
+  "updatedAt": "2026-10-01T14:43:28.627Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -922,6 +922,14 @@
       "attempts": 2,
       "lastRunId": null,
       "lastEvidence": "Merged 2026-09-30 (02747ff) into design/mountain-journey and master, both pushed. First attempt (2026-09-25) was rate-limited before writing anything; relaunched with per-step commits. All 15 review items (16 commits, one per item, 14 split in two) applied: 3 S1 source-fidelity fixes (2 of which were live in production -- the Westermann/Skinner misattribution and an unattributed NIV quote of Gen 3:15 in a BSB-only app) + 12 S2 items. Independently re-verified, not just trusted the report: confirmed S1 wording directly against the lesson text and the real BSB corpus word-for-word; confirmed the Romans 8 connection type/label downgrade; grepped for the four banned assertion-line phrases (none); independently resolved all 45 lesson sources[] ids and all 5 connection sourceIds against the registry myself (0 missing, not just trusting the agents count); ran content:validate (OK), the 3 touched test files (125/125), typecheck/lint, and the full suite on the combined merged tree (1946 pass/0 fail/4 cancelled). Deliberately did NOT apply the reviews cut list (Kens decision) -- lesson is now 6,239 words (was 5,317), since real additions landed with no cuts."
+    },
+    "SYNCFLUSH-001": {
+      "status": "done",
+      "branch": "agent/SYNCFLUSH-001-claude-b",
+      "commitSha": "0b31b4a",
+      "attempts": 3,
+      "lastRunId": null,
+      "lastEvidence": "Merged 2026-10-01 (0b31b4a) into design/mountain-journey and master, both pushed. First attempt (2026-09-25) rate-limited with nothing written; second attempt stalled (600s no-progress) but left 5 real commits, all 4 lettered steps done (B groundwork, A+B background flush + parking, A UI notice, C drain-before-signout) plus 2 uncommitted test files I committed myself. Reviewed the real production code line by line (store.ts/client.ts/clear.ts) before trusting it -- confirmed the wire-stripping of local-only bookkeeping fields is actually implemented, not just claimed in a comment. Found and fixed 3 real bugs in the one test file the agent was mid-write on when it stalled (a hook-bearing component called as a plain function instead of via createElement; two HTML-entity-escaping mismatches; a createElement typecheck overload issue) -- zero bugs in the production code itself. Ran one adversarial mutation of my own (off-by-one on the park threshold), 4 tests caught it. Full suite 1973 pass/0 fail/4 cancelled."
     }
   }
 }
