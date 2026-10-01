@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt2-jeremiah-rachel",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.2.17",
+    "end": "40.2.18"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "24.31.15",
+    "end": "24.31.17"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Matthew's own words introduce this as a direct citation, \"Then what was spoken through the prophet Jeremiah was fulfilled\" (40.2.17), and the quotation at 40.2.18 matches Jeremiah 31:15 almost word for word, differing only in the order of two nouns: Matthew's BSB wording reads \"weeping and great mourning,\" while Jeremiah's own BSB wording at 24.31.15 reads \"mourning and great weeping.\" The label rests on that formula and the near-verbatim match. Jeremiah's own next two verses, included in this range, turn from this weeping to a stated hope that the children will return (24.31.16-17); secondary sources report that Matthew's first readers would likely have heard that reversal in the background of the citation, a reading this connection flags without developing further -- see this lesson's Sources and Limits.",
+  "sourceId": "source-wikipedia-matthew-2-18",
+  "viewpointId": null
+}

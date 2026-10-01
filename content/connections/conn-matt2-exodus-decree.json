@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt2-exodus-decree",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.2.13",
+    "end": "40.2.16"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "2.1.15",
+    "end": "2.1.22"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "Pharaoh's decree that Hebrew midwives, and then \"all his people,\" kill the Hebrews' infant sons (2.1.16, 2.1.22) and Herod's order to kill Bethlehem's boys \"two years old and under\" (40.2.16) share a narrative shape -- a ruler ordering the deaths of a people's infant sons to remove a perceived future threat -- without Matthew's own words naming Exodus or quoting its wording anywhere in this span. Andrew Lincoln (Born of a Virgin?, 2013, p. 44, reported via the Wikipedia article on the Massacre of the Innocents used here) states that Matthew's episode appears modeled on this Exodus story \"as told in an expanded version that was current in the 1st century\"; Dale C. Allison's book-length Mosaic-typology argument (The New Moses, 1993) is reported as a separate, broader case for reading Matthew's infancy narrative this way, but it was not independently read for this connection. The label is plausible rather than strong because the overlap is in narrative shape and theme rather than in shared wording, unlike the companion connection to Exodus 4:19-20 below.",
+  "sourceId": "source-wikipedia-massacre-of-the-innocents",
+  "viewpointId": null
+}

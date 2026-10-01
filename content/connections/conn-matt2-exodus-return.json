@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt2-exodus-return",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.2.19",
+    "end": "40.2.21"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "2.4.19",
+    "end": "2.4.20"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "The angel's instruction, \"those seeking the Child's life are now dead\" (40.2.20), and the LORD's instruction to Moses, \"all the men who sought to kill you are dead\" (2.4.19), use nearly identical wording for the same narrative beat -- a threatened figure in exile is told it is safe to return because those who sought his life have died -- without Matthew's own words citing Exodus by name or formula anywhere in this span. Michael Goldberg (2001, p. 147, reported via the Wikipedia article on Matthew 2:20-21 used here) is quoted calling the two passages' wording \"virtually the same\"; Raymond E. Brown is reported in the same article reading the plural \"they are dead\" in Matthew as Matthew's own narrative logic (more than one person sought the Child's life) rather than as evidence the wording was borrowed from Exodus. The label is strong rather than explicit because the verbal match is close enough to check directly, but Matthew supplies no citation formula and at least one named scholar reads the resemblance as coincidental rather than deliberate.",
+  "sourceId": "source-wikipedia-matthew-2-20-21",
+  "viewpointId": null
+}
