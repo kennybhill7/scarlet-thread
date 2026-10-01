@@ -64,11 +64,36 @@ export function isFrontFacing(rotation: Rotation, lon: number, lat: number): boo
   return cosDistance > 0;
 }
 
-/** Projects (lon, lat) to pixel [x, y], or null when it is on the far hemisphere. */
+/**
+ * Projects (lon, lat) to pixel [x, y], or null when it is on the far
+ * hemisphere (beyond `clipAngle`). Deliberately does NOT call
+ * `projection([lon, lat])` directly — that bare call bypasses d3-geo's clip
+ * pipeline entirely and returns a (wrong, "wrapped around the back")
+ * coordinate for a point nowhere near the visible hemisphere; only
+ * `geoPath`'s stream-based rendering actually consults `clipAngle` (verified
+ * directly against d3-geo: `geoOrthographic().clipAngle(90)([170, 0])`
+ * returns a real coordinate, not null, even though 170 degrees is obviously
+ * on the far side — this function exists specifically so every OTHER
+ * function in this module can call it and get a result that means what its
+ * name says, instead of every caller needing to remember to pre-filter with
+ * `isFrontFacing` the way `markers.ts` does today). Feeding one point
+ * through `projection.stream()` (the same pipeline `geoPath` itself drives)
+ * is the standard d3-geo technique for this.
+ */
 export function projectPoint(projection: GeoProjection, lon: number, lat: number): [number, number] | null {
-  const projected = projection([lon, lat]);
-  if (!projected) return null;
-  return projected;
+  let result: [number, number] | null = null;
+  const sink: Parameters<GeoProjection["stream"]>[0] = {
+    point: (x, y) => {
+      result = [x, y];
+    },
+    lineStart: () => {},
+    lineEnd: () => {},
+    polygonStart: () => {},
+    polygonEnd: () => {},
+    sphere: () => {},
+  };
+  projection.stream(sink).point(lon, lat);
+  return result;
 }
 
 /** The outer circle of the globe (the sphere's own silhouette), as an SVG path `d`. */

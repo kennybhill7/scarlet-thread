@@ -1,8 +1,8 @@
-/* PLACELENS-001 — always the dark Passage Workspace shell (--shell-*), same
-   surface="shell" convention PassagePicker.module.css documents: this lens is
-   opened FROM a passage/study screen (PRODUCT_EXPERIENCE_PLAN §A), never the
-   parchment reading page. No hex literals — every color is a --shell-*/--gold
-   token from app/globals.css. */
+/* PLACELENS-001 — always the dark Passage Workspace shell (--shell-* tokens),
+   same surface="shell" convention PassagePicker.module.css documents: this
+   lens is opened FROM a passage/study screen (PRODUCT_EXPERIENCE_PLAN §A),
+   never the parchment reading page. No hex literals — every color is a
+   --shell- or --gold token from app/globals.css. */
 
 .wrap {
   display: flex;
