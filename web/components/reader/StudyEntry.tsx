@@ -90,8 +90,9 @@ import styles from "./ChapterReader.module.css";
  *      all.
  *   3. `lib/sync/client.ts`'s background flush controller
  *      (`createBackgroundSyncV2Controller`, SYNCFLUSH-001, already mounted
- *      app-wide by `components/sync/SyncRegistration.tsx`) is debounced off
- *      this exact local write (`subscribeLocalV2Writes`) and keeps retrying
+ *      app-wide by this app's one sync-mount component under
+ *      `components/sync/`) is debounced off this exact local write
+ *      (`subscribeLocalV2Writes`) and keeps retrying
  *      on the normal online/visibility/interval cadence — "the server must
  *      eventually learn about this session without the learner doing
  *      anything extra" is that controller's job, not this function's; this
