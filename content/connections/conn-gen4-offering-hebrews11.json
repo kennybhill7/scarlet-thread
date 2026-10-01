@@ -12,7 +12,7 @@
   },
   "type": "explicit_reference",
   "evidenceLabel": "explicit",
-  "rationale": "Hebrews 11:4 names Abel directly and supplies \"faith\" as the reason his offering was accepted -- \"by faith Abel offered God a better sacrifice than Cain did\" -- a specific causal claim Genesis 4:4-5 itself does not make; the Genesis text reports only that \"the LORD looked with favor on Abel and his offering, but He had no regard for Cain and his offering\" (4:4-5), without using the vocabulary of faith. The naming is direct and the causal claim explicit, which is why the type is explicit_reference and the label is explicit; this row reports Hebrews' own stated reason, not an inference drawn from Genesis 4's wording alone.",
+  "rationale": "Hebrews 11:4 names Abel directly and supplies \"faith\" as the reason his offering was accepted -- \"By faith Abel offered God a better sacrifice than Cain did\" -- a specific causal claim Genesis 4:4-5 itself does not make; the Genesis text reports only that \"the LORD looked with favor on Abel and his offering, but He had no regard for Cain and his offering\" (4:4-5), without using the vocabulary of faith. The naming is direct and the causal claim explicit, which is why the type is explicit_reference and the label is explicit; this row reports Hebrews' own stated reason, not an inference drawn from Genesis 4's wording alone.",
   "sourceId": "source-bsb-shipped-corpus",
   "viewpointId": null
 }
