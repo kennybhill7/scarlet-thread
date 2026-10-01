@@ -1,155 +1,1532 @@
 [
-  {"id":"source-westminster-confession","author":"Westminster Assembly","title":"The Westminster Confession of Faith","publisher":"WestminsterStandards.org","url":"https://westminsterstandards.org/westminster-confession-of-faith/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-09-15"},
-  {"id":"source-westminster-larger-catechism","author":"Westminster Assembly","title":"The Westminster Larger Catechism","publisher":"WestminsterStandards.org","url":"https://westminsterstandards.org/westminster-larger-catechism/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-09-15"},
-  {"id":"source-belgic-confession","author":"Reformed Church in America","title":"The Belgic Confession, Article 17","publisher":"Reformed Church in America","url":"https://www.rca.org/about/theology/creeds-and-confessions/the-belgic-confession/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-09-15"},
-  {"id":"source-luther-lectures-on-genesis","author":"Martin Luther","title":"Bible Study with Luther: Genesis 3:7–15","publisher":"Lutheran Church—Missouri Synod","url":"https://resources.lcms.org/reading-study/bible-studies/bible-study-with-luther-genesis-37-15/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-09-15"},
-  {"id":"source-ccc-410-411","author":"Catholic Church","title":"Catechism of the Catholic Church, §§410–411","publisher":"United States Conference of Catholic Bishops","url":"https://www.usccb.org/sites/default/files/flipbooks/catechism/106/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-09-15"},
-  {"id":"source-ineffabilis-deus","author":"Pius IX","title":"Ineffabilis Deus","publisher":"Papal Encyclicals Online","url":"https://www.papalencyclicals.net/pius09/p9ineff.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-09-15"},
-  {"id":"source-rashi-gen-3-15","author":"Rashi","title":"Rashi on Genesis 3:15","publisher":"Sefaria","url":"https://www.sefaria.org/api/texts/Rashi_on_Genesis.3.15","licence":"Public-domain translation; link retained for provenance","accessedAt":"2026-09-15"},
-  {"id":"source-targum-pseudo-jonathan-gen-3-15","author":"Targum Pseudo-Jonathan","title":"Targum (Pseudo-)Jonathan on Genesis 3:15","publisher":"Sefaria","url":"https://www.sefaria.org/api/texts/Targum_Jonathan_on_Genesis.3.15","licence":"Public-domain translation; link retained for provenance","accessedAt":"2026-09-15"},
-  {"id":"source-irenaeus-adv-haer","author":"Irenaeus of Lyons","title":"Against Heresies, Book V, chapter 21","publisher":"New Advent","url":"https://www.newadvent.org/fathers/0103521.htm","licence":"Public-domain translation; link retained for provenance","accessedAt":"2026-09-15"},
-  {"id":"source-augustine-de-genesi-contra-manichaeos","author":"Edward L. Smither","title":"Augustine on redemption in Genesis 1-3 (reporting Augustine's De Genesi contra Manichaeos, 2.18.28)","publisher":"Verbum et Ecclesia 35, no. 1 (2014), SciELO","url":"https://scielo.org.za/scielo.php?script=sci_arttext&pid=S2074-77052014000100026","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-09-15"},
-  {"id":"source-westermann-genesis-1-11","author":"Claus Westermann","title":"Genesis 1–11: A Commentary","publisher":"Augsburg Publishing House","url":"https://archive.org/details/westermann_genesis202508","licence":"Link and bibliographic metadata only; edition and page verification required before quotation","accessedAt":"2026-09-15"},
-  {"id":"source-walsh-1977-genesis-2-3","author":"Jerome T. Walsh","title":"Genesis 2:4b–3:24: A Synchronic Approach, Journal of Biblical Literature 96, no. 2 (June 1977): 161–177","publisher":"Society of Biblical Literature (SBL Press)","url":"https://scholarlypublishingcollective.org/sblpress/jbl/article/96/2/161/186273","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; citation/abstract page only; full text paywalled and not read -- the outline in the lesson is Walsh's proposal as reported secondhand, verify against the article before quoting","accessedAt":"2026-09-25"},
-  {"id":"source-chiasm-exchange-genesis-2-3","author":"Biblical Chiasm Exchange (outline attributed to David A. Dorsey and Jerome T. Walsh)","title":"Genesis 2:4-3:24 (large-scale chiasmus outline)","publisher":"Biblical Chiasm Exchange","url":"https://www.chiasmusxchange.com/large-scale-chiasmus/genesis-24-324/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; secondary catalog page reproducing a proposed outline; not Walsh's own text","accessedAt":"2026-09-25"},
-  {"id":"source-stefanovic-great-reversal","author":"Zdravko Stefanovic","title":"The Great Reversal: Thematic Links Between Genesis 2 and 3, Andrews University Seminary Studies 32, no. 1-2 (1994): 47-56","publisher":"Andrews University Seminary Studies (PDF via BiblicalELearning.org)","url":"https://biblicalelearning.org/wp-content/uploads/2022/01/Stefanovic_Gen2_AUSS.pdf","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; volume/year/pages confirmed 2026-09-25 against the HTML mirror's header","accessedAt":"2026-09-25"},
-  {"id":"source-henry-commentary-genesis-3","author":"Matthew Henry","title":"Matthew Henry's Commentary on the Whole Bible, Genesis 3","publisher":"Blue Letter Bible","url":"https://www.blueletterbible.org/Comm/mhc/Gen/Gen_003.cfm","licence":"Public-domain text; link retained for provenance","accessedAt":"2026-09-25"},
-  {"id":"source-studylight-genesis-3-8","author":"StudyLight.org (aggregated classic commentaries)","title":"Commentary on Genesis 3:8","publisher":"StudyLight.org","url":"https://www.studylight.org/commentary/genesis/3-8.html","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; aggregator page of older public-domain commentaries; the individual commentators are not separately identified here","accessedAt":"2026-09-25"},
-  {"id":"source-tips-translation-commentary-gen-3-14","author":"William D. Reyburn and Euan McG. Fry, A Handbook on Genesis (UBS Helps for Translators, 1997), as reproduced by Translation Insights & Perspectives (TIPs)","title":"Translation Commentary on Genesis 3:14 (Translation Insights & Perspectives)","publisher":"United Bible Societies (TIPs)","url":"https://tips.translation.bible/story/translation-commentary-on-genesis-314/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-09-25"},
-  {"id":"source-alter-art-of-biblical-narrative-theopolis","author":"Peter J. Leithart (summarizing Robert Alter)","title":"Gleanings from Robert Alter's Art of Biblical Narrative, Biblical Horizons (17 May 1992), as republished by Theopolis Institute (summary of Alter's The Art of Biblical Narrative, Basic Books, 1981)","publisher":"Theopolis Institute","url":"https://theopolisinstitute.com/gleanings-from-robert-alters-art-of-biblical-narrative/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; secondary summary; Alter's own text was not read, verify against the book before quoting","accessedAt":"2026-09-25"},
-  {"id":"source-buber-rosenzweig-leitwort","author":"Martin Buber and Franz Rosenzweig (discussed in Rosenzweig's Bible)","title":"Rosenzweig's Bible (Cambridge University Press) -- discussion of Leitwort style and the Buber-Rosenzweig translation","publisher":"Cambridge University Press","url":"https://www.cambridge.org/core/books/rosenzweigs-bible/6CB41E9330E2BDB642E171178FB86D4E","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; secondary scholarship on the Leitwort concept; the title and date of Buber's own 1927 essay were not independently verified","accessedAt":"2026-09-25"},
-  {"id":"source-mccoy-chiasmus-cts-journal","author":"Brad McCoy","title":"Chiasmus: An Important Structural Device Commonly Found in Biblical Literature, CTS Journal 9, no. 2 (Fall 2003)","publisher":"Chafer Theological Seminary","url":"https://www.chafer.edu/CTS-Journal-Chiasmus-An-Important-Structural-Device-Commonly-Found-in-Biblical-Literature-Brad-McCoy","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-09-25"},
-  {"id":"source-moo-romans-nicnt","author":"Douglas J. Moo","title":"The Epistle to the Romans (NICNT), Eerdmans, 1996, p. 314 on Romans 5:14 (page cited via a secondary academic paper)","publisher":"Eerdmans (page reference via Liberty University Digital Commons)","url":"https://digitalcommons.liberty.edu/cgi/viewcontent.cgi?article=1145&context=masters","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; secondary access only; page number and wording require verification against the commentary before quotation","accessedAt":"2026-09-25"},
-  {"id":"source-schreiner-romans-becnt","author":"Thomas R. Schreiner","title":"Romans (BECNT), Baker, 1998, p. 285 (page cited via a secondary academic paper)","publisher":"Baker Academic (page reference via Liberty University Digital Commons)","url":"https://digitalcommons.liberty.edu/cgi/viewcontent.cgi?article=1145&context=masters","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; secondary access only; page number and wording require verification against the commentary before quotation","accessedAt":"2026-09-25"},
-  {"id":"source-biblehub-2-cor-11-3","author":"BibleHub","title":"2 Corinthians 11:3, Greek text and parallel apparatus (πανουργία)","publisher":"BibleHub","url":"https://biblehub.com/study/2_corinthians/11-3.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; aggregator apparatus, not a critical edition; Greek readings not verified against NA28","accessedAt":"2026-09-25"},
-  {"id":"source-cheek-themelios-2023","author":"Jonathan M. Cheek","title":"The Individual and Collective Offspring of the Woman: The Canonical Outworking of Genesis 3:15, Themelios 48, no. 1 (2023)","publisher":"The Gospel Coalition (Themelios)","url":"https://www.thegospelcoalition.org/themelios/article/the-individual-and-collective-offspring-of-the-woman-the-canonical-outworking-of-genesis-315/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a full independent re-read is recommended before quoting directly","accessedAt":"2026-09-25"},
-  {"id":"source-collins-syntactical-note-gen-3-15","author":"C. John Collins","title":"A Syntactical Note (Genesis 3:15): Is the Woman's Seed Singular or Plural?, Tyndale Bulletin 48, no. 1 (1997): 139–148","publisher":"Tyndale House (Tyndale Bulletin)","url":"https://www.tyndalebulletin.org/article/30353-a-syntactical-note-genesis-3-15-is-the-woman-s-seed-singular-or-plural.pdf","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-09-25"},
-  {"id":"source-alexander-seed-in-genesis","author":"T. Desmond Alexander","title":"Further Observations on the Term 'Seed' in Genesis, Tyndale Bulletin 48, no. 2 (1997): 363–367","publisher":"Tyndale House (Tyndale Bulletin)","url":"https://www.tyndalebulletin.org/article/30377-further-observations-on-the-term-seed-in-genesis","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-09-25"},
-  {"id":"source-preceptaustin-romans-8-20","author":"Precept Austin (aggregated commentary; no named scholar for the Genesis 3 background)","title":"Romans 8:20-21 Commentary","publisher":"Precept Austin","url":"https://www.preceptaustin.org/romans_820-21","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; full-text checked 2026-09-25 -- the string \"Moo\" does not occur on this page","accessedAt":"2026-09-25"},
-  {"id":"source-moo-romans-nicnt-516-via-rht","author":"Douglas J. Moo, The Epistle to the Romans (NICNT, 1996), p. 516, as cited by Redemptive History and Theology, \"Subjected to Futility\"","title":"Subjected to Futility: Romans 8:20 (citing Moo, NICNT Romans, p. 516, on the \"in hope\" clause)","publisher":"Redemptive History and Theology (secondary citation of Moo, NICNT Romans)","url":"https://redemptivehistorytheology.com/blog/chapter-9-painful-toil-genesis-317-21/subjected-to-futility/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; secondhand -- Moo's own page was not read, only cited by this secondary page","accessedAt":"2026-09-25"},
-  {"id":"source-skinner-icc-genesis","author":"John Skinner","title":"A Critical and Exegetical Commentary on Genesis, 2nd ed. (International Critical Commentary), p. 79 -- quoted by Jared August, Themelios 42.1 (2017), fn. 25","publisher":"T&T Clark (ICC); quotation via The Gospel Coalition (Themelios)","url":"https://www.thegospelcoalition.org/themelios/article/the-messianic-hope-of-genesis-the-protoevangelium-and-patriarchal-promises/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; secondhand -- Skinner's commentary itself was not read, only August's quotation of it","accessedAt":"2026-09-25"},
-  {"id":"source-august-themelios-2017","author":"Jared M. August","title":"The Messianic Hope of Genesis: The Protoevangelium and Patriarchal Promises, Themelios 42, no. 1 (2017): 48-65","publisher":"The Gospel Coalition (Themelios)","url":"https://www.thegospelcoalition.org/themelios/article/the-messianic-hope-of-genesis-the-protoevangelium-and-patriarchal-promises/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-09-25"},
-  {"id":"source-barr-garden-of-eden","author":"James Barr","title":"The Garden of Eden and the Hope of Immortality (Fortress, 1992), p. 140 -- quoted by Jared August, Themelios 42.1 (2017), fn. 34-35","publisher":"Fortress Press; quotation via The Gospel Coalition (Themelios)","url":"https://www.thegospelcoalition.org/themelios/article/the-messianic-hope-of-genesis-the-protoevangelium-and-patriarchal-promises/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; secondhand -- Barr's book itself was not read, only August's quotation of it","accessedAt":"2026-09-25"},
-  {"id":"source-alsup-christianity-today-2025","author":"Wendy Alsup","title":"How the ESV Changed What Women Want, Christianity Today, February 24, 2025","publisher":"Christianity Today","url":"https://www.christianitytoday.com/2025/02/esv-update-genesis-316-gender-submission-desire-contrary-what-women-want/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-09-25"},
-  {"id":"source-arnold-genesis-ncbc-2008","author":"Bill T. Arnold","title":"Genesis, New Cambridge Bible Commentary (Cambridge University Press, 2008), \"Commentary Part One: The Primeval History -- Genesis 1-11,\" pp. 27-124","publisher":"Cambridge University Press","url":"https://www.cambridge.org/core/books/abs/genesis/commentary-part-one-the-primeval-history-genesis-111/F6328F8DAF6467EC06BE712F270E8AEB","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-09-25"},
-  {"id":"source-petersen-bible-odyssey-primeval-history","author":"David L. Petersen","title":"The Primeval History","publisher":"Bible Odyssey (Society of Biblical Literature)","url":"https://www.bibleodyssey.org/articles/the-primeval-history/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; page returned HTTP 403 to automated fetch during review 2026-09-25 -- bibliographic identity and quoted lines carried over from design/GENESIS_3_LESSON_RESEARCH.md, not independently re-fetched here","accessedAt":"2026-09-25"},
-  {"id":"source-wikipedia-book-of-genesis","author":"Wikipedia contributors","title":"Book of Genesis (tertiary source, used for the state-of-the-field survey and its footnoted scholars -- Hendel, Hornkohl, Gmirkin)","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Book_of_Genesis","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary survey source, not a peer-reviewed one","accessedAt":"2026-09-25"},
-  {"id":"source-plichta-serpents-ane","author":"Denise Plichta","title":"Serpents in the Ancient Near East: Genesis 3:1 (citing Meredith Kline, Victor Matthews, and John Walton)","publisher":"Redemptive History and Theology","url":"https://redemptivehistorytheology.com/blog/chapter-6-a-serpent-in-the-garden-genesis-31-13/serpents-in-the-ancient-near-east/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-09-25"},
-  {"id":"source-biblehub-bdb-nachash","author":"Bible Hub (Brown-Driver-Briggs entry)","title":"Strong's Hebrew 5175: נָחָשׁ (nachash)","publisher":"Bible Hub","url":"https://biblehub.com/hebrew/5175.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator","accessedAt":"2026-09-25"},
-  {"id":"source-biblehub-bdb-arum","author":"Bible Hub (Brown-Driver-Briggs entry)","title":"Strong's Hebrew 6175: עָרוּם (arum)","publisher":"Bible Hub","url":"https://biblehub.com/hebrew/6175.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator","accessedAt":"2026-09-25"},
-  {"id":"source-biblehub-bdb-itstsabon","author":"Bible Hub (Brown-Driver-Briggs entry)","title":"Strong's Hebrew 6093: עִצָּבוֹן (itstsabon)","publisher":"Bible Hub","url":"https://biblehub.com/hebrew/6093.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator","accessedAt":"2026-09-25"},
-  {"id":"source-biblehub-bdb-teshuqah","author":"Bible Hub (Brown-Driver-Briggs and Strong's entry)","title":"Strong's Hebrew 8669: תְּשׁוּקָה (teshuqah)","publisher":"Bible Hub","url":"https://biblehub.com/hebrew/8669.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator","accessedAt":"2026-09-25"},
-  {"id":"source-biblehub-bdb-shuph","author":"Bible Hub (Brown-Driver-Briggs entry)","title":"Strong's Hebrew 7779: שׁוּף (shuph)","publisher":"Bible Hub","url":"https://biblehub.com/hebrew/7779.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator","accessedAt":"2026-09-25"},
-  {"id":"source-blb-lxx-genesis-3-15","author":"Blue Letter Bible","title":"Septuagint text of Genesis 3:15","publisher":"Blue Letter Bible","url":"https://www.blueletterbible.org/lxx/gen/3/15/t_conc_3015","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; primary Greek text as reproduced by this aggregator, not an independent critical edition","accessedAt":"2026-09-25"},
-  {"id":"source-volkmer-biola-2017","author":"Jeffrey Volkmer","title":"Jesus in Genesis 3:15?, Biola University, Good Book Blog, June 20, 2017 (cited for its attribution of the collective reading to Gordon Wenham and Gerhard von Rad; Volkmer himself argues the contrary)","publisher":"Biola University","url":"https://www.biola.edu/blogs/good-book-blog/2017/jesus-in-genesis-3-15","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; Wenham and von Rad are cited at third hand here (Volkmer reporting McKnight reporting Wenham/von Rad), not independently verified against their own commentaries","accessedAt":"2026-09-25"},
-  {"id":"source-lxx-scrolls-zoe","author":"The LXX Scrolls","title":"Greek Word Study: Zōē (\"Life\")","publisher":"The LXX Scrolls","url":"https://the.lxxscrolls.com/p/zoe","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-09-25"},
-  {"id":"source-intertextual-bible-gen-3-20-lxx","author":"intertextual.bible","title":"Compare Genesis 3:20 and LXX Genesis 3:20","publisher":"intertextual.bible","url":"https://intertextual.bible/text/genesis-3.20/lxx-genesis-3.20","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; parallel-text aggregator","accessedAt":"2026-09-25"},
-  {"id":"source-openbible-geocoding","author":"OpenBible.info","title":"Bible Geocoding Data (ancient.jsonl, commit 7eb18a5ee62f27b9b93bd6689ea272d76dd23b8f)","publisher":"OpenBible.info","url":"https://github.com/openbibleinfo/Bible-Geocoding-Data","licence":"CC BY 4.0; attribution required: \"Place data © OpenBible.info, CC BY 4.0\". Some entries derive from OpenStreetMap (ODbL 1.0); no OSM geometry is used","accessedAt":"2026-09-25"},
-  {"id":"source-wikipedia-matthew-1-17","author":"Wikipedia contributors","title":"Matthew 1:17 (reporting W. D. Davies and Dale C. Allison, Jr.'s ICC commentary on the three-sets-of-fourteen structure and the lunar/Sabbath-week proposal; Krister Stendahl's view that David is meant to be counted twice; Craig S. Keener on the genealogy's purpose; and a scribal-confusion proposal involving Jehoiakim/Jeconiah at 1:11, cross-referenced to 1 Chronicles 3:15-16)","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Matthew_1:17","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named scholars secondhand -- Davies/Allison, Stendahl, and Keener's own texts were not independently read, verify before quoting directly","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-matthew-1-3","author":"Wikipedia contributors","title":"Matthew 1:3 (reporting William F. Albright and C. S. Mann's Anchor Bible commentary, Raymond E. Brown's The Birth of the Messiah, Amy-Jill Levine, Jerome, Robert H. Gundry, and John Chrysostom on why the four women appear in Matthew's genealogy)","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Matthew_1:3","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named scholars and patristic writers secondhand -- their own texts were not independently read, verify before quoting directly","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-matthew-1-1","author":"Wikipedia contributors","title":"Matthew 1:1 (reporting W. D. Davies and Dale C. Allison, Jr., Heinrich Meyer, Raymond E. Brown, and Robert H. Gundry on the titles \"son of David\" and \"son of Abraham\")","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Matthew_1:1","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named scholars secondhand -- their own texts were not independently read, verify before quoting directly","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-matthew-1-5","author":"Wikipedia contributors","title":"Matthew 1:5 (reporting William F. Albright and C. S. Mann on the Rahab/Rachab spelling, and Raymond E. Brown on the chronological problem of Rahab's position in the Boaz-Obed-Jesse line drawn from Ruth 4:18-22)","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Matthew_1:5","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named scholars secondhand -- their own texts were not independently read, verify before quoting directly","accessedAt":"2026-10-01"},
-  {"id":"source-margmowczko-women-matthew-genealogy","author":"Marg Mowczko (quoting Craig S. Keener and R. T. France)","title":"The Women in Matthew's Genealogy of Jesus: Tamar, Rahab, Ruth and Bathsheba","publisher":"margmowczko.com","url":"https://margmowczko.com/women-matthew-genealogy-jesus-tamar-rahab-ruth-bathsheba/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; an independent blog quoting Keener and France directly -- their commentaries themselves were not independently read, verify before quoting further","accessedAt":"2026-10-01"},
-  {"id":"source-graham-tgc-canada-genealogies-differ","author":"Wyatt Graham","title":"Why Do Matthew and Luke's Genealogies of Jesus Differ?","publisher":"The Gospel Coalition Canada","url":"https://ca.thegospelcoalition.org/columns/detrinitate/why-do-matthew-and-lukes-genealogies-of-jesus-differ/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; reports John Lightfoot and Epiphanius of Salamis (the Marian-line view) and John of Damascus (the levirate-marriage view) secondhand -- their own texts were not independently read, verify before quoting directly","accessedAt":"2026-10-01"},
-  {"id":"source-thejesusquestion-two-genealogies","author":"thejesusquestion.org","title":"The Two Genealogies of Jesus, the Curse of Jeconiah, and the Royal Line of David","publisher":"thejesusquestion.org","url":"https://thejesusquestion.org/2015/12/21/the-two-genealogies-of-jesus-the-curse-of-jeconiah-and-the-royal-line-of-david/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; reports Julius Africanus's levirate-marriage harmonization (preserved via Eusebius) and Christophe Guignard's academic treatment of it secondhand -- Africanus's letter and Guignard's paper were not independently read, verify before quoting directly","accessedAt":"2026-10-01"},
-  {"id":"source-turpin-aig-space-six-days","author":"Simon Turpin","title":"In the Space of Six Days?","publisher":"Answers in Genesis","url":"https://answersingenesis.org/days-of-creation/in-the-space-of-six-days/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; presents the 24-hour young-earth reading, citing the numbered-day plus evening/morning markers and the Exodus 20:8-11 six-plus-one pattern; does not claim to be AiG's sole official statement but is representative of the ministry's position","accessedAt":"2026-10-01"},
-  {"id":"source-opc-in-space-six-days","author":"Ordained Servant (Orthodox Presbyterian Church); surveys Calvin, Louis Berkhof, Robert L. Dabney, E.J. Young, and Robert L. Reymond on the 24-hour view","title":"In the Space of Six Days","publisher":"Orthodox Presbyterian Church, Ordained Servant","url":"https://opc.org/OS/html/V9/1d.html","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; secondary survey of named Reformed theologians' own arguments, not their primary texts themselves","accessedAt":"2026-10-01"},
-  {"id":"source-ross-reasons-evening-morning","author":"Hugh Ross","title":"Why Evening-Morning for the Genesis Creation Days If Those Days Are Longer Than 24 Hours?","publisher":"Reasons to Believe","url":"https://reasons.org/explore/publications/questions-from-social-media/why-evening-morning-for-the-genesis-creation-days-if-those-days-are-longer-than-24-hours","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; Ross's own statement of the day-age position, citing Genesis 2:4's use of yom for the whole creation period","accessedAt":"2026-10-01"},
-  {"id":"source-kline-pscf-1996-cosmogony","author":"Meredith G. Kline","title":"Space and Time in the Genesis Cosmogony, Perspectives on Science and Christian Faith 48 (March 1996): 2-15","publisher":"American Scientific Affiliation (PSCF)","url":"https://www.asa3.org/ASA/PSCF/1996/PSCF3-96Kline.html","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; Kline's own primary article stating the literary-framework / two-register reading and that the creation week is to be understood figuratively, not as ordinary chronological sequence","accessedAt":"2026-10-01"},
-  {"id":"source-vanluik-framework-hypothesis","author":"Matthew H. van Luik","title":"The Framework Hypothesis: The Literary Genre of Genesis 1","publisher":"Christian Study Library","url":"https://www.christianstudylibrary.org/article/framework-hypothesis","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; secondary survey crediting Meredith Kline (1958 Westminster Theological Journal article; developed further with Lee Irons in The Genesis Debate, Crux Press, 2001) as the view's principal North American proponent, with Bruce Waltke and Mark D. Futato (Westminster Theological Journal 60 (1998)) also named; Waltke's and Futato's own texts were not independently read here","accessedAt":"2026-10-01"},
-  {"id":"source-equip-gap-theory","author":"Christian Research Institute (Equip.org)","title":"The Gap Theory of Genesis 1:2","publisher":"Christian Research Institute","url":"https://www.equip.org/articles/the-gap-theory-of-genesis-12/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; names Thomas Chalmers (1814) as the view's modern originator, G.H. Pember (Earth's Earliest Ages, 1876) as popularizer, the Scofield Reference Bible (1909) as its entrenchment in fundamentalist circles, and Arthur C. Custance (1970) as a later reviver; reports the view's decline after Henry Morris's young-earth six-day creationism in the 1960s","accessedAt":"2026-10-01"},
-  {"id":"source-windle-enuma-elish-three-myths","author":"Bryan Windle","title":"Three Ancient Near Eastern Creation Myths","publisher":"Bible Archaeology Report","url":"https://biblearchaeologyreport.com/2019/02/22/three-ancient-near-eastern-creation-myths/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; summarizes parallels and differences between Genesis 1 and the Enuma Elish, citing Joseph Holden and Norman Geisler, The Popular Handbook of Biblical Archaeology (Harvest House, 2013)","accessedAt":"2026-10-01"},
-  {"id":"source-tsumura-earth-waters-genesis","author":"David Toshio Tsumura","title":"The Earth and the Waters in Genesis 1 and 2: A Linguistic Investigation (JSOT Supplement Series)","publisher":"Sheffield Academic Press","url":"https://jewishstudies.rutgers.edu/images/documents/faculty/Rendsburg/Tsumura_Earth_Waters-Genesis_1-2.pdf","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; the PDF found is image-scanned and could not be read directly in this environment -- Tsumura's conclusion (that Hebrew tehom reflects a common Semitic root shared with Akkadian/Ugaritic/Eblaite cognates of Tiamat, without the Genesis account depending on Babylonian Chaoskampf mythology) is reported here via a secondary search-index aggregation, not independently verified against his own text; verify before quoting directly","accessedAt":"2026-10-01"},
-  {"id":"source-biblehub-strongs-tov","author":"Bible Hub (Brown-Driver-Briggs and Strong's entry)","title":"Strong's Hebrew 2896: טוֹב (tov)","publisher":"Bible Hub","url":"https://biblehub.com/hebrew/2896.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator","accessedAt":"2026-10-01"},
-  {"id":"source-biblehub-gen2-exod20-sabbath-link","author":"Bible Hub (aggregated commentary; no individual commentator separately identified)","title":"How does Genesis 2:3 connect with the Fourth Commandment in Exodus 20:8-11?","publisher":"Bible Hub","url":"https://biblehub.com/q/Link_Genesis_2_3_to_Exodus_20_8-11.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; aggregator page, not a named scholar's own commentary","accessedAt":"2026-10-01"},
-  {"id":"source-davidson-grisda-psalm-104","author":"Richard M. Davidson","title":"The Creation Theme in Psalm 104, in The Genesis Creation Account and Its Reverberations in the Old Testament","publisher":"Geoscience Research Institute (GRISDA)","url":"https://www.grisda.org/assets/public/resources/CollectedPapers/Genesis_Creation_Account_OT/GCA_05_149_188.pdf","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; the PDF found is image-scanned and could not be read directly in this environment -- the quotations attributed here to Derek Kidner (Psalms 73-150, Tyndale OT Commentaries) and Franz Delitzsch (Biblical Commentary on the Psalms) reached this registry via a secondary search-index aggregation of Davidson's paper, not independently verified against Davidson's, Kidner's, or Delitzsch's own text; verify before quoting directly","accessedAt":"2026-10-01"},
-  {"id":"source-carson-john-pillar-commentary","author":"D.A. Carson","title":"The Gospel According to John (Pillar New Testament Commentary)","publisher":"Eerdmans, 1991","url":"https://www.eerdmans.com/9780802836830/the-gospel-according-to-john/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; Carson's reading of John 1:1's 'in the beginning' as a deliberate allusion to Genesis 1:1 reached this registry via a secondary search-index aggregation of the commentary, not independently verified against Carson's own text; verify before quoting directly","accessedAt":"2026-10-01"},
-  {"id":"source-heatley-theologyofwork-colossians","author":"Bill Heatley, adopted by the Theology of Work Project Board (2010-01-11)","title":"God at Work, Jesus at Work (Colossians 1:15-20)","publisher":"Theology of Work Project","url":"https://www.theologyofwork.org/new-testament/colossians-philemon/colossians-and-work/god-at-work-jesus-at-work-colossians-11520/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a collaborative project commentary, not a peer-reviewed academic commentary -- states plainly that Colossians assumes the reader's familiarity with Genesis 1:1's opening words","accessedAt":"2026-10-01"},
-  {"id":"source-furst-biblicalechoes-genesis-rabbah-day2","author":"Simon Furst, quoting Genesis Rabbah 4 (Rabbi Samuel bar Nahman's teaching)","title":"When God Did Not Call It Good","publisher":"Biblical Echoes (Substack)","url":"https://biblicalechoes.substack.com/p/when-god-did-not-call-it-good","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a non-peer-reviewed blog reporting a classical rabbinic source (Genesis Rabbah 4); the midrash itself was not independently located and read in this environment -- cited here only for the plain, independently checkable textual fact that the 'good' refrain is absent on day two, not for any claim about what that absence means","accessedAt":"2026-10-01"},
-  {"id":"source-mortenson-aig-bara-asah","author":"Dr. Terry Mortenson","title":"Did God Create (Bara) or Make (Asah) in Genesis 1?","publisher":"Answers in Genesis","url":"https://answersingenesis.org/genesis/did-god-create-bara-or-make-asah-in-genesis-1/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; published 2007-08-15; states the verses where each verb occurs in Genesis 1 and explicitly cautions that the two verbs are used interchangeably elsewhere and cannot by themselves settle how or how long God took to create","accessedAt":"2026-10-01"},
-  {"id":"source-bsb-shipped-corpus","author":"Berean Standard Bible translators","title":"Berean Standard Bible (as shipped in this app, web/public/bible/BSB/)","publisher":"Berean Bible (bereanbible.com)","url":"https://berean.bible/","licence":"Released by the publisher for free use worldwide, including redistribution -- the app's own default translation; cited here as the primary text for a connection whose evidence is the wording of the two passages themselves","accessedAt":"2026-10-01"},
-  {"id":"source-psephizo-understanding-beatitudes","author":"Ian Paul","title":"Understanding the Beatitudes in Matthew 5","publisher":"Psephizo","url":"https://www.psephizo.com/biblical-studies/understanding-the-beatitudes-in-matthew-5/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; author is Associate Senior Research Fellow, Kirby Laing Centre for Public Theology, and Associate Minister, St Nic's Nottingham","accessedAt":"2026-09-30"},
-  {"id":"source-psephizo-beatitudes-luke-matthew","author":"Ian Paul","title":"The Beatitudes in Luke and Matthew","publisher":"Psephizo","url":"https://www.psephizo.com/biblical-studies/the-beatitudes-in-luke-and-matthew/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; cites Alfred Plummer's 1896 ICC commentary, R.T. France's NICNT, and Mark Goodacre's The Case Against Q at second hand","accessedAt":"2026-09-30"},
-  {"id":"source-wikipedia-matthew-5-3","author":"Wikipedia contributors","title":"Matthew 5:3 (tertiary source, used for its summary of named commentators -- Hans Dieter Betz, W.F. Albright and C.S. Mann, Andrej Kodjak, John Nolland, William R. Domeris, Gary T. Meadors, Ulrich Luz, R.T. France, and W.D. Davies and Dale C. Allison Jr. -- on the \"poor in spirit\" / 'anawim question)","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Matthew_5:3","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary survey source reporting named commentators secondhand, not independently verified against their own commentaries","accessedAt":"2026-09-30"},
-  {"id":"source-turner-jets-2010-dispensationalists","author":"David L. Turner","title":"Matthew Among the Dispensationalists, Journal of the Evangelical Theological Society 53, no. 4 (December 2010): 697-716","publisher":"Evangelical Theological Society (JETS)","url":"https://etsjets.org/wp-content/uploads/2011/01/files_JETS-PDFs_53_53-4_JETS_53-4_697-716_Turner.pdf","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; read in full via downloaded PDF text extraction","accessedAt":"2026-09-30"},
-  {"id":"source-friesen-direction-1981-sermon-approaches","author":"Bert Friesen","title":"Approaches to the Interpretation and Application of the Sermon on the Mount, Direction 10, no. 2 (April 1981): 19-25","publisher":"Direction (a Mennonite Brethren forum for Christian thought)","url":"https://directionjournal.org/10/2/approaches-to-interpretation-and.html","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; surveys and quotes Hans Windisch, Adolf von Harnack, C.I. Scofield, Johannes Weiss, Albert Schweitzer, Martin Dibelius, Gerhard Kittel, Menno Simons, Hans Denck, and John Howard Yoder at second hand","accessedAt":"2026-09-30"},
-  {"id":"source-hanson-makarisms-reproaches","author":"K.C. Hanson","title":"Matthew's Makarisms and Reproaches (first presented to The Context Group: Project on the Bible in Its Cultural Environment, March 25, 1990)","publisher":"K.C. Hanson / Wipf and Stock Publishers","url":"https://www.kchanson.com/ARTICLES/mak.html","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; social-science (honor/shame) reading of the makarism form","accessedAt":"2026-09-30"},
-  {"id":"source-lioy-conspectus-2016-psalm1-beatitudes","author":"Daniel T. Lioy","title":"A Comparative Analysis of Psalm 1 and the Beatitudes in Matthew 5:3-12, Conspectus 22, no. 1 (September 2016)","publisher":"South African Theological Seminary (Conspectus)","url":"https://www.galaxie.com/article/conspectus22-1-05","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; exact page range within the issue not independently confirmed beyond an excerpt observed at pp. 141-142; the publisher's own full-text PDF link returned an unreadable response during this research pass","accessedAt":"2026-09-30"},
-  {"id":"source-guelich-jbl-1976-matthean-beatitudes","author":"Robert A. Guelich","title":"The Matthean Beatitudes: \"Entrance-Requirements\" or Eschatological Blessings?, Journal of Biblical Literature 95, no. 3 (1976): 415-434","publisher":"Society of Biblical Literature (JBL)","url":"https://www.semanticscholar.org/paper/The-Matthean-Beatitudes:-%22Entrance-Requirements%22-or-Guelich/13a243328b4ddae5672700128856a2cd247e6f49","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; citation/abstract-level only -- the article itself returned HTTP 403 to automated fetch at every host tried during this research pass and was not read; the article's own title and its question are corroborated across multiple independent index listings, but Guelich's actual argument is reported here only via secondary characterization, not an independent reading","accessedAt":"2026-09-30"},
-  {"id":"source-mcknight-missio-dei-james-jesus","author":"Scot McKnight","title":"James and Jesus, Missio Dei Journal 2, no. 2 (August 2011)","publisher":"Missio Dei Journal","url":"https://missiodeijournal.com/issues/md-2-2/authors/md-2-2-mcknight-jesus","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; author is Karl A. Olsson Professor in Religious Studies, North Park University; the article documents beatitude echoes across the letter of James generally and was not found to single out James 2:5 by verse in the text read here","accessedAt":"2026-09-30"},
-  {"id":"source-wikipedia-genesis-creation-narrative","author":"Wikipedia contributors","title":"Genesis creation narrative (tertiary source, used for the Priestly/Yahwist two-account division and approximate dating)","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Genesis_creation_narrative","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary survey source, not a peer-reviewed one; specific named scholars behind its footnotes were not independently re-verified here","accessedAt":"2026-10-01"},
-  {"id":"source-bas-documentary-hypothesis-sidebar","author":"Biblical Archaeology Society (BAS Library); unsigned sidebar","title":"The Sources of Genesis 1-11 According to the Documentary Hypothesis (sidebar to \"The Documentary Hypothesis in Trouble\")","publisher":"Biblical Archaeology Society","url":"https://library.biblicalarchaeology.org/sidebar/the-sources-of-genesis-1-11-according-to-the-documentary-hypothesis/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; no individual scholar named on this sidebar page; the parent article itself states recent scholarship finds the documentary hypothesis in trouble","accessedAt":"2026-10-01"},
-  {"id":"source-intertextual-bible-atrahasis-gen2-7","author":"intertextual.bible (parallel-text aggregator)","title":"Genesis Echoes Atrahasis in the Creation of Humans from Clay","publisher":"intertextual.bible","url":"https://intertextual.bible/text/atrahasis/genesis-2.7","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; aggregator page; the site's own caveat states its references are not endorsements and should be read in full","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-ninti","author":"Wikipedia contributors (citing Jeremiah Peterson)","title":"Ninti (Sumerian deity, \"Lady of the Rib\"/\"Lady who makes live\"; cited for the folk-etymology caution on the Ninti/Eve parallel)","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Ninti","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary survey source","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-eve-lerner","author":"Wikipedia contributors, citing Gerda Lerner, The Creation of Patriarchy (Oxford University Press, 1986), pp. 184-185","title":"Eve (tertiary source, cited for Lerner's proposed Ninti/Eve rib-and-life parallel)","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Eve","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; Lerner's book itself was not read, only Wikipedia's quotation of it -- verify before quoting further","accessedAt":"2026-10-01"},
-  {"id":"source-zevit-bar-rib-baculum-2015","author":"Ziony Zevit","title":"Was Eve Made from Adam's Rib--or His Baculum?, Biblical Archaeology Review (Sept/Oct 2015), as republished by the Biblical Archaeology Society","publisher":"Biblical Archaeology Society (biblicalarchaeology.org)","url":"https://www.biblicalarchaeology.org/daily/biblical-topics/bible-interpretation/the-adam-and-eve-story-eve-came-from-where/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; republished/aggregated version consulted, not the original BAR print pagination","accessedAt":"2026-10-01"},
-  {"id":"source-biblehub-bdb-tsela","author":"Bible Hub (Brown-Driver-Briggs entry)","title":"Strong's Hebrew 6763: צֵלָע (tsela)","publisher":"Bible Hub","url":"https://biblehub.com/hebrew/6763.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator","accessedAt":"2026-10-01"},
-  {"id":"source-biblehub-bdb-ezer","author":"Bible Hub (Brown-Driver-Briggs entry)","title":"Strong's Hebrew 5828: עֵזֶר (ezer)","publisher":"Bible Hub","url":"https://biblehub.com/hebrew/5828.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator","accessedAt":"2026-10-01"},
-  {"id":"source-biblehub-bdb-banah","author":"Bible Hub (Brown-Driver-Briggs entry)","title":"Strong's Hebrew 1129: בָּנָה (banah, \"build\"), as used in Genesis 2:22","publisher":"Bible Hub","url":"https://biblehub.com/hebrew/1129.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator","accessedAt":"2026-10-01"},
-  {"id":"source-rashi-gen-2-21","author":"Rashi","title":"Rashi on Genesis 2:21","publisher":"Sefaria","url":"https://www.sefaria.org/api/texts/Rashi_on_Genesis.2.21","licence":"Public-domain translation; link retained for provenance","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-phyllis-trible","author":"Wikipedia contributors","title":"Phyllis Trible (biographical tertiary source, cited for her 1973 Journal of the American Academy of Religion essay \"Depatriarchalizing in Biblical Interpretation\" and her reading of Genesis 2's 'adham as unspecified until differentiated at 2:21-23)","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Phyllis_Trible","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; Trible's own essay was not read directly here, only Wikipedia's report of it -- verify before quoting her own wording","accessedAt":"2026-10-01"},
-  {"id":"source-danvers-statement-cbmw","author":"Council on Biblical Manhood and Womanhood","title":"The Danvers Statement","publisher":"CBMW (cbmw.org)","url":"https://cbmw.org/about/danvers-statement/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-10-01"},
-  {"id":"source-cbe-men-women-biblical-equality","author":"Christians for Biblical Equality (CBE International)","title":"Men, Women, and Biblical Equality","publisher":"CBE International (cbeinternational.org)","url":"https://www.cbeinternational.org/resource/men-women-and-biblical-equality/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-10-01"},
-  {"id":"source-bibleref-gen-2-19","author":"BibleRef.com (aggregated commentary; no named scholar for the naming/dominion claim)","title":"What does Genesis 2:19 mean?","publisher":"BibleRef.com","url":"https://www.bibleref.com/Genesis/2/Genesis-2-19.html","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; anonymous aggregator page, no individual scholar named or quoted for its dominion/stewardship reading","accessedAt":"2026-10-01"},
-  {"id":"source-chiasmusxchange-gen-2-4","author":"Biblical Chiasm Exchange (contributor credited only as \"SDS\"; a comment thread disputes the exact boundaries)","title":"Genesis 1-2:4 (chiastic outline including the \"heavens and earth\" / \"earth and heavens\" reversal at 2:4)","publisher":"Biblical Chiasm Exchange","url":"https://www.chiasmusxchange.com/2015/01/21/genesis-1-2/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; secondary catalog page crediting an anonymous contributor, not a named, published scholar; a commenter on the page disputes the exact chiastic boundaries","accessedAt":"2026-10-01"},
-  {"id":"source-targum-onkelos-gen-2-21","author":"Targum Onkelos","title":"Targum Onkelos on Genesis 2:21","publisher":"Sefaria","url":"https://www.sefaria.org/api/texts/Onkelos_Genesis.2.21","licence":"Public-domain/traditional Aramaic text and translation; link retained for provenance","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-matthew-1-18","author":"Wikipedia contributors","title":"Matthew 1:18 (reporting first-century Jewish betrothal practice, and Eduard Schweizer, Raymond E. Brown, Jane Schaberg, Amy-Jill Levine, and Elaine Wainwright on the virginal-conception narrative)","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Matthew_1:18","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named scholars secondhand -- their own texts were not independently read, verify before quoting directly","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-matthew-1-19","author":"Wikipedia contributors","title":"Matthew 1:19 (reporting Raymond E. Brown's The Birth of the Messiah on three readings of Joseph's righteousness, Clement of Alexandria, and Robert H. Gundry on the meaning of \"quietly\")","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Matthew_1:19","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named scholars secondhand -- their own texts were not independently read, verify before quoting directly","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-matthew-1-21","author":"Wikipedia contributors","title":"Matthew 1:21 (reporting Jerome on the Hebrew etymology of \"Jesus,\" R.T. France, Warren Carter, Robert H. Gundry, and Saint Remigius on \"He will save His people from their sins\")","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Matthew_1:21","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named scholars and patristic writers secondhand -- their own texts were not independently read, verify before quoting directly","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-matthew-1-23","author":"Wikipedia contributors","title":"Matthew 1:23 (reporting the fulfillment-citation formula, Matthew's use of the Septuagint's parthenos for Isaiah's almah, Marvin A. Sweeney, Brevard S. Childs, and William F. Albright and C.S. Mann on Matthew's naming-verb alteration)","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Matthew_1:23","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named scholars secondhand -- their own texts were not independently read, verify before quoting directly; this lesson independently checked the underlying Greek verb forms against primary Greek texts rather than relying on this source's own characterization of the difference","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-isaiah-7-14","author":"Wikipedia contributors","title":"Isaiah 7:14 (reporting the almah/parthenos translation question, the 8th-century-BC Ahaz/Syro-Ephraimite context, and Marvin A. Sweeney, Craig A. Evans, and Warren Carter on the sign's original meaning)","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Isaiah_7:14","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named scholars secondhand -- their own texts were not independently read, verify before quoting directly","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-almah","author":"Wikipedia contributors","title":"Almah (semantic range of the Hebrew word, its occurrences in the Hebrew Bible, and the scholarly consensus distinguishing it from betulah)","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Almah","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary survey source, not a peer-reviewed one","accessedAt":"2026-10-01"},
-  {"id":"source-gingrich-joseph-just-merciful-divorcer","author":"Dwight Gingrich (quoting R.T. France's NICNT Matthew commentary, Theodore Mackin's Divorce and Remarriage, William F. Luck's Divorce and Re-Marriage, and David Instone-Brewer's Divorce and Remarriage in the Bible)","title":"Joseph, the Just and Merciful Divorcer","publisher":"Dwight Gingrich Online","url":"https://dwightgingrich.com/joseph-just-merciful-divorcer","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; an independent blog quoting France, Mackin, Luck, and Instone-Brewer directly -- their own books were not independently read, verify before quoting further","accessedAt":"2026-10-01"},
-  {"id":"source-esler-nts-2022-righteousness-joseph","author":"Philip F. Esler","title":"The Righteousness of Joseph: Interpreting Matt 1.18-25 in Light of Judean Legal Papyri, New Testament Studies 68, no. 3 (July 2022)","publisher":"Cambridge University Press (New Testament Studies)","url":"https://www.cambridge.org/core/journals/new-testament-studies/article/righteousness-of-joseph-interpreting-matt-11825-in-light-of-judean-legal-papyri/C0BDA57366C50B0553743DA8796BB092","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; article is paywalled -- only the abstract/summary was read for this lesson, not the full argument or its handling of the primary legal papyri","accessedAt":"2026-10-01"},
-  {"id":"source-hoffman-knowingscripture-isaiah-7-14-virgin","author":"Daniel Hoffman (quoting Alec Motyer's Isaiah commentary and R.T. France)","title":"Is \"Virgin\" the Correct Translation of Isaiah 7:14?","publisher":"Knowing Scripture","url":"https://knowingscripture.com/articles/is-virgin-the-correct-translation-of-isaiah-7-14","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; an independent article quoting Motyer and France directly -- their own commentaries were not independently read, verify before quoting further","accessedAt":"2026-10-01"},
-  {"id":"source-postell-jets-2025-isaiah-7-14-messianic","author":"Seth D. Postell","title":"Is Isaiah 7:14 Messianic?, Journal of the Evangelical Theological Society 68, no. 3 (2025): 465-493","publisher":"Evangelical Theological Society (JETS)","url":"https://etsjets.org/wp-content/uploads/JETS_68.3_465_Postell.pdf","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; the PDF did not extract as reliably readable text in the tools used for this lesson -- only the article's title, author, venue, and general thesis are reported, not its supporting argument in the author's own words; verify by reading the article directly before quoting or further characterizing its reasoning","accessedAt":"2026-10-01"},
-  {"id":"source-allison-jsnt-1993-divorce-celibacy-joseph","author":"Dale C. Allison","title":"Divorce, Celibacy and Joseph (Matthew 1.18-25 and 19.1-12), Journal for the Study of the New Testament 15, no. 49 (1993): 3-10","publisher":"SAGE Publications (Journal for the Study of the New Testament)","url":"https://journals.sagepub.com/doi/abs/10.1177/0142064x9301504901","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; the publisher's page returned an access restriction to this lesson's research -- the article is registered for bibliographic identity only and was not read; nothing in this lesson's body or connections rests on its content","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-matthew-2-1","author":"Wikipedia contributors","title":"Matthew 2:1","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Matthew_2:1","licence":"CC BY-SA; tertiary source aggregating named scholars (Brown, and others) -- those scholars are reported here secondhand","accessedAt":"2026-10-01"},
-  {"id":"source-tyndalehouse-watkins-magi-2024","author":"Tony Watkins","title":"Who were the Magi?","publisher":"Tyndale House, Cambridge","url":"https://tyndalehouse.com/2024/12/06/magi/","licence":"Read directly in full for this lesson; link and bibliographic metadata only, copyrighted source text is not reproduced","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-matthew-2-2","author":"Wikipedia contributors","title":"Matthew 2:2","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Matthew_2:2","licence":"CC BY-SA; tertiary source aggregating named scholars and historical figures (Chrysostom, Brown, Ferrari d'Occhieppo, and others) -- reported here secondhand","accessedAt":"2026-10-01"},
-  {"id":"source-moss-natgeo-star-bethlehem-2025","author":"Candida Moss","title":"Is there historical evidence for the Star of Bethlehem?","publisher":"National Geographic","url":"https://www.nationalgeographic.com/history/article/star-of-bethlehem-gospel-of-matthew-christmas-story-birth-of-jesus","licence":"Dec. 11, 2025; tertiary source aggregating named scholars and historical figures (Origen, Ignatius of Antioch, Mash'allah, Grant Mathews, Chrysostom, Robyn Walsh) -- reported here secondhand","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-matthew-2-4","author":"Wikipedia contributors","title":"Matthew 2:4","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Matthew_2:4","licence":"CC BY-SA; tertiary source aggregating named scholars (Raymond E. Brown, Eduard Schweizer) -- reported here secondhand","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-matthew-2-5","author":"Wikipedia contributors","title":"Matthew 2:5","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Matthew_2:5","licence":"CC BY-SA; tertiary source aggregating named scholars (Robert Gundry) -- reported here secondhand","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-matthew-2-6","author":"Wikipedia contributors","title":"Matthew 2:6","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Matthew_2:6","licence":"CC BY-SA; tertiary source aggregating named scholars (Raymond E. Brown, William F. Albright and C.S. Mann) -- reported here secondhand; this lesson's own direct textual comparison of Matthew 2:6 and Micah 5:2-4 was checked independently against the shipped BSB corpus and does not depend on this source for its content","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-matthew-2-11","author":"Wikipedia contributors","title":"Matthew 2:11","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Matthew_2:11","licence":"CC BY-SA; tertiary source aggregating named scholars and historical figures (Chrysostom, C.S. Mann, Raymond E. Brown, Howard W. Clarke, Gregory the Great, Augustine) -- reported here secondhand","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-matthew-2-12","author":"Wikipedia contributors","title":"Matthew 2:12","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Matthew_2:12","licence":"CC BY-SA; tertiary source aggregating named scholars and historical figures (Gregory the Great, F. Dale Bruner) -- reported here secondhand","accessedAt":"2026-10-01"},
-  {"id":"source-intertextual-bible-num24-17-matt2-2","author":"intertextual.bible (aggregating Moises Mayordomo)","title":"Compare Numbers 24:17 and Matthew 2:2","publisher":"intertextual.bible","url":"https://intertextual.bible/text/numbers-24.17/matthew-2.2","licence":"Aggregator reporting Mayordomo, \"Matthew 1-2 and the Problem of Intertextuality,\" in Infancy Gospels: Stories and Identities (2011) -- Mayordomo's own chapter was not independently read for this lesson","accessedAt":"2026-10-01"},
-  {"id":"source-leithart-theopolis-gold-incense-myrrh","author":"Peter J. Leithart","title":"Gold, Incense, and Myrrh","publisher":"Theopolis Institute","url":"https://theopolisinstitute.com/gold-incense-and-myrrh/","licence":"Read directly in full for this lesson; link and bibliographic metadata only, copyrighted source text is not reproduced","accessedAt":"2026-10-01"},
-  {"id":"source-biblehub-bdb-shaah","author":"Bible Hub (Brown-Driver-Briggs entry)","title":"Strong's Hebrew 8159: שָׁעָה (sha'ah, \"to gaze, look, regard\")","publisher":"Bible Hub","url":"https://biblehub.com/hebrew/8159.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator","accessedAt":"2026-10-01"},
-  {"id":"source-biblehub-bdb-minchah","author":"Bible Hub (Brown-Driver-Briggs entry)","title":"Strong's Hebrew 4503: מִנְחָה (minchah, \"gift, tribute, offering\")","publisher":"Bible Hub","url":"https://biblehub.com/hebrew/4503.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator","accessedAt":"2026-10-01"},
-  {"id":"source-biblehub-bdb-rabats","author":"Bible Hub (Brown-Driver-Briggs entry)","title":"Strong's Hebrew 7257: רָבַץ (rabats, \"to stretch oneself out, lie down, crouch\")","publisher":"Bible Hub","url":"https://biblehub.com/hebrew/7257.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator","accessedAt":"2026-10-01"},
-  {"id":"source-biblehub-bdb-hevel","author":"Bible Hub (Brown-Driver-Briggs entry)","title":"Strong's Hebrew 1892: הֶבֶל (hevel, \"breath, vapor, vanity\"), as used for the name Abel","publisher":"Bible Hub","url":"https://biblehub.com/hebrew/1892.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator","accessedAt":"2026-10-01"},
-  {"id":"source-biblehub-bdb-qanah","author":"Bible Hub (Brown-Driver-Briggs entry)","title":"Strong's Hebrew 7069: קָנָה (qanah, \"to get, acquire, create\"), as used in Eve's naming speech for Cain","publisher":"Bible Hub","url":"https://biblehub.com/hebrew/7069.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator","accessedAt":"2026-10-01"},
-  {"id":"source-biblehub-bdb-mashal","author":"Bible Hub (Brown-Driver-Briggs entry)","title":"Strong's Hebrew 4910: מָשַׁל (mashal, \"to rule, have dominion, reign\")","publisher":"Bible Hub","url":"https://biblehub.com/hebrew/4910.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator","accessedAt":"2026-10-01"},
-  {"id":"source-biblehub-bdb-oth","author":"Bible Hub (Brown-Driver-Briggs entry)","title":"Strong's Hebrew 226: אוֹת ('oth, \"sign, mark, token\")","publisher":"Bible Hub","url":"https://biblehub.com/hebrew/226.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator","accessedAt":"2026-10-01"},
-  {"id":"source-blb-lxx-genesis-4-7","author":"Blue Letter Bible","title":"Septuagint text of Genesis 4:7","publisher":"Blue Letter Bible","url":"https://www.blueletterbible.org/lxx/gen/4/7/t_conc_4007","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; primary Greek text as reproduced by this aggregator, not an independent critical edition","accessedAt":"2026-10-01"},
-  {"id":"source-rashi-gen-4-7","author":"Rashi","title":"Rashi on Genesis 4:7","publisher":"Sefaria","url":"https://www.sefaria.org/api/texts/Rashi_on_Genesis.4.7","licence":"Public-domain translation; link retained for provenance","accessedAt":"2026-10-01"},
-  {"id":"source-rashi-gen-4-15","author":"Rashi","title":"Rashi on Genesis 4:15","publisher":"Sefaria","url":"https://www.sefaria.org/api/texts/Rashi_on_Genesis.4.15","licence":"Public-domain translation; link retained for provenance","accessedAt":"2026-10-01"},
-  {"id":"source-targum-pseudo-jonathan-gen-4","author":"Targum Pseudo-Jonathan","title":"Targum (Pseudo-)Jonathan on Genesis 4:1-16","publisher":"Sefaria","url":"https://www.sefaria.org/api/texts/Targum_Jonathan_on_Genesis.4","licence":"Public-domain translation; link retained for provenance","accessedAt":"2026-10-01"},
-  {"id":"source-1-clement-4-envy","author":"Clement of Rome (attributed)","title":"1 Clement, chapter 4 (on envy and jealousy leading to Cain's murder of Abel)","publisher":"New Advent","url":"https://www.newadvent.org/fathers/1010.htm","licence":"Public-domain translation; link retained for provenance","accessedAt":"2026-10-01"},
-  {"id":"source-goeman-sin-offering-gen4-7","author":"Peter Goeman","title":"Perhaps Sin is Not Crouching at the Door (Genesis 4:7)","publisher":"The Bible Sojourner (petergoeman.com); author is professor of Old Testament and Biblical Languages, Shepherds Theological Seminary","url":"https://petergoeman.com/perhaps-sin-is-not-crouching-at-the-door-genesis-47/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a minority-position article proposing hattat be read as \"sin offering\"; cites Michael Morales, Adam Clarke, Jamieson-Fausset-Brown, and Adoniram Judson at second hand, not independently verified here","accessedAt":"2026-10-01"},
-  {"id":"source-mowczko-gen316-gen47","author":"Marg Mowczko (quoting Dr. Jill Firth, Ridley College)","title":"A Quick Comparison of Genesis 3:16 and Genesis 4:7","publisher":"margmowczko.com","url":"https://margmowczko.com/genesis-316-teshuqah-mashal/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-10-01"},
-  {"id":"source-enduringword-guzik-genesis-4","author":"David Guzik","title":"Genesis 4 -- Enduring Word Bible Commentary","publisher":"Enduring Word","url":"https://enduringword.com/bible-commentary/genesis-4/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-10-01"},
-  {"id":"source-bibleref-gen-4-5","author":"BibleRef.com (aggregated commentary; no named scholar)","title":"What does Genesis 4:5 mean?","publisher":"BibleRef.com","url":"https://www.bibleref.com/Genesis/4/Genesis-4-5.html","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; anonymous aggregator page","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-curse-mark-of-cain","author":"Wikipedia contributors","title":"Curse and mark of Cain (reporting Daniel Heimbach, Southeastern Baptist Theological Seminary, on the refutation of the \"mark = dark skin\" reading; also reports Brigham Young's and some Southern Baptist ministers' historical use of that reading, and the 1995 SBC and LDS Church statements disavowing it)","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Curse_and_mark_of_Cain","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source, not independently cross-checked against Heimbach's own text here","accessedAt":"2026-10-01"},
-  {"id":"source-wikipedia-cain","author":"Wikipedia contributors","title":"Cain (reporting the sister-wife tradition, Jubilees 4's naming of Awan, Rabbi Joshua ben Karha via the Talmud, Philo's symbolic reading of the city-building, and Nachmanides on the Cain/qanah wordplay)","publisher":"Wikipedia","url":"https://en.wikipedia.org/wiki/Cain","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named traditions and scholars secondhand, not independently cross-checked against their own texts here","accessedAt":"2026-10-01"},
-  {"id":"source-gotquestions-way-of-cain","author":"Got Questions Ministries","title":"What is the way of Cain (Jude 1:11)?","publisher":"GotQuestions.org","url":"https://www.gotquestions.org/way-of-Cain.html","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; a popular-level ministry FAQ, not a peer-reviewed commentary","accessedAt":"2026-10-01"},
-  {"id":"source-carasik-substack-gen4-14","author":"Michael Carasik","title":"Then What? (Genesis 4:14)","publisher":"The Bible Guy (Substack)","url":"https://michaelcarasik.substack.com/p/then-what-gen-414","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; author teaches Biblical Hebrew (The Great Courses) and is the editor of The Commentators' Bible","accessedAt":"2026-10-01"},
-  {"id":"source-etc-williams-gen4-8-field","author":"Peter J. Williams (Evangelical Textual Criticism blog)","title":"Out in the field: Genesis 4:8 (on the Masoretic Text's missing direct speech and whether \"let us go out to the field\" is original)","publisher":"Evangelical Textual Criticism (blogspot)","url":"http://evangelicaltextualcriticism.blogspot.com/2006/03/out-in-field-genesis-48.html","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced","accessedAt":"2026-10-01"},
-  {"id":"source-answersingenesis-cain-wife","author":"Answers in Genesis","title":"Cain -- Creation Basics (on Cain's wife and the population of Enoch's city)","publisher":"Answers in Genesis","url":"https://answersingenesis.org/bible-characters/cain/creation-basics/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; presents the young-earth sister/niece-wife and large-early-population reading","accessedAt":"2026-10-01"},
-  {"id":"source-rashi-gen-4-26","author":"Rashi","title":"Rashi on Genesis 4:26","publisher":"Sefaria","url":"https://www.sefaria.org/api/texts/Rashi_on_Genesis.4.26","licence":"Public-domain translation (M. Rosenbaum and A.M. Silbermann, 1929-1934); link retained for provenance; fetched directly via the Sefaria API and checked verbatim 2026-10-01","accessedAt":"2026-10-01"},
-  {"id":"source-targum-onkelos-gen-4-26","author":"Targum Onkelos","title":"Targum Onkelos on Genesis 4:26","publisher":"Sefaria","url":"https://www.sefaria.org/api/texts/Onkelos_Genesis.4.26","licence":"Public-domain/traditional Aramaic text and translation (Metsudah Chumash, Metsudah Publications, 2009); link retained for provenance; fetched directly via the Sefaria API and checked verbatim 2026-10-01","accessedAt":"2026-10-01"},
-  {"id":"source-biblehub-bdb-chalal","author":"Bible Hub (Brown-Driver-Briggs entry)","title":"Strong's Hebrew 2490: חָלַל (chalal)","publisher":"Bible Hub","url":"https://biblehub.com/hebrew/2490.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator; fetched directly and checked verbatim against the raw page 2026-10-01, including the entry's own gloss on the Hoph'al form at Genesis 4:26 (\"then it was begun (= men began)\") and its separate root III \"pollute, defile, profane\" sense used elsewhere of the divine name (e.g. Leviticus 18:21; Ezekiel 20:39)","accessedAt":"2026-10-01"},
-  {"id":"source-biblehub-commentaries-gen-4-26","author":"Bible Hub (aggregating Ellicott's Commentary for English Readers, Benson Commentary, Matthew Henry's Concise Commentary, Barnes' Notes, Poole's Commentary, and Gill's Exposition)","title":"Genesis 4:26 Commentaries","publisher":"Bible Hub","url":"https://biblehub.com/commentaries/genesis/4-26.htm","licence":"Public-domain classic commentaries, aggregated; fetched directly and checked verbatim against the raw page 2026-10-01","accessedAt":"2026-10-01"},
-  {"id":"source-wholereason-gen-4-26","author":"wholereason.com (reporting John Calvin, Charles Hodge, Umberto Cassuto, John H. Sailhamer, Kenneth A. Mathews, and Allen P. Ross)","title":"Genesis 4:26: Praise or Profanity? A Deep Dive into Translation and Theological Debate","publisher":"wholereason.com","url":"https://www.wholereason.com/2024/10/genesis-426-praise-or-profanity-a-deep-dive-into-translation-and-theological-debate.html","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; an independent blog reporting named scholars secondhand -- their own commentaries were not independently read, verify before quoting further","accessedAt":"2026-10-01"},
-  {"id":"source-hess-lamech-genealogies-bbr-1991","author":"Richard S. Hess","title":"Lamech in the Genealogies of Genesis, Bulletin for Biblical Research 1 (1991): 21-25","publisher":"Bulletin for Biblical Research (hosted via biblicalstudies.org.uk, reproduced by permission)","url":"https://biblicalstudies.org.uk/pdf/bbr/lamech_hess.pdf","licence":"Reproduced by permission per the article's own notice; full text read directly and checked verbatim 2026-10-01","accessedAt":"2026-10-01"},
-  {"id":"source-tips-translation-commentary-gen-4-23-24","author":"William D. Reyburn and Euan McG. Fry, A Handbook on Genesis (UBS Helps for Translators, 1997), as reproduced by Translation Insights & Perspectives (TIPs)","title":"Translation Commentary on Genesis 4:23-24 (Translation Insights & Perspectives)","publisher":"United Bible Societies (TIPs)","url":"https://tips.translation.bible/story/translation-commentary-on-genesis-423-424/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; fetched directly and checked verbatim against the raw page 2026-10-01","accessedAt":"2026-10-01"},
-  {"id":"source-paul-tyndale-bulletin-1996-eisegesis","author":"Maarten J. Paul","title":"Genesis 4:17-24: A Case-Study in Eisegesis, Tyndale Bulletin 47, no. 1 (1996): 143-162","publisher":"Tyndale House (Tyndale Bulletin)","url":"https://www.tyndalebulletin.org/article/30385-genesis-4-17-24-a-case-study-in-eisegesis","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; this lesson has only the article's own published abstract/summary (surfaced via search), not readable full text -- the Calvin/Gabriel/Westermann claims attributed to it are reported from that summary, not independently checked against the article's body; verify before quoting further","accessedAt":"2026-10-01"},
-  {"id":"source-augustine-city-of-god-book15","author":"Augustine of Hippo","title":"The City of God, Book XV, Chapter 1 (on Cain building a city, Genesis 4:17)","publisher":"New Advent (public-domain translation)","url":"https://www.newadvent.org/fathers/120115.htm","licence":"Public-domain translation; link retained for provenance; fetched directly and checked verbatim against the raw page 2026-10-01","accessedAt":"2026-10-01"},
-  {"id":"source-biblehub-commentaries-matt-18-22","author":"Bible Hub (aggregating Bengel's Gnomen, the Pulpit Commentary, Meyer's NT Commentary, and the Expositor's Greek Testament, among others)","title":"Matthew 18:22 Commentaries","publisher":"Bible Hub","url":"https://biblehub.com/commentaries/matthew/18-22.htm","licence":"Public-domain classic commentaries, aggregated; fetched directly and checked verbatim against the raw page 2026-10-01","accessedAt":"2026-10-01"},
-  {"id":"source-blb-lxx-genesis-4-24","author":"Blue Letter Bible","title":"Septuagint text of Genesis 4:24","publisher":"Blue Letter Bible","url":"https://www.blueletterbible.org/lxx/gen/4/24/t_conc_4024","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; primary Greek text as reproduced by this aggregator, not an independent critical edition; this page renders via JavaScript and could not be re-verified against its raw HTML -- the Greek phrase it reported (ἑβδομηκοντάκις ἑπτά) is independently corroborated by Bengel's Gnomen, fetched and verified separately","accessedAt":"2026-10-01"},
-  {"id":"source-biblehub-greek-matt-18-22","author":"Bible Hub (Nestle 1904 Greek New Testament text, with Westcott-Hort, Byzantine Majority, and Greek Orthodox editions shown in parallel)","title":"Matthew 18:22, Greek text and parallel apparatus","publisher":"Bible Hub","url":"https://biblehub.com/text/matthew/18-22.htm","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; aggregator apparatus, not a critical edition; fetched directly and checked verbatim against the raw page 2026-10-01","accessedAt":"2026-10-01"},
-  {"id":"source-landau-jbq-2026-qara-invoking","author":"Ephraim A. Landau","title":"Beyond \"Invoking\": Additional Meanings of the Phrases \"Qara'/Hizkir Sheim X\" in the Hebrew Bible, Jewish Bible Quarterly 54, no. 2 (April-June 2026): 74-93","publisher":"Jewish Bible Association (Jewish Bible Quarterly)","url":"https://www.jewishbible.org/articles/beyond-invoking-additional-meanings/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; fetched directly and checked verbatim against the raw page 2026-10-01, including the article's own byline confirming volume/issue/pages","accessedAt":"2026-10-01"},
-  {"id":"source-rht-lamechs-ode-to-himself","author":"Redemptive History and Theology (reported to cite, in its own footnotes, Victor P. Hamilton, Gordon J. Wenham, John H. Walton, Bruce K. Waltke, and Cathi J. Fredricks)","title":"Lamech's Ode to Himself: Genesis 4:23-24","publisher":"Redemptive History and Theology","url":"https://redemptivehistorytheology.com/blog/chapter-2-the-descent-of-humanity-genesis-417-24/lamechs-ode-to-himself/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; named scholars appear in this page's own footnotes, not independently read here","accessedAt":"2026-10-01"},
-  {"id":"source-rht-lesson-on-forgiveness","author":"Redemptive History and Theology (citing, in its own footnotes, R.T. France, Donald A. Hagner, and Craig S. Keener)","title":"A Lesson on Forgiveness: Matthew 18:21-22","publisher":"Redemptive History and Theology","url":"https://redemptivehistorytheology.com/blog/chapter-2-the-descent-of-humanity-genesis-417-24/a-lesson-on-forgiveness/","licence":"Link and bibliographic metadata only; copyrighted source text is not reproduced; named scholars appear in this page's own footnotes, not independently read here","accessedAt":"2026-10-01"}
+  {
+    "id": "source-westminster-confession",
+    "author": "Westminster Assembly",
+    "title": "The Westminster Confession of Faith",
+    "publisher": "WestminsterStandards.org",
+    "url": "https://westminsterstandards.org/westminster-confession-of-faith/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-09-15"
+  },
+  {
+    "id": "source-westminster-larger-catechism",
+    "author": "Westminster Assembly",
+    "title": "The Westminster Larger Catechism",
+    "publisher": "WestminsterStandards.org",
+    "url": "https://westminsterstandards.org/westminster-larger-catechism/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-09-15"
+  },
+  {
+    "id": "source-belgic-confession",
+    "author": "Reformed Church in America",
+    "title": "The Belgic Confession, Article 17",
+    "publisher": "Reformed Church in America",
+    "url": "https://www.rca.org/about/theology/creeds-and-confessions/the-belgic-confession/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-09-15"
+  },
+  {
+    "id": "source-luther-lectures-on-genesis",
+    "author": "Martin Luther",
+    "title": "Bible Study with Luther: Genesis 3:7–15",
+    "publisher": "Lutheran Church—Missouri Synod",
+    "url": "https://resources.lcms.org/reading-study/bible-studies/bible-study-with-luther-genesis-37-15/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-09-15"
+  },
+  {
+    "id": "source-ccc-410-411",
+    "author": "Catholic Church",
+    "title": "Catechism of the Catholic Church, §§410–411",
+    "publisher": "United States Conference of Catholic Bishops",
+    "url": "https://www.usccb.org/sites/default/files/flipbooks/catechism/106/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-09-15"
+  },
+  {
+    "id": "source-ineffabilis-deus",
+    "author": "Pius IX",
+    "title": "Ineffabilis Deus",
+    "publisher": "Papal Encyclicals Online",
+    "url": "https://www.papalencyclicals.net/pius09/p9ineff.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-09-15"
+  },
+  {
+    "id": "source-rashi-gen-3-15",
+    "author": "Rashi",
+    "title": "Rashi on Genesis 3:15",
+    "publisher": "Sefaria",
+    "url": "https://www.sefaria.org/api/texts/Rashi_on_Genesis.3.15",
+    "licence": "Public-domain translation; link retained for provenance",
+    "accessedAt": "2026-09-15"
+  },
+  {
+    "id": "source-targum-pseudo-jonathan-gen-3-15",
+    "author": "Targum Pseudo-Jonathan",
+    "title": "Targum (Pseudo-)Jonathan on Genesis 3:15",
+    "publisher": "Sefaria",
+    "url": "https://www.sefaria.org/api/texts/Targum_Jonathan_on_Genesis.3.15",
+    "licence": "Public-domain translation; link retained for provenance",
+    "accessedAt": "2026-09-15"
+  },
+  {
+    "id": "source-irenaeus-adv-haer",
+    "author": "Irenaeus of Lyons",
+    "title": "Against Heresies, Book V, chapter 21",
+    "publisher": "New Advent",
+    "url": "https://www.newadvent.org/fathers/0103521.htm",
+    "licence": "Public-domain translation; link retained for provenance",
+    "accessedAt": "2026-09-15"
+  },
+  {
+    "id": "source-augustine-de-genesi-contra-manichaeos",
+    "author": "Edward L. Smither",
+    "title": "Augustine on redemption in Genesis 1-3 (reporting Augustine's De Genesi contra Manichaeos, 2.18.28)",
+    "publisher": "Verbum et Ecclesia 35, no. 1 (2014), SciELO",
+    "url": "https://scielo.org.za/scielo.php?script=sci_arttext&pid=S2074-77052014000100026",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-09-15"
+  },
+  {
+    "id": "source-westermann-genesis-1-11",
+    "author": "Claus Westermann",
+    "title": "Genesis 1–11: A Commentary",
+    "publisher": "Augsburg Publishing House",
+    "url": "https://archive.org/details/westermann_genesis202508",
+    "licence": "Link and bibliographic metadata only; edition and page verification required before quotation",
+    "accessedAt": "2026-09-15"
+  },
+  {
+    "id": "source-walsh-1977-genesis-2-3",
+    "author": "Jerome T. Walsh",
+    "title": "Genesis 2:4b–3:24: A Synchronic Approach, Journal of Biblical Literature 96, no. 2 (June 1977): 161–177",
+    "publisher": "Society of Biblical Literature (SBL Press)",
+    "url": "https://scholarlypublishingcollective.org/sblpress/jbl/article/96/2/161/186273",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; citation/abstract page only; full text paywalled and not read -- the outline in the lesson is Walsh's proposal as reported secondhand, verify against the article before quoting",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-chiasm-exchange-genesis-2-3",
+    "author": "Biblical Chiasm Exchange (outline attributed to David A. Dorsey and Jerome T. Walsh)",
+    "title": "Genesis 2:4-3:24 (large-scale chiasmus outline)",
+    "publisher": "Biblical Chiasm Exchange",
+    "url": "https://www.chiasmusxchange.com/large-scale-chiasmus/genesis-24-324/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; secondary catalog page reproducing a proposed outline; not Walsh's own text",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-stefanovic-great-reversal",
+    "author": "Zdravko Stefanovic",
+    "title": "The Great Reversal: Thematic Links Between Genesis 2 and 3, Andrews University Seminary Studies 32, no. 1-2 (1994): 47-56",
+    "publisher": "Andrews University Seminary Studies (PDF via BiblicalELearning.org)",
+    "url": "https://biblicalelearning.org/wp-content/uploads/2022/01/Stefanovic_Gen2_AUSS.pdf",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; volume/year/pages confirmed 2026-09-25 against the HTML mirror's header",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-henry-commentary-genesis-3",
+    "author": "Matthew Henry",
+    "title": "Matthew Henry's Commentary on the Whole Bible, Genesis 3",
+    "publisher": "Blue Letter Bible",
+    "url": "https://www.blueletterbible.org/Comm/mhc/Gen/Gen_003.cfm",
+    "licence": "Public-domain text; link retained for provenance",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-studylight-genesis-3-8",
+    "author": "StudyLight.org (aggregated classic commentaries)",
+    "title": "Commentary on Genesis 3:8",
+    "publisher": "StudyLight.org",
+    "url": "https://www.studylight.org/commentary/genesis/3-8.html",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; aggregator page of older public-domain commentaries; the individual commentators are not separately identified here",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-tips-translation-commentary-gen-3-14",
+    "author": "William D. Reyburn and Euan McG. Fry, A Handbook on Genesis (UBS Helps for Translators, 1997), as reproduced by Translation Insights & Perspectives (TIPs)",
+    "title": "Translation Commentary on Genesis 3:14 (Translation Insights & Perspectives)",
+    "publisher": "United Bible Societies (TIPs)",
+    "url": "https://tips.translation.bible/story/translation-commentary-on-genesis-314/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-alter-art-of-biblical-narrative-theopolis",
+    "author": "Peter J. Leithart (summarizing Robert Alter)",
+    "title": "Gleanings from Robert Alter's Art of Biblical Narrative, Biblical Horizons (17 May 1992), as republished by Theopolis Institute (summary of Alter's The Art of Biblical Narrative, Basic Books, 1981)",
+    "publisher": "Theopolis Institute",
+    "url": "https://theopolisinstitute.com/gleanings-from-robert-alters-art-of-biblical-narrative/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; secondary summary; Alter's own text was not read, verify against the book before quoting",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-buber-rosenzweig-leitwort",
+    "author": "Martin Buber and Franz Rosenzweig (discussed in Rosenzweig's Bible)",
+    "title": "Rosenzweig's Bible (Cambridge University Press) -- discussion of Leitwort style and the Buber-Rosenzweig translation",
+    "publisher": "Cambridge University Press",
+    "url": "https://www.cambridge.org/core/books/rosenzweigs-bible/6CB41E9330E2BDB642E171178FB86D4E",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; secondary scholarship on the Leitwort concept; the title and date of Buber's own 1927 essay were not independently verified",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-mccoy-chiasmus-cts-journal",
+    "author": "Brad McCoy",
+    "title": "Chiasmus: An Important Structural Device Commonly Found in Biblical Literature, CTS Journal 9, no. 2 (Fall 2003)",
+    "publisher": "Chafer Theological Seminary",
+    "url": "https://www.chafer.edu/CTS-Journal-Chiasmus-An-Important-Structural-Device-Commonly-Found-in-Biblical-Literature-Brad-McCoy",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-moo-romans-nicnt",
+    "author": "Douglas J. Moo",
+    "title": "The Epistle to the Romans (NICNT), Eerdmans, 1996, p. 314 on Romans 5:14 (page cited via a secondary academic paper)",
+    "publisher": "Eerdmans (page reference via Liberty University Digital Commons)",
+    "url": "https://digitalcommons.liberty.edu/cgi/viewcontent.cgi?article=1145&context=masters",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; secondary access only; page number and wording require verification against the commentary before quotation",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-schreiner-romans-becnt",
+    "author": "Thomas R. Schreiner",
+    "title": "Romans (BECNT), Baker, 1998, p. 285 (page cited via a secondary academic paper)",
+    "publisher": "Baker Academic (page reference via Liberty University Digital Commons)",
+    "url": "https://digitalcommons.liberty.edu/cgi/viewcontent.cgi?article=1145&context=masters",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; secondary access only; page number and wording require verification against the commentary before quotation",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-biblehub-2-cor-11-3",
+    "author": "BibleHub",
+    "title": "2 Corinthians 11:3, Greek text and parallel apparatus (πανουργία)",
+    "publisher": "BibleHub",
+    "url": "https://biblehub.com/study/2_corinthians/11-3.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; aggregator apparatus, not a critical edition; Greek readings not verified against NA28",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-cheek-themelios-2023",
+    "author": "Jonathan M. Cheek",
+    "title": "The Individual and Collective Offspring of the Woman: The Canonical Outworking of Genesis 3:15, Themelios 48, no. 1 (2023)",
+    "publisher": "The Gospel Coalition (Themelios)",
+    "url": "https://www.thegospelcoalition.org/themelios/article/the-individual-and-collective-offspring-of-the-woman-the-canonical-outworking-of-genesis-315/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a full independent re-read is recommended before quoting directly",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-collins-syntactical-note-gen-3-15",
+    "author": "C. John Collins",
+    "title": "A Syntactical Note (Genesis 3:15): Is the Woman's Seed Singular or Plural?, Tyndale Bulletin 48, no. 1 (1997): 139–148",
+    "publisher": "Tyndale House (Tyndale Bulletin)",
+    "url": "https://www.tyndalebulletin.org/article/30353-a-syntactical-note-genesis-3-15-is-the-woman-s-seed-singular-or-plural.pdf",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-alexander-seed-in-genesis",
+    "author": "T. Desmond Alexander",
+    "title": "Further Observations on the Term 'Seed' in Genesis, Tyndale Bulletin 48, no. 2 (1997): 363–367",
+    "publisher": "Tyndale House (Tyndale Bulletin)",
+    "url": "https://www.tyndalebulletin.org/article/30377-further-observations-on-the-term-seed-in-genesis",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-preceptaustin-romans-8-20",
+    "author": "Precept Austin (aggregated commentary; no named scholar for the Genesis 3 background)",
+    "title": "Romans 8:20-21 Commentary",
+    "publisher": "Precept Austin",
+    "url": "https://www.preceptaustin.org/romans_820-21",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; full-text checked 2026-09-25 -- the string \"Moo\" does not occur on this page",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-moo-romans-nicnt-516-via-rht",
+    "author": "Douglas J. Moo, The Epistle to the Romans (NICNT, 1996), p. 516, as cited by Redemptive History and Theology, \"Subjected to Futility\"",
+    "title": "Subjected to Futility: Romans 8:20 (citing Moo, NICNT Romans, p. 516, on the \"in hope\" clause)",
+    "publisher": "Redemptive History and Theology (secondary citation of Moo, NICNT Romans)",
+    "url": "https://redemptivehistorytheology.com/blog/chapter-9-painful-toil-genesis-317-21/subjected-to-futility/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; secondhand -- Moo's own page was not read, only cited by this secondary page",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-skinner-icc-genesis",
+    "author": "John Skinner",
+    "title": "A Critical and Exegetical Commentary on Genesis, 2nd ed. (International Critical Commentary), p. 79 -- quoted by Jared August, Themelios 42.1 (2017), fn. 25",
+    "publisher": "T&T Clark (ICC); quotation via The Gospel Coalition (Themelios)",
+    "url": "https://www.thegospelcoalition.org/themelios/article/the-messianic-hope-of-genesis-the-protoevangelium-and-patriarchal-promises/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; secondhand -- Skinner's commentary itself was not read, only August's quotation of it",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-august-themelios-2017",
+    "author": "Jared M. August",
+    "title": "The Messianic Hope of Genesis: The Protoevangelium and Patriarchal Promises, Themelios 42, no. 1 (2017): 48-65",
+    "publisher": "The Gospel Coalition (Themelios)",
+    "url": "https://www.thegospelcoalition.org/themelios/article/the-messianic-hope-of-genesis-the-protoevangelium-and-patriarchal-promises/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-barr-garden-of-eden",
+    "author": "James Barr",
+    "title": "The Garden of Eden and the Hope of Immortality (Fortress, 1992), p. 140 -- quoted by Jared August, Themelios 42.1 (2017), fn. 34-35",
+    "publisher": "Fortress Press; quotation via The Gospel Coalition (Themelios)",
+    "url": "https://www.thegospelcoalition.org/themelios/article/the-messianic-hope-of-genesis-the-protoevangelium-and-patriarchal-promises/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; secondhand -- Barr's book itself was not read, only August's quotation of it",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-alsup-christianity-today-2025",
+    "author": "Wendy Alsup",
+    "title": "How the ESV Changed What Women Want, Christianity Today, February 24, 2025",
+    "publisher": "Christianity Today",
+    "url": "https://www.christianitytoday.com/2025/02/esv-update-genesis-316-gender-submission-desire-contrary-what-women-want/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-arnold-genesis-ncbc-2008",
+    "author": "Bill T. Arnold",
+    "title": "Genesis, New Cambridge Bible Commentary (Cambridge University Press, 2008), \"Commentary Part One: The Primeval History -- Genesis 1-11,\" pp. 27-124",
+    "publisher": "Cambridge University Press",
+    "url": "https://www.cambridge.org/core/books/abs/genesis/commentary-part-one-the-primeval-history-genesis-111/F6328F8DAF6467EC06BE712F270E8AEB",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-petersen-bible-odyssey-primeval-history",
+    "author": "David L. Petersen",
+    "title": "The Primeval History",
+    "publisher": "Bible Odyssey (Society of Biblical Literature)",
+    "url": "https://www.bibleodyssey.org/articles/the-primeval-history/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; page returned HTTP 403 to automated fetch during review 2026-09-25 -- bibliographic identity and quoted lines carried over from design/GENESIS_3_LESSON_RESEARCH.md, not independently re-fetched here",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-wikipedia-book-of-genesis",
+    "author": "Wikipedia contributors",
+    "title": "Book of Genesis (tertiary source, used for the state-of-the-field survey and its footnoted scholars -- Hendel, Hornkohl, Gmirkin)",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Book_of_Genesis",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary survey source, not a peer-reviewed one",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-plichta-serpents-ane",
+    "author": "Denise Plichta",
+    "title": "Serpents in the Ancient Near East: Genesis 3:1 (citing Meredith Kline, Victor Matthews, and John Walton)",
+    "publisher": "Redemptive History and Theology",
+    "url": "https://redemptivehistorytheology.com/blog/chapter-6-a-serpent-in-the-garden-genesis-31-13/serpents-in-the-ancient-near-east/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-biblehub-bdb-nachash",
+    "author": "Bible Hub (Brown-Driver-Briggs entry)",
+    "title": "Strong's Hebrew 5175: נָחָשׁ (nachash)",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/hebrew/5175.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-biblehub-bdb-arum",
+    "author": "Bible Hub (Brown-Driver-Briggs entry)",
+    "title": "Strong's Hebrew 6175: עָרוּם (arum)",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/hebrew/6175.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-biblehub-bdb-itstsabon",
+    "author": "Bible Hub (Brown-Driver-Briggs entry)",
+    "title": "Strong's Hebrew 6093: עִצָּבוֹן (itstsabon)",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/hebrew/6093.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-biblehub-bdb-teshuqah",
+    "author": "Bible Hub (Brown-Driver-Briggs and Strong's entry)",
+    "title": "Strong's Hebrew 8669: תְּשׁוּקָה (teshuqah)",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/hebrew/8669.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-biblehub-bdb-shuph",
+    "author": "Bible Hub (Brown-Driver-Briggs entry)",
+    "title": "Strong's Hebrew 7779: שׁוּף (shuph)",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/hebrew/7779.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-blb-lxx-genesis-3-15",
+    "author": "Blue Letter Bible",
+    "title": "Septuagint text of Genesis 3:15",
+    "publisher": "Blue Letter Bible",
+    "url": "https://www.blueletterbible.org/lxx/gen/3/15/t_conc_3015",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; primary Greek text as reproduced by this aggregator, not an independent critical edition",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-volkmer-biola-2017",
+    "author": "Jeffrey Volkmer",
+    "title": "Jesus in Genesis 3:15?, Biola University, Good Book Blog, June 20, 2017 (cited for its attribution of the collective reading to Gordon Wenham and Gerhard von Rad; Volkmer himself argues the contrary)",
+    "publisher": "Biola University",
+    "url": "https://www.biola.edu/blogs/good-book-blog/2017/jesus-in-genesis-3-15",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; Wenham and von Rad are cited at third hand here (Volkmer reporting McKnight reporting Wenham/von Rad), not independently verified against their own commentaries",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-lxx-scrolls-zoe",
+    "author": "The LXX Scrolls",
+    "title": "Greek Word Study: Zōē (\"Life\")",
+    "publisher": "The LXX Scrolls",
+    "url": "https://the.lxxscrolls.com/p/zoe",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-intertextual-bible-gen-3-20-lxx",
+    "author": "intertextual.bible",
+    "title": "Compare Genesis 3:20 and LXX Genesis 3:20",
+    "publisher": "intertextual.bible",
+    "url": "https://intertextual.bible/text/genesis-3.20/lxx-genesis-3.20",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; parallel-text aggregator",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-openbible-geocoding",
+    "author": "OpenBible.info",
+    "title": "Bible Geocoding Data (ancient.jsonl, commit 7eb18a5ee62f27b9b93bd6689ea272d76dd23b8f)",
+    "publisher": "OpenBible.info",
+    "url": "https://github.com/openbibleinfo/Bible-Geocoding-Data",
+    "licence": "CC BY 4.0; attribution required: \"Place data © OpenBible.info, CC BY 4.0\". Some entries derive from OpenStreetMap (ODbL 1.0); no OSM geometry is used",
+    "accessedAt": "2026-09-25"
+  },
+  {
+    "id": "source-wikipedia-matthew-1-17",
+    "author": "Wikipedia contributors",
+    "title": "Matthew 1:17 (reporting W. D. Davies and Dale C. Allison, Jr.'s ICC commentary on the three-sets-of-fourteen structure and the lunar/Sabbath-week proposal; Krister Stendahl's view that David is meant to be counted twice; Craig S. Keener on the genealogy's purpose; and a scribal-confusion proposal involving Jehoiakim/Jeconiah at 1:11, cross-referenced to 1 Chronicles 3:15-16)",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Matthew_1:17",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named scholars secondhand -- Davies/Allison, Stendahl, and Keener's own texts were not independently read, verify before quoting directly",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-matthew-1-3",
+    "author": "Wikipedia contributors",
+    "title": "Matthew 1:3 (reporting William F. Albright and C. S. Mann's Anchor Bible commentary, Raymond E. Brown's The Birth of the Messiah, Amy-Jill Levine, Jerome, Robert H. Gundry, and John Chrysostom on why the four women appear in Matthew's genealogy)",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Matthew_1:3",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named scholars and patristic writers secondhand -- their own texts were not independently read, verify before quoting directly",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-matthew-1-1",
+    "author": "Wikipedia contributors",
+    "title": "Matthew 1:1 (reporting W. D. Davies and Dale C. Allison, Jr., Heinrich Meyer, Raymond E. Brown, and Robert H. Gundry on the titles \"son of David\" and \"son of Abraham\")",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Matthew_1:1",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named scholars secondhand -- their own texts were not independently read, verify before quoting directly",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-matthew-1-5",
+    "author": "Wikipedia contributors",
+    "title": "Matthew 1:5 (reporting William F. Albright and C. S. Mann on the Rahab/Rachab spelling, and Raymond E. Brown on the chronological problem of Rahab's position in the Boaz-Obed-Jesse line drawn from Ruth 4:18-22)",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Matthew_1:5",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named scholars secondhand -- their own texts were not independently read, verify before quoting directly",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-margmowczko-women-matthew-genealogy",
+    "author": "Marg Mowczko (quoting Craig S. Keener and R. T. France)",
+    "title": "The Women in Matthew's Genealogy of Jesus: Tamar, Rahab, Ruth and Bathsheba",
+    "publisher": "margmowczko.com",
+    "url": "https://margmowczko.com/women-matthew-genealogy-jesus-tamar-rahab-ruth-bathsheba/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; an independent blog quoting Keener and France directly -- their commentaries themselves were not independently read, verify before quoting further",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-graham-tgc-canada-genealogies-differ",
+    "author": "Wyatt Graham",
+    "title": "Why Do Matthew and Luke's Genealogies of Jesus Differ?",
+    "publisher": "The Gospel Coalition Canada",
+    "url": "https://ca.thegospelcoalition.org/columns/detrinitate/why-do-matthew-and-lukes-genealogies-of-jesus-differ/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; reports John Lightfoot and Epiphanius of Salamis (the Marian-line view) and John of Damascus (the levirate-marriage view) secondhand -- their own texts were not independently read, verify before quoting directly",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-thejesusquestion-two-genealogies",
+    "author": "thejesusquestion.org",
+    "title": "The Two Genealogies of Jesus, the Curse of Jeconiah, and the Royal Line of David",
+    "publisher": "thejesusquestion.org",
+    "url": "https://thejesusquestion.org/2015/12/21/the-two-genealogies-of-jesus-the-curse-of-jeconiah-and-the-royal-line-of-david/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; reports Julius Africanus's levirate-marriage harmonization (preserved via Eusebius) and Christophe Guignard's academic treatment of it secondhand -- Africanus's letter and Guignard's paper were not independently read, verify before quoting directly",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-turpin-aig-space-six-days",
+    "author": "Simon Turpin",
+    "title": "In the Space of Six Days?",
+    "publisher": "Answers in Genesis",
+    "url": "https://answersingenesis.org/days-of-creation/in-the-space-of-six-days/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; presents the 24-hour young-earth reading, citing the numbered-day plus evening/morning markers and the Exodus 20:8-11 six-plus-one pattern; does not claim to be AiG's sole official statement but is representative of the ministry's position",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-opc-in-space-six-days",
+    "author": "Ordained Servant (Orthodox Presbyterian Church); surveys Calvin, Louis Berkhof, Robert L. Dabney, E.J. Young, and Robert L. Reymond on the 24-hour view",
+    "title": "In the Space of Six Days",
+    "publisher": "Orthodox Presbyterian Church, Ordained Servant",
+    "url": "https://opc.org/OS/html/V9/1d.html",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; secondary survey of named Reformed theologians' own arguments, not their primary texts themselves",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-ross-reasons-evening-morning",
+    "author": "Hugh Ross",
+    "title": "Why Evening-Morning for the Genesis Creation Days If Those Days Are Longer Than 24 Hours?",
+    "publisher": "Reasons to Believe",
+    "url": "https://reasons.org/explore/publications/questions-from-social-media/why-evening-morning-for-the-genesis-creation-days-if-those-days-are-longer-than-24-hours",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; Ross's own statement of the day-age position, citing Genesis 2:4's use of yom for the whole creation period",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-kline-pscf-1996-cosmogony",
+    "author": "Meredith G. Kline",
+    "title": "Space and Time in the Genesis Cosmogony, Perspectives on Science and Christian Faith 48 (March 1996): 2-15",
+    "publisher": "American Scientific Affiliation (PSCF)",
+    "url": "https://www.asa3.org/ASA/PSCF/1996/PSCF3-96Kline.html",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; Kline's own primary article stating the literary-framework / two-register reading and that the creation week is to be understood figuratively, not as ordinary chronological sequence",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-vanluik-framework-hypothesis",
+    "author": "Matthew H. van Luik",
+    "title": "The Framework Hypothesis: The Literary Genre of Genesis 1",
+    "publisher": "Christian Study Library",
+    "url": "https://www.christianstudylibrary.org/article/framework-hypothesis",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; secondary survey crediting Meredith Kline (1958 Westminster Theological Journal article; developed further with Lee Irons in The Genesis Debate, Crux Press, 2001) as the view's principal North American proponent, with Bruce Waltke and Mark D. Futato (Westminster Theological Journal 60 (1998)) also named; Waltke's and Futato's own texts were not independently read here",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-equip-gap-theory",
+    "author": "Christian Research Institute (Equip.org)",
+    "title": "The Gap Theory of Genesis 1:2",
+    "publisher": "Christian Research Institute",
+    "url": "https://www.equip.org/articles/the-gap-theory-of-genesis-12/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; names Thomas Chalmers (1814) as the view's modern originator, G.H. Pember (Earth's Earliest Ages, 1876) as popularizer, the Scofield Reference Bible (1909) as its entrenchment in fundamentalist circles, and Arthur C. Custance (1970) as a later reviver; reports the view's decline after Henry Morris's young-earth six-day creationism in the 1960s",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-windle-enuma-elish-three-myths",
+    "author": "Bryan Windle",
+    "title": "Three Ancient Near Eastern Creation Myths",
+    "publisher": "Bible Archaeology Report",
+    "url": "https://biblearchaeologyreport.com/2019/02/22/three-ancient-near-eastern-creation-myths/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; summarizes parallels and differences between Genesis 1 and the Enuma Elish, citing Joseph Holden and Norman Geisler, The Popular Handbook of Biblical Archaeology (Harvest House, 2013)",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-tsumura-earth-waters-genesis",
+    "author": "David Toshio Tsumura",
+    "title": "The Earth and the Waters in Genesis 1 and 2: A Linguistic Investigation (JSOT Supplement Series)",
+    "publisher": "Sheffield Academic Press",
+    "url": "https://jewishstudies.rutgers.edu/images/documents/faculty/Rendsburg/Tsumura_Earth_Waters-Genesis_1-2.pdf",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; the PDF found is image-scanned and could not be read directly in this environment -- Tsumura's conclusion (that Hebrew tehom reflects a common Semitic root shared with Akkadian/Ugaritic/Eblaite cognates of Tiamat, without the Genesis account depending on Babylonian Chaoskampf mythology) is reported here via a secondary search-index aggregation, not independently verified against his own text; verify before quoting directly",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-biblehub-strongs-tov",
+    "author": "Bible Hub (Brown-Driver-Briggs and Strong's entry)",
+    "title": "Strong's Hebrew 2896: טוֹב (tov)",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/hebrew/2896.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-biblehub-gen2-exod20-sabbath-link",
+    "author": "Bible Hub (aggregated commentary; no individual commentator separately identified)",
+    "title": "How does Genesis 2:3 connect with the Fourth Commandment in Exodus 20:8-11?",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/q/Link_Genesis_2_3_to_Exodus_20_8-11.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; aggregator page, not a named scholar's own commentary",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-davidson-grisda-psalm-104",
+    "author": "Richard M. Davidson",
+    "title": "The Creation Theme in Psalm 104, in The Genesis Creation Account and Its Reverberations in the Old Testament",
+    "publisher": "Geoscience Research Institute (GRISDA)",
+    "url": "https://www.grisda.org/assets/public/resources/CollectedPapers/Genesis_Creation_Account_OT/GCA_05_149_188.pdf",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; the PDF found is image-scanned and could not be read directly in this environment -- the quotations attributed here to Derek Kidner (Psalms 73-150, Tyndale OT Commentaries) and Franz Delitzsch (Biblical Commentary on the Psalms) reached this registry via a secondary search-index aggregation of Davidson's paper, not independently verified against Davidson's, Kidner's, or Delitzsch's own text; verify before quoting directly",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-carson-john-pillar-commentary",
+    "author": "D.A. Carson",
+    "title": "The Gospel According to John (Pillar New Testament Commentary)",
+    "publisher": "Eerdmans, 1991",
+    "url": "https://www.eerdmans.com/9780802836830/the-gospel-according-to-john/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; Carson's reading of John 1:1's 'in the beginning' as a deliberate allusion to Genesis 1:1 reached this registry via a secondary search-index aggregation of the commentary, not independently verified against Carson's own text; verify before quoting directly",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-heatley-theologyofwork-colossians",
+    "author": "Bill Heatley, adopted by the Theology of Work Project Board (2010-01-11)",
+    "title": "God at Work, Jesus at Work (Colossians 1:15-20)",
+    "publisher": "Theology of Work Project",
+    "url": "https://www.theologyofwork.org/new-testament/colossians-philemon/colossians-and-work/god-at-work-jesus-at-work-colossians-11520/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a collaborative project commentary, not a peer-reviewed academic commentary -- states plainly that Colossians assumes the reader's familiarity with Genesis 1:1's opening words",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-furst-biblicalechoes-genesis-rabbah-day2",
+    "author": "Simon Furst, quoting Genesis Rabbah 4 (Rabbi Samuel bar Nahman's teaching)",
+    "title": "When God Did Not Call It Good",
+    "publisher": "Biblical Echoes (Substack)",
+    "url": "https://biblicalechoes.substack.com/p/when-god-did-not-call-it-good",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a non-peer-reviewed blog reporting a classical rabbinic source (Genesis Rabbah 4); the midrash itself was not independently located and read in this environment -- cited here only for the plain, independently checkable textual fact that the 'good' refrain is absent on day two, not for any claim about what that absence means",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-mortenson-aig-bara-asah",
+    "author": "Dr. Terry Mortenson",
+    "title": "Did God Create (Bara) or Make (Asah) in Genesis 1?",
+    "publisher": "Answers in Genesis",
+    "url": "https://answersingenesis.org/genesis/did-god-create-bara-or-make-asah-in-genesis-1/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; published 2007-08-15; states the verses where each verb occurs in Genesis 1 and explicitly cautions that the two verbs are used interchangeably elsewhere and cannot by themselves settle how or how long God took to create",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-bsb-shipped-corpus",
+    "author": "Berean Standard Bible translators",
+    "title": "Berean Standard Bible (as shipped in this app, web/public/bible/BSB/)",
+    "publisher": "Berean Bible (bereanbible.com)",
+    "url": "https://berean.bible/",
+    "licence": "Released by the publisher for free use worldwide, including redistribution -- the app's own default translation; cited here as the primary text for a connection whose evidence is the wording of the two passages themselves",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-psephizo-understanding-beatitudes",
+    "author": "Ian Paul",
+    "title": "Understanding the Beatitudes in Matthew 5",
+    "publisher": "Psephizo",
+    "url": "https://www.psephizo.com/biblical-studies/understanding-the-beatitudes-in-matthew-5/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; author is Associate Senior Research Fellow, Kirby Laing Centre for Public Theology, and Associate Minister, St Nic's Nottingham",
+    "accessedAt": "2026-09-30"
+  },
+  {
+    "id": "source-psephizo-beatitudes-luke-matthew",
+    "author": "Ian Paul",
+    "title": "The Beatitudes in Luke and Matthew",
+    "publisher": "Psephizo",
+    "url": "https://www.psephizo.com/biblical-studies/the-beatitudes-in-luke-and-matthew/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; cites Alfred Plummer's 1896 ICC commentary, R.T. France's NICNT, and Mark Goodacre's The Case Against Q at second hand",
+    "accessedAt": "2026-09-30"
+  },
+  {
+    "id": "source-wikipedia-matthew-5-3",
+    "author": "Wikipedia contributors",
+    "title": "Matthew 5:3 (tertiary source, used for its summary of named commentators -- Hans Dieter Betz, W.F. Albright and C.S. Mann, Andrej Kodjak, John Nolland, William R. Domeris, Gary T. Meadors, Ulrich Luz, R.T. France, and W.D. Davies and Dale C. Allison Jr. -- on the \"poor in spirit\" / 'anawim question)",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Matthew_5:3",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary survey source reporting named commentators secondhand, not independently verified against their own commentaries",
+    "accessedAt": "2026-09-30"
+  },
+  {
+    "id": "source-turner-jets-2010-dispensationalists",
+    "author": "David L. Turner",
+    "title": "Matthew Among the Dispensationalists, Journal of the Evangelical Theological Society 53, no. 4 (December 2010): 697-716",
+    "publisher": "Evangelical Theological Society (JETS)",
+    "url": "https://etsjets.org/wp-content/uploads/2011/01/files_JETS-PDFs_53_53-4_JETS_53-4_697-716_Turner.pdf",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; read in full via downloaded PDF text extraction",
+    "accessedAt": "2026-09-30"
+  },
+  {
+    "id": "source-friesen-direction-1981-sermon-approaches",
+    "author": "Bert Friesen",
+    "title": "Approaches to the Interpretation and Application of the Sermon on the Mount, Direction 10, no. 2 (April 1981): 19-25",
+    "publisher": "Direction (a Mennonite Brethren forum for Christian thought)",
+    "url": "https://directionjournal.org/10/2/approaches-to-interpretation-and.html",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; surveys and quotes Hans Windisch, Adolf von Harnack, C.I. Scofield, Johannes Weiss, Albert Schweitzer, Martin Dibelius, Gerhard Kittel, Menno Simons, Hans Denck, and John Howard Yoder at second hand",
+    "accessedAt": "2026-09-30"
+  },
+  {
+    "id": "source-hanson-makarisms-reproaches",
+    "author": "K.C. Hanson",
+    "title": "Matthew's Makarisms and Reproaches (first presented to The Context Group: Project on the Bible in Its Cultural Environment, March 25, 1990)",
+    "publisher": "K.C. Hanson / Wipf and Stock Publishers",
+    "url": "https://www.kchanson.com/ARTICLES/mak.html",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; social-science (honor/shame) reading of the makarism form",
+    "accessedAt": "2026-09-30"
+  },
+  {
+    "id": "source-lioy-conspectus-2016-psalm1-beatitudes",
+    "author": "Daniel T. Lioy",
+    "title": "A Comparative Analysis of Psalm 1 and the Beatitudes in Matthew 5:3-12, Conspectus 22, no. 1 (September 2016)",
+    "publisher": "South African Theological Seminary (Conspectus)",
+    "url": "https://www.galaxie.com/article/conspectus22-1-05",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; exact page range within the issue not independently confirmed beyond an excerpt observed at pp. 141-142; the publisher's own full-text PDF link returned an unreadable response during this research pass",
+    "accessedAt": "2026-09-30"
+  },
+  {
+    "id": "source-guelich-jbl-1976-matthean-beatitudes",
+    "author": "Robert A. Guelich",
+    "title": "The Matthean Beatitudes: \"Entrance-Requirements\" or Eschatological Blessings?, Journal of Biblical Literature 95, no. 3 (1976): 415-434",
+    "publisher": "Society of Biblical Literature (JBL)",
+    "url": "https://www.semanticscholar.org/paper/The-Matthean-Beatitudes:-%22Entrance-Requirements%22-or-Guelich/13a243328b4ddae5672700128856a2cd247e6f49",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; citation/abstract-level only -- the article itself returned HTTP 403 to automated fetch at every host tried during this research pass and was not read; the article's own title and its question are corroborated across multiple independent index listings, but Guelich's actual argument is reported here only via secondary characterization, not an independent reading",
+    "accessedAt": "2026-09-30"
+  },
+  {
+    "id": "source-mcknight-missio-dei-james-jesus",
+    "author": "Scot McKnight",
+    "title": "James and Jesus, Missio Dei Journal 2, no. 2 (August 2011)",
+    "publisher": "Missio Dei Journal",
+    "url": "https://missiodeijournal.com/issues/md-2-2/authors/md-2-2-mcknight-jesus",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; author is Karl A. Olsson Professor in Religious Studies, North Park University; the article documents beatitude echoes across the letter of James generally and was not found to single out James 2:5 by verse in the text read here",
+    "accessedAt": "2026-09-30"
+  },
+  {
+    "id": "source-wikipedia-genesis-creation-narrative",
+    "author": "Wikipedia contributors",
+    "title": "Genesis creation narrative (tertiary source, used for the Priestly/Yahwist two-account division and approximate dating)",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Genesis_creation_narrative",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary survey source, not a peer-reviewed one; specific named scholars behind its footnotes were not independently re-verified here",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-bas-documentary-hypothesis-sidebar",
+    "author": "Biblical Archaeology Society (BAS Library); unsigned sidebar",
+    "title": "The Sources of Genesis 1-11 According to the Documentary Hypothesis (sidebar to \"The Documentary Hypothesis in Trouble\")",
+    "publisher": "Biblical Archaeology Society",
+    "url": "https://library.biblicalarchaeology.org/sidebar/the-sources-of-genesis-1-11-according-to-the-documentary-hypothesis/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; no individual scholar named on this sidebar page; the parent article itself states recent scholarship finds the documentary hypothesis in trouble",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-intertextual-bible-atrahasis-gen2-7",
+    "author": "intertextual.bible (parallel-text aggregator)",
+    "title": "Genesis Echoes Atrahasis in the Creation of Humans from Clay",
+    "publisher": "intertextual.bible",
+    "url": "https://intertextual.bible/text/atrahasis/genesis-2.7",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; aggregator page; the site's own caveat states its references are not endorsements and should be read in full",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-ninti",
+    "author": "Wikipedia contributors (citing Jeremiah Peterson)",
+    "title": "Ninti (Sumerian deity, \"Lady of the Rib\"/\"Lady who makes live\"; cited for the folk-etymology caution on the Ninti/Eve parallel)",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Ninti",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary survey source",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-eve-lerner",
+    "author": "Wikipedia contributors, citing Gerda Lerner, The Creation of Patriarchy (Oxford University Press, 1986), pp. 184-185",
+    "title": "Eve (tertiary source, cited for Lerner's proposed Ninti/Eve rib-and-life parallel)",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Eve",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; Lerner's book itself was not read, only Wikipedia's quotation of it -- verify before quoting further",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-zevit-bar-rib-baculum-2015",
+    "author": "Ziony Zevit",
+    "title": "Was Eve Made from Adam's Rib--or His Baculum?, Biblical Archaeology Review (Sept/Oct 2015), as republished by the Biblical Archaeology Society",
+    "publisher": "Biblical Archaeology Society (biblicalarchaeology.org)",
+    "url": "https://www.biblicalarchaeology.org/daily/biblical-topics/bible-interpretation/the-adam-and-eve-story-eve-came-from-where/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; republished/aggregated version consulted, not the original BAR print pagination",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-biblehub-bdb-tsela",
+    "author": "Bible Hub (Brown-Driver-Briggs entry)",
+    "title": "Strong's Hebrew 6763: צֵלָע (tsela)",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/hebrew/6763.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-biblehub-bdb-ezer",
+    "author": "Bible Hub (Brown-Driver-Briggs entry)",
+    "title": "Strong's Hebrew 5828: עֵזֶר (ezer)",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/hebrew/5828.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-biblehub-bdb-banah",
+    "author": "Bible Hub (Brown-Driver-Briggs entry)",
+    "title": "Strong's Hebrew 1129: בָּנָה (banah, \"build\"), as used in Genesis 2:22",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/hebrew/1129.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-rashi-gen-2-21",
+    "author": "Rashi",
+    "title": "Rashi on Genesis 2:21",
+    "publisher": "Sefaria",
+    "url": "https://www.sefaria.org/api/texts/Rashi_on_Genesis.2.21",
+    "licence": "Public-domain translation; link retained for provenance",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-phyllis-trible",
+    "author": "Wikipedia contributors",
+    "title": "Phyllis Trible (biographical tertiary source, cited for her 1973 Journal of the American Academy of Religion essay \"Depatriarchalizing in Biblical Interpretation\" and her reading of Genesis 2's 'adham as unspecified until differentiated at 2:21-23)",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Phyllis_Trible",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; Trible's own essay was not read directly here, only Wikipedia's report of it -- verify before quoting her own wording",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-danvers-statement-cbmw",
+    "author": "Council on Biblical Manhood and Womanhood",
+    "title": "The Danvers Statement",
+    "publisher": "CBMW (cbmw.org)",
+    "url": "https://cbmw.org/about/danvers-statement/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-cbe-men-women-biblical-equality",
+    "author": "Christians for Biblical Equality (CBE International)",
+    "title": "Men, Women, and Biblical Equality",
+    "publisher": "CBE International (cbeinternational.org)",
+    "url": "https://www.cbeinternational.org/resource/men-women-and-biblical-equality/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-bibleref-gen-2-19",
+    "author": "BibleRef.com (aggregated commentary; no named scholar for the naming/dominion claim)",
+    "title": "What does Genesis 2:19 mean?",
+    "publisher": "BibleRef.com",
+    "url": "https://www.bibleref.com/Genesis/2/Genesis-2-19.html",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; anonymous aggregator page, no individual scholar named or quoted for its dominion/stewardship reading",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-chiasmusxchange-gen-2-4",
+    "author": "Biblical Chiasm Exchange (contributor credited only as \"SDS\"; a comment thread disputes the exact boundaries)",
+    "title": "Genesis 1-2:4 (chiastic outline including the \"heavens and earth\" / \"earth and heavens\" reversal at 2:4)",
+    "publisher": "Biblical Chiasm Exchange",
+    "url": "https://www.chiasmusxchange.com/2015/01/21/genesis-1-2/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; secondary catalog page crediting an anonymous contributor, not a named, published scholar; a commenter on the page disputes the exact chiastic boundaries",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-targum-onkelos-gen-2-21",
+    "author": "Targum Onkelos",
+    "title": "Targum Onkelos on Genesis 2:21",
+    "publisher": "Sefaria",
+    "url": "https://www.sefaria.org/api/texts/Onkelos_Genesis.2.21",
+    "licence": "Public-domain/traditional Aramaic text and translation; link retained for provenance",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-matthew-1-18",
+    "author": "Wikipedia contributors",
+    "title": "Matthew 1:18 (reporting first-century Jewish betrothal practice, and Eduard Schweizer, Raymond E. Brown, Jane Schaberg, Amy-Jill Levine, and Elaine Wainwright on the virginal-conception narrative)",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Matthew_1:18",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named scholars secondhand -- their own texts were not independently read, verify before quoting directly",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-matthew-1-19",
+    "author": "Wikipedia contributors",
+    "title": "Matthew 1:19 (reporting Raymond E. Brown's The Birth of the Messiah on three readings of Joseph's righteousness, Clement of Alexandria, and Robert H. Gundry on the meaning of \"quietly\")",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Matthew_1:19",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named scholars secondhand -- their own texts were not independently read, verify before quoting directly",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-matthew-1-21",
+    "author": "Wikipedia contributors",
+    "title": "Matthew 1:21 (reporting Jerome on the Hebrew etymology of \"Jesus,\" R.T. France, Warren Carter, Robert H. Gundry, and Saint Remigius on \"He will save His people from their sins\")",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Matthew_1:21",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named scholars and patristic writers secondhand -- their own texts were not independently read, verify before quoting directly",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-matthew-1-23",
+    "author": "Wikipedia contributors",
+    "title": "Matthew 1:23 (reporting the fulfillment-citation formula, Matthew's use of the Septuagint's parthenos for Isaiah's almah, Marvin A. Sweeney, Brevard S. Childs, and William F. Albright and C.S. Mann on Matthew's naming-verb alteration)",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Matthew_1:23",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named scholars secondhand -- their own texts were not independently read, verify before quoting directly; this lesson independently checked the underlying Greek verb forms against primary Greek texts rather than relying on this source's own characterization of the difference",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-isaiah-7-14",
+    "author": "Wikipedia contributors",
+    "title": "Isaiah 7:14 (reporting the almah/parthenos translation question, the 8th-century-BC Ahaz/Syro-Ephraimite context, and Marvin A. Sweeney, Craig A. Evans, and Warren Carter on the sign's original meaning)",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Isaiah_7:14",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named scholars secondhand -- their own texts were not independently read, verify before quoting directly",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-almah",
+    "author": "Wikipedia contributors",
+    "title": "Almah (semantic range of the Hebrew word, its occurrences in the Hebrew Bible, and the scholarly consensus distinguishing it from betulah)",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Almah",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary survey source, not a peer-reviewed one",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-gingrich-joseph-just-merciful-divorcer",
+    "author": "Dwight Gingrich (quoting R.T. France's NICNT Matthew commentary, Theodore Mackin's Divorce and Remarriage, William F. Luck's Divorce and Re-Marriage, and David Instone-Brewer's Divorce and Remarriage in the Bible)",
+    "title": "Joseph, the Just and Merciful Divorcer",
+    "publisher": "Dwight Gingrich Online",
+    "url": "https://dwightgingrich.com/joseph-just-merciful-divorcer",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; an independent blog quoting France, Mackin, Luck, and Instone-Brewer directly -- their own books were not independently read, verify before quoting further",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-esler-nts-2022-righteousness-joseph",
+    "author": "Philip F. Esler",
+    "title": "The Righteousness of Joseph: Interpreting Matt 1.18-25 in Light of Judean Legal Papyri, New Testament Studies 68, no. 3 (July 2022)",
+    "publisher": "Cambridge University Press (New Testament Studies)",
+    "url": "https://www.cambridge.org/core/journals/new-testament-studies/article/righteousness-of-joseph-interpreting-matt-11825-in-light-of-judean-legal-papyri/C0BDA57366C50B0553743DA8796BB092",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; article is paywalled -- only the abstract/summary was read for this lesson, not the full argument or its handling of the primary legal papyri",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-hoffman-knowingscripture-isaiah-7-14-virgin",
+    "author": "Daniel Hoffman (quoting Alec Motyer's Isaiah commentary and R.T. France)",
+    "title": "Is \"Virgin\" the Correct Translation of Isaiah 7:14?",
+    "publisher": "Knowing Scripture",
+    "url": "https://knowingscripture.com/articles/is-virgin-the-correct-translation-of-isaiah-7-14",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; an independent article quoting Motyer and France directly -- their own commentaries were not independently read, verify before quoting further",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-postell-jets-2025-isaiah-7-14-messianic",
+    "author": "Seth D. Postell",
+    "title": "Is Isaiah 7:14 Messianic?, Journal of the Evangelical Theological Society 68, no. 3 (2025): 465-493",
+    "publisher": "Evangelical Theological Society (JETS)",
+    "url": "https://etsjets.org/wp-content/uploads/JETS_68.3_465_Postell.pdf",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; the PDF did not extract as reliably readable text in the tools used for this lesson -- only the article's title, author, venue, and general thesis are reported, not its supporting argument in the author's own words; verify by reading the article directly before quoting or further characterizing its reasoning",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-allison-jsnt-1993-divorce-celibacy-joseph",
+    "author": "Dale C. Allison",
+    "title": "Divorce, Celibacy and Joseph (Matthew 1.18-25 and 19.1-12), Journal for the Study of the New Testament 15, no. 49 (1993): 3-10",
+    "publisher": "SAGE Publications (Journal for the Study of the New Testament)",
+    "url": "https://journals.sagepub.com/doi/abs/10.1177/0142064x9301504901",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; the publisher's page returned an access restriction to this lesson's research -- the article is registered for bibliographic identity only and was not read; nothing in this lesson's body or connections rests on its content",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-matthew-2-1",
+    "author": "Wikipedia contributors",
+    "title": "Matthew 2:1",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Matthew_2:1",
+    "licence": "CC BY-SA; tertiary source aggregating named scholars (Brown, and others) -- those scholars are reported here secondhand",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-tyndalehouse-watkins-magi-2024",
+    "author": "Tony Watkins",
+    "title": "Who were the Magi?",
+    "publisher": "Tyndale House, Cambridge",
+    "url": "https://tyndalehouse.com/2024/12/06/magi/",
+    "licence": "Read directly in full for this lesson; link and bibliographic metadata only, copyrighted source text is not reproduced",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-matthew-2-2",
+    "author": "Wikipedia contributors",
+    "title": "Matthew 2:2",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Matthew_2:2",
+    "licence": "CC BY-SA; tertiary source aggregating named scholars and historical figures (Chrysostom, Brown, Ferrari d'Occhieppo, and others) -- reported here secondhand",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-moss-natgeo-star-bethlehem-2025",
+    "author": "Candida Moss",
+    "title": "Is there historical evidence for the Star of Bethlehem?",
+    "publisher": "National Geographic",
+    "url": "https://www.nationalgeographic.com/history/article/star-of-bethlehem-gospel-of-matthew-christmas-story-birth-of-jesus",
+    "licence": "Dec. 11, 2025; tertiary source aggregating named scholars and historical figures (Origen, Ignatius of Antioch, Mash'allah, Grant Mathews, Chrysostom, Robyn Walsh) -- reported here secondhand",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-matthew-2-4",
+    "author": "Wikipedia contributors",
+    "title": "Matthew 2:4",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Matthew_2:4",
+    "licence": "CC BY-SA; tertiary source aggregating named scholars (Raymond E. Brown, Eduard Schweizer) -- reported here secondhand",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-matthew-2-5",
+    "author": "Wikipedia contributors",
+    "title": "Matthew 2:5",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Matthew_2:5",
+    "licence": "CC BY-SA; tertiary source aggregating named scholars (Robert Gundry) -- reported here secondhand",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-matthew-2-6",
+    "author": "Wikipedia contributors",
+    "title": "Matthew 2:6",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Matthew_2:6",
+    "licence": "CC BY-SA; tertiary source aggregating named scholars (Raymond E. Brown, William F. Albright and C.S. Mann) -- reported here secondhand; this lesson's own direct textual comparison of Matthew 2:6 and Micah 5:2-4 was checked independently against the shipped BSB corpus and does not depend on this source for its content",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-matthew-2-11",
+    "author": "Wikipedia contributors",
+    "title": "Matthew 2:11",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Matthew_2:11",
+    "licence": "CC BY-SA; tertiary source aggregating named scholars and historical figures (Chrysostom, C.S. Mann, Raymond E. Brown, Howard W. Clarke, Gregory the Great, Augustine) -- reported here secondhand",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-matthew-2-12",
+    "author": "Wikipedia contributors",
+    "title": "Matthew 2:12",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Matthew_2:12",
+    "licence": "CC BY-SA; tertiary source aggregating named scholars and historical figures (Gregory the Great, F. Dale Bruner) -- reported here secondhand",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-intertextual-bible-num24-17-matt2-2",
+    "author": "intertextual.bible (aggregating Moises Mayordomo)",
+    "title": "Compare Numbers 24:17 and Matthew 2:2",
+    "publisher": "intertextual.bible",
+    "url": "https://intertextual.bible/text/numbers-24.17/matthew-2.2",
+    "licence": "Aggregator reporting Mayordomo, \"Matthew 1-2 and the Problem of Intertextuality,\" in Infancy Gospels: Stories and Identities (2011) -- Mayordomo's own chapter was not independently read for this lesson",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-leithart-theopolis-gold-incense-myrrh",
+    "author": "Peter J. Leithart",
+    "title": "Gold, Incense, and Myrrh",
+    "publisher": "Theopolis Institute",
+    "url": "https://theopolisinstitute.com/gold-incense-and-myrrh/",
+    "licence": "Read directly in full for this lesson; link and bibliographic metadata only, copyrighted source text is not reproduced",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-biblehub-bdb-shaah",
+    "author": "Bible Hub (Brown-Driver-Briggs entry)",
+    "title": "Strong's Hebrew 8159: שָׁעָה (sha'ah, \"to gaze, look, regard\")",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/hebrew/8159.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-biblehub-bdb-minchah",
+    "author": "Bible Hub (Brown-Driver-Briggs entry)",
+    "title": "Strong's Hebrew 4503: מִנְחָה (minchah, \"gift, tribute, offering\")",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/hebrew/4503.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-biblehub-bdb-rabats",
+    "author": "Bible Hub (Brown-Driver-Briggs entry)",
+    "title": "Strong's Hebrew 7257: רָבַץ (rabats, \"to stretch oneself out, lie down, crouch\")",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/hebrew/7257.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-biblehub-bdb-hevel",
+    "author": "Bible Hub (Brown-Driver-Briggs entry)",
+    "title": "Strong's Hebrew 1892: הֶבֶל (hevel, \"breath, vapor, vanity\"), as used for the name Abel",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/hebrew/1892.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-biblehub-bdb-qanah",
+    "author": "Bible Hub (Brown-Driver-Briggs entry)",
+    "title": "Strong's Hebrew 7069: קָנָה (qanah, \"to get, acquire, create\"), as used in Eve's naming speech for Cain",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/hebrew/7069.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-biblehub-bdb-mashal",
+    "author": "Bible Hub (Brown-Driver-Briggs entry)",
+    "title": "Strong's Hebrew 4910: מָשַׁל (mashal, \"to rule, have dominion, reign\")",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/hebrew/4910.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-biblehub-bdb-oth",
+    "author": "Bible Hub (Brown-Driver-Briggs entry)",
+    "title": "Strong's Hebrew 226: אוֹת ('oth, \"sign, mark, token\")",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/hebrew/226.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-blb-lxx-genesis-4-7",
+    "author": "Blue Letter Bible",
+    "title": "Septuagint text of Genesis 4:7",
+    "publisher": "Blue Letter Bible",
+    "url": "https://www.blueletterbible.org/lxx/gen/4/7/t_conc_4007",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; primary Greek text as reproduced by this aggregator, not an independent critical edition",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-rashi-gen-4-7",
+    "author": "Rashi",
+    "title": "Rashi on Genesis 4:7",
+    "publisher": "Sefaria",
+    "url": "https://www.sefaria.org/api/texts/Rashi_on_Genesis.4.7",
+    "licence": "Public-domain translation; link retained for provenance",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-rashi-gen-4-15",
+    "author": "Rashi",
+    "title": "Rashi on Genesis 4:15",
+    "publisher": "Sefaria",
+    "url": "https://www.sefaria.org/api/texts/Rashi_on_Genesis.4.15",
+    "licence": "Public-domain translation; link retained for provenance",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-targum-pseudo-jonathan-gen-4",
+    "author": "Targum Pseudo-Jonathan",
+    "title": "Targum (Pseudo-)Jonathan on Genesis 4:1-16",
+    "publisher": "Sefaria",
+    "url": "https://www.sefaria.org/api/texts/Targum_Jonathan_on_Genesis.4",
+    "licence": "Public-domain translation; link retained for provenance",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-1-clement-4-envy",
+    "author": "Clement of Rome (attributed)",
+    "title": "1 Clement, chapter 4 (on envy and jealousy leading to Cain's murder of Abel)",
+    "publisher": "New Advent",
+    "url": "https://www.newadvent.org/fathers/1010.htm",
+    "licence": "Public-domain translation; link retained for provenance",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-goeman-sin-offering-gen4-7",
+    "author": "Peter Goeman",
+    "title": "Perhaps Sin is Not Crouching at the Door (Genesis 4:7)",
+    "publisher": "The Bible Sojourner (petergoeman.com); author is professor of Old Testament and Biblical Languages, Shepherds Theological Seminary",
+    "url": "https://petergoeman.com/perhaps-sin-is-not-crouching-at-the-door-genesis-47/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a minority-position article proposing hattat be read as \"sin offering\"; cites Michael Morales, Adam Clarke, Jamieson-Fausset-Brown, and Adoniram Judson at second hand, not independently verified here",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-mowczko-gen316-gen47",
+    "author": "Marg Mowczko (quoting Dr. Jill Firth, Ridley College)",
+    "title": "A Quick Comparison of Genesis 3:16 and Genesis 4:7",
+    "publisher": "margmowczko.com",
+    "url": "https://margmowczko.com/genesis-316-teshuqah-mashal/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-enduringword-guzik-genesis-4",
+    "author": "David Guzik",
+    "title": "Genesis 4 -- Enduring Word Bible Commentary",
+    "publisher": "Enduring Word",
+    "url": "https://enduringword.com/bible-commentary/genesis-4/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-bibleref-gen-4-5",
+    "author": "BibleRef.com (aggregated commentary; no named scholar)",
+    "title": "What does Genesis 4:5 mean?",
+    "publisher": "BibleRef.com",
+    "url": "https://www.bibleref.com/Genesis/4/Genesis-4-5.html",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; anonymous aggregator page",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-curse-mark-of-cain",
+    "author": "Wikipedia contributors",
+    "title": "Curse and mark of Cain (reporting Daniel Heimbach, Southeastern Baptist Theological Seminary, on the refutation of the \"mark = dark skin\" reading; also reports Brigham Young's and some Southern Baptist ministers' historical use of that reading, and the 1995 SBC and LDS Church statements disavowing it)",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Curse_and_mark_of_Cain",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source, not independently cross-checked against Heimbach's own text here",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-cain",
+    "author": "Wikipedia contributors",
+    "title": "Cain (reporting the sister-wife tradition, Jubilees 4's naming of Awan, Rabbi Joshua ben Karha via the Talmud, Philo's symbolic reading of the city-building, and Nachmanides on the Cain/qanah wordplay)",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Cain",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named traditions and scholars secondhand, not independently cross-checked against their own texts here",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-gotquestions-way-of-cain",
+    "author": "Got Questions Ministries",
+    "title": "What is the way of Cain (Jude 1:11)?",
+    "publisher": "GotQuestions.org",
+    "url": "https://www.gotquestions.org/way-of-Cain.html",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a popular-level ministry FAQ, not a peer-reviewed commentary",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-carasik-substack-gen4-14",
+    "author": "Michael Carasik",
+    "title": "Then What? (Genesis 4:14)",
+    "publisher": "The Bible Guy (Substack)",
+    "url": "https://michaelcarasik.substack.com/p/then-what-gen-414",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; author teaches Biblical Hebrew (The Great Courses) and is the editor of The Commentators' Bible",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-etc-williams-gen4-8-field",
+    "author": "Peter J. Williams (Evangelical Textual Criticism blog)",
+    "title": "Out in the field: Genesis 4:8 (on the Masoretic Text's missing direct speech and whether \"let us go out to the field\" is original)",
+    "publisher": "Evangelical Textual Criticism (blogspot)",
+    "url": "http://evangelicaltextualcriticism.blogspot.com/2006/03/out-in-field-genesis-48.html",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-answersingenesis-cain-wife",
+    "author": "Answers in Genesis",
+    "title": "Cain -- Creation Basics (on Cain's wife and the population of Enoch's city)",
+    "publisher": "Answers in Genesis",
+    "url": "https://answersingenesis.org/bible-characters/cain/creation-basics/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; presents the young-earth sister/niece-wife and large-early-population reading",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-rashi-gen-4-26",
+    "author": "Rashi",
+    "title": "Rashi on Genesis 4:26",
+    "publisher": "Sefaria",
+    "url": "https://www.sefaria.org/api/texts/Rashi_on_Genesis.4.26",
+    "licence": "Public-domain translation (M. Rosenbaum and A.M. Silbermann, 1929-1934); link retained for provenance; fetched directly via the Sefaria API and checked verbatim 2026-10-01",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-targum-onkelos-gen-4-26",
+    "author": "Targum Onkelos",
+    "title": "Targum Onkelos on Genesis 4:26",
+    "publisher": "Sefaria",
+    "url": "https://www.sefaria.org/api/texts/Onkelos_Genesis.4.26",
+    "licence": "Public-domain/traditional Aramaic text and translation (Metsudah Chumash, Metsudah Publications, 2009); link retained for provenance; fetched directly via the Sefaria API and checked verbatim 2026-10-01",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-biblehub-bdb-chalal",
+    "author": "Bible Hub (Brown-Driver-Briggs entry)",
+    "title": "Strong's Hebrew 2490: חָלַל (chalal)",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/hebrew/2490.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; lexicon aggregator; fetched directly and checked verbatim against the raw page 2026-10-01, including the entry's own gloss on the Hoph'al form at Genesis 4:26 (\"then it was begun (= men began)\") and its separate root III \"pollute, defile, profane\" sense used elsewhere of the divine name (e.g. Leviticus 18:21; Ezekiel 20:39)",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-biblehub-commentaries-gen-4-26",
+    "author": "Bible Hub (aggregating Ellicott's Commentary for English Readers, Benson Commentary, Matthew Henry's Concise Commentary, Barnes' Notes, Poole's Commentary, and Gill's Exposition)",
+    "title": "Genesis 4:26 Commentaries",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/commentaries/genesis/4-26.htm",
+    "licence": "Public-domain classic commentaries, aggregated; fetched directly and checked verbatim against the raw page 2026-10-01",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wholereason-gen-4-26",
+    "author": "wholereason.com (reporting John Calvin, Charles Hodge, Umberto Cassuto, John H. Sailhamer, Kenneth A. Mathews, and Allen P. Ross)",
+    "title": "Genesis 4:26: Praise or Profanity? A Deep Dive into Translation and Theological Debate",
+    "publisher": "wholereason.com",
+    "url": "https://www.wholereason.com/2024/10/genesis-426-praise-or-profanity-a-deep-dive-into-translation-and-theological-debate.html",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; an independent blog reporting named scholars secondhand -- their own commentaries were not independently read, verify before quoting further",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-hess-lamech-genealogies-bbr-1991",
+    "author": "Richard S. Hess",
+    "title": "Lamech in the Genealogies of Genesis, Bulletin for Biblical Research 1 (1991): 21-25",
+    "publisher": "Bulletin for Biblical Research (hosted via biblicalstudies.org.uk, reproduced by permission)",
+    "url": "https://biblicalstudies.org.uk/pdf/bbr/lamech_hess.pdf",
+    "licence": "Reproduced by permission per the article's own notice; full text read directly and checked verbatim 2026-10-01",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-tips-translation-commentary-gen-4-23-24",
+    "author": "William D. Reyburn and Euan McG. Fry, A Handbook on Genesis (UBS Helps for Translators, 1997), as reproduced by Translation Insights & Perspectives (TIPs)",
+    "title": "Translation Commentary on Genesis 4:23-24 (Translation Insights & Perspectives)",
+    "publisher": "United Bible Societies (TIPs)",
+    "url": "https://tips.translation.bible/story/translation-commentary-on-genesis-423-424/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; fetched directly and checked verbatim against the raw page 2026-10-01",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-paul-tyndale-bulletin-1996-eisegesis",
+    "author": "Maarten J. Paul",
+    "title": "Genesis 4:17-24: A Case-Study in Eisegesis, Tyndale Bulletin 47, no. 1 (1996): 143-162",
+    "publisher": "Tyndale House (Tyndale Bulletin)",
+    "url": "https://www.tyndalebulletin.org/article/30385-genesis-4-17-24-a-case-study-in-eisegesis",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; this lesson has only the article's own published abstract/summary (surfaced via search), not readable full text -- the Calvin/Gabriel/Westermann claims attributed to it are reported from that summary, not independently checked against the article's body; verify before quoting further",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-augustine-city-of-god-book15",
+    "author": "Augustine of Hippo",
+    "title": "The City of God, Book XV, Chapter 1 (on Cain building a city, Genesis 4:17)",
+    "publisher": "New Advent (public-domain translation)",
+    "url": "https://www.newadvent.org/fathers/120115.htm",
+    "licence": "Public-domain translation; link retained for provenance; fetched directly and checked verbatim against the raw page 2026-10-01",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-biblehub-commentaries-matt-18-22",
+    "author": "Bible Hub (aggregating Bengel's Gnomen, the Pulpit Commentary, Meyer's NT Commentary, and the Expositor's Greek Testament, among others)",
+    "title": "Matthew 18:22 Commentaries",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/commentaries/matthew/18-22.htm",
+    "licence": "Public-domain classic commentaries, aggregated; fetched directly and checked verbatim against the raw page 2026-10-01",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-blb-lxx-genesis-4-24",
+    "author": "Blue Letter Bible",
+    "title": "Septuagint text of Genesis 4:24",
+    "publisher": "Blue Letter Bible",
+    "url": "https://www.blueletterbible.org/lxx/gen/4/24/t_conc_4024",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; primary Greek text as reproduced by this aggregator, not an independent critical edition; this page renders via JavaScript and could not be re-verified against its raw HTML -- the Greek phrase it reported (ἑβδομηκοντάκις ἑπτά) is independently corroborated by Bengel's Gnomen, fetched and verified separately",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-biblehub-greek-matt-18-22",
+    "author": "Bible Hub (Nestle 1904 Greek New Testament text, with Westcott-Hort, Byzantine Majority, and Greek Orthodox editions shown in parallel)",
+    "title": "Matthew 18:22, Greek text and parallel apparatus",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/text/matthew/18-22.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; aggregator apparatus, not a critical edition; fetched directly and checked verbatim against the raw page 2026-10-01",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-landau-jbq-2026-qara-invoking",
+    "author": "Ephraim A. Landau",
+    "title": "Beyond \"Invoking\": Additional Meanings of the Phrases \"Qara'/Hizkir Sheim X\" in the Hebrew Bible, Jewish Bible Quarterly 54, no. 2 (April-June 2026): 74-93",
+    "publisher": "Jewish Bible Association (Jewish Bible Quarterly)",
+    "url": "https://www.jewishbible.org/articles/beyond-invoking-additional-meanings/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; fetched directly and checked verbatim against the raw page 2026-10-01, including the article's own byline confirming volume/issue/pages",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-rht-lamechs-ode-to-himself",
+    "author": "Redemptive History and Theology (reported to cite, in its own footnotes, Victor P. Hamilton, Gordon J. Wenham, John H. Walton, Bruce K. Waltke, and Cathi J. Fredricks)",
+    "title": "Lamech's Ode to Himself: Genesis 4:23-24",
+    "publisher": "Redemptive History and Theology",
+    "url": "https://redemptivehistorytheology.com/blog/chapter-2-the-descent-of-humanity-genesis-417-24/lamechs-ode-to-himself/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; named scholars appear in this page's own footnotes, not independently read here",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-rht-lesson-on-forgiveness",
+    "author": "Redemptive History and Theology (citing, in its own footnotes, R.T. France, Donald A. Hagner, and Craig S. Keener)",
+    "title": "A Lesson on Forgiveness: Matthew 18:21-22",
+    "publisher": "Redemptive History and Theology",
+    "url": "https://redemptivehistorytheology.com/blog/chapter-2-the-descent-of-humanity-genesis-417-24/a-lesson-on-forgiveness/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; named scholars appear in this page's own footnotes, not independently read here",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-methuselah",
+    "author": "Wikipedia contributors (citing Yigal Levin, Claus Westermann, and Robert Gnuse on literal vs. symbolic readings of the lifespan)",
+    "title": "Methuselah",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Methuselah",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; a tertiary source reporting named scholars secondhand -- their own texts were not independently read, verify before quoting directly; the chronological fact that Methuselah's 969-year lifespan places his death in the same year as the flood was independently re-derived here from the shipped BSB corpus (Genesis 5 ages plus Genesis 7:6), not merely taken from this page",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-rashi-gen-7-4",
+    "author": "Rashi",
+    "title": "Rashi on Genesis 7:4",
+    "publisher": "Sefaria",
+    "url": "https://www.sefaria.org/api/texts/Rashi_on_Genesis.7.4",
+    "licence": "Public-domain translation; link retained for provenance; fetched directly via the Sefaria API and checked verbatim 2026-10-01",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-jordan-theopolis-genesis-5-11",
+    "author": "James B. Jordan",
+    "title": "Genesis 5 & 11: Chronological-Theological Reflections",
+    "publisher": "Theopolis Institute",
+    "url": "https://theopolisinstitute.com/genesis-5-11-chronological-theological-reflections/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; fetched directly and checked against the raw page 2026-10-01; a theological reflection, not a peer-reviewed academic source, and cites no named scholars of its own",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-adamthwaite-csl-genesis5-so-long",
+    "author": "Murray Adamthwaite",
+    "title": "Genesis 5 -- So Long: Could People Really have Lived to be that Old?",
+    "publisher": "Christian Study Library",
+    "url": "https://www.christianstudylibrary.org/article/genesis-5-so-long",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; fetched directly and checked against the raw page 2026-10-01; argues for a literal reading and raises a sexagesimal-misreading explanation for the Sumerian King List's much larger figures, citing D.J. Wiseman",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-price-judaismandscience-patriarchal-ages",
+    "author": "Roger Price (reporting Umberto Cassuto, Nahum Sarna, Leon Kass, Charles A. Glatt Jr., and Andrew Kvasnica)",
+    "title": "Science and Judaism: Biblical Numbers, Mathematics and Attributed Patriarchal Ages",
+    "publisher": "judaismandscience.com",
+    "url": "https://www.judaismandscience.com/science-and-judaism-biblical-numbers-mathematics-and-attributed-patriarchal-ages/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; fetched directly and checked against the raw page 2026-10-01; an independent blog reporting named scholars secondhand -- their own texts were not independently read here, verify before quoting further",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-minton-cerebralfaith-genesis5-numerology",
+    "author": "Evan Minton (reporting Kenton Sparks, Nathan M. Sarna, R.R. Wilson, Michael Jones, and Jim Stump)",
+    "title": "Genesis 5: The Case for Long Ages Being an Instance of Biblical Numerology",
+    "publisher": "Cerebral Faith",
+    "url": "https://cerebralfaith.net/genesis-5-the-case-for-long-ages-being-an-instance-of-biblical-numerology/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; fetched directly and checked against the raw page 2026-10-01; a popular-level apologetics blog reporting named scholars secondhand -- their own texts were not independently read here, verify before quoting further",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-harrison-jets-1994-adam-to-noah",
+    "author": "R.K. Harrison",
+    "title": "From Adam to Noah: A Reconsideration of the Antediluvian Patriarchs' Ages, Journal of the Evangelical Theological Society 37, no. 2 (June 1994): 161-168",
+    "publisher": "Evangelical Theological Society (JETS)",
+    "url": "https://etsjets.org/wp-content/uploads/2010/07/files_JETS-PDFs_37_37-2_JETS_37-2_161-168_Harrison.pdf",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; the full PDF was read directly and checked verbatim 2026-10-01 -- Harrison's own proposal uses a base-2 conversion, explicitly rejecting base-60 (sexagesimal) as infeasible for the Masoretic Text's numbers, even though he argues the Sumerian King List itself used a base-60 (sar/ner/sos) scheme; this distinction is reported carefully in this lesson rather than folding Harrison into a generic 'sexagesimal theory' label",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-etz-vt-1993-numbers-genesis-5",
+    "author": "Donald V. Etz",
+    "title": "The Numbers of Genesis V 3-31: A Suggested Conversion and Its Implications, Vetus Testamentum 43, no. 2 (1993): 171-189",
+    "publisher": "Brill (Vetus Testamentum)",
+    "url": "https://doi.org/10.1163/156853393X00034",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; the publisher's page returned HTTP 403 to this lesson's research and the article itself was not read -- its existence, title, journal, and page range are corroborated by multiple independent secondary sources, but its specific proposed conversion formula is reported here only at the level other secondary sources describe it, not independently verified against Etz's own text; verify before quoting further",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-answersingenesis-methuselah-flood",
+    "author": "Answers in Genesis (quoting Henry M. Morris, The Genesis Flood, and John D. Morris)",
+    "title": "Did Methuselah's Death Herald the Global Flood?",
+    "publisher": "Answers in Genesis",
+    "url": "https://answersingenesis.org/bible-timeline/genealogy/did-methuselahs-death-herald-flood/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; fetched directly and checked against the raw page 2026-10-01; presents the young-earth reading that Methuselah's name and the timing of his death were providential, while explicitly noting Scripture does not state a causal relationship, only that the two events fall in the same year",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-orlov-seventh-antediluvian-hero",
+    "author": "Andrei Orlov (Kelly Chair in Theology, Marquette University; reporting James VanderKam, John J. Collins, Helge S. Kvanvig, Pierre Grelot, and Otto Neugebauer)",
+    "title": "Roles and Titles of the Seventh Antediluvian Hero in Mesopotamian Traditions: The Case of King Enmeduranki",
+    "publisher": "Jewish Roots of Christian Mysticism",
+    "url": "https://jewishrootsofchristianmysticism.com/roles-and-titles-of-the-seventh-antediluvian-hero-in-mesopotamian-traditions-the-case-of-king-enmeduranki/",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; fetched directly and checked against the raw page 2026-10-01; named scholars (VanderKam, Collins, Kvanvig, Grelot, Neugebauer) are reported here as Orlov reports them, not independently read in their own primary texts",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-wikipedia-sumerian-king-list",
+    "author": "Wikipedia contributors",
+    "title": "Sumerian King List",
+    "publisher": "Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Sumerian_King_List",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; fetched directly and checked against the raw page 2026-10-01; a tertiary survey source, cited here only for the checkable facts that this list's antediluvian section names 8 kings (not 10) in the copy described on this page and expresses their reigns using the sar/ner/sos sexagesimal units",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-blb-lxx-genesis-5-24",
+    "author": "Blue Letter Bible",
+    "title": "Septuagint text of Genesis 5:24",
+    "publisher": "Blue Letter Bible",
+    "url": "https://www.blueletterbible.org/lxx/gen/5/24/t_conc_5024",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; primary Greek text as reproduced by this aggregator, not an independent critical edition; fetched directly and checked 2026-10-01",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-biblehub-greek-hebrews-11-5",
+    "author": "Bible Hub (Nestle 1904 Greek New Testament text)",
+    "title": "Hebrews 11:5, Greek text and parallel apparatus",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/text/hebrews/11-5.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; aggregator apparatus, not a critical edition; fetched directly and checked verbatim against the raw page 2026-10-01",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-biblehub-greek-jude-1-14",
+    "author": "Bible Hub (Nestle 1904 Greek New Testament text)",
+    "title": "Jude 1:14, Greek text and parallel apparatus",
+    "publisher": "Bible Hub",
+    "url": "https://biblehub.com/text/jude/1-14.htm",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; aggregator apparatus, not a critical edition; fetched directly and checked verbatim against the raw page 2026-10-01",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-thehistoricfaith-jude-1-enoch",
+    "author": "The Historic Faith (reporting Richard Bauckham's Word Biblical Commentary on Jude, Thomas Schreiner, Douglas Moo, and Gene Green)",
+    "title": "Jude 14-15 Directly Quotes 1 Enoch -- Here's What That Means",
+    "publisher": "The Historic Faith",
+    "url": "https://thehistoricfaith.com/blog/jude-quotes-book-of-enoch",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; fetched directly and checked against the raw page 2026-10-01; named scholars are reported here as this page reports them, not independently read in their own primary texts",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-intertextual-1-enoch-1-9-jude-1-14",
+    "author": "intertextual.bible (reporting D.A. Carson, James H. Charlesworth, and Pierluigi Piovanelli)",
+    "title": "Compare 1 Enoch 1:9 and Jude 1:14",
+    "publisher": "intertextual.bible",
+    "url": "https://intertextual.bible/text/1-enoch-1.9/jude-1.14",
+    "licence": "Link and bibliographic metadata only; copyrighted source text is not reproduced; fetched directly and checked against the raw page 2026-10-01; parallel-text aggregator; named scholars are reported here secondhand",
+    "accessedAt": "2026-10-01"
+  },
+  {
+    "id": "source-pseudepigrapha-1-enoch-60",
+    "author": "R.H. Charles (translator, public-domain 1917 translation)",
+    "title": "The Book of Enoch, Chapter 60 (verse 8, \"my grandfather was taken up, the seventh from Adam\")",
+    "publisher": "pseudepigrapha.com",
+    "url": "https://www.pseudepigrapha.com/pseudepigrapha/enoch.htm",
+    "licence": "Public-domain translation; link retained for provenance; fetched directly and checked verbatim 2026-10-01",
+    "accessedAt": "2026-10-01"
+  }
 ]
