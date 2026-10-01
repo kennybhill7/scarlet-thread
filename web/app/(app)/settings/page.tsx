@@ -3,6 +3,7 @@ import { VaultExportButton } from "@/components/export/VaultExportButton";
 import { OfflineDownloads } from "@/components/settings/OfflineDownloads";
 import { ReplayJourney } from "@/components/settings/ReplayJourney";
 import { ThemePicker } from "@/components/settings/ThemePicker";
+import { OfflineMapsDownload } from "@/components/lens/PlaceLens/OfflineMapsDownload";
 import styles from "./settings.module.css";
 
 /**
@@ -15,7 +16,8 @@ import styles from "./settings.module.css";
  * settings-order test only asserts offline < export < clear, so appending
  * here cannot disturb it. OPENING-001's ReplayJourney section is appended
  * again after THAT, for the same reason — it is not one of the three
- * ordered sections either.
+ * ordered sections either. PLACELENS-001's "Download maps" section is
+ * appended last, same reasoning.
  */
 export default function SettingsPage() {
   return (
@@ -40,6 +42,13 @@ export default function SettingsPage() {
           <ThemePicker />
         </section>
         <ReplayJourney />
+        <section className={styles.card} aria-labelledby="place-lens-maps-title">
+          <p className={styles.cardEyebrow}>OFFLINE</p>
+          <h2 id="place-lens-maps-title" className={styles.cardTitle}>
+            Place lens maps
+          </h2>
+          <OfflineMapsDownload />
+        </section>
       </div>
     </div>
   );
