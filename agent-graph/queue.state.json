@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-01T19:58:15.795Z",
+  "updatedAt": "2026-10-01T20:11:21.007Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1090,13 +1090,12 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 12 -- The call of Abram, the journey to Egypt."
     },
     "MATT-U01": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/MATT-U01-claude",
+      "commitSha": "b0225f4",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 1:1-17 -- The genealogy of Jesus."
+      "lastEvidence": "Merged 2026-10-01 (b0225f4) into design/mountain-journey and master, both pushed. The first-ever Matthew lesson. Independently re-verified: spot-checked all 4 direct BSB quotations word-for-word against the real shipped corpus (exact matches), confirmed book number 40 and verse bounds, grepped for banned phrases (none), reviewed all 7 new registry entries (cleanly appended, honestly flagged as secondhand). content:validate clean (2/2 lessons, 9 connections, 1259 places). Known gap for future dispatches: design/ files are untracked and do not exist in a fresh worktree -- this agent worked from a restated summary of GEN3_REVIEW_2026-09-25.md instead of the real file; no quality issue found as a result, but worth copying design/ docs into worktrees directly for future content tasks rather than just pointing at the path."
     },
     "MATT-U02": {
       "status": "pending",
