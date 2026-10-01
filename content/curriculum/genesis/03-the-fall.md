@@ -26,6 +26,9 @@ sources:
   - source-irenaeus-adv-haer
   - source-augustine-de-genesi-contra-manichaeos
   - source-westermann-genesis-1-11
+  - source-skinner-icc-genesis
+  - source-august-themelios-2017
+  - source-barr-garden-of-eden
   - source-walsh-1977-genesis-2-3
   - source-chiasm-exchange-genesis-2-3
   - source-stefanovic-great-reversal
@@ -79,7 +82,7 @@ Genesis 3:15 -- "I will put enmity between you and the woman, and between your o
 
 **Patristic readings -- also not unanimous.** Irenaeus (*Against Heresies*, Book V, ch. 21, late 2nd century) quotes the verse using the Septuagint's "on the watch for" wording rather than "crush," and identifies the seed as the one "born of a woman... from the Virgin," reading the woman as Mary -- the same author elsewhere (Book III, ch. 22) develops the parallel "the knot of Eve's disobedience was loosed by the obedience of Mary," which is the patristic root the Catechism's §411 reference points back to. Augustine, writing earlier in his career (*De Genesi contra Manichaeos* 2.18.28, c. 388-389), reads the same verse allegorically instead: the serpent's seed stands for "perverted suggestions," the woman's seed for "the fruit of good works that resist those perverted suggestions," and the struggle is the soul's own ongoing resistance to temptation -- not, in this reading, a prophecy of Christ. Scholarship on Augustine (Edward Smither, *Verbum et Ecclesia*, 2014) explicitly contrasts this allegorical reading with Irenaeus's christological one.
 
-**Historical-critical / collective reading.** Claus Westermann's commentary (*Genesis 1-11*) holds that *zeraʿ* in 3:15 must be read collectively and that a messianic application "is not justified in grammar" -- a conclusion James Barr is reported to have called a "crushing rebuttal" of the individual reading. Gordon Wenham and Gerhard von Rad are likewise cited as reading the "seed" as the totality of the woman's descendants, and John Walton is cited as calling the collective sense a "grammatical fact." On this reading the verse states, in general terms, an ongoing enmity between humanity and the serpent (or what the serpent represents) rather than naming a single future individual.
+**Historical-critical / collective reading.** Claus Westermann's commentary (*Genesis 1-11*, trans. Scullion, 1984, p. 260) holds that *zeraʿ* here is "beyond doubt" to be understood collectively; James Barr (*The Garden of Eden and the Hope of Immortality*, 1992, p. 140) called that a "crushing rebuttal" of messianic readings. John Skinner's ICC commentary had earlier said a messianic application "is not justified in grammar" (p. 79). All three are reported here through Jared August's and Jonathan Cheek's *Themelios* articles, not from the commentaries themselves. Gordon Wenham and Gerhard von Rad are likewise cited (through a secondary report) as reading the "seed" as the totality of the woman's descendants, and John Walton is cited as calling the collective sense a "grammatical fact." On this reading the verse states, in general terms, an ongoing enmity between humanity and the serpent (or what the serpent represents) rather than naming a single future individual.
 
 *A note on what is not included here:* the research behind this lesson could not locate an official or synodal Eastern Orthodox statement on Genesis 3:15 comparable to the confessional and magisterial texts cited above -- only a parish-level publication, which is not a tradition's own authoritative statement in the sense the other entries here are. Rather than represent Orthodox teaching from a source that does not carry that weight, this lesson omits a named Orthodox position pending better sourcing.
 
