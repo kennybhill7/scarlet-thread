@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen4-blood-hebrews12",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.4.10",
+    "end": "1.4.11"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "58.12.24",
+    "end": "58.12.24"
+  },
+  "type": "contrast_reversal",
+  "evidenceLabel": "explicit",
+  "rationale": "Hebrews 12:24 names \"the blood of Abel\" directly, picking up Genesis 4:10's \"the voice of your brother's blood cries out to Me from the ground,\" and sets the blood of Jesus against it as speaking \"a better word.\" The comparison is explicit in Hebrews' own wording -- naming Abel's blood and calling the other \"better\" -- which is why the type is contrast_reversal rather than a general allusion; what \"a better word\" itself denotes is not spelled out in Hebrews 12:24 and is left unresolved here, not adjudicated by this row.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

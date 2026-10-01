@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen4-cain-1john3",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.4.3",
+    "end": "1.4.8"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "62.3.11",
+    "end": "62.3.12"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "1 John 3:12 names Cain directly and states a specific reason for the murder -- \"his own deeds were evil, while those of his brother were righteous\" -- that Genesis 4 itself does not put in those terms; the Genesis text reports only that the LORD \"had no regard for Cain and his offering\" (4:5) and that Cain's anger followed, without explaining the lack of regard as a matter of prior deeds. Because John names the person and supplies an explicit causal claim rather than echoing shared imagery, the type is explicit_reference and the label is explicit; this row reports John's own interpretive statement about Cain's history, not a conclusion Genesis 4 states in its own words.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
