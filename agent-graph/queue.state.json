@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-01T20:21:56.922Z",
+  "updatedAt": "2026-10-01T20:24:10.449Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1161,12 +1161,12 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 4:12-25 -- Ministry begins in Galilee, the first disciples called."
     },
     "MATT-U09": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/MATT-U09-claude",
+      "commitSha": "1b500a2",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-10-01 (1b500a2) into design/mountain-journey and master, both pushed. content/curriculum/matthew/09-the-beatitudes.md (Matthew 5:1-12, the Beatitudes), status draft, stage 6, 3 named positions (entrance-requirement vs. already-true status; poor-in-spirit vs. Lukes plain poor; universal vs. kingdom ethic), none adjudicated. 4 new connections (Luke 6:20-26 explicit, Isaiah 61:1-3 strong, Psalm 37:11 strong, James 2:5 plausible), 9 new source-registry entries. Independently re-verified: spot-checked 11 BSB quotes (Matt 5:1-2/3/9/10/11/12, Luke 6:20/21/23/24-26, Isaiah 61:1-3, James 2:5, Psalm 37:11) against the real shipped corpus (exact matches, including the v.3/v.10 identical-clause claim), grepped for all 4 banned verdict phrases (zero hits), resolved all 9 source references against the registry (zero missing), reviewed all 4 connection files for honest grading, ran content:validate clean (4/4 lessons, 18 connections, 1259 places), ran the full test suite (same pre-existing auth-db-failure.test.ts pattern, unrelated), ran a real adversarial mutation (injected a banned verdict phrase, confirmed the validator genuinely failed, reverted). Merge required manual conflict resolution in content/source-registry.json against concurrently-merged GEN-U01 (pure append-only, no overlapping ids).",
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 5:1-12 -- The Beatitudes."
     },
     "MATT-U10": {
