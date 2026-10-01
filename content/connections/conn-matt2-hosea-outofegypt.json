@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt2-hosea-outofegypt",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.2.15",
+    "end": "40.2.15"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "28.11.1",
+    "end": "28.11.1"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Matthew introduces this clause with his own fulfillment-citation formula, \"This fulfilled what the Lord had spoken through the prophet\" (40.2.15), and quotes only the second half of Hosea 11:1 -- \"out of Egypt I called My Son\" -- leaving out Hosea's own opening clause, \"When Israel was a child, I loved him, and\" (28.11.1, BSB). The label rests on Matthew's own formula and the near-verbatim wording of what he does quote, not on how the two settings otherwise compare: in Hosea's own sentence this looks back at Israel's exodus as a nation, not forward to one individual's infancy, which is the live, disputed question this lesson's Positions section reports rather than settles. Gregory K. Beale reads the typology as already present within Hosea 11 itself; S.V. McCasland, reported here only secondhand, reads Matthew as finding in the verse \"a meaning entirely foreign to the original.\" This connection grades the directness of the quotation itself, not which of those readings is correct.",
+  "sourceId": "source-wikipedia-matthew-2-15",
+  "viewpointId": null
+}
