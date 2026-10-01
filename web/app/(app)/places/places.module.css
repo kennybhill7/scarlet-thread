@@ -1,0 +1,10 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.lens {
+  flex: 1;
+  padding: 16px var(--pad-page) calc(24px + var(--safe-bottom));
+}

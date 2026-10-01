@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { listThreads } from "@/lib/db/threads";
 import { resolveMirrorPair, resolveOpeningChapter, splitStageLabel } from "@/lib/mirror/stagePair";
 import { MirrorSplitView, type MirrorPaneStage } from "@/components/mirror/MirrorSplitView";
+import { BackToJourney } from "@/components/climb/BackToJourney";
 
 /**
  * MIRRORSPLIT-001 — "read a mirror pair in one view... scroll-locked at
@@ -246,5 +247,15 @@ export default async function MirrorPage({ params }: MirrorPageProps) {
     chapter: rightChapter.chapter,
   };
 
-  return <MirrorSplitView left={left} right={right} />;
+  // NAV-001 — a persistent, real "back to Journey" control (plan §A.2),
+  // added only to this happy-path render -- the SetupIncomplete/NoMirrorPair/
+  // BrokenMirror/NoOpeningChapter branches above stay exactly as minimal and
+  // visually distinct as this route group's own established convention
+  // (see app/(app)/page.tsx's SetupIncomplete header) already makes them.
+  return (
+    <>
+      <BackToJourney />
+      <MirrorSplitView left={left} right={right} />
+    </>
+  );
 }

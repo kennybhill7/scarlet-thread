@@ -11,6 +11,7 @@ import {
   type StoryMapBaseline,
 } from "@/lib/map/storyMapLayout";
 import { StoryMap, type StoryMapOverviewMeta, type StoryMapSelection } from "@/components/map/StoryMap";
+import { BackToJourney } from "@/components/climb/BackToJourney";
 
 /**
  * STORYMAP-001 — the Story Map: a full-canon cross-reference arc diagram
@@ -213,14 +214,20 @@ export default async function StoryMapPage({ searchParams }: StoryMapPageProps) 
   const raw = Array.isArray(resolved.c) ? resolved.c[0] : resolved.c;
   const view = await loadStoryMapViewModel(raw ?? null);
 
+  // NAV-001 — a persistent, real "back to Journey" control (plan §A.2),
+  // added only to the ordinary happy-path render; this route has no
+  // setup-incomplete/error branch of its own to leave untouched.
   return (
-    <StoryMap
-      baseline={view.baseline}
-      edges={view.edges}
-      mode={view.mode}
-      selected={view.selected}
-      overviewMeta={view.overviewMeta}
-      invalidSelection={view.invalidSelection}
-    />
+    <>
+      <BackToJourney />
+      <StoryMap
+        baseline={view.baseline}
+        edges={view.edges}
+        mode={view.mode}
+        selected={view.selected}
+        overviewMeta={view.overviewMeta}
+        invalidSelection={view.invalidSelection}
+      />
+    </>
   );
 }
