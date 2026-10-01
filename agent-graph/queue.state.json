@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-01T20:24:10.449Z",
+  "updatedAt": "2026-10-01T20:29:04.870Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -973,12 +973,12 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 1:1-2:3 -- Creation -- the six days and the seventh."
     },
     "GEN-U02": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/GEN-U02-claude",
+      "commitSha": "fa9cc2f",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-10-01 (fa9cc2f) into design/mountain-journey and master, both pushed. content/curriculum/genesis/02-the-garden.md (Genesis 2:4-25, The Garden), status draft, stage 1, 2 named positions (rib-vs-side across Onkelos/Rashi/Zevit; marriage-authority across Danvers/CBE/Trible), none adjudicated. 4 new connections (Matt 19:4-6, Eph 5:31-32 quotation/explicit; 1 Cor 11:8-9 explicit_reference/strong; 1 Tim 2:13 explicit_reference/explicit), 20 new source-registry entries. INDEPENDENT VERIFICATION FOUND AND I FIXED 3 REAL BSB MISQUOTES the agent self-review missed: lesson body fabricated a BSB quote for 2:22 that does not exist in the shipped corpus; Positions misquoted 2:21 (\"his ribs\" vs real \"the mans ribs\"); conn-gen2-marriage-eph5.json misquoted Eph 5:32 (\"a profound mystery\" vs real \"This mystery is profound\"); conn-gen2-marriage-matt19.json misquoted Matt 19:4-5s formula (\"He who made them... said\" is not in the shipped corpus). Fixed all 4 directly in the agent branch (commit fef5319) before merging, then re-verified every remaining quote in the lesson and connections -- all exact matches. Also grepped for banned phrases (zero hits), resolved all 20 source refs (zero missing), ran content:validate clean (5/5 lessons, 22 connections, 1259 places), ran the full test suite (same pre-existing auth-db-failure.test.ts pattern, unrelated), ran a real adversarial mutation (injected a banned verdict phrase, confirmed genuine validator failure, reverted). Merge conflict in source-registry.json was NOT purely append-only this time: both GEN-U01 and GEN-U02 had independently registered source-bsb-shipped-corpus under the same id with different wording -- kept GEN-U01s already-in-use entry, dropped the duplicate. Final registry: 94 entries, zero duplicate ids, verified programmatically.",
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 2:4-25 -- The garden, the man, the woman."
     },
     "GEN-U04": {
