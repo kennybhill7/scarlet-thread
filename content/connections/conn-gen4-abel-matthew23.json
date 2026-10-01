@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen4-abel-matthew23",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.4.8",
+    "end": "1.4.8"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.23.35",
+    "end": "40.23.35"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Matthew 23:35 names \"righteous Abel\" directly and places the murder recorded in 4:8 at the start of a line of killings running to Zechariah; \"righteous\" is Jesus's own qualifier for Abel, not a word Genesis 4 applies to him. The naming is direct, which is why the type is explicit_reference and the label is explicit. Luke 11:51 preserves the same Abel-to-Zechariah pairing in a parallel saying and is not separately authored as its own row here.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
