@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-01T15:20:08.022Z",
+  "updatedAt": "2026-10-01T15:50:55.544Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -948,13 +948,12 @@
       "lastEvidence": "Merged 2026-10-01 (83e1b06) into design/mountain-journey and master, both pushed. The 2D place lens: d3-geo orthographic globe over real Natural Earth 110m coastlines (public domain), 1,259 real places styled by tier, drag/inertia reused from the opening sequence globe, passage list, Open-in-Connect contract (unwired to a host page, per scope), full keyboard/screen-reader list equivalent, offline via its own Cache API bucket. Real measured bundle: ~15.2KB gz (budget 80KB). Independently re-verified: ran the honesty test directly against the real 1,259-place dataset (every unlocated place -> zero markers at any rotation; every disputed/uncertain place visibly dashed), one adversarial mutation of my own (uniform solid styling) caught by 2 tests, typecheck/lint clean, 48 new tests, full combined-tree suite 2046 pass/0 fail/4 cancelled. Honestly incomplete and said so: no real axe-core/browser a11y run, no relief raster. Human gate (the plans own): Ken judges the wow on a real phone before tours are built."
     },
     "NAV-001": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/NAV-001-claude",
+      "commitSha": "fd32ad5",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Wave 4, 2026-10-01 (plan task 9, M). IA per plan section A.2, scoped to NAV-001s own owned paths (not the full study-stepper/lens-as-sheet vision, which is future work): Journey/Read/Review tab labels, a Continue/Begin card on the home page, a Lenses row under the Mountain (Story Map / Places / Mirror / Threads), /prototype/* env-gated out of production nav, back-to-study from every lens. Depends on PLACELENS-001 (done). Human gate: Ken confirms labels."
+      "lastEvidence": "Merged 2026-10-01 (fd32ad5) into design/mountain-journey and master, both pushed. Tabs relabeled Journey/Read/Review; Continue/Begin card on Journey resolves the real v2 session in its own fail-closed try/catch; Lenses row (Story Map/Places/Mirror/Threads) links to real routes, with Places newly minimally hosted and Mirror/Threads computed from live data rather than hardcoded; /prototype/* env-gated; Back to Journey on every lens. Independently re-verified: reviewed the Continue-card and Lenses-row logic in full, typecheck/lint/171 tests clean. My own first adversarial-mutation attempt silently failed to apply (bad sed escaping) -- caught it, redid with a real edit, confirmed 2 tests genuinely catch a wrong Threads link. Full combined-tree suite 2071 pass/0 fail/4 cancelled."
     }
   }
 }
