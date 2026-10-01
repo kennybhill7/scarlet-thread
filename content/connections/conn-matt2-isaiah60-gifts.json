@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt2-isaiah60-gifts",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.2.1",
+    "end": "40.2.11"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.60.3",
+    "end": "23.60.6"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "Isaiah 60:3 states, \"Nations will come to your light, and kings to the brightness of your dawn.\" Isaiah 60:6 names the specific gifts \"gold and frankincense\" among what the nations bring -- two of the Magi's three gifts (40.2.11) and the Gentile-nations framing of their visit match closely, with no quotation formula anywhere in Matthew 2, which is why the type is allusion rather than quotation or promise fulfillment. Peter Leithart (Theopolis Institute) reads the Magi against this background directly. The label is strong rather than explicit because myrrh, the Magi's third gift, has no counterpart in Isaiah 60 at all -- a real gap in the match that this connection does not paper over.",
+  "sourceId": "source-leithart-theopolis-gold-incense-myrrh",
+  "viewpointId": null
+}
