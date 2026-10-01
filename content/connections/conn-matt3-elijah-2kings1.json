@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt3-elijah-2kings1",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.3.4",
+    "end": "40.3.4"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "12.1.8",
+    "end": "12.1.8"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "One clause -- \"leather belt around his waist\" -- is identical, word for word, in this app's own BSB rendering of both verses, checkable directly without a secondary source. The rest of the description is a looser match: Matthew states John wore \"a garment of camel's hair,\" a piece of clothing, while 2 Kings 1:8 states Elijah \"was a hairy man,\" which the NET Bible's own translator's note reads as an idiom describing Elijah's body rather than his clothing; other English translations render the same Hebrew phrase as a garment. The label is strong rather than explicit because Matthew's own text in this passage never names Elijah or cites 2 Kings -- that identification is made only later in this Gospel, in its own words, at 11:14 and 17:12-13.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

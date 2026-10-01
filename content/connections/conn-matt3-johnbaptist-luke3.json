@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt3-johnbaptist-luke3",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.3.1",
+    "end": "40.3.12"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.3.1",
+    "end": "42.3.18"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Both texts narrate the same preaching-and-baptizing ministry, checkable directly by reading the two side by side: the Isaiah 40:3 quotation, the \"brood of vipers\" rebuke, and the axe-and-fruit warning match word for word in this app's own BSB text at several points, alongside small, equally checkable differences (\"do not presume\" against \"do not begin,\" 40.3.9/42.3.8; \"sandals I am not worthy to carry\" against \"the straps of whose sandals I am not worthy to untie,\" 40.3.11/42.3.16). Luke's account also continues the Isaiah quotation two verses further and contains an entire block Matthew's range does not -- the crowd's specific ethical questions and John's answers, and the people wondering whether John is the Christ (42.3.10-15). The label is strong rather than explicit because neither Gospel names or cites the other as its source.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

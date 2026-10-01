@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt3-isaiah40-voice",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.3.3",
+    "end": "40.3.3"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.40.3",
+    "end": "23.40.3"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Matthew introduces the verse with his own citation wording, \"This is he who was spoken of through the prophet Isaiah\" (40.3.3), and quotes it directly -- a weaker introduction than Matthew's own fulfillment formula used at 1:22, 2:15, 2:17, and 2:23, but still an explicit, named citation rather than an unmarked allusion. Checked directly against both texts as shipped in this app, the wording differs from Isaiah's own in three traceable ways: \"in the wilderness\" is grouped with \"calling\" rather than with \"prepare the way\"; \"our God\" becomes the pronoun \"Him\"; and \"a straight highway... in the desert\" becomes the smaller-scale \"straight paths.\" The label stays explicit because the citation itself, not the verbatim match, is what the formula asserts.",
+  "sourceId": "source-wikipedia-matthew-3-3",
+  "viewpointId": null
+}
