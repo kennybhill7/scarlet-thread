@@ -33,7 +33,7 @@
 import { deleteDB } from "idb";
 
 // Type-only: erased at compile time, so it adds no runtime import of client.ts.
-import type { SyncRejectedError } from "@/lib/sync/client";
+import type { SyncRejectedError, SyncRejectedErrorV2 } from "@/lib/sync/client";
 
 export const LOCAL_DATABASE = "bible-brain";
 export const LOCAL_KEY_PREFIX = "bible-brain:";
@@ -231,21 +231,50 @@ export function isOnline(): boolean {
  * Identify a rejected-sync failure without importing lib/sync/client at module
  * scope (see the header). The name is set in the class constructor and travels
  * with the instance, so this is as reliable as `instanceof` here.
+ *
+ * SYNCFLUSH-001: also true for `SyncRejectedErrorV2` — `flushPendingWrites`
+ * below now drains the v2 outbox too, and a FRESH (non-parked, see
+ * lib/sync/client.ts's `runSyncV2`) v2 rejection deserves the exact same
+ * "the server rejected some of your writing" copy a v1 rejection already
+ * gets via `messageForPreSignOut` below, not a generic failure message.
  */
 export function isSyncRejectedError(
   error: unknown,
-): error is SyncRejectedError {
-  return error instanceof Error && error.name === "SyncRejectedError";
+): error is SyncRejectedError | SyncRejectedErrorV2 {
+  return (
+    error instanceof Error &&
+    (error.name === "SyncRejectedError" || error.name === "SyncRejectedErrorV2")
+  );
 }
 
 /**
  * The shared pre-flight. Resolves only when the server has provably accepted
- * every local write.
+ * every local write — v1 AND v2 (SYNCFLUSH-001; see this module's own
+ * header on the three-way split from `runClearUnderLock()`'s pending-queue
+ * check, and New risk #4 in design/OPEN_QUESTIONS_AUDIT_2026-09-25.md).
  *
- * Awaiting `syncNow()` alone is NOT proof: it dedupes concurrent callers
- * through an `inFlight` promise (lib/sync/client.ts:139-148), so a run that
- * started before your write can be handed back to you. Re-reading the queue
- * afterwards is the only sound check, hence the read-retry-read shape.
+ * Awaiting `syncNow()`/`syncNowV2()` alone is NOT proof: each dedupes
+ * concurrent callers through its own module-level in-flight promise
+ * (lib/sync/client.ts), so a run that started before your write can be
+ * handed back to you. Re-reading the queue afterwards is the only sound
+ * check, hence the read-retry-read shape — now run for both outboxes.
+ *
+ * v2 drains FIRST, deliberately: before this task, this function drained
+ * only v1, `runDeviceClear()` then signed the learner out, and only THEN did
+ * `clearLocalStudyData()`'s pending-queue check (which has always counted
+ * `syncQueueV2`, see `countPendingWrites()` above) discover any v2 work and
+ * refuse — by which point the server session was already gone, stranding
+ * unsynced v2 writing with no way back. Draining v2 here, before sign-out
+ * ever runs, is what actually closes that gap: if it cannot be drained
+ * (offline, a genuine network/HTTP failure, a FRESH non-parked rejection, or
+ * — bounded below — ops still left after one retry, PARKED ones included),
+ * this throws and `runDeviceClear()` never reaches `signOut()` at all.
+ *
+ * A parked v2 op (lib/sync/client.ts's `runSyncV2`/`V2_OP_PARK_THRESHOLD`)
+ * no longer blocks ordinary background sync or "Start a study", but it is
+ * still genuinely unsynced local writing, so it STILL blocks a clear here —
+ * the device must never be wiped out from under writing the server has
+ * permanently refused and this device alone still holds.
  */
 export async function flushPendingWrites(): Promise<void> {
   if (!isOnline()) {
@@ -254,13 +283,28 @@ export async function flushPendingWrites(): Promise<void> {
     );
   }
 
-  const [{ syncNow }, { getPendingOps }] = await Promise.all([
+  const [{ syncNow, syncNowV2 }, { getPendingOps, getPendingV2Ops }] = await Promise.all([
     import("@/lib/sync/client"),
     import("@/lib/sync/store"),
   ]);
 
-  // Not caught: SyncRejectedError and HTTP/network failures must reach the
-  // caller verbatim so "rejected" and "failed" can be told apart in the UI.
+  // Not caught: SyncRejectedError(V2) and HTTP/network failures must reach
+  // the caller verbatim so "rejected" and "failed" can be told apart in the
+  // UI (isSyncRejectedError above now recognizes both).
+  await syncNowV2();
+
+  let pendingV2 = await getPendingV2Ops();
+  if (pendingV2.length > 0) {
+    // Exactly one retry, mirroring v1 below — a write that landed mid-run
+    // gets its own round-trip, and ops that genuinely will not drain
+    // (parked, or freshly rejected again) fail instead of looping.
+    await syncNowV2();
+    pendingV2 = await getPendingV2Ops();
+  }
+  if (pendingV2.length > 0) {
+    throw new UnsyncedWritesError(pendingV2.length);
+  }
+
   await syncNow();
 
   let pending = await getPendingOps();

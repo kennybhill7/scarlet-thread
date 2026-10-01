@@ -78,6 +78,48 @@ type V2EntityStores = {
   };
 };
 
+/**
+ * SYNCFLUSH-001 — a `SyncOpV2` as actually stored in `syncQueueV2`, with
+ * three extra, LOCAL-ONLY bookkeeping fields layered on top of the wire
+ * envelope. This is an ADDITIVE change to the STORED VALUE, not to the
+ * `BibleBrainDb` schema's version/upgrade path: IndexedDB enforces no shape
+ * on an object store's values (only the `keyPath` is structural), so adding
+ * optional fields to what gets `put()` into an existing store needs no
+ * `oldVersion` bump, no new `createObjectStore`, and does not touch a single
+ * row already on a learner's device — unlike every block in `upgrade()`
+ * below, which IS how this module makes a genuinely structural change (a new
+ * store, a new index) safely. `rejectionCount`/`lastError`/`parked` are read
+ * and written only by this module (`recordV2Rejections`, `listParkedOps`,
+ * `getSyncStatusV2`) and by `lib/sync/client.ts`'s `runSyncV2` — they are
+ * never sent over the wire: `lib/sync/client.ts`'s push path maps every op
+ * back down to the plain `SyncOpV2` envelope before `JSON.stringify`-ing it,
+ * because the server's `syncOpV2Schema` is `.strict()` (lib/api/sync-v2.ts)
+ * and would reject a push carrying these extra properties.
+ *
+ * `lastError` holds only the server's own rejection reason string (e.g.
+ * "Revision conflict: ...") — never the op's `payload` (the learner's own
+ * prose, which this never touches) and never anything this module
+ * constructs from it, so it carries no secrets and is safe to show in a
+ * future UI or write to a log.
+ */
+export interface StoredSyncOpV2 extends SyncOpV2 {
+  /** How many times the server has rejected this exact op. Absent/0 = never rejected. */
+  rejectionCount?: number;
+  /** The server's own rejection reason from the most recent rejection. */
+  lastError?: string;
+  /**
+   * Set once `rejectionCount` reaches `V2_OP_PARK_THRESHOLD`. A parked op is
+   * never deleted and stays in the outbox exactly like any other pending op
+   * (so `countPendingWrites`/clear-device still treats it as unsynced), but
+   * `lib/sync/client.ts`'s `runSyncV2` stops counting ITS rejections as a
+   * reason to throw `SyncRejectedErrorV2` — see that module's header.
+   */
+  parked?: boolean;
+}
+
+/** After this many rejections of the SAME op, it is parked — see `StoredSyncOpV2.parked`. */
+export const V2_OP_PARK_THRESHOLD = 3;
+
 interface BibleBrainDb extends DBSchema, V2EntityStores {
   entries: {
     key: string;
@@ -120,7 +162,7 @@ interface BibleBrainDb extends DBSchema, V2EntityStores {
    */
   syncQueueV2: {
     key: string;
-    value: SyncOpV2;
+    value: StoredSyncOpV2;
     indexes: { clientTime: string };
   };
   meta: {
@@ -528,6 +570,11 @@ async function saveLocalV2Entity(
     opPut.catch(() => {});
     await Promise.all([entityPut, opPut, transaction.done]);
   });
+  // SYNCFLUSH-001 — fires only after the write above has actually committed
+  // (the lock's callback, and therefore this line, never runs until
+  // `transaction.done` resolved), so a listener debouncing a sync off of
+  // this is never racing the write it is reacting to.
+  notifyLocalV2Write();
 }
 
 export async function saveLocalStudySession(session: StudySession): Promise<void> {
@@ -587,7 +634,7 @@ export async function listLocalV2Entities<E extends SyncEntityV2>(
   return db.getAll(entity) as Promise<V2EntityRecordMap[E][]>;
 }
 
-export async function getPendingV2Ops(): Promise<SyncOpV2[]> {
+export async function getPendingV2Ops(): Promise<StoredSyncOpV2[]> {
   const db = await database;
   return db.getAllFromIndex("syncQueueV2", "clientTime");
 }
@@ -602,6 +649,107 @@ export async function removePendingV2Ops(opIds: string[]): Promise<void> {
       transaction.done,
     ]);
   });
+}
+
+/**
+ * SYNCFLUSH-001 — record that the server rejected these ops on the push
+ * that just ran, bumping each op's `rejectionCount` and `lastError` in
+ * `syncQueueV2`. Returns the opIds that are parked AFTER this call — either
+ * because this rejection pushed them over `V2_OP_PARK_THRESHOLD`, or because
+ * they were already parked from an earlier push — so `lib/sync/client.ts`'s
+ * `runSyncV2` can tell "a blocking rejection the caller still needs to see"
+ * apart from "a parked op we are quietly still retrying."
+ *
+ * An opId absent from `syncQueueV2` (already accepted/removed, or never
+ * queued on this device) is silently skipped: there is nothing left to
+ * record a rejection against, and this must never resurrect a deleted op.
+ */
+export async function recordV2Rejections(
+  rejections: { opId: string; reason: string }[],
+): Promise<Set<string>> {
+  const parkedNow = new Set<string>();
+  if (rejections.length === 0) return parkedNow;
+  await withWriteLock(async () => {
+    const db = await database;
+    const transaction = db.transaction("syncQueueV2", "readwrite");
+    const store = transaction.objectStore("syncQueueV2");
+    for (const { opId, reason } of rejections) {
+      const existing = await store.get(opId);
+      if (!existing) continue;
+      const rejectionCount = (existing.rejectionCount ?? 0) + 1;
+      const parked = existing.parked === true || rejectionCount >= V2_OP_PARK_THRESHOLD;
+      const updated: StoredSyncOpV2 = {
+        ...existing,
+        rejectionCount,
+        lastError: reason,
+        parked,
+      };
+      await store.put(updated);
+      if (parked) parkedNow.add(opId);
+    }
+    await transaction.done;
+  });
+  return parkedNow;
+}
+
+/**
+ * Parked ops this device is still holding — never deleted, never silently
+ * resolved. Exposed so a future UI (or support flow) can recover the exact
+ * body the learner wrote (`op.payload`) even though it stopped blocking
+ * ordinary sync; see `StoredSyncOpV2.parked`'s own comment.
+ */
+export async function listParkedOps(): Promise<StoredSyncOpV2[]> {
+  const ops = await getPendingV2Ops();
+  return ops.filter((op) => op.parked === true);
+}
+
+/** The small status API SYNCFLUSH-001 asks for — what a sync-status notice needs to decide whether to show itself. */
+export interface SyncStatusV2 {
+  /** Every op still in the v2 outbox, parked or not. */
+  pendingCount: number;
+  /** The subset that is parked (see `StoredSyncOpV2.parked`). */
+  parkedCount: number;
+  /** How long the oldest still-pending op has been waiting, or null when the outbox is empty. */
+  oldestPendingAgeMs: number | null;
+}
+
+export async function getSyncStatusV2(now: () => number = Date.now): Promise<SyncStatusV2> {
+  const ops = await getPendingV2Ops();
+  let parkedCount = 0;
+  let oldestPendingAgeMs: number | null = null;
+  const nowMs = now();
+  for (const op of ops) {
+    if (op.parked === true) parkedCount += 1;
+    const age = nowMs - Date.parse(op.clientTime);
+    if (!Number.isNaN(age) && (oldestPendingAgeMs === null || age > oldestPendingAgeMs)) {
+      oldestPendingAgeMs = age;
+    }
+  }
+  return { pendingCount: ops.length, parkedCount, oldestPendingAgeMs };
+}
+
+/**
+ * SYNCFLUSH-001's "clean hook" into a local v2 write, for `lib/sync/client.ts`'s
+ * background flush controller to debounce a trigger off of — see that
+ * module's `createBackgroundSyncV2Controller`. In-memory only (module-level
+ * listener set, exactly like `clear.ts`'s own `notClearedListeners`/
+ * `notifyDeviceNotCleared` pair): there is nothing to persist here, a missed
+ * notification in one tab costs nothing because the controller's own
+ * interval/online/visibility triggers still eventually drain the outbox, and
+ * every writer in this module already serializes through `WRITE_LOCK_NAME`,
+ * so a listener never observes a half-written transaction.
+ */
+const localV2WriteListeners = new Set<() => void>();
+
+export function subscribeLocalV2Writes(listener: () => void): () => void {
+  localV2WriteListeners.add(listener);
+  return () => {
+    localV2WriteListeners.delete(listener);
+  };
+}
+
+function notifyLocalV2Write(): void {
+  for (const listener of localV2WriteListeners) listener();
 }
 
 /**

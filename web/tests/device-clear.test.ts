@@ -183,6 +183,57 @@ function syncResponse() {
   );
 }
 
+/**
+ * SYNCFLUSH-001 — the v2 analogue of `syncResponse()` above, an empty-but-
+ * valid `/api/sync/v2/{push,pull}` snapshot (matches `syncResponseV2Schema`
+ * in lib/sync/client.ts — nine entity arrays plus `rejected`/`serverTime`).
+ * `flushPendingWrites` now drains the v2 outbox before v1 (see clear.ts's
+ * own header), and `runSyncV2`'s pull runs UNCONDITIONALLY even with an
+ * empty v2 queue — so every test below that stubs a "happy path" fetch for
+ * v1 needs this too, or the real `syncNowV2()` these tests exercise throws
+ * on an unparseable (v1-shaped) body before v1 is ever reached.
+ */
+function syncResponseV2() {
+  return new Response(
+    JSON.stringify({
+      serverTime: isoNow(),
+      session: [],
+      claim: [],
+      evidence: [],
+      motif: [],
+      motifSighting: [],
+      connection: [],
+      application: [],
+      teachingDraft: [],
+      rejected: [],
+    }),
+    { status: 200, headers: { "content-type": "application/json" } },
+  );
+}
+
+/** True for a request against one of the `/api/sync/v2/*` routes, by URL — works for any fetch() call shape (string, URL, or Request). */
+function isV2SyncRequest(input: unknown): boolean {
+  const url =
+    typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.toString()
+        : input instanceof Request
+          ? input.url
+          : "";
+  return url.includes("/api/sync/v2/");
+}
+
+/**
+ * A fetch stub that answers the v1 AND v2 sync endpoints with their own
+ * valid empty-success shape, for tests whose point is "sync succeeds" at
+ * the v1 layer and that never meant to exercise v2 at all.
+ */
+function stubHappySync(): typeof fetch {
+  return (async (input: unknown) =>
+    isV2SyncRequest(input) ? syncResponseV2() : syncResponse()) as typeof fetch;
+}
+
 /** Open the app database as another tab would: at whatever version it is on. */
 function openExistingDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -327,19 +378,23 @@ test("a server-rejected write clears nothing", async () => {
   assert.ok(pending, "the unsynced write from the previous test is still here");
 
   const originalFetch = globalThis.fetch;
-  globalThis.fetch = async () =>
-    new Response(
-      JSON.stringify({
-        entries: [],
-        threads: [],
-        progress: [],
-        logs: [],
-        people: [],
-        rejected: [{ id: pending.id, reason: "Injected rejection" }],
-        serverTime: isoNow(),
-      }),
-      { status: 200, headers: { "content-type": "application/json" } },
-    );
+  // v2 answers happy-empty (nothing in this test exercises the v2 outbox);
+  // only the v1 push rejects, which is what this test is actually about.
+  globalThis.fetch = (async (input: unknown) =>
+    isV2SyncRequest(input)
+      ? syncResponseV2()
+      : new Response(
+          JSON.stringify({
+            entries: [],
+            threads: [],
+            progress: [],
+            logs: [],
+            people: [],
+            rejected: [{ id: pending.id, reason: "Injected rejection" }],
+            serverTime: isoNow(),
+          }),
+          { status: 200, headers: { "content-type": "application/json" } },
+        )) as typeof fetch;
   let signOutCalls = 0;
   try {
     await assert.rejects(
@@ -372,7 +427,7 @@ test("a failed sign-out clears nothing", async () => {
   makeStorage(SEED_STORAGE());
 
   const originalFetch = globalThis.fetch;
-  globalThis.fetch = async () => syncResponse();
+  globalThis.fetch = stubHappySync();
   try {
     await assert.rejects(
       runDeviceClear({
@@ -468,7 +523,7 @@ test("a write saved between the sync flush and the destroy blocks the clear and 
   );
 
   const originalFetch = globalThis.fetch;
-  globalThis.fetch = async () => syncResponse();
+  globalThis.fetch = stubHappySync();
   let failure: unknown;
   try {
     failure = await failureOf(
@@ -753,7 +808,7 @@ test("a failed sync leaves an actionable retry, and the retry completes", async 
   await assertNothingDestroyed("recoverable sync failure");
 
   // Same controls, same device, sync now succeeds.
-  globalThis.fetch = async () => syncResponse();
+  globalThis.fetch = stubHappySync();
   try {
     assert.deepEqual(
       await runDeviceClear({ signOut: async () => ({ url: "/sign-in" }) }),
