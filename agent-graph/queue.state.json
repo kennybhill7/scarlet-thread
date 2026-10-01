@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-01T01:38:03.280Z",
+  "updatedAt": "2026-10-01T02:06:10.909Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -914,6 +914,14 @@
       "attempts": 1,
       "lastRunId": null,
       "lastEvidence": "Merged 2026-09-30. Agent was rate-limited before writing the critical drift test or updating the old 66-book-fetch test fixtures. Claude completed both directly: split pure logic into scripts/lib/buildCanonCounts.ts, wrote tests/canon-counts-drift.test.ts (byte-for-byte against the real corpus), rewrote tests/passage-canon-client.test.ts for the new loadCanonCounts contract. canon.json replaces a ~4MB/66-file fetch with one ~4KB file. Full suite clean."
+    },
+    "GEN3FIX-001": {
+      "status": "done",
+      "branch": "agent/GEN3FIX-001-claude-b",
+      "commitSha": "02747ff",
+      "attempts": 2,
+      "lastRunId": null,
+      "lastEvidence": "Merged 2026-09-30 (02747ff) into design/mountain-journey and master, both pushed. First attempt (2026-09-25) was rate-limited before writing anything; relaunched with per-step commits. All 15 review items (16 commits, one per item, 14 split in two) applied: 3 S1 source-fidelity fixes (2 of which were live in production -- the Westermann/Skinner misattribution and an unattributed NIV quote of Gen 3:15 in a BSB-only app) + 12 S2 items. Independently re-verified, not just trusted the report: confirmed S1 wording directly against the lesson text and the real BSB corpus word-for-word; confirmed the Romans 8 connection type/label downgrade; grepped for the four banned assertion-line phrases (none); independently resolved all 45 lesson sources[] ids and all 5 connection sourceIds against the registry myself (0 missing, not just trusting the agents count); ran content:validate (OK), the 3 touched test files (125/125), typecheck/lint, and the full suite on the combined merged tree (1946 pass/0 fail/4 cancelled). Deliberately did NOT apply the reviews cut list (Kens decision) -- lesson is now 6,239 words (was 5,317), since real additions landed with no cuts."
     }
   }
 }
