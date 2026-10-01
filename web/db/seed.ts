@@ -39,18 +39,26 @@ type SeedEntry = {
 };
 
 const seedDirectory = path.join(process.cwd(), "data", "seed");
+// MOUNTAINWHY-001 — the 11 mountain stages moved out of the gitignored,
+// personal-data `data/seed/` bridge (web/data/seed/stages.json never was
+// personal data -- it's this app's own curated lens over the canon, unlike
+// threads.json/people.json/entries.json, which stay under data/seed/ as
+// Ken's real journal import) into the tracked content pipeline, alongside
+// lessons/connections/places (content/README.md). See
+// content/lens/eleven-stages.json's own data for the moved, re-titled rows
+// and content/lens/why-this-shape.json for this lens's disclosure copy
+// (rendered at app/(app)/mountain-why/page.tsx).
+const stagesSeedPath = path.join(process.cwd(), "..", "content", "lens", "eleven-stages.json");
 
-async function readSeed<T>(filename: string, schema: ZodType<T>) {
-  const value: unknown = JSON.parse(
-    await readFile(path.join(seedDirectory, filename), "utf8"),
-  );
+async function readSeed<T>(filePath: string, schema: ZodType<T>) {
+  const value: unknown = JSON.parse(await readFile(filePath, "utf8"));
   const parsed = schema.safeParse(value);
   if (!parsed.success) {
     const issues = parsed.error.issues
       .slice(0, 20)
       .map((issue) => `${issue.path.join(".") || "(root)"}: ${issue.message}`)
       .join("\n- ");
-    throw new Error(`${filename} is invalid:\n- ${issues}`);
+    throw new Error(`${path.basename(filePath)} is invalid:\n- ${issues}`);
   }
   return parsed.data;
 }
@@ -245,10 +253,10 @@ async function main() {
   const db = drizzle(process.env.DATABASE_URL, { schema });
 
   const [stageSeed, threadSeed, personSeed, entrySeed] = await Promise.all([
-    readSeed<SeedStage[]>("stages.json", seedStageSchema),
-    readSeed<SeedThread[]>("threads.json", seedThreadSchema),
-    readSeed<SeedPerson[]>("people.json", seedPersonSchema),
-    readSeed<SeedEntry[]>("entries.json", seedEntrySchema),
+    readSeed<SeedStage[]>(stagesSeedPath, seedStageSchema),
+    readSeed<SeedThread[]>(path.join(seedDirectory, "threads.json"), seedThreadSchema),
+    readSeed<SeedPerson[]>(path.join(seedDirectory, "people.json"), seedPersonSchema),
+    readSeed<SeedEntry[]>(path.join(seedDirectory, "entries.json"), seedEntrySchema),
   ]);
   preflight(stageSeed, threadSeed, personSeed, entrySeed);
 

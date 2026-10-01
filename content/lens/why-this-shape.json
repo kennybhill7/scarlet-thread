@@ -1,0 +1,34 @@
+{
+  "id": "eleven-stage-mirror",
+  "title": "Why this shape?",
+  "author": "Kenneth Hill",
+  "status": "draft",
+  "statusNote": "DRAFT -- this is a draft of the disclosure copy for Ken's own review and approval, not final, shipped copy. Per design/PRODUCT_EXPERIENCE_PLAN_2026-09-25.md's own words: \"Ken writes/approves the disclosure text.\" Nothing on this screen should be read as settled until Ken has reviewed it, the same way a lesson's `status: draft` frontmatter marks it not yet published (content/README.md).",
+  "whatThisIs": [
+    "The Mountain arranges the whole Bible into 11 stages -- Genesis 1 through Revelation 22 -- climbing toward the Gospels and then descending, with each stage on the way up paired with one on the way down (Creation with the New Creation, the Flood with the Final Judgment, and so on).",
+    "That arrangement is a reading lens this app offers, not a claim the Bible itself makes about its own structure. Scripture nowhere says it is organized into eleven stages, or that these particular passages mirror each other. The pairing is an editorial judgment -- a way of noticing real, citable parallels between passages (shared images, shared vocabulary, a judgment-then-restoration pattern) and arranging the canon around them so they're easier to compare side by side."
+  ],
+  "author_statement": "This lens was built by Kenneth Hill, this app's author, for this app. It is not attributed to, or endorsed by, any named scholar, tradition, or published work.",
+  "method": [
+    "The method is a traditional one, sometimes called a chiastic or ascent/descent reading of the canon: pair the first things with the last things (Eden with the New Jerusalem), the judgment-of-the-world passages with each other (the Flood with Revelation's judgments), the empire passages with each other (Babel with Babylon), and the covenant-people passages with each other (Israel with the Church) -- with the Gospels, where this lens places the person of Jesus Christ, as the structural turning point between the two halves.",
+    "This app does not have a documented citation for where this specific eleven-stage grouping and these specific chapter boundaries came from. It is Kenneth Hill's own curated arrangement, built for this app. If you are looking for the scholarly lineage of chiastic/ascent-descent readings of the Bible's shape generally, that is a real and old interpretive tradition -- but no specific source for THIS app's eleven stages is recorded anywhere in this project's own documents, and this screen will not pretend one exists. If that changes, this paragraph should be the first thing updated."
+  ],
+  "cautions": [
+    "The Genesis 3-5 / Revelation 20 pairing: Genesis 3 narrates a serpent, not a figure the text names \"Satan.\" That identification is made later in the canon (Revelation 12:9, 20:2). This app's own Genesis 3 lesson keeps that distinction in its Context section; this lens's stage titles have been rephrased to keep it too (see the Genesis 3-5 stage).",
+    "The Israel / Church pairing (Genesis 12-Malachi with Acts-Jude): how the Church relates to Israel -- continuity, discontinuity, something else -- is a question Christian traditions answer differently (see Romans 9-11), and this lens deliberately does not adjudicate it. Pairing the two stages for comparison is not this app asserting an answer."
+  ],
+  "otherLenses": [
+    {
+      "id": "canonical-order",
+      "label": "Canonical order",
+      "available": true,
+      "description": "The same 11 stages, in strict Genesis-to-Revelation book order, with the ascent/peak/descent and mirror-pair framing set aside. Available below as a real toggle on this screen."
+    },
+    {
+      "id": "approximate-chronology",
+      "label": "Approximate chronology",
+      "available": false,
+      "description": "Ordering the material by the approximate date of the events it narrates (rather than canonical book order or this lens's mirror structure) is a real alternative named in this app's own planning notes, but it has not been built. Listed here for honesty, not implied to exist."
+    }
+  ]
+}

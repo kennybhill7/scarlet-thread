@@ -271,6 +271,22 @@ export function Mountain({ stages }: MountainProps) {
               </li>
             ))}
           </ul>
+          {/* MOUNTAINWHY-001 — the Mountain's own entry point into the "Why
+              this shape?" disclosure (plan §A.5's key-screen row names a
+              "long-press stage" affordance; no such affordance existed
+              anywhere in this codebase before this task, including on
+              NAV-001's own just-built pairs list above — grep-confirmed, not
+              assumed). A long-press gesture has no reliable keyboard
+              equivalent and nothing here could exercise it under this
+              repo's jsdom-less test runner, so this is a plain, always-
+              visible, keyboard-and-screen-reader-reachable link instead:
+              the more honest reading of "a real way in" than a gesture this
+              task would otherwise have to ship untested. Placed right next
+              to the mirror pairs it explains, since that is exactly the
+              part of the Mountain this screen discloses. */}
+          <Link href="/mountain-why" className={styles.pairLink} data-testid="why-this-shape-link">
+            Why does the mountain have this shape?
+          </Link>
         </div>
       ) : null}
 

@@ -3,7 +3,8 @@
  *
  * ISRAELPROTO-001 built this module as hand-typed, deliberately-fake
  * structure (six phases, real book names, real chapter ranges, but "no row
- * here comes from ... db/schema.ts, data/seed/stages.json, or any
+ * here comes from ... db/schema.ts, content/lens/eleven-stages.json
+ * (web/data/seed/stages.json before MOUNTAINWHY-001 moved it), or any
  * migration") purely so Ken could click through the ridge/sheet navigation
  * FEEL before committing to a real schema. design/STORY_SPINE_DECISIONS.md
  * decision 4 settled that commitment: the stage-5 sub-arc is "a filter on

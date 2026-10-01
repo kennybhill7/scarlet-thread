@@ -1,0 +1,77 @@
+.wrap {
+  min-height: 100%;
+  background: var(--shell-bg);
+  color: var(--shell-text);
+}
+
+.main {
+  max-width: var(--measure, 34rem);
+  margin: 0 auto;
+  padding: 20px var(--pad-page) calc(40px + var(--safe-bottom));
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--gold);
+  font-family: var(--font-label);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 6px 0 12px;
+  font-family: var(--font-display, var(--font-narrow));
+  font-size: 22px;
+}
+
+.draftBanner {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--shell-crimson);
+  background: var(--shell-surface);
+  color: var(--shell-crimson-text, var(--shell-crimson));
+  font-family: var(--font-label);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.author {
+  margin: 10px 0 0;
+  color: var(--shell-muted-2);
+  font-family: var(--font-label);
+  font-size: 12px;
+}
+
+.section {
+  margin-top: 22px;
+  color: var(--shell-text);
+  font-family: var(--font-read, var(--font-narrow));
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+.section p {
+  margin: 0 0 12px;
+}
+
+.h2 {
+  margin: 0 0 10px;
+  font-family: var(--font-label);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--shell-muted-2);
+}
+
+.list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.list li {
+  margin-bottom: 10px;
+}

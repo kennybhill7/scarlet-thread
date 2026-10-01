@@ -1,0 +1,123 @@
+[
+  {
+    "slug": "acts-jude-the-church",
+    "title": "Acts – Jude — The Early Church: The Twelve Apostles",
+    "stage": 7,
+    "side": "descent",
+    "mirror": "gen-12-malachi-israel",
+    "chapters": [
+      "44.1"
+    ],
+    "summary": "This lens pairs this stage with Genesis 12 – Malachi — Israel: The Twelve Tribes. Twelve tribes, then twelve apostles -- see that stage's note: this is a parallel this lens offers for testing, not a settled claim about how Israel and the Church relate."
+  },
+  {
+    "slug": "gen-01-02-creation",
+    "title": "Genesis 1–2 — Creation: God and Humanity in the Garden",
+    "stage": 1,
+    "side": "ascent",
+    "mirror": "rev-20-22-paradise-restored",
+    "chapters": [
+      "1.1"
+    ],
+    "summary": "This lens places this stage at the top of the ascending side, paired with Revelation 20–22 — The New Creation, at the bottom of the descending side. The pairing is this lens's own reading of the canon's shape, not a claim the text asserts about itself.\nRead both passages side by side and judge the pairing for yourself."
+  },
+  {
+    "slug": "gen-03-05-sin-enters",
+    "title": "Genesis 3–5 — The Serpent, the Exile, and the First Deaths",
+    "stage": 2,
+    "side": "ascent",
+    "mirror": "rev-20-satan-cast-out",
+    "chapters": [
+      "1.3"
+    ],
+    "summary": "This lens pairs this stage with Revelation 20 — Satan Bound and Judged. Genesis 3 narrates a serpent (3:1); it does not name it \"Satan\" -- that identification comes later in the canon (Revelation 12:9, 20:2), which is why Revelation 20's title can use the name and this one does not."
+  },
+  {
+    "slug": "gen-06-09-the-flood",
+    "title": "Genesis 6–9 — The World Judged and Destroyed",
+    "stage": 3,
+    "side": "ascent",
+    "mirror": "rev-06-19-the-world-judged",
+    "chapters": [
+      "1.6"
+    ],
+    "summary": "This lens pairs this stage with Revelation 6–19 — The World Judged and Destroyed: both narrate God judging the world by a specific means, the flood here and a final judgment there."
+  },
+  {
+    "slug": "gen-10-11-babel",
+    "title": "Genesis 10–11 — The Nations and the Tower at Babel",
+    "stage": 4,
+    "side": "ascent",
+    "mirror": "rev-01-18-babylon",
+    "chapters": [
+      "1.10"
+    ],
+    "summary": "This lens pairs this stage with Revelation 1–18 — Babylon and the Beast, reading Babel's scattering as an earlier instance of the empire-and-idolatry pattern Revelation pictures at Babylon -- one reading of the connection, not a claim either text states about the other.\nNote that at Pentecost (Acts–Jude — The Early Church) the language division is pictured in reverse."
+  },
+  {
+    "slug": "gen-12-malachi-israel",
+    "title": "Genesis 12 – Malachi — Israel: The Twelve Tribes",
+    "stage": 5,
+    "side": "ascent",
+    "mirror": "acts-jude-the-church",
+    "chapters": [
+      "1.12"
+    ],
+    "summary": "This lens pairs this stage with Acts–Jude — The Early Church. Twelve tribes, then twelve apostles -- this lens reads that as a parallel worth testing, not a settled claim about how Israel and the Church relate to each other; traditions disagree on that question (see Romans 9–11), and this lens does not adjudicate it."
+  },
+  {
+    "slug": "gospels-jesus-christ",
+    "title": "The Gospels — Jesus Christ",
+    "stage": 6,
+    "side": "peak",
+    "mirror": null,
+    "chapters": [
+      "40.1"
+    ],
+    "summary": "This lens places this stage at the mountain's peak: everything on the ascending side climbs toward it, everything on the descending side runs from it. That is a structural fact about how this lens is organized, not a claim about the Gospels' place in actual chronological history -- the Gospels are not the midpoint of the biblical timeline."
+  },
+  {
+    "slug": "rev-01-18-babylon",
+    "title": "Revelation 1–18 — Babylon and the Beast",
+    "stage": 8,
+    "side": "descent",
+    "mirror": "gen-10-11-babel",
+    "chapters": [
+      "66.13"
+    ],
+    "summary": "This lens pairs this stage with Genesis 10–11 — The Nations and the Tower at Babel, reading the two as the same empire-and-idolatry pattern at an earlier and a later point -- one reading of the connection, not a claim either text states about the other."
+  },
+  {
+    "slug": "rev-06-19-the-world-judged",
+    "title": "Revelation 6–19 — The World Judged and Destroyed",
+    "stage": 9,
+    "side": "descent",
+    "mirror": "gen-06-09-the-flood",
+    "chapters": [
+      "66.6"
+    ],
+    "summary": "This lens pairs this stage with Genesis 6–9 — The World Judged and Destroyed: both narrate God judging the world, the flood there and a final judgment here."
+  },
+  {
+    "slug": "rev-20-satan-cast-out",
+    "title": "Revelation 20 — Satan Bound and Judged",
+    "stage": 10,
+    "side": "descent",
+    "mirror": "gen-03-05-sin-enters",
+    "chapters": [
+      "66.20"
+    ],
+    "summary": "This lens pairs this stage with Genesis 3–5 — The Serpent, the Exile, and the First Deaths. Revelation 20 is where the serpent of Genesis 3 is explicitly named \"the devil and Satan\" (20:2) and finally judged (20:10) -- this lens reads that as one of the clearest of its mirror pairings, since both the figure and the reversal are named in the text itself."
+  },
+  {
+    "slug": "rev-20-22-paradise-restored",
+    "title": "Revelation 20–22 — The New Creation: God and Humanity in the New Jerusalem",
+    "stage": 11,
+    "side": "descent",
+    "mirror": "gen-01-02-creation",
+    "chapters": [
+      "66.21"
+    ],
+    "summary": "This lens pairs this stage with Genesis 1–2 — Creation: God and Humanity in the Garden -- but this stage ends in a city, not a garden. Whether that counts as \"more than recovered\" is a reading this lens offers, not a claim the text states about itself."
+  }
+]
