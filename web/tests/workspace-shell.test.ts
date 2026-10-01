@@ -185,6 +185,7 @@ function sampleCuratedLesson(overrides: Partial<PublishedLessonMatch> = {}): Pub
       stage: 1,
       methodFocus: "Observation before inference.",
       connectionIds: [],
+      placeIds: [],
       positionIds: [],
       sources: [],
       author: "Test Author",

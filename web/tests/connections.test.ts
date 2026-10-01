@@ -284,6 +284,7 @@ test("BUILD: requiredConnectionIds is the deduped, sorted union of every lesson'
     stage: 3,
     methodFocus: "x",
     connectionIds,
+    placeIds: [],
     positionIds: [],
     sources: [],
     author: "Kenneth Hill",

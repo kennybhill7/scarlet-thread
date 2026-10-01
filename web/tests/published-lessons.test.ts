@@ -49,6 +49,7 @@ function fixtureFrontmatter(overrides: Partial<LessonFrontmatter> = {}): LessonF
     stage: 3,
     methodFocus: "Observation vs. inference (SYNTHETIC FIXTURE, not real lesson content)",
     connectionIds: [],
+    placeIds: [],
     positionIds: [],
     sources: [],
     author: "Kenneth Hill",

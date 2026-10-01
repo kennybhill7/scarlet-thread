@@ -172,6 +172,12 @@ test("every v2 table carries created_at/updated_at (NOT NULL) and deleted_at (nu
 // `db/schema.ts` immediately above `export const catalogReleases`) — no
 // per-user owner, and a correction ships as a new release row rather than a
 // mutation of an existing one.
+//
+// PLACES-001 adds `places`, `place_candidates`, and `place_passages` for the
+// same reason again (see the "PLACES-001" comment block on `db/schema.ts`
+// immediately above `export const places`): rows are written only by
+// `npm run db:sync-places` from a compiled `content/places/` release, never
+// hand-edited, and carry no per-user owner.
 // ---------------------------------------------------------------------------
 
 const PRE_EXISTING_TABLE_NAMES = new Set([
@@ -192,8 +198,15 @@ const PRE_EXISTING_TABLE_NAMES = new Set([
 /** Tables added after SCHEMAV2-001 that are exempt from the workspace_id/revision sweep entirely — see the comment above. */
 const WORKSPACE_ROOT_TABLE_NAMES = new Set(["workspaces"]);
 
-/** BUILD_PLAN §3.3 curated tables (GRAPHEDGES-001, plus `catalog_releases` from CONTENTPIPE-001) — exempt from the same sweep for the different reason explained above. */
-const CURATED_TABLE_NAMES = new Set(["graph_edges", "sources", "catalog_releases"]);
+/** BUILD_PLAN §3.3 curated tables (GRAPHEDGES-001, plus `catalog_releases` from CONTENTPIPE-001 and the place layer from PLACES-001) — exempt from the same sweep for the different reason explained above. */
+const CURATED_TABLE_NAMES = new Set([
+  "graph_edges",
+  "sources",
+  "catalog_releases",
+  "places",
+  "place_candidates",
+  "place_passages",
+]);
 
 /** Tables that carry workspace_id + an integer revision column but where that revision is deliberately never defaulted — see the comment above. */
 const TABLES_WITHOUT_DEFAULTED_REVISION = new Set(["artifact_revisions"]);

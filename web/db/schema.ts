@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   boolean,
   check,
+  doublePrecision,
   foreignKey,
   index,
   integer,
@@ -1030,3 +1031,116 @@ export const catalogReleases = pgTable("catalog_releases", {
   lessonCount: integer("lesson_count").notNull(),
   bundle: jsonb("bundle").notNull(),
 });
+
+// ---------------------------------------------------------------------------
+// PLACES-001 — the place layer (PRODUCT_EXPERIENCE_PLAN §C.1). Curated,
+// read-only release indexes in the same shape as `sources` / `graph_edges`
+// (no workspace/user scope, no soft delete): rows are written ONLY by
+// `npm run db:sync-places` from `content/places/places.jsonl`, which
+// `tools/build-places.mjs` generates from the OpenBible.info Bible Geocoding
+// Data (CC BY 4.0). Never hand-edited in Postgres. Places do NOT ride in the
+// `catalog_releases` bundle (schemaVersion stays 1); `release_id` is
+// therefore nullable and unset by the sync.
+//
+// Honesty rules are CHECK constraints, not conventions (plan G5):
+//   - tier = 'unlocated'  =>  lon/lat NULL (and, the converse, a located tier
+//     must have both), so an "unlocated" place can never carry a pin;
+//   - lon/lat are both NULL or both set, and in range;
+//   - kind = 'unlocated' exactly when tier = 'unlocated'.
+// The rules that need the canon or judgment (disputed/uncertain need a note or
+// candidates; every passage range in bounds) live in
+// `scripts/content/placeSchema.ts`, run by `content:validate`.
+// ---------------------------------------------------------------------------
+
+export const PLACE_KINDS = ["point", "region", "route", "water", "unlocated"] as const;
+export type PlaceKind = (typeof PLACE_KINDS)[number];
+export const PLACE_TIERS = ["identified", "likely", "uncertain", "disputed", "unlocated"] as const;
+export type PlaceTier = (typeof PLACE_TIERS)[number];
+
+export const placeKindEnum = pgEnum("place_kind", PLACE_KINDS);
+export const placeTierEnum = pgEnum("place_tier", PLACE_TIERS);
+
+export const places = pgTable(
+  "places",
+  {
+    /** Stable slug (e.g. "sinai"); a lesson's `placeIds[]` names this. */
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    /** OpenBible.info ancient-place id (e.g. "a15257a"). */
+    ancientId: text("ancient_id").notNull(),
+    kind: placeKindEnum("kind").notNull(),
+    tier: placeTierEnum("tier").notNull(),
+    /** NULL when unlocated. Copied from the dataset by script, never typed. */
+    lon: doublePrecision("lon"),
+    lat: doublePrecision("lat"),
+    /** The dataset's own label for what the coordinate is ("representative point", "point", "center", ...). */
+    coordinateBasis: text("coordinate_basis"),
+    modernName: text("modern_name"),
+    /** Plain-language, learner-facing confidence note. */
+    note: text("note"),
+    sourceId: text("source_id")
+      .notNull()
+      .references(() => sources.id, { onDelete: "restrict" }),
+    datasetScore: integer("dataset_score").notNull(),
+    voteCount: integer("vote_count").notNull(),
+    identificationsInDataset: integer("identifications_in_dataset").notNull(),
+    /** Unset this wave: places are synced, not bundled. */
+    releaseId: text("release_id").references(() => catalogReleases.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
+  },
+  (table) => [
+    check("places_unlocated_no_coords_check", sql`${table.tier} <> 'unlocated' OR (${table.lon} IS NULL AND ${table.lat} IS NULL)`),
+    check("places_located_has_coords_check", sql`${table.tier} = 'unlocated' OR (${table.lon} IS NOT NULL AND ${table.lat} IS NOT NULL)`),
+    check("places_coords_paired_check", sql`(${table.lon} IS NULL) = (${table.lat} IS NULL)`),
+    check("places_coords_range_check", sql`(${table.lon} IS NULL OR ${table.lon} BETWEEN -180 AND 180) AND (${table.lat} IS NULL OR ${table.lat} BETWEEN -90 AND 90)`),
+    check("places_kind_unlocated_iff_tier_check", sql`(${table.kind} = 'unlocated') = (${table.tier} = 'unlocated')`),
+    index("places_source_idx").on(table.sourceId),
+    index("places_ancient_id_idx").on(table.ancientId),
+  ],
+);
+
+/**
+ * Other identifications of a place (the dataset's rivals and sibling sites),
+ * shown as ghost markers for disputed/uncertain places. Only located places
+ * have candidates; every candidate has coordinates. `ordinal` is the stable
+ * order (best score first); the sync replaces a place's whole candidate set.
+ */
+export const placeCandidates = pgTable(
+  "place_candidates",
+  {
+    placeId: text("place_id")
+      .notNull()
+      .references(() => places.id, { onDelete: "cascade" }),
+    ordinal: integer("ordinal").notNull(),
+    description: text("description").notNull(),
+    lon: doublePrecision("lon").notNull(),
+    lat: doublePrecision("lat").notNull(),
+    score: integer("score").notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.placeId, table.ordinal] }),
+    check("place_candidates_coords_range_check", sql`${table.lon} BETWEEN -180 AND 180 AND ${table.lat} BETWEEN -90 AND 90`),
+  ],
+);
+
+/**
+ * The passages that mention a place. `range` is a CanonicalRangeV1 (the
+ * dataset lists single verses, so start = end today). `in_dataset_verse_list`
+ * is false only for a reference a person added by hand in curation.json.
+ */
+export const placePassages = pgTable(
+  "place_passages",
+  {
+    placeId: text("place_id")
+      .notNull()
+      .references(() => places.id, { onDelete: "cascade" }),
+    ordinal: integer("ordinal").notNull(),
+    range: jsonb("range").$type<CanonicalRangeV1>().notNull(),
+    inDatasetVerseList: boolean("in_dataset_verse_list").notNull(),
+    note: text("note"),
+  },
+  (table) => [
+    primaryKey({ columns: [table.placeId, table.ordinal] }),
+    uniqueIndex("place_passages_place_range_idx").on(table.placeId, table.range),
+  ],
+);

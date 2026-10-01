@@ -99,6 +99,13 @@
       "when": 1790382136701,
       "tag": "0013_add_graph_edges_review_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1790383740629,
+      "tag": "0014_add_places",
+      "breakpoints": true
     }
   ]
 }

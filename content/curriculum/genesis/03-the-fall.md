@@ -12,6 +12,8 @@ connectionIds:
   - conn-gen3-seed-rev12
   - conn-gen3-seed-gen4-25
   - conn-gen3-ground-romans8
+placeIds:
+  - eden
 sources:
   - source-westminster-confession
   - source-westminster-larger-catechism
