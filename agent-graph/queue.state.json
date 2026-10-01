@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-01T14:43:28.627Z",
+  "updatedAt": "2026-10-01T14:44:41.730Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -930,6 +930,24 @@
       "attempts": 3,
       "lastRunId": null,
       "lastEvidence": "Merged 2026-10-01 (0b31b4a) into design/mountain-journey and master, both pushed. First attempt (2026-09-25) rate-limited with nothing written; second attempt stalled (600s no-progress) but left 5 real commits, all 4 lettered steps done (B groundwork, A+B background flush + parking, A UI notice, C drain-before-signout) plus 2 uncommitted test files I committed myself. Reviewed the real production code line by line (store.ts/client.ts/clear.ts) before trusting it -- confirmed the wire-stripping of local-only bookkeeping fields is actually implemented, not just claimed in a comment. Found and fixed 3 real bugs in the one test file the agent was mid-write on when it stalled (a hook-bearing component called as a plain function instead of via createElement; two HTML-entity-escaping mismatches; a createElement typecheck overload issue) -- zero bugs in the production code itself. Ran one adversarial mutation of my own (off-by-one on the park threshold), 4 tests caught it. Full suite 1973 pass/0 fail/4 cancelled."
+    },
+    "STUDYOFFLINE-001": {
+      "status": "pending",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Wave 3, 2026-10-01 (plan task 6, L). Workspace reads local-first: session/claims/applications hydrate from IndexedDB with server reconciliation; Start a study works offline with a local id and deferred push; curated content shows an honest not-downloaded state offline. Depends on RANGEPICKER (done) and SYNCFLUSH-001 (done, shares lib/sync/store.ts -- built from post-SYNCFLUSH HEAD)."
+    },
+    "PLACELENS-001": {
+      "status": "pending",
+      "branch": null,
+      "commitSha": null,
+      "attempts": 0,
+      "lastRunId": null,
+      "lastEvidence": null,
+      "notes": "Wave 3 (plan task 8, L). The 2D place lens: orthographic SVG globe, real coastlines (Natural Earth, public domain), drag/inertia reused from Globe.tsx, zoom-to-region over static relief, confidence-as-geometry, passage list, Open in Connect, <=80KB gz chunk, offline after download, axe clean. Depends on PLACES-001 (done) and RANGEPICKER (done). Human gate: Ken judges the wow on his phone before tours are built."
     }
   }
 }
