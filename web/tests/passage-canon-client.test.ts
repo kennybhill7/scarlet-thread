@@ -1,23 +1,31 @@
 /**
- * RANGEPICKER-002 — lib/bible/passageCanonClient.ts: the lazy, cached,
- * error-tolerant browser loader for the `PassageCanon`.
+ * RANGEPICKER-002 / PICKERCANON-001 — lib/bible/passageCanonClient.ts: the
+ * lazy, cached, error-tolerant browser loader for the `PassageCanon`.
  *
- * Part 1 drives the framework-free store with injected `loadIndex` / `loadBook`
- * fakes (state machine, dedup, no failure memo, concurrency bound, fail-closed
- * on inconsistent data). Part 2 runs the REAL `lib/bible/loader.ts` behind an
- * injected `globalThis.fetch` that serves the actual shipped files from
- * `public/bible`, to prove the fetch footprint (1 index + 66 books, once), the
- * module-scope cache reuse, the graceful error copy, and — with a minimal
- * in-memory Cache Storage — that a canon warmed online is rebuilt offline.
+ * Rewritten for PICKERCANON-001: the store no longer fetches all 66 BSB book
+ * files to learn verse counts — it fetches `public/bible/canon.json` (a
+ * compact, generated, pinned file; see tests/canon-counts-drift.test.ts)
+ * alongside `index.json`. Part 1 drives the framework-free store with
+ * injected `loadIndex` / `loadCanonCounts` fakes (state machine, dedup, no
+ * failure memo, fail-closed on inconsistent/invalid canon.json data). Part 2
+ * runs the REAL `lib/bible/loader.ts` behind an injected `globalThis.fetch`
+ * that serves the actual shipped files from `public/bible`, to prove the
+ * fetch footprint is now 2 requests (index.json + canon.json), not 67, that
+ * the resulting canon is identical to one built directly from the real BSB
+ * files, the module-scope cache reuse, the graceful error copy, and — with a
+ * minimal in-memory Cache Storage — that a canon warmed online is rebuilt
+ * offline.
  */
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test, { afterEach } from "node:test";
 
 import type { BibleIndex, BookData, BookMeta } from "@/lib/contracts";
+import { CANONICAL_VERSIFICATION_ID } from "@/lib/contracts/range-v1";
 import { __resetBookCacheForTests, __resetIndexCacheForTests } from "@/lib/bible/loader";
 import { buildPassageCanon } from "@/lib/bible/passageCanon";
 import {
+  CANON_COUNTS_PATH,
   PASSAGE_CANON_ERROR_MESSAGE,
   __resetDefaultPassageCanonStoreForTests,
   createPassageCanonStore,
@@ -33,33 +41,46 @@ function meta(n: number, chapters: number): BookMeta {
   return { n, name: `Book ${n}`, abbr: `B${n}`, chapters, testament: n <= 2 ? "OT" : "NT" } as BookMeta;
 }
 const FAKE_INDEX = { books: [meta(1, 2), meta(2, 1), meta(3, 3), meta(4, 1)] } as unknown as BibleIndex;
-// chapter i has (n + i) verses
-function fakeBook(n: number, chapters: number): BookData {
-  return { b: `Book ${n}`, c: Array.from({ length: chapters }, (_, i) => Array.from({ length: n + i + 1 }, () => "v")) } as unknown as BookData;
-}
+// book n chapter i (1-based) has (n + i) verses — matches the old fixture's shape so expectations stay legible.
+const FAKE_COUNTS = {
+  versificationId: CANONICAL_VERSIFICATION_ID,
+  books: {
+    "1": [2, 3],
+    "2": [3],
+    "3": [4, 5, 6],
+    "4": [5],
+  },
+};
 
 function fakeDeps() {
-  const calls = { index: 0, books: [] as number[], inFlight: 0, maxInFlight: 0 };
-  const failures = { index: false, book: null as number | null, badChapterCount: false };
+  const calls = { index: 0, counts: 0 };
+  const failures = { index: false, counts: false, badShape: null as "notObject" | "badVersification" | "unexpectedBook" | "badChapterCount" | "nonPositive" | null };
   return {
     calls,
     failures,
     deps: {
-      concurrency: 2,
       loadIndex: async () => {
         calls.index += 1;
         if (failures.index) throw new Error("offline");
         return FAKE_INDEX;
       },
-      loadBook: async (_version: string, n: number) => {
-        calls.books.push(n);
-        calls.inFlight += 1;
-        calls.maxInFlight = Math.max(calls.maxInFlight, calls.inFlight);
-        await new Promise((resolve) => setTimeout(resolve, 2));
-        calls.inFlight -= 1;
-        if (failures.book === n) throw new Error(`book ${n} unavailable`);
-        const chapters = FAKE_INDEX.books[n - 1].chapters;
-        return fakeBook(n, failures.badChapterCount && n === 3 ? chapters + 1 : chapters);
+      loadCanonCounts: async (): Promise<unknown> => {
+        calls.counts += 1;
+        if (failures.counts) throw new Error("canon.json unavailable");
+        switch (failures.badShape) {
+          case "notObject":
+            return "not an object";
+          case "badVersification":
+            return { ...FAKE_COUNTS, versificationId: "something-else" };
+          case "unexpectedBook":
+            return { ...FAKE_COUNTS, books: { ...FAKE_COUNTS.books, "99": [1] } };
+          case "badChapterCount":
+            return { ...FAKE_COUNTS, books: { ...FAKE_COUNTS.books, "3": [4, 5] } }; // index says 3 chapters
+          case "nonPositive":
+            return { ...FAKE_COUNTS, books: { ...FAKE_COUNTS.books, "3": [4, 5, 0] } };
+          default:
+            return FAKE_COUNTS;
+        }
       },
     },
   };
@@ -71,10 +92,10 @@ test("STORE: nothing is fetched at creation (lazy), and the server snapshot is a
   assert.deepEqual(store.getSnapshot(), { status: "idle" });
   assert.deepEqual(store.getServerSnapshot(), { status: "idle" });
   assert.equal(calls.index, 0);
-  assert.deepEqual(calls.books, []);
+  assert.equal(calls.counts, 0);
 });
 
-test("STORE: idle -> loading (synchronously on load()) -> ready, with a canon built from the loaded books", async () => {
+test("STORE: idle -> loading (synchronously on load()) -> ready, with a canon built from the loaded counts", async () => {
   const { deps } = fakeDeps();
   const store = createPassageCanonStore(deps);
   const seen: string[] = [];
@@ -96,30 +117,42 @@ test("STORE: idle -> loading (synchronously on load()) -> ready, with a canon bu
       [3, [4, 5, 6]],
       [4, [5]],
     ],
-    "verse counts come from each book's data, in index order",
+    "verse counts come from canon.json, in index order",
   );
   unsubscribe();
 });
 
-test("STORE: concurrent load() calls share one in-flight build; a later load() after ready is served from the module-scope cache (zero new loads)", async () => {
+test("STORE: concurrent load() calls share one in-flight build; a later load() after ready is served from the module-scope cache (zero new fetches)", async () => {
   const { deps, calls } = fakeDeps();
   const store = createPassageCanonStore(deps);
   const [a, b] = await Promise.all([store.load(), store.load()]);
   assert.equal(a, b);
   assert.equal(calls.index, 1);
-  assert.deepEqual([...calls.books].sort(), [1, 2, 3, 4], "each book exactly once");
+  assert.equal(calls.counts, 1);
 
-  const before = { index: calls.index, books: calls.books.length };
+  const before = { index: calls.index, counts: calls.counts };
   const again = await store.load();
   assert.equal(again, a, "same canon object");
-  assert.deepEqual({ index: calls.index, books: calls.books.length }, before, "no reload once ready");
+  assert.deepEqual({ index: calls.index, counts: calls.counts }, before, "no reload once ready");
 });
 
-test("STORE: book loads respect the concurrency bound", async () => {
-  const { deps, calls } = fakeDeps();
-  await createPassageCanonStore({ ...deps, concurrency: 2 }).load();
-  assert.ok(calls.maxInFlight <= 2, `max in flight ${calls.maxInFlight} exceeds 2`);
-  assert.ok(calls.maxInFlight >= 2, "and the bound is actually used, not serialised");
+test("STORE: index is loaded before canon.json, never raced (a revision change seen by the index must not race a stale cached canon.json)", async () => {
+  const { deps } = fakeDeps();
+  const order: string[] = [];
+  const store = createPassageCanonStore({
+    loadIndex: async () => {
+      order.push("index-start");
+      const result = await deps.loadIndex();
+      order.push("index-end");
+      return result;
+    },
+    loadCanonCounts: async () => {
+      order.push("counts-start");
+      return deps.loadCanonCounts();
+    },
+  });
+  await store.load();
+  assert.deepEqual(order, ["index-start", "index-end", "counts-start"]);
 });
 
 test("STORE: a failed index load -> error state with the honest message; NOT memoised, so a retry loads again and succeeds", async () => {
@@ -138,23 +171,54 @@ test("STORE: a failed index load -> error state with the honest message; NOT mem
   assert.equal(calls.index, 2, "the failure was not cached");
 });
 
-test("STORE: one book failing -> error (never a partial canon); retry then succeeds", async () => {
+test("STORE: a failed canon.json load -> error; retry then succeeds", async () => {
   const { deps, failures } = fakeDeps();
   const store = createPassageCanonStore(deps);
-  failures.book = 3;
-  await assert.rejects(() => store.load(), /book 3 unavailable/);
+  failures.counts = true;
+  await assert.rejects(() => store.load(), /canon\.json unavailable/);
   assert.equal(store.getSnapshot().status, "error");
-  failures.book = null;
+  failures.counts = false;
   await store.load();
-  const state = store.getSnapshot();
-  assert.equal(state.status === "ready" ? state.canon.length : -1, 4);
+  assert.equal(store.getSnapshot().status, "ready");
 });
 
-test("STORE: fails closed when a book's data disagrees with the index (a picker must never offer chapters the corpus cannot show)", async () => {
+test("STORE: fails closed when canon.json is not an object", async () => {
   const { deps, failures } = fakeDeps();
   const store = createPassageCanonStore(deps);
-  failures.badChapterCount = true;
-  await assert.rejects(() => store.load(), /index says 3 chapters, data has 4/);
+  failures.badShape = "notObject";
+  await assert.rejects(() => store.load(), /not an object/);
+  assert.equal(store.getSnapshot().status, "error");
+});
+
+test("STORE: fails closed on the wrong versificationId", async () => {
+  const { deps, failures } = fakeDeps();
+  const store = createPassageCanonStore(deps);
+  failures.badShape = "badVersification";
+  await assert.rejects(() => store.load(), /versificationId/);
+  assert.equal(store.getSnapshot().status, "error");
+});
+
+test("STORE: fails closed on a book canon.json does not expect", async () => {
+  const { deps, failures } = fakeDeps();
+  const store = createPassageCanonStore(deps);
+  failures.badShape = "unexpectedBook";
+  await assert.rejects(() => store.load(), /unexpected book 99/);
+  assert.equal(store.getSnapshot().status, "error");
+});
+
+test("STORE: fails closed when a book's chapter count disagrees with the index (a picker must never offer chapters the corpus cannot show)", async () => {
+  const { deps, failures } = fakeDeps();
+  const store = createPassageCanonStore(deps);
+  failures.badShape = "badChapterCount";
+  await assert.rejects(() => store.load(), /index says 3 chapters, counts have 2/);
+  assert.equal(store.getSnapshot().status, "error");
+});
+
+test("STORE: fails closed on a non-positive-integer verse count", async () => {
+  const { deps, failures } = fakeDeps();
+  const store = createPassageCanonStore(deps);
+  failures.badShape = "nonPositive";
+  await assert.rejects(() => store.load(), /invalid verse count/);
   assert.equal(store.getSnapshot().status, "error");
 });
 
@@ -235,7 +299,7 @@ afterEach(() => {
   resetAll();
 });
 
-test("REAL LOADER: first need fetches index.json + all 66 BSB books once each and builds the real canon; a second consumer reuses the module-scope canon with zero fetches", async () => {
+test("REAL LOADER: first need fetches index.json + canon.json ONCE EACH (not all 66 books) and builds the real canon; a second consumer reuses the module-scope canon with zero fetches", async () => {
   resetAll();
   const paths = installFetch(serve);
   const store = getDefaultPassageCanonStore();
@@ -247,15 +311,11 @@ test("REAL LOADER: first need fetches index.json + all 66 BSB books once each an
     realIndex.books,
     (n) => JSON.parse(readFileSync(webPath(`public/bible/BSB/${n}.json`), "utf8")) as BookData,
   );
-  assert.deepEqual(canon, expected, "identical to a canon built directly from the shipped files");
+  assert.deepEqual(canon, expected, "identical to a canon built directly from the shipped BSB files");
   assert.equal(canon[0].verseCounts.length, 50, "Genesis has 50 chapters");
   assert.equal(canon[0].verseCounts[2], 24, "Genesis 3 has 24 verses");
 
-  assert.equal(paths.filter((p) => p === "/bible/index.json").length, 1);
-  const bookPaths = paths.filter((p) => /^\/bible\/BSB\/\d+\.json$/.test(p));
-  assert.equal(bookPaths.length, 66);
-  assert.equal(new Set(bookPaths).size, 66, "each book once");
-  assert.equal(paths.length, 67);
+  assert.deepEqual(paths, ["/bible/index.json", CANON_COUNTS_PATH], "exactly 2 fetches: index.json then canon.json, never a book file");
 
   assert.equal(getDefaultPassageCanonStore(), store, "one app-wide store");
   const before = paths.length;
@@ -263,14 +323,18 @@ test("REAL LOADER: first need fetches index.json + all 66 BSB books once each an
   assert.equal(paths.length, before, "cache reuse: no further fetch");
 });
 
-test("REAL LOADER: a fresh store over an already-warm loader memo (another screen read the books) costs no new fetches", async () => {
+test("REAL LOADER: a fresh store over an already-warm loader memo re-fetches canon.json but NOT the index (loader.ts's own index memo is reused)", async () => {
   resetAll();
   const paths = installFetch(serve);
   await getDefaultPassageCanonStore().load();
-  const warm = paths.length;
+  assert.equal(paths.filter((p) => p === "/bible/index.json").length, 1);
   __resetDefaultPassageCanonStoreForTests(); // drop only OUR module-scope canon, not loader.ts's memo
   await getDefaultPassageCanonStore().load();
-  assert.equal(paths.length, warm, "loader.ts's own memo served every book and the index");
+  // loader.ts's loadIndex() memo means the index is fetched only once across both loads; fetchWithCache
+  // (no in-process memo, only Cache API, which this test does not install) refetches canon.json each time
+  // our module-scope canon is dropped.
+  assert.equal(paths.filter((p) => p === "/bible/index.json").length, 1, "index fetched once total");
+  assert.equal(paths.filter((p) => p === CANON_COUNTS_PATH).length, 2, "canon.json fetched once per store build");
 });
 
 test("REAL LOADER: network down -> error state with the exact honest copy; recovering the network then a retry succeeds", async () => {
@@ -284,16 +348,19 @@ test("REAL LOADER: network down -> error state with the exact honest copy; recov
   await assert.rejects(() => store.load());
   const state: PassageCanonState = store.getSnapshot();
   assert.equal(state.status, "error");
-  assert.equal(state.status === "error" ? state.message : "", "Couldn’t load the Bible index — check your connection");
+  assert.equal(
+    state.status === "error" ? state.message : "",
+    "Couldn’t load the Bible index — check your connection",
+  );
 
   online = true;
   await store.load();
   assert.equal(store.getSnapshot().status, "ready");
 });
 
-test("REAL LOADER: an HTTP 404 on one book is an error, not a silently shorter canon", async () => {
+test("REAL LOADER: an HTTP 404 on canon.json is an error, not a silently empty canon", async () => {
   resetAll();
-  installFetch((path) => (path === "/bible/BSB/40.json" ? new Response("nope", { status: 404 }) : serve(path)));
+  installFetch((path) => (path === CANON_COUNTS_PATH ? new Response("nope", { status: 404 }) : serve(path)));
   const store = getDefaultPassageCanonStore();
   await assert.rejects(() => store.load());
   assert.equal(store.getSnapshot().status, "error");
@@ -304,7 +371,7 @@ test("REAL LOADER + Cache Storage: a canon warmed online is rebuilt fully OFFLIN
   installFakeCaches();
   const onlinePaths = installFetch(serve);
   await getDefaultPassageCanonStore().load();
-  assert.equal(onlinePaths.length, 67);
+  assert.deepEqual(onlinePaths, ["/bible/index.json", CANON_COUNTS_PATH]);
   await new Promise((resolve) => setTimeout(resolve, 50)); // loader.ts's cache.put()s are fire-and-forget
 
   // New "session": both loader memos and our canon are gone, and the network is dead.
@@ -316,5 +383,6 @@ test("REAL LOADER + Cache Storage: a canon warmed online is rebuilt fully OFFLIN
   assert.equal(canon.length, 66);
   assert.equal(canon[0].verseCounts[2], 24);
   // index.json is network-first (it is the one mutable file): exactly one failed attempt, then the cached copy.
-  assert.deepEqual(offlinePaths, ["/bible/index.json"], "every book came from Cache Storage; only the index probed the (dead) network");
+  // canon.json is served from Cache API too (fetchWithCache), so no further network attempt is made for it.
+  assert.deepEqual(offlinePaths, ["/bible/index.json"], "canon.json came from Cache Storage; only the index probed the (dead) network");
 });

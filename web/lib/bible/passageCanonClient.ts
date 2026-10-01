@@ -2,38 +2,50 @@
 
 import { useEffect, useSyncExternalStore } from "react";
 
-import type { BibleIndex, BookData, VersionId } from "@/lib/contracts";
-import { loadBook, loadIndex } from "@/lib/bible/loader";
-import { buildPassageCanon, type PassageCanon } from "@/lib/bible/passageCanon";
+import type { BibleIndex } from "@/lib/contracts";
+import { CANONICAL_VERSIFICATION_ID } from "@/lib/contracts/range-v1";
+import { ScriptureUnavailableError, fetchWithCache, loadIndex } from "@/lib/bible/loader";
+import { buildPassageCanonFromCounts, type PassageCanon } from "@/lib/bible/passageCanon";
 
 /**
- * RANGEPICKER-002 — the browser-side source of a `PassageCanon` (what
- * `components/ui/PassagePicker.tsx` needs) for screens that cannot receive one
- * from a server component.
+ * RANGEPICKER-002 / PICKERCANON-001 — the browser-side source of a
+ * `PassageCanon` (what `components/ui/PassagePicker.tsx` needs) for screens
+ * that cannot receive one from a server component.
  *
- * `PassageCanon` is derived from the real shipped corpus: `public/bible/
- * index.json` plus each of the 66 book files (`public/bible/BSB/{n}.json`,
- * ~4 MB in total — the verse counts live only inside the book files). This
- * module never fetches those itself: it goes through `lib/bible/loader.ts`
- * (`loadIndex`, `loadBook`), so it inherits, unchanged, that file's in-memory
- * memo, the `bible-brain-scripture-v1` Cache API bucket (a book the reader
- * already opened, or "make available offline" already warmed, costs no network
- * here), the network-first / revision-reconciling `index.json` path, and its
- * typed `ScriptureUnavailableError`. On top of that, this file adds ONE more
- * layer: the built canon itself is cached in module scope, so the 66-book
- * pass runs at most once per page lifetime (and is shared by every consumer).
+ * The canon is `public/bible/index.json` (names, abbreviations, chapter
+ * counts) plus `public/bible/canon.json` (~4 KB: per-book, per-chapter verse
+ * counts, generated from the shipped BSB files by `npm run bible:canon` and
+ * pinned to them by tests/canon-counts-drift.test.ts). Two small fetches — it
+ * used to be all 66 book files (~4 MB).
+ *
+ * `index.json` goes through `lib/bible/loader.ts`'s `loadIndex` (memo,
+ * network-first, revision reconciliation of the `bible-brain-scripture-v1`
+ * Cache API bucket). `canon.json` goes through that same loader's exported
+ * `fetchWithCache` — the very path and bucket `versemap.json` uses — so it is
+ * cached-forever within a corpus revision and works offline after first load.
+ * The index is loaded FIRST and the two are not raced: a revision change is
+ * detected (and the bucket wiped) by the index fetch, so a stale cached
+ * canon.json can never be read after a corpus rebuild has been seen.
+ *
+ * Fail-closed: the fetched canon.json is validated at runtime (shape,
+ * versification id, exactly the index's books, chapter counts equal to the
+ * index's, every verse count a positive integer) and any disagreement puts the
+ * store in `error` — a picker never offers chapters/verses the corpus cannot
+ * show. Known limit: a canon.json that was cached corrupt stays corrupt until
+ * the bucket is wiped by a revision change (the loader does not expose
+ * eviction); this errors rather than serving wrong data.
  *
  * Loading is LAZY: nothing is fetched at import time. `usePassageCanon` starts
  * the load on first need (a component that actually renders a picker, and
  * only when `enabled`). Concurrent callers share one in-flight promise; a
  * failure is not memoised (the store returns to a retryable `error` state and
- * `retry()` runs the whole pass again — books that did load are already in the
- * loader's memo/cache, so a retry only re-fetches what is missing).
+ * `retry()` runs the load again). The built canon is cached in module scope,
+ * so it is built at most once per page lifetime (shared by every consumer).
  *
  * The state machine is `idle -> loading -> ready | error` (error -> loading on
  * retry). `createPassageCanonStore` is the injectable, framework-free core (so
- * tests can drive it with fake `loadIndex`/`loadBook`); `usePassageCanon` is a
- * thin `useSyncExternalStore` binding over it.
+ * tests can drive it with fake loaders); `usePassageCanon` is a thin
+ * `useSyncExternalStore` binding over it.
  */
 
 /** Shown when the corpus metadata cannot be loaded. Exported so UI and tests share one string. */
@@ -45,13 +57,46 @@ export type PassageCanonState =
   | { status: "ready"; canon: PassageCanon }
   | { status: "error"; message: string; cause: unknown };
 
+export const CANON_COUNTS_PATH = "/bible/canon.json";
+
+/** Fetches canon.json through the loader's Cache API path; returns the parsed (still unvalidated) JSON. */
+export async function loadCanonCounts(): Promise<unknown> {
+  const response = await fetchWithCache(CANON_COUNTS_PATH);
+  if (!response.ok) {
+    throw new ScriptureUnavailableError(CANON_COUNTS_PATH, new Error(`HTTP ${response.status}`));
+  }
+  return (await response.json()) as unknown;
+}
+
 export interface PassageCanonDeps {
   loadIndex: () => Promise<BibleIndex>;
-  loadBook: (version: VersionId, book: number) => Promise<BookData>;
-  /** Which translation's files supply the verse counts. Versification is shared; default "BSB" (the shipped default). */
-  version?: VersionId;
-  /** Max book files in flight at once. Default 6 (browsers cap per-origin connections anyway). */
-  concurrency?: number;
+  /** Resolves the raw parsed canon.json. Validated by the store; never trusted. */
+  loadCanonCounts: () => Promise<unknown>;
+}
+
+/**
+ * Validates the raw canon.json against the shipped index and returns a
+ * book-number lookup. Throws (=> error state) on anything unexpected.
+ */
+function parseCanonCounts(raw: unknown, index: BibleIndex): (book: number) => readonly number[] | undefined {
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) throw new Error("canon.json: not an object");
+  const file = raw as Record<string, unknown>;
+  if (file.versificationId !== CANONICAL_VERSIFICATION_ID) {
+    throw new Error(`canon.json: versificationId ${String(file.versificationId)} is not ${CANONICAL_VERSIFICATION_ID}`);
+  }
+  const books = file.books;
+  if (typeof books !== "object" || books === null || Array.isArray(books)) throw new Error("canon.json: books is not an object");
+  const table = books as Record<string, unknown>;
+  const expected = new Set(index.books.map((meta) => String(meta.n)));
+  for (const key of Object.keys(table)) {
+    if (!expected.has(key)) throw new Error(`canon.json: unexpected book ${key}`);
+  }
+  return (n) => {
+    const counts = table[String(n)];
+    if (counts === undefined) return undefined;
+    if (!Array.isArray(counts)) throw new Error(`canon.json: book ${n} is not an array`);
+    return counts as unknown[] as readonly number[]; // integer/positive checks: buildPassageCanonFromCounts
+  };
 }
 
 export interface PassageCanonStore {
@@ -66,34 +111,7 @@ export interface PassageCanonStore {
 const IDLE: PassageCanonState = { status: "idle" };
 const LOADING: PassageCanonState = { status: "loading" };
 
-export const DEFAULT_CANON_VERSION: VersionId = "BSB";
-const DEFAULT_CONCURRENCY = 6;
-
-/** Runs `worker` over `items` with at most `limit` in flight; stops scheduling after the first failure. */
-async function mapLimited<T, R>(items: readonly T[], limit: number, worker: (item: T) => Promise<R>): Promise<R[]> {
-  const results = new Array<R>(items.length);
-  let next = 0;
-  let failed = false;
-  async function run(): Promise<void> {
-    while (!failed && next < items.length) {
-      const i = next;
-      next += 1;
-      try {
-        results[i] = await worker(items[i]);
-      } catch (error) {
-        failed = true;
-        throw error;
-      }
-    }
-  }
-  const lanes = Array.from({ length: Math.max(1, Math.min(limit, items.length)) }, () => run());
-  await Promise.all(lanes);
-  return results;
-}
-
 export function createPassageCanonStore(deps: PassageCanonDeps): PassageCanonStore {
-  const version = deps.version ?? DEFAULT_CANON_VERSION;
-  const concurrency = deps.concurrency ?? DEFAULT_CONCURRENCY;
   let state: PassageCanonState = IDLE;
   let inflight: Promise<PassageCanon> | null = null;
   const listeners = new Set<() => void>();
@@ -104,13 +122,11 @@ export function createPassageCanonStore(deps: PassageCanonDeps): PassageCanonSto
   }
 
   async function build(): Promise<PassageCanon> {
+    // Sequential on purpose: loadIndex() reconciles the cache bucket against the corpus revision.
     const index = await deps.loadIndex();
-    const data = new Map<number, BookData>();
-    await mapLimited(index.books, concurrency, async (meta) => {
-      data.set(meta.n, await deps.loadBook(version, meta.n));
-    });
-    // Fails closed on any missing book / chapter-count disagreement (see passageCanon.ts).
-    return buildPassageCanon(index.books, (n) => data.get(n));
+    const counts = parseCanonCounts(await deps.loadCanonCounts(), index);
+    // Fails closed on any missing book / chapter-count disagreement / non-positive-integer count.
+    return buildPassageCanonFromCounts(index.books, counts);
   }
 
   function load(): Promise<PassageCanon> {
@@ -150,7 +166,7 @@ export function createPassageCanonStore(deps: PassageCanonDeps): PassageCanonSto
 let defaultStore: PassageCanonStore | null = null;
 
 export function getDefaultPassageCanonStore(): PassageCanonStore {
-  defaultStore ??= createPassageCanonStore({ loadIndex, loadBook });
+  defaultStore ??= createPassageCanonStore({ loadIndex, loadCanonCounts });
   return defaultStore;
 }
 

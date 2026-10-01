@@ -54,6 +54,40 @@ export function buildPassageCanon(
   });
 }
 
+/**
+ * PICKERCANON-001 — builds the canon from index.json's `books` plus a
+ * precomputed per-book verse-count table (`public/bible/canon.json`), without
+ * loading any book text. Same fail-closed contract as `buildPassageCanon`:
+ * a missing book, a chapter count that disagrees with the index, or a count
+ * that is not a positive integer throws.
+ */
+export function buildPassageCanonFromCounts(
+  books: readonly BookMeta[],
+  verseCounts: (book: number) => readonly number[] | undefined,
+): PassageCanon {
+  return books.map((meta) => {
+    const counts = verseCounts(meta.n);
+    if (!counts) throw new Error(`no verse counts for book ${meta.n} (${meta.name})`);
+    if (counts.length !== meta.chapters) {
+      throw new Error(
+        `book ${meta.n} (${meta.name}): index says ${meta.chapters} chapters, counts have ${counts.length}`,
+      );
+    }
+    counts.forEach((count, i) => {
+      if (!Number.isInteger(count) || count < 1) {
+        throw new Error(`book ${meta.n} (${meta.name}) chapter ${i + 1}: invalid verse count ${String(count)}`);
+      }
+    });
+    return {
+      n: meta.n,
+      name: meta.name,
+      abbr: meta.abbr,
+      testament: meta.testament,
+      verseCounts: [...counts],
+    };
+  });
+}
+
 export function findBook(canon: PassageCanon, book: number): PassageCanonBook | undefined {
   return canon.find((candidate) => candidate.n === book);
 }
