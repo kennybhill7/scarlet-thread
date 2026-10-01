@@ -43,6 +43,7 @@ import { buildPassageCanon, toCanonTable } from "@/lib/bible/passageCanon";
 import type { CanonTable } from "@/lib/bible/range";
 
 import { unresolvedLessonConnectionIds, validateConnectionSet, type ConnectionFileRow, type ConnectionSetResult } from "./connectionSchema";
+import { lintLensFile } from "./lensLint";
 import { unresolvedLessonPlaceIds, validatePlaceSet, type CompiledPlace, type PlaceSetResult } from "./placeSchema";
 import { parseLessonFrontmatter, VERDICT_PATTERNS, type LessonFrontmatter, type VerdictPattern } from "./schema";
 
@@ -452,6 +453,9 @@ export function validateLessonSource(filePath: string, raw: string): LessonValid
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 export const CURRICULUM_DIR = path.join(SCRIPT_DIR, "..", "..", "..", "content", "curriculum");
 
+/** MOUNTAINWHY-001 — `content/lens/eleven-stages.json`, sibling of `content/curriculum/`. */
+export const LENS_STAGES_PATH = path.join(SCRIPT_DIR, "..", "..", "..", "content", "lens", "eleven-stages.json");
+
 /** Recursively lists every `.md` file under `dir`, sorted for deterministic
  * output. A missing `dir` (the honest starting state: no `content/`
  * directory exists yet) returns `[]`, never throws — an empty curriculum is
@@ -692,6 +696,16 @@ async function main(): Promise<void> {
   for (const error of connectionErrors) console.log(`FAIL connections: ${error}`);
   for (const error of placeErrors) console.log(`FAIL places: ${error}`);
 
+  // MOUNTAINWHY-001 — PRODUCT_EXPERIENCE_PLAN §G4's own fix: "Extend
+  // validate.ts lint to ... stage titles (stages.json moved into content/)".
+  const lensMatches = lintLensFile(LENS_STAGES_PATH);
+  for (const match of lensMatches) {
+    console.log(
+      `FAIL lens: ${match.slug} ${match.field}${match.field === "summary" ? ` line ${match.line}` : ""} reads ` +
+        `like a doctrinal verdict (pattern "${match.patternId}": "${match.excerpt}")`,
+    );
+  }
+
   console.log("");
   console.log(`${results.filter((result) => result.ok).length}/${results.length} lesson file(s) valid.`);
   console.log(
@@ -700,8 +714,9 @@ async function main(): Promise<void> {
       : `${connectionErrors.length} connection error(s).`,
   );
   console.log(placeErrors.length === 0 ? `${places.length} place(s) valid.` : `${placeErrors.length} place error(s).`);
+  console.log(lensMatches.length === 0 ? "Lens content: no assertion-line lint hits." : `${lensMatches.length} lens lint error(s).`);
 
-  if (!ok) process.exitCode = 1;
+  if (!ok || lensMatches.length > 0) process.exitCode = 1;
 }
 
 const isMainModule = process.argv[1] !== undefined && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
