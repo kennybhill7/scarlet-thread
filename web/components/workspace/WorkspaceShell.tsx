@@ -145,6 +145,23 @@ export interface WorkspaceShellProps {
    * mechanism, ever.
    */
   curatedLesson?: PublishedLessonMatch | null;
+  /**
+   * STUDYOFFLINE-001 — acceptance criterion 3 ("curated content shows an
+   * honest 'not downloaded' state offline"). `curatedLesson` above is always
+   * a real, server-resolved value (possibly null, meaning "genuinely no
+   * lesson published for this passage" -- a DIFFERENT fact from "we could
+   * not check"); this flag never changes what `curatedLesson` means, it only
+   * tells THIS shell whether that value can still be trusted as current. A
+   * caller (`StudyPageClient.tsx`) that detects the device went offline
+   * AFTER the server already supplied `curatedLesson` sets this to
+   * "unknown-offline" so the shell can say so plainly, rather than letting
+   * every child section's own "no curated content yet" copy (written for
+   * the genuinely-none case, see `ContextSection.tsx`'s own notices) stand
+   * in for an offline device that simply never asked. Defaults to "known" --
+   * every existing caller/test that never passes this prop renders exactly
+   * as before this task.
+   */
+  curatedLessonStatus?: "known" | "unknown-offline";
 }
 
 export function WorkspaceShell({
@@ -153,6 +170,7 @@ export function WorkspaceShell({
   claims: initialClaims = [],
   applications: initialApplications = [],
   curatedLesson = null,
+  curatedLessonStatus = "known",
 }: WorkspaceShellProps) {
   const [session, setSession] = useState(initialSession);
   const [claims, setClaims] = useState(initialClaims);
@@ -201,6 +219,14 @@ export function WorkspaceShell({
 
   return (
     <div data-testid="workspace-shell">
+      {curatedLessonStatus === "unknown-offline" ? (
+        <p style={noticeStyle} data-testid="curated-lesson-offline-notice" role="status">
+          You&rsquo;re offline. Curated lesson content below (Context, Positions, Literary
+          Design, Practice Bridge, Teach-Back, and connections) reflects what was already
+          loaded on this device &mdash; it has not been rechecked against the catalog. Your
+          own work here is saved on this device either way.
+        </p>
+      ) : null}
       {sections.map((section) => (
         <details key={section.step} open={section.expanded} style={sectionStyle} data-testid={`section-${section.step}`}>
           <summary style={summaryStyle}>
