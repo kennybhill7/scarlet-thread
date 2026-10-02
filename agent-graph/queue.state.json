@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-02T00:11:58.621Z",
+  "updatedAt": "2026-10-02T00:17:40.308Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1134,12 +1134,12 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 3:1-12 -- John the Baptist."
     },
     "MATT-U06": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/MATT-U06-claude",
+      "commitSha": "a4872f0",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-10-01 (a4872f0) into design/mountain-journey and master, both pushed. content/curriculum/matthew/06-the-baptism-of-jesus.md (Matthew 3:13-17, the baptism of Jesus), status draft, stage 6, 2 named positions (6 readings of fulfill all righteousness; 4 positions on what the divine voice is doing with Psalm 2/Isaiah 42). Genuinely new finding verified across 4 Greek primary texts: the Septuagint Isaiah 42:1 shares none of Matt 3:17s distinctive vocabulary, but Matthews own later 12:18 translation does -- meaning the popular Isaiah-42 echo claim is really about Matthews own consistent translation choices. 4 new connections (Psalm 2:7 strong, Isaiah 42:1 strong, Mark 1:9-11 strong, Luke 3:21-22 strong), 16 new source-registry entries. Independently re-verified: spot-checked all 5 verses of Matthew 3:13-17 plus 3:11/3:6/27:4/27:19/27:24/12:18, Mark 1:9-11, Luke 3:21-22 against the real shipped corpus (exact matches including the critical third-person/second-person distinction), grepped for banned phrases (zero hits), resolved all 16 source refs (zero missing), confirmed zero duplicate ids across the full 236-entry registry, ran content:validate clean (15/15 lessons, 57 connections, 1259 places), ran the full test suite (same pre-existing pattern, unrelated), ran a real adversarial mutation (confirmed genuine validator failure, reverted). Clean merge, no registry conflict (agent had already rebased onto latest design/mountain-journey itself), no filename collision.",
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 3:13-17 -- The baptism of Jesus."
     },
     "MATT-U07": {
