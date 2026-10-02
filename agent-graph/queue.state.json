@@ -1072,13 +1072,13 @@
       "notes": "Registry conflict (348 HEAD vs 341 agent branch, pre-GEN-U12-merge base) resolved cleanly, zero overlap, 356 final. 23 of 30 pilot units merged."
     },
     "GEN-U14": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
-      "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 11:10-32 -- Genealogy from Shem to Terah and Abram."
+      "status": "done",
+      "branch": "agent/GEN-U14-claude",
+      "commitSha": "ca7be5f",
+      "attempts": 2,
+      "lastRunId": "ac46db971aaa18f9b",
+      "lastEvidence": "Merged eb5781c into design/mountain-journey, fast-forwarded to master. Genesis 11:10-32 Shem-to-Abram lesson + 2 connections + 11 registry entries. First attempt (2026-10-01) stalled on infrastructure watchdog timeout, zero commits; relaunched clean. Full independent verification: BSB quote check (Gen 11:10-32 all 23 verses + 10:25 + 12:4 + 5:8 + Luke 3:33-38 + Acts 7:2-5, all exact, including the Cainan-insertion and land-of-Chaldeans wording claims), banned-phrase grep clean, 11/11 sources + both connection sourceIds resolved against 393-entry registry (zero dupes), content:validate 26/26 lessons clean post-merge, full test suite baseline-only failures, adversarial mutation (Ur-identification verdict) confirmed genuine FAIL then reverted clean.",
+      "notes": "Unit 1 of 5 in final wave. 26 of 30 pilot units merged."
     },
     "GEN-U15": {
       "status": "pending",
