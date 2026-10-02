@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen7-swept-away-matthew24",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.7.6",
+    "end": "1.7.23"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.24.37",
+    "end": "40.24.39"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Matthew 24:37-39 names 'the days of Noah' and states plainly that people were 'oblivious, until the flood came and swept them all away' -- naming the specific event this passage narrates (7:6-23's rising waters and the destruction of 7:21-23), not a vaguer image. This app's own Genesis 6:1-8 lesson (conn-gen6-angels-2peter2's sibling discussion) deliberately declined to author this same verse as a connection for 6:1-8, reasoning that Jesus's point there concerns ordinary people's obliviousness before the flood arrived, not the 'sons of God' content specific to that unit. That reasoning cuts the other way here: 7:6-23 is the narrated arrival and destructive work of the flood itself -- 'the flood came' -- which is exactly the clause Jesus's analogy turns on. Graded explicit because the event is named, not merely alluded to; what Jesus draws from it (a warning about unpreparedness for a sudden future event) is his own stated application, reported here as his own point rather than this passage's.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen7-fire-2peter3",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.6.17",
+    "end": "1.7.23"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "61.3.5",
+    "end": "61.3.7"
+  },
+  "type": "type_antitype",
+  "evidenceLabel": "explicit",
+  "rationale": "2 Peter 3:5-7 states plainly that 'the world of that time perished in the flood' (v. 6) and sets that same past event, 'by that same word,' against a future destruction: 'the present heavens and earth are reserved for fire... kept for the day of judgment' (v. 7). This is Peter's own stated typological move -- the flood as precedent for a coming judgment by a different means -- not an inference this lesson supplies. Graded explicit rather than strong because Peter's own connective phrase ('by that same word') makes the parallel structure, not merely the shared vocabulary of judgment, part of his own argument. Peter's assumption that the flood destroyed 'the world of that time' in a totalizing way bears on, but does not by itself settle, the global/local dispute this lesson reports in Positions.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
