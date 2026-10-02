@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt6-treasure-luke12",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.6.19",
+    "end": "40.6.21"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.12.33",
+    "end": "42.12.34"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Matthew 6:21 and Luke 12:34 are word-for-word identical in this app's own shipped BSB text: 'For where your treasure is, there your heart will be also.' That identical closing line sits inside two differently built sayings, a checkable divergence rather than a simple duplicate. Matthew 6:19-20 runs a two-part storing metaphor -- treasure on earth, vulnerable to moth, rust, and thieves (6:19, BSB), against treasure in heaven, immune to the same three threats (6:20, BSB) -- stated as a general contrast without a surrounding command to dispose of property. Luke 12:33 instead opens with a direct imperative, 'Sell your possessions and give to the poor,' and states the inexhaustible treasure in heaven as a stated consequence of that specific act, not as one half of an earth/heaven contrast. Matthew's version does not instruct selling possessions at this point in his own Gospel (that imperative appears later, addressed to one specific man, at Matthew 19:21); Luke's version states it as a general instruction to 'His disciples' (12:22, BSB) here. The type is parallel because both texts record a closely related saying without either naming or quoting the other by formula; the label is strong because the shared closing line is checkably verbatim while the surrounding material's real differences are also directly checkable against both Gospels' own shipped text, not asserted from memory.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

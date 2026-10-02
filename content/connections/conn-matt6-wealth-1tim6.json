@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt6-wealth-1tim6",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.6.19",
+    "end": "40.6.24"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "54.6.17",
+    "end": "54.6.19"
+  },
+  "type": "doctrinal_synthesis",
+  "evidenceLabel": "strong",
+  "rationale": "Paul instructs Timothy to tell 'those who are rich in the present age not to be conceited and not to put their hope in the uncertainty of wealth, but in God, who richly provides all things for us to enjoy' (1 Timothy 6:17, BSB) -- an independent apostolic instruction addressing the same practical question Matthew 6:19-24 addresses (where a person's trust and allegiance regarding money actually rest), stated without any formula citing Jesus's own Sermon on the Mount teaching. The two texts converge on the same conclusion from different starting points: Matthew states it as a stark either/or ('No one can serve two masters... You cannot serve both God and money,' 6:24, BSB), while Paul states it as a positive instruction about where hope is placed. A further, narrower wording resemblance sits inside this app's own shipped BSB English specifically: Matthew's 'store up for yourselves treasures in heaven' (6:20, BSB) and Paul's 'treasuring up for themselves a firm foundation for the future' (6:19, BSB) both render into English using the same 'treasure' root -- a resemblance in the BSB's own translation choices that was checked directly, though the underlying Greek vocabulary behind each English phrase was not independently verified here and may or may not share the same root; that check is unfinished and flagged in Sources and Limits. Graded doctrinal_synthesis because this is two authors independently teaching on the same subject rather than one text echoing or quoting the other, and strong rather than explicit because Paul never names or quotes Matthew's wording directly, though the thematic convergence (wealth's uncertainty, God as the one actually to be trusted, a future/heavenly payoff named in both) is as close as any two independently stated New Testament teachings on this subject get.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
