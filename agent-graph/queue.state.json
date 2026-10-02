@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-02T00:53:02.313Z",
+  "updatedAt": "2026-10-02T00:56:37.409Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1036,12 +1036,12 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 8:1-22 -- The flood recedes, Noah's altar."
     },
     "GEN-U10": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/GEN-U10-claude",
+      "commitSha": "c4139cb",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-10-01 (c4139cb) into design/mountain-journey and master, both pushed. content/curriculum/genesis/10-the-covenant-with-noah.md (Genesis 9:1-17, the Noahic covenant and rainbow), status draft, stage 3. 3 named positions handled with real, current scholarship: what 9:5-6 institutes about human capital punishment (Mastnjak's own 2023 article and Finlay's reply both read directly, not secondhand); whether this chapter's threefold heqim berith repetition is fresh evidence for the \"confirms a standing covenant\" reading of 6:18; and whether Acts 15:20/29's blood prohibition echoes Genesis 9:4 or rests on a pagan-cultic basis. 5 new connections (Genesis 1:28 strong, Genesis 4:15 motif strong independently re-verified, Isaiah 54:9 a deliberate second anchor alongside the existing Genesis 8 connection, Acts 15:20/29 strong, Romans 13:1-4 correctly graded plausible), 12 new source-registry entries. Independently re-verified: spot-checked all 17 verses of Genesis 9:1-17 plus Genesis 1:27-30, 15:18, Acts 15:20/29, Acts 25:11, Romans 13:1/13:4 against the real shipped corpus (exact matches including the three different English renderings of the identical Hebrew heqim verb), grepped for banned phrases (zero hits), resolved all 16 source refs (zero missing), confirmed zero duplicate ids across the full 333-entry registry, ran content:validate clean (21/21 lessons, 77 connections, 1259 places), ran the full test suite (same pre-existing pattern, unrelated), ran a real adversarial mutation (confirmed genuine validator failure, reverted). Merge conflict in source-registry.json was real but simple append-only (12 new ids, zero overlapping). This closes out wave 5 (4/4 lessons merged: MATT-U10, MATT-U08, GEN-U11, GEN-U10). 21 of 30 pilot units now done; 9 remain (GEN-U12-U15, MATT-U11-U15).",
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 9:1-17 -- God's covenant with Noah, the rainbow."
     },
     "GEN-U11": {
