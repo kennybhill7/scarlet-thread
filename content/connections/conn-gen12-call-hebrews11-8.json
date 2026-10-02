@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen12-call-hebrews11-8",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.12.1",
+    "end": "1.12.4"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "58.11.8",
+    "end": "58.11.10"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Hebrews 11:8 (BSB) explicitly names the event this lesson's own passage narrates: 'By faith Abraham, when called to go to a place he would later receive as his inheritance, obeyed and went, without knowing where he was going' -- a close paraphrase of the LORD's own words at Genesis 12:1 ('go to the land I will show you') and of 12:4's own report that 'Abram departed, as the LORD had directed him.' Hebrews 11:9-10 continues the same thought, naming Abraham's tent-dwelling as a stranger and his hope for 'the city with foundations, whose architect and builder is God.' A real, checkable textual fact sits alongside this commendation: Hebrews 11:8-19's entire treatment of Abraham moves from the call (11:8) directly to Isaac's birth (11:11-12) and the offering of Isaac (11:17-19), never once naming the famine, Egypt, Pharaoh, or the episode this lesson's own Positions section treats at length (12:10-20). That silence is reported here as a checkable feature of what Hebrews 11 does and does not mention, not as a claim about why the author of Hebrews chose that scope or about how the two passages should be weighed against each other. Graded explicit_reference because Hebrews names Abraham and the specific event (an unknowing departure toward a promised inheritance) without a citation formula or exact wording, and explicit because the event referred to is unambiguous -- no other episode in Abraham's life fits Hebrews 11:8's own description.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
