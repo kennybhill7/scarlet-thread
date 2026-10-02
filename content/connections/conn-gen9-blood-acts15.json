@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen9-blood-acts15",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.9.4",
+    "end": "1.9.4"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "44.15.20",
+    "end": "44.15.29"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "Acts 15:20 and 15:29 (BSB) both instruct Gentile believers to abstain 'from blood' alongside 'the meat of strangled animals' -- a restriction with no basis in any law given to Israel alone, making Genesis 9:4's own blood restriction, given to all of Noah's descendants before any covenant with Israel, the only earlier canonical text stating a comparable restriction. Checked directly against the aggregated classic commentaries on Acts 15:20, Barnes names 'Genesis 9:4-6' directly, Gill traces the restriction to the same chapter, and the Cambridge Bible states 'the prohibition of blood was made as soon as animal food was given to men (Genesis 9:4).' Graded allusion rather than quotation because the apostles' letter names no earlier text, and strong rather than explicit because the tie is not unanimous among named interpreters: a secondary source reports F. F. Bruce's commentary on Acts stating 'the prohibition goes back to Gen. 9:4,' while the same source reports Ben Witherington's commentary reading the same clause as directed against blood consumed in pagan temple worship instead, a different account not anchored to Genesis 9 -- both scholars' own commentaries were not independently read for this lesson, only the secondary source's citation of each.",
+  "sourceId": "source-biblehub-commentary-acts-15-20",
+  "viewpointId": null
+}

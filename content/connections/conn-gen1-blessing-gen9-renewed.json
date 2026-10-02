@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen1-blessing-gen9-renewed",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.1.26",
+    "end": "1.1.30"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.9.1",
+    "end": "1.9.7"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Genesis 9:1 and 9:7 repeat 1:28's command, 'Be fruitful and multiply and fill the earth' (BSB), and 9:6's rationale for valuing human life, 'in His own image God has made mankind,' reuses 1:27's own wording for the same claim, 'God created man in His own image' -- both recurrences are directly checkable against the shipped BSB text of all four verses, with no citation formula linking them. Graded parallel rather than quotation because the verbal overlap is partial restatement, not word-for-word reproduction with an attribution formula, and rather than contrast_reversal because the core blessing is restated, not reversed -- though real differences surround it: 9:2's 'fear and dread of you will fall on every living creature... delivered into your hand' replaces 1:28's unqualified 'rule over' as the stated mechanism of dominion, and 9:3-4 narrows 1:29-30's plant-only diet by adding animal flesh under a new blood restriction neither verse in Genesis 1 had occasion to state. Graded strong rather than explicit because the recurrence is a textual fact a reader can verify directly against the BSB corpus, not something either passage names as a citation of the other.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

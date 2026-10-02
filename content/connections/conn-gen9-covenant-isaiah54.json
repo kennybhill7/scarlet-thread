@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen9-covenant-isaiah54",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.9.11",
+    "end": "1.9.11"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.54.9",
+    "end": "23.54.9"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "Isaiah 54:9 (BSB) recalls 'the days of Noah, when I swore that the waters of Noah would never again cover the earth,' wording closer to 9:11's own covenant statement, 'never again will there be a flood to destroy the earth,' than to 8:21's different verb and subject, 'never again will I destroy all living creatures.' This curriculum's Genesis 8:1-22 lesson already authored a connection from 8:21-22 to this same verse (conn-gen8-promise-isaiah54) and flagged, as its own Question to Carry, which Genesis anchor is more precise; re-checked directly on this pass against the same aggregator page, Ellicott's and Matthew Poole's commentaries on Isaiah 54:9 name 9:11 specifically ('Genesis 9:11 speaks of a covenant'; 'this covenant... as that which I made with Noah... of which see Genesis 9:11'), Gill's names 9:9, and only Barnes' names 8:21-22, with the Cambridge Bible citing both. Graded allusion rather than quotation because Isaiah paraphrases rather than quotes either verse verbatim, and strong rather than explicit because named commentators are not unanimous about which Genesis verse Isaiah's oath most precisely echoes -- this connection is authored from 9:11, alongside the earlier lesson's own connection from 8:21-22, because more of the commentators consulted on this pass name 9:9/9:11 specifically, not because the dispute is resolved.",
+  "sourceId": "source-biblehub-commentary-isaiah-54-9",
+  "viewpointId": null
+}
