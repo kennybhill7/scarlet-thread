@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt6-fasting-isaiah58",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.6.16",
+    "end": "40.6.18"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.58.1",
+    "end": "23.58.7"
+  },
+  "type": "motif",
+  "evidenceLabel": "plausible",
+  "rationale": "Matthew 6:16-18 criticizes fasting performed to be seen by other people -- 'they disfigure their faces to show men they are fasting' (6:16, BSB). Isaiah 58 criticizes a different but related failure in fasting: going through recognizable outward motions -- 'to bow his head like a reed, and to spread out sackcloth and ashes' (58:5, BSB) -- while continuing injustice toward workers and neighbors, and calls instead for a fast that 'break[s] the chains of wickedness' and feeds the hungry (58:6-7, BSB). The two passages target different problems with fasting -- Matthew's concerns a human audience, Isaiah's concerns an unchanged life running alongside the ritual -- so this is reported as a shared motif (a recurring critique of outward religious performance divorced from its own stated purpose), not a quotation or an explicit reference; Matthew's text does not name Isaiah or use a citation formula. No named scholar consulted for this lesson was found arguing that Matthew's wording intends a deliberate echo of Isaiah 58 specifically, so the label is plausible rather than strong, resting on this lesson's own reading of both passages' shipped text side by side.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
