@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt7-gracefaith-eph2",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.7.21",
+    "end": "40.7.23"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "49.2.8",
+    "end": "49.2.10"
+  },
+  "type": "doctrinal_synthesis",
+  "evidenceLabel": "strong",
+  "rationale": "Where the connection to James 2:14-26 states the claim-versus-deed structure Matthew 7:21 shares with James, this connection states the other half of the same underlying tension this lesson's Positions section reports across traditions: Ephesians 2:8-10 states in one short unit both that salvation is \"not by works, so that no one can boast\" (2:9, BSB) and that believers are \"created in Christ Jesus to do good works, which God prepared in advance as our way of life\" (2:10, BSB) -- checked directly against this app's own shipped BSB text. Matthew 7:21-23 states a consequence for the one who does not do \"the will of My Father\" (7:21, BSB) without itself stating whether that doing is the ground of entering the kingdom or the evidence of a prior, freely given standing; Ephesians 2:8-10 is the sharper NT statement of exactly that distinction (grace received apart from works; good works that follow it), which is why this lesson's Positions section cites it rather than treating it as a restatement of the James 2 connection. Graded doctrinal_synthesis rather than parallel because the connection is between two authors' respective teachings on how grace, faith, and works relate to each other, not a shared image or scene; strong rather than explicit because no citation formula links the two texts, though the conceptual precision of Ephesians 2:8-10 on this exact question is substantial and checkable.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

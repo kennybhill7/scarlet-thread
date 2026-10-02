@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt7-builders-luke6",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.7.21",
+    "end": "40.7.27"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.6.46",
+    "end": "42.6.49"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Luke 6:46-49 carries both the \"Lord, Lord\" address Matthew places at 7:21 (\"Why do you call Me 'Lord, Lord,' but not do what I say?\" 6:46, BSB) and the wise/foolish builder parable Matthew places at 7:24-27, compressed into one short unit where Matthew runs two -- a real, checkable structural difference in how each Gospel arranges the same material, not an argument about which arrangement is earlier. The builder parable itself carries close but not identical wording, checked directly against this app's own shipped BSB text: Luke's wise builder \"dug down deep and laid his foundation on the rock\" (6:48, BSB), naming a process Matthew's parallel line does not mention (\"built his house on the rock,\" 7:24, BSB, states only the result); Luke's foolish builder built \"on ground without a foundation\" (6:49, BSB) rather than Matthew's \"on sand\" (7:26, BSB) -- no foundation at all, against an unstable one. The storm itself differs too: Luke narrates one hazard, \"the flood came, the torrent crashed\" (6:48, BSB), while Matthew narrates three, \"the rain fell, the torrents raged, and the winds blew\" (7:25, BSB). Graded parallel rather than quotation because no citation formula links the two accounts, and strong rather than explicit because the shared parable and shared \"Lord, Lord\" address are substantial while the specific wording, structure, and disaster imagery are real, checkable differences between the two Gospels' own text.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
