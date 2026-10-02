@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-02T00:49:29.455Z",
+  "updatedAt": "2026-10-02T00:53:02.313Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1045,12 +1045,12 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 9:1-17 -- God's covenant with Noah, the rainbow."
     },
     "GEN-U11": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/GEN-U11-claude",
+      "commitSha": "aa7da53",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-10-01 (aa7da53) into design/mountain-journey and master, both pushed. content/curriculum/genesis/11-noahs-sons.md (Genesis 9:18-29, Noah's drunkenness, Ham's sin, the Curse of Ham passage), status draft, stage 3. Handles this curriculum's most historically sensitive material to date with real discipline: names the racist misreading's actual historical use (Josiah Priest 1843, Benjamin Morgan Palmer, Andrew Fuller's own sermon quoted directly) and its real historical refutation by Black writers at the time (Pennington 1841, Crummell 1850/1863, Tanner 1869, G.W. Williams 1882) plus modern refutation (Goldenberg, Cambridge Bible, the 1998 Dutch Reformed Church synod statement), then states the plain textual case (Canaan named 3x, never Ham; no race/ethnicity/continent word anywhere in the passage) as settled, not one more position to weigh. 3 further named positions (4 readings of Ham's offense including the Talmudic castration/sodomy dispute quoted directly from Sefaria; 4 non-exclusive answers to why Canaan is cursed; the dwell-in-the-tents-of-Shem grammatical ambiguity). 2 new connections (Leviticus 18:6-8 plausible, Joshua 9:23 strong), 19 new source-registry entries. Independently re-verified with particular attention to historical/textual accuracy: spot-checked all 12 verses of Genesis 9:18-29 plus 10:6, 10:21, 9:1, Leviticus 18:6-8, Joshua 9:23 against the real shipped corpus (exact matches including the critical thrice-repeated Canaan-never-Ham naming), grepped for banned phrases (zero hits), resolved all 20 source refs (zero missing), confirmed zero duplicate ids across the full 321-entry registry, ran content:validate clean (20/20 lessons, 72 connections, 1259 places), ran the full test suite (same pre-existing pattern, unrelated), ran a real adversarial mutation using the exact racist misreading this lesson exists to refute (confirmed genuine validator failure, reverted). Merge conflict in source-registry.json was real but simple append-only (19 new ids, zero overlapping).",
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 9:18-29 -- Noah's drunkenness and Ham's sin."
     },
     "GEN-U12": {
