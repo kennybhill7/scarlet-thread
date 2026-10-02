@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt7-judging-luke6",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.7.1",
+    "end": "40.7.5"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.6.37",
+    "end": "42.6.42"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Matthew's \"Do not judge, or you will be judged\" (7:1, BSB) and Luke's Sermon on the Plain both open on judgment, but Luke's wording is fuller at this specific point: \"Do not judge, and you will not be judged. Do not condemn, and you will not be condemned. Forgive, and you will be forgiven\" (6:37, BSB) -- a three-part set Matthew's own text does not carry at 7:1. The measure clause is close but not identical: Matthew has \"with the measure you use, it will be measured to you\" (7:2, BSB); Luke has \"with the measure you use, it will be measured back to you\" (6:38, BSB), adding \"back\" where Matthew's own wording does not. The speck-and-beam saying that follows is the most tightly matched material in this pair: \"Why do you look at the speck in your brother's eye, but fail to notice the beam in your own eye?\" (7:3, BSB) is close to word for word identical to Luke's \"Why do you look at the speck in your brother's eye, but fail to notice the beam in your own eye?\" (6:41, BSB), and the hypocrite-rebuke sentence that closes each version (7:5; 6:42, both BSB) matches as well. The type is parallel (two Gospel records of the same teaching material, neither quoting the other by formula); the label is strong because both the close verbal overlap and the specific points where the two versions diverge (Luke's three-part judge/condemn/forgive set; the \"back\" in Luke's measure clause) are both directly checkable against each Gospel's own shipped BSB text.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt7-judging-james4",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.7.1",
+    "end": "40.7.2"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "59.4.11",
+    "end": "59.4.12"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "James states a near-identical instruction to Matthew 7:1's \"Do not judge, or you will be judged\" (BSB), in his own words and his own letter's own setting: \"Brothers, do not slander one another. Anyone who speaks against his brother or judges him speaks against the law and judges it... There is only one Lawgiver and Judge, the One who is able to save and destroy. But who are you to judge your neighbor?\" (James 4:11-12, BSB). Both texts forbid judging a \"brother\" or \"neighbor\" and both ground the prohibition in something higher than the judger's own standing -- Matthew in the judgment the judger will himself receive (7:2), James in \"the law\" and in God as \"the only... Lawgiver and Judge.\" James's letter carries no citation formula naming Jesus's own saying, and his closing question (\"who are you to judge your neighbor?\") is his own construction, not a quotation of Matthew's wording. The type is parallel rather than quotation for that reason; the label is strong because the shared word \"judge,\" the shared concern for a \"brother\"/\"neighbor,\" and the shared move of grounding the prohibition in a higher authority are all directly checkable in both texts' own BSB wording.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
