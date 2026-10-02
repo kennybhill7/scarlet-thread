@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-02T00:20:58.701Z",
+  "updatedAt": "2026-10-02T00:24:35.544Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1027,12 +1027,12 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 6:9-7:24 -- Noah builds the ark, the flood comes."
     },
     "GEN-U09": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/GEN-U09-claude",
+      "commitSha": "bfa9210",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-10-01 (bfa9210) into design/mountain-journey and master, both pushed. content/curriculum/genesis/09-the-flood-recedes.md (Genesis 8:1-22, the flood recedes, Noahs altar), status draft, stage 3. 5 named positions (3 traditions on mountains of Ararat; 2 readings of the raven/dove sequence; whether the chronology is a real calendar or schematic; whether 8:20 is really the first altar or merely the first named; the inclusio open question, developed not resolved). 3 new connections (Genesis 6:5 motif/strong completing the inclusio, Isaiah 54:9 allusion/strong, 2 Peter 3:5-7 parallel/strong), 22 new source-registry entries. Independently re-verified: spot-checked all 22 verses of Genesis 8:1-22 plus Hosea 7:11, Isaiah 54:9, 2 Peter 3:5-7 against the real shipped corpus (exact matches), grepped for banned phrases (zero hits), resolved all 23 source refs (zero missing), confirmed zero duplicate ids across the full 277-entry registry, ran content:validate clean (17/17 lessons, 64 connections, 1259 places), ran the full test suite (same pre-existing pattern, unrelated), ran a real adversarial mutation (confirmed genuine validator failure, reverted). Merge conflict in source-registry.json was real but simple append-only (22 new ids, zero overlapping). This closes out wave 4 (4/4 lessons merged: MATT-U07, MATT-U06, GEN-U08, GEN-U09). 17 of 30 pilot units now done; 13 remain (GEN-U10-U15, MATT-U08/U10-U15).",
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 8:1-22 -- The flood recedes, Noah's altar."
     },
     "GEN-U10": {
