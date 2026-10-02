@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt6-lordsprayer-luke11",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.6.9",
+    "end": "40.6.13"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.11.2",
+    "end": "42.11.4"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Matthew's version of the Lord's Prayer (6:9-13, BSB) and Luke's (11:2-4, BSB) share several petitions word for word -- both have 'hallowed be Your name,' 'Your kingdom come,' and 'lead us not into temptation' -- but Luke's is checkably shorter and plainer at several specific points. Matthew opens 'Our Father in heaven' (6:9, BSB); Luke opens with the single word 'Father' (11:2, BSB), with neither 'Our' nor 'in heaven'. Luke has no 'Your will be done, on earth as it is in heaven' petition and no 'but deliver us from the evil one' clause, and it asks forgiveness for 'our sins' (11:4, BSB) rather than Matthew's 'our debts' (6:12, BSB). Scholars disagree about which direction these differences run: Jeremias reads Matthew's fuller form as a liturgically expanded version of an originally shorter prayer close to Luke's own wording, while Goulder, Mosbo, and Olson read Luke's shorter form instead as a later reworking that trims Matthew's fuller text. This connection reports both proposed directions without choosing one. The type is parallel (two Gospel records of the same teaching moment, neither quoting the other by formula) and the label is strong because the shared and the differing wording are both directly checkable against both Gospels' own shipped text.",
+  "sourceId": "source-wikipedia-lords-prayer",
+  "viewpointId": null
+}
