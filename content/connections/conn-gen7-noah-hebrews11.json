@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen7-noah-hebrews11",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.6.13",
+    "end": "1.6.22"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "58.11.7",
+    "end": "58.11.7"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Hebrews 11:7 names Noah directly and reproduces the shape of 6:13-22's own content in miniature: a warning given before any rain had fallen ('warned about things not yet seen'), the building of the ark, and the stated purpose of saving his household ('to save his family,' matching 6:18's 'you and your sons and your wife and your sons' wives with you'). Graded explicit because Hebrews names the person and the specific acts, not merely an image or theme. 'By faith,' 'in godly fear,' and 'he condemned the world' are Hebrews's own interpretive additions -- words this lesson's own Context and Positions sections do not find in Genesis 6's stated wording -- and are reported here as Hebrews's contribution, not Genesis 6's own statement.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen7-baptism-1peter3",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.7.1",
+    "end": "1.7.16"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "60.3.20",
+    "end": "60.3.21"
+  },
+  "type": "type_antitype",
+  "evidenceLabel": "explicit",
+  "rationale": "1 Peter 3:20-21 names the specific event ('a few people, only eight souls, were saved through water') and uses Peter's own word for a designed correspondence -- the Greek antitypon, rendered 'symbolizes' in the BSB -- to state that baptism is the thing Noah's deliverance through water corresponds to. Graded explicit because the correspondence is Peter's own stated claim, using his own technical vocabulary for it (the same word, antitypos, appears elsewhere in the New Testament only at Hebrews 9:24). This connection is deliberately narrower than, and does not duplicate, this app's existing conn-gen6-spirits-1peter3 (authored for Genesis 6:1-8): that connection grades the preceding clause, 'spirits in prison... in the days of Noah' (3:19-20), at 'plausible' because its bearing on the sons-of-God identity question is itself disputed; this connection addresses only 3:20's 'saved through water' and 3:21's baptism-typology clause, which make their own point about Noah's own deliverance regardless of how that separate dispute is resolved.",
+  "sourceId": "source-biblehub-greek-antitypos-499",
+  "viewpointId": null
+}
