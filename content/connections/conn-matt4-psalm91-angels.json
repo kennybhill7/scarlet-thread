@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt4-psalm91-angels",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.4.6",
+    "end": "40.4.6"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "19.91.11",
+    "end": "19.91.12"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "The devil introduces this quotation with his own citation formula, \"For it is written\" (4:6), and quotes Psalm 91:11-12 -- the only place in this unit where the devil, rather than Jesus, cites Scripture. Checked directly against both texts as shipped in this app, the devil's quotation reproduces \"He will command His angels concerning you\" (91:11a) and \"they will lift you up in their hands, so that you will not strike your foot against a stone\" (91:12), but does not reproduce the clause between them, \"to guard you in all your ways\" (91:11b) -- the Psalm's own description of protection in the course of ordinary conduct. The label stays explicit because the citation formula and the quoted wording are both unambiguous; which words are and are not reproduced is a directly checkable textual fact reported here, separate from any claim about why the devil quotes the verse this way, which this lesson's Context section attributes to a named scholarly reading rather than asserting on its own.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

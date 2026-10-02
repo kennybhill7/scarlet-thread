@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt4-deut6-worship",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.4.10",
+    "end": "40.4.10"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "5.6.13",
+    "end": "5.6.13"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Jesus introduces this quotation with \"It is written\" (4:10) and quotes Deuteronomy 6:13, but the main verb changes: Matthew's Greek text reads \"you shall worship\" (proskyneseis), while both the Hebrew text behind this app's English Deuteronomy rendering (\"Fear the LORD your God\") and the Septuagint's own Greek text of this verse (phobethese, \"you shall fear\") read \"fear,\" not \"worship\" -- checked directly against the Septuagint Greek, the substitution matches neither source text available for this lesson. The substituted verb, proskyneseis, is the identical Greek word the devil has just used one verse earlier (4:9, \"if you will fall down and worship [proskyneseis] me\"), a directly checkable verbal echo. Matthew's quotation keeps Deuteronomy's clause \"serve Him only\" word for word in this app's English texts of both passages, but does not reproduce Deuteronomy's third clause about oaths (\"and take your oaths in His name\"). The label stays explicit because this is still an unambiguous, formula-introduced citation of Deuteronomy 6:13, not an unmarked allusion -- the verb substitution is a feature of the citation reported here, not a reason to downgrade the label.",
+  "sourceId": "source-blb-lxx-deuteronomy-6-13",
+  "viewpointId": null
+}
