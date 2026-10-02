@@ -1063,13 +1063,13 @@
       "notes": "Directly fulfills GEN-U11 deferral on Ham's sons. 22 of 30 pilot units merged."
     },
     "GEN-U13": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
-      "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 11:1-9 -- The Tower of Babel."
+      "status": "done",
+      "branch": "agent/GEN-U13-claude",
+      "commitSha": "9ce6f77",
+      "attempts": 1,
+      "lastRunId": "adccb55b3994130f8",
+      "lastEvidence": "Merged af59605 into design/mountain-journey, fast-forwarded to master. Genesis 11:1-9 Tower of Babel lesson + 2 connections + 9 registry entries. Full independent verification: BSB quote check (Gen 11:1-9 all verses + Zeph 3:9 + Acts 2:1-11, all exact), banned-phrase grep clean, 9/9 sources + both connection sourceIds resolved against registry (zero dupes), content:validate 23/23 lessons clean post-merge, full test suite baseline-only failures, adversarial mutation (pride-verdict on the Babel/balal wordplay) confirmed genuine FAIL then reverted clean.",
+      "notes": "Registry conflict (348 HEAD vs 341 agent branch, pre-GEN-U12-merge base) resolved cleanly, zero overlap, 356 final. 23 of 30 pilot units merged."
     },
     "GEN-U14": {
       "status": "pending",
