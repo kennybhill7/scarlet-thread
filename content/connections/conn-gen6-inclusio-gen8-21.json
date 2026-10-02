@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen6-inclusio-gen8-21",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.6.5",
+    "end": "1.6.5"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.8.21",
+    "end": "1.8.21"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "6:5's diagnosis, 'every inclination of the thoughts of his heart was altogether evil all the time' (BSB), and 8:21's 'every inclination of his heart is evil from his youth' (BSB) share the rare word 'inclination' (yetser) and near-identical wording, directly checkable against the shipped BSB text of both verses, bracketing the entire flood narrative with the same diagnosis of humanity's heart. Graded motif rather than quotation or allusion because no citation formula links the two verses -- the recurrence is a traceable word and clause doing narrative work across a unit, not a later text naming an earlier one. Graded strong rather than explicit because what the recurrence is for -- why the same diagnosis produces a judgment in 6:7 and a promise in 8:21 -- is not settled by the repetition itself; this curriculum's Genesis 6:1-8 lesson left that question open as a Question to Carry, and the Genesis 8:1-22 lesson develops it further without resolving it.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

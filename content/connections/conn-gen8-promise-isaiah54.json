@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen8-promise-isaiah54",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.8.21",
+    "end": "1.8.22"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.54.9",
+    "end": "23.54.9"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "Isaiah 54:9 (BSB) names 'the days of Noah' directly and recalls an oath 'that the waters of Noah would never again cover the earth,' applying that oath to a different, later situation (the exile) without using a citation formula. Graded allusion rather than quotation because Isaiah paraphrases the oath in his own words rather than quoting Genesis verbatim; graded strong rather than explicit because named commentators disagree about which verse the oath most precisely echoes -- Barnes' Notes ties it to Genesis 8:21-22's own wording and the fact that the promise there 'had been kept,' while Ellicott's Commentary ties the 'covenant' language instead to 9:11, just past this lesson's own passage boundary. Both anchors are real and named; this connection is authored from 8:21-22 because that is where the promise's content first appears in the narrative this lesson covers, not because the dispute over the more precise anchor is resolved.",
+  "sourceId": "source-biblehub-commentary-isaiah-54-9",
+  "viewpointId": null
+}

@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen8-fire-2peter3",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.8.20",
+    "end": "1.8.22"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "61.3.5",
+    "end": "61.3.7"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "2 Peter 3:5-7 (BSB) states, in its own words, that 'by that same word' the pre-flood world 'perished in the flood' and 'the present heavens and earth are reserved for fire,' explicitly structuring a past judgment by water against a future judgment by a different means. Graded parallel rather than type and antitype because Peter does not use formal typological vocabulary (contrast the Genesis 3 lesson's Romans 5 connection, where Paul's own word 'pattern' is present); graded strong rather than explicit because, while the structural comparison itself is in Peter's own words, he does not cite Genesis 8:21's specific 'never again' wording, so the further inference some readers draw -- that the flood's own promise is why the next judgment must come by fire rather than water -- is a reader's synthesis of both texts, not either text's own stated argument.",
+  "sourceId": "source-redemptivehistorytheology-reserved-for-fire-2peter3",
+  "viewpointId": null
+}
