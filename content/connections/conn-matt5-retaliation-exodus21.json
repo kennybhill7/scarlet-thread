@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt5-retaliation-exodus21",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.5.38",
+    "end": "40.5.38"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "2.21.24",
+    "end": "2.21.24"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Matthew 5:38's citation formula, \"You have heard that it was said,\" introduces \"Eye for eye and tooth for tooth\" (BSB), which matches Exodus 21:24's wording exactly in this app's own translation. The same formula is repeated at Leviticus 24:20 and Deuteronomy 19:21, which this connection does not separately target, since all three state the same proportional-retribution principle; Exodus is used here as the Torah's earliest giving of it in canonical order. Graded explicit for the same reason as the murder citation above: Matthew's own formula names a quotation directly, independent of which specific Torah location an original hearer would have supplied first.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

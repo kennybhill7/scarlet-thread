@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt5-divorce-1cor7",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.5.31",
+    "end": "40.5.32"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "46.7.10",
+    "end": "46.7.15"
+  },
+  "type": "doctrinal_synthesis",
+  "evidenceLabel": "strong",
+  "rationale": "Paul explicitly invokes dominical authority at 1 Corinthians 7:10-11 (\"not I, but the Lord\") for an instruction that tracks Matthew 5:32's own no-divorce principle, then explicitly shifts to his own apostolic instruction at 7:12-15 (\"I, not the Lord\") for a case Matthew 5:31-32 does not address at all: a believer married to an unbeliever who chooses to leave, for whom Paul states \"the believing brother or sister is not bound in such cases\" (7:15, BSB). This is a checkable, two-part textual move -- Paul naming which parts of his instruction he attributes to the Lord's own teaching and which to his own apostolic judgment -- not an argument this lesson is making about whether 7:15 should be read as a third ground for divorce alongside 5:32's \"except for sexual immorality.\" Graded doctrinal_synthesis because the connection is between two authors' respective teachings on the same subject rather than a literary echo, and strong rather than explicit because Paul never quotes or names Matthew's own wording directly.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
