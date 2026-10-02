@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt5-salt-luke14",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.5.13",
+    "end": "40.5.13"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.14.34",
+    "end": "42.14.35"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Matthew 5:13 and Luke 14:34-35 share a near-identical opening clause -- \"if the salt loses its savor\" (BSB, word for word in both) -- but Luke places the saying inside Jesus's teaching on the cost of discipleship to large crowds (Luke 14:25), not the Sermon on the Mount, and extends the image with agricultural detail Matthew does not have: worthless salt is \"fit neither for the soil nor for the manure pile\" (Luke 14:35, BSB). Anthony Bradley reads this detail as evidence salt was used as a fertilizer in the period; Ken Montgomery (Themelios) disputes that specific reading, citing W. F. Albright and C. S. Mann's point that oversalination destroys soil fertility, and argues the image instead shows worthless salt has no agricultural use at all, not that good salt served as a fertilizer additive. This lesson reports both readings without adjudicating between them. The core clause is a directly checkable near-verbatim match; neither Gospel cites the other, so the connection is a parallel saying, not a quotation.",
+  "sourceId": "source-themelios-montgomery-matt5-13-salt",
+  "viewpointId": null
+}

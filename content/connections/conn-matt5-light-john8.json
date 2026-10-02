@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt5-light-john8",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.5.14",
+    "end": "40.5.16"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "43.8.12",
+    "end": "43.8.12"
+  },
+  "type": "motif",
+  "evidenceLabel": "plausible",
+  "rationale": "Matthew 5:14 has Jesus tell His disciples, \"You are the light of the world\" (BSB); John 8:12 has Jesus say of Himself, \"I am the light of the world\" (BSB) -- the same four-word English phrase applied first to the disciples and later to Jesus Himself. The verbal match is exact and directly checkable against both texts as shipped. No named scholar located for this lesson explicitly argues that either Gospel writer intended a deliberate echo in either direction; the Wikipedia article on Matthew 5:14 consulted for the lesson was checked specifically for this and says nothing about John 8:12. The type is motif (a repeated image/phrase recurring across the canon, with no quotation formula in either direction) and the label is plausible rather than strong because the connection rests on this lesson's own observation of the shared wording, not on a cited intertextual argument.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt5-salt-mark9",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.5.13",
+    "end": "40.5.13"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.9.50",
+    "end": "41.9.50"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Matthew 5:13 and Mark 9:50 both record Jesus using the same core saying -- salt that \"loses its savor\"/\"loses its saltiness\" (BSB) needing to be made useful again -- in different settings: Matthew places it inside the Sermon on the Mount's direct address to disciples (\"You are the salt of the earth\"), while Mark places it immediately after the disciples argue about who is greatest, pivoting the saying toward \"Have salt among yourselves, and be at peace with one another\" (BSB), a call to peace within the group rather than Matthew's call to a visible identity before the world. Ken Montgomery (Themelios) reads Mark's version as pressing a covenant-fellowship, shalom-centered application distinct from Matthew's outward-facing one. The shared clause is close enough to check directly against both texts; neither Gospel quotes the other with a citation formula, so this is reported as a parallel saying, not a quotation.",
+  "sourceId": "source-themelios-montgomery-matt5-13-salt",
+  "viewpointId": null
+}
