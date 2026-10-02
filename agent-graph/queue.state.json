@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-01T23:51:09.005Z",
+  "updatedAt": "2026-10-02T00:11:58.621Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1143,12 +1143,12 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 3:13-17 -- The baptism of Jesus."
     },
     "MATT-U07": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/MATT-U07-claude",
+      "commitSha": "46a41f5",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-10-01 (46a41f5) into design/mountain-journey and master, both pushed. content/curriculum/matthew/07-the-temptation.md (Matthew 4:1-11, the Temptation), status draft, stage 6, 2 named positions (Adam/Israel typology scope; what kind of event the narrative claims to be, including an honestly disclosed research gap). Two genuine findings verified directly against the Septuagint Greek: the Deut 8:3 LORD/God gap traces to the LXX itself, not Matthew; the Deut 6:13 fear/worship substitution matches neither Hebrew nor LXX and reuses the devils own verb. 5 new connections (Deut 8:3/6:16/6:13 all explicit, Psalm 91:11-12 explicit, Hebrews 4:15 correctly downgraded to plausible), 13 new source-registry entries written in the established compact style (no formatting conflict this time -- the wave-3 process fix held). Independently re-verified: spot-checked all 11 verses of Matthew 4:1-11 plus Deut 8:3/6:16/6:13, Psalm 91:11-12, Luke 4:4/9/10/11/13, 1 Kings 19:5/19:8, Hebrews 4:15 against the real shipped corpus (exact matches including the corrected led-by-the-Spirit wording and every claimed omission/substitution), grepped for banned phrases (zero hits), resolved all 13 source refs (zero missing), confirmed zero duplicate ids across the full 221-entry registry, ran content:validate clean (14/14 lessons, 53 connections, 1259 places), ran the full test suite (same pre-existing pattern, unrelated), ran a real adversarial mutation (confirmed genuine validator failure, reverted). Clean merge, no registry conflict, no filename collision.",
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 4:1-11 -- The temptation in the wilderness."
     },
     "MATT-U08": {
