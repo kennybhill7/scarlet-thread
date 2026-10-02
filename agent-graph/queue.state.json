@@ -1179,13 +1179,13 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 5:13-20 -- Salt and light, Jesus and the Law."
     },
     "MATT-U11": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
-      "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 5:21-48 -- The antitheses -- You have heard it said... but I say to you."
+      "status": "done",
+      "branch": "agent/MATT-U11-claude",
+      "commitSha": "d13736b",
+      "attempts": 1,
+      "lastRunId": "ae815203c82e45d2c",
+      "lastEvidence": "Merged baf8235 into design/mountain-journey, fast-forwarded to master. Matthew 5:21-48 The Antitheses lesson + 5 connections + 15 registry entries. Full independent verification: BSB quote check across 20+ cited passages (Matt 5:21-48/6:1/19:3,9,21, Exod 20:13-14/21:24, Lev 19:12,18/24:20, Num 30:2, Deut 5:17-18/19:21/23:21/24:1, Mark 10:11, Luke 16:18/6:36, 1 Cor 7:10-15, Rom 12:17-21, James 5:12, Prov 25:21-22, all exact), banned-phrase grep clean, 18/18 sources + all 5 connection sourceIds resolved against registry (zero dupes), content:validate 25/25 lessons clean post-merge, full test suite baseline-only failures, adversarial mutation (divorce-verdict in Context) confirmed genuine FAIL then reverted clean -- first mutation attempt inside Positions correctly did not fail, confirming lint design.",
+      "notes": "Closes wave 6 (4/4: GEN-U12, GEN-U13, MATT-U12, MATT-U11). Registry conflict (368 HEAD vs 348 agent branch) resolved cleanly, zero overlap, 383 final. 25 of 30 pilot units merged."
     },
     "MATT-U12": {
       "status": "done",
