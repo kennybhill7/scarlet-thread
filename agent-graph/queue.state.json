@@ -1054,13 +1054,13 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 9:18-29 -- Noah's drunkenness and Ham's sin."
     },
     "GEN-U12": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
-      "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 10 -- The Table of Nations."
+      "status": "done",
+      "branch": "agent/GEN-U12-claude",
+      "commitSha": "5721d00",
+      "attempts": 1,
+      "lastRunId": "a0f190804efb3d503",
+      "lastEvidence": "Merged fb92ed4 into design/mountain-journey, fast-forwarded to master. Genesis 10 Table of Nations lesson + 2 connections + 16 registry entries. Full independent verification: BSB quote check (Gen 10 all 32 verses + 11:1 + Deut 32:8 + Acts 17:26 + Rev 7:9/5:9 + 1 Chr 1:17, all exact), banned-phrase grep clean, 16/16 sources + both connection sourceIds resolved against 348-entry registry (zero dupes), content:validate 22/22 lessons clean, full test suite (2114 pass, same pre-existing auth-db-failure baseline), adversarial mutation on the Ham race-sensitivity paragraph confirmed genuine FAIL then reverted clean.",
+      "notes": "Directly fulfills GEN-U11 deferral on Ham's sons. 22 of 30 pilot units merged."
     },
     "GEN-U13": {
       "status": "pending",
