@@ -1197,13 +1197,13 @@
       "notes": "Registry conflict (356 HEAD vs 345 agent branch, pre-GEN-U12/13-merge base) resolved cleanly, zero overlap, 368 final. Closes wave 6 (4 of 4). 24 of 30 pilot units merged."
     },
     "MATT-U13": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
-      "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 6:19-34 -- Treasures in heaven, do not worry."
+      "status": "done",
+      "branch": "agent/MATT-U13-claude",
+      "commitSha": "8eca4c3",
+      "attempts": 2,
+      "lastRunId": "a2a4f06ba79414a18",
+      "lastEvidence": "Merged 011bacc into design/mountain-journey, fast-forwarded to master. Matthew 6:19-34 Treasures/Trust lesson + 3 connections + 9 registry entries. First attempt (2026-10-01) stalled on infrastructure watchdog timeout, zero commits; relaunched clean. Full independent verification: BSB quote check (Matt 6:19-34 + 5:1-2 + 7:28 + 10:9-10 + Luke 12:22-34 + 1 Tim 6:17-19 + James 4:13-17 + Lev 11:13-15 + Deut 14:12-14, all exact including the critical kingdom-of-God vs His-kingdom distinction), banned-phrase grep clean, 9/9 sources + all 3 connection sourceIds resolved against 409-entry registry (zero dupes), content:validate 28/28 lessons clean post-merge, full test suite baseline-only failures, adversarial mutation (prosperity-gospel verdict) confirmed genuine FAIL then reverted clean.",
+      "notes": "Unit 3 of 5 in final wave. Practice Bridge explicitly rejects both prosperity-gospel overclaim and promises-nothing overcorrection. 28 of 30 pilot units merged."
     },
     "MATT-U14": {
       "status": "done",
