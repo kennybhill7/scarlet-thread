@@ -1081,13 +1081,13 @@
       "notes": "Unit 1 of 5 in final wave. 26 of 30 pilot units merged."
     },
     "GEN-U15": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
-      "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 12 -- The call of Abram, the journey to Egypt."
+      "status": "done",
+      "branch": "agent/GEN-U15-claude",
+      "commitSha": "72e55ce",
+      "attempts": 2,
+      "lastRunId": "a5facd4a55c25f24b",
+      "lastEvidence": "Merged 7cdb355 into design/mountain-journey, fast-forwarded to master. Genesis 12 Call-of-Abram lesson + 3 connections + 14 registry entries. First attempt (2026-10-01) stalled on infrastructure watchdog timeout, zero commits; relaunched clean. Full independent verification: BSB quote check (Gen 12:1-20 all 20 verses + 26:1,7 + 20:12 + Gal 3:6-9,16 + Heb 11:8-10, all exact), banned-phrase grep clean, 14/14 sources + all 3 connection sourceIds resolved against 435-entry registry (zero dupes), content:validate 30/30 lessons clean post-merge, full test suite baseline-only failures, adversarial mutation (Sarai-episode accountability verdict) confirmed genuine FAIL then reverted clean.",
+      "notes": "Final unit of entire 30-unit pilot (5 of 5 in final wave). Sarai episode handled with Matthew-5-divorce-level care: no whitewashing, no overstated condemnation. COMPLETES THE PILOT."
     },
     "MATT-U01": {
       "status": "done",
