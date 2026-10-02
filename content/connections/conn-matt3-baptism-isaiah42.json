@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt3-baptism-isaiah42",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.3.16",
+    "end": "40.3.17"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.42.1",
+    "end": "23.42.1"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "The Septuagint's own Greek text of Isaiah 42:1 (ho eklektos mou, \"my chosen one\"; prosedexato, \"received favorably\") shares no distinctive vocabulary with Matthew 3:17's ho agapetos (\"beloved\") and eudokesa (\"well pleased\"), checked directly against both Greek texts for this lesson. What does share both of those words is Matthew's own later quotation of this same verse at 12:18 (ho agapetos mou hon eudokesen he psyche mou), introduced there with his own citation formula -- a match found in Matthew's own translation of Isaiah 42:1, not in the Septuagint's wording his first readers would otherwise have known. The connection to the Spirit's descent and the voice's wording together, rather than a single clause, reflects that Isaiah 42:1 pairs the Spirit being placed on the servant with the same figure's being delighted in, matching the two elements of 3:16-17 together. The label is strong rather than explicit because Matthew's own text at 3:17 gives no citation formula at all, and the lexical match runs through Matthew's own 12:18 rather than directly through the Greek Old Testament text of Isaiah 42:1 itself.",
+  "sourceId": "source-biblehub-text-matt-12-18-greek",
+  "viewpointId": null
+}
