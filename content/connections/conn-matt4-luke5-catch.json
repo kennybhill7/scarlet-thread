@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt4-luke5-catch",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.4.18",
+    "end": "40.4.22"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.5.1",
+    "end": "42.5.11"
+  },
+  "type": "parallel",
+  "evidenceLabel": "plausible",
+  "rationale": "Both accounts narrate Jesus calling the same named men (Simon/Peter, James, John -- Luke does not name Andrew in this range, where Matthew does) by the same body of water to the same new vocation, worded similarly but not identically (\"fishers of men\" against \"you will catch men\"). The label is plausible rather than strong because Luke's account differs substantially in content -- a miraculous catch of fish, Simon's confession of sinfulness, and no quoted \"follow Me\" command, none of which has any counterpart in Matthew -- and because named New Testament scholars (reported via a Wikipedia tertiary source for this lesson) genuinely dispute whether Luke 5:1-11 belongs with Matthew's and Mark's plainer calling accounts at all, as against being a variant of a different, later story (the post-resurrection catch at John 21:1-10). This lesson reports that live disagreement without resolving it.",
+  "sourceId": "source-wikipedia-miraculous-catch-of-fish",
+  "viewpointId": null
+}
