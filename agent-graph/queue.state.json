@@ -1188,13 +1188,13 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 5:21-48 -- The antitheses -- You have heard it said... but I say to you."
     },
     "MATT-U12": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
-      "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 6:1-18 -- Giving, prayer (the Lord's Prayer), fasting."
+      "status": "done",
+      "branch": "worktree-agent-a7732b54a2a0a5f94",
+      "commitSha": "ec033eb",
+      "attempts": 1,
+      "lastRunId": "a7732b54a2a0a5f94",
+      "lastEvidence": "Merged 38b39d7 into design/mountain-journey, fast-forwarded to master. Matthew 6:1-18 Giving/Prayer/Fasting lesson + 2 connections + 13 registry entries. Ran in harness-auto-created worktree (.claude/worktrees/agent-a7732b54a2a0a5f94), not the pre-created agent/MATT-U12-claude branch (confirmed empty) -- same recurring harness bug as MATT-U08. Full independent verification: BSB quote check (Matt 6:1-18 all verses + Luke 11:1-4 + Isaiah 58:1-7, all exact, critically confirming 6:13 omits the doxology), banned-phrase grep clean, 13/13 sources + both connection sourceIds resolved against registry (zero dupes), content:validate 24/24 lessons clean post-merge, full test suite baseline-only failures, adversarial mutation on the doxology-dispute Teach-Back answer confirmed genuine FAIL then reverted clean.",
+      "notes": "Registry conflict (356 HEAD vs 345 agent branch, pre-GEN-U12/13-merge base) resolved cleanly, zero overlap, 368 final. Closes wave 6 (4 of 4). 24 of 30 pilot units merged."
     },
     "MATT-U13": {
       "status": "pending",
