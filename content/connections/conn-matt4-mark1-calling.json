@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt4-mark1-calling",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.4.18",
+    "end": "40.4.22"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.1.16",
+    "end": "41.1.20"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Checked directly against both texts as shipped in this app, the call itself and the first response (\"Come, follow Me... and I will make you fishers of men\" / \"at once they left their nets and followed Him\") are worded identically in Matthew 4:19-20 and Mark 1:17-18. The label is strong rather than explicit because neither Gospel names or cites the other; the match rests on reading both texts directly. Real, checkable differences exist alongside the near-verbatim core: Matthew already calls Simon \"Peter\" (4:18) where Mark reserves that name for later (3:16); Matthew places the father in the net-mending scene (4:21) where Mark's parallel sentence does not; and Mark adds a detail absent from Matthew, that the brothers left their father \"in the boat with the hired men\" (1:20).",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

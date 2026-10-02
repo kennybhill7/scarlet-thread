@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt4-isaiah9-light",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.4.14",
+    "end": "40.4.16"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.9.1",
+    "end": "23.9.2"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Matthew introduces the quotation with his own fulfillment-citation wording (\"to fulfill what was spoken through the prophet Isaiah,\" 4:14) and quotes it directly, which is why the type is quotation and the label is explicit. Checked directly against both texts as shipped in this app, Matthew's version drops Isaiah's own opening sentence and its past/future contrast (\"in the past He humbled... but in the future He will honor\") and presents the place names as a bare list, and changes one word in the second half (\"walking\" in Isaiah 9:2 becomes \"living\" in Matthew 4:16); the rest of that second half matches word for word. The differences are reported as checkable facts, not treated as weakening the explicit grading, since Matthew's own citation formula still names the source and quotes it directly.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
