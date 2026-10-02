@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt7-askseekknock-luke11",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.7.7",
+    "end": "40.7.11"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.11.9",
+    "end": "42.11.13"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "The ask/seek/knock triad is close to word for word identical in both Gospels: \"Ask, and it will be given to you; seek, and you will find; knock, and the door will be opened to you. For everyone who asks receives; he who seeks finds; and to him who knocks, the door will be opened\" (Matthew 7:7-8, BSB) against Luke's \"So I tell you: Ask, and it will be given to you; seek, and you will find; knock, and the door will be opened to you. For everyone who asks receives; he who seeks finds; and to him who knocks, the door will be opened\" (Luke 11:9-10, BSB), which only adds the introductory \"So I tell you.\" The father-and-son analogy that follows is where the two accounts checkably diverge. Matthew's pair of questions is bread-for-stone, then fish-for-snake (7:9-10, BSB); Luke's pair is fish-for-snake, then egg-for-scorpion (11:11-12, BSB) -- a different second pairing, not the same two images in a different order. The conclusion each account draws also differs in what is specifically promised: Matthew's is \"how much more will your Father in heaven give good things to those who ask Him\" (7:11, BSB); Luke's is \"how much more will your Father in heaven give the Holy Spirit to those who ask Him\" (11:13, BSB) -- a general \"good things\" against a specific, named gift. The type is parallel (two Gospel records of the same teaching, neither quoting the other by formula); the label is strong because both the near-verbatim triad and the specific points of divergence (the egg/scorpion pairing; \"good things\" against \"the Holy Spirit\") are directly checkable against each Gospel's own shipped BSB text, not an inference this connection is adding.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
