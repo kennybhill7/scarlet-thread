@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen9-nakedness-leviticus18",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.9.22",
+    "end": "1.9.23"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "3.18.6",
+    "end": "3.18.8"
+  },
+  "type": "motif",
+  "evidenceLabel": "plausible",
+  "rationale": "The same phrase, 'the nakedness of your/his father,' recurs across both passages, checkable directly in this app's own BSB wording, and Leviticus 18:7 itself glosses that exact phrase in the same breath as sexual relations with the mother ('You must not expose the nakedness of your father by having sexual relations with your mother'). A line of scholarship traced to F. W. Bassett's 1971 article argues Genesis 9:22's 'saw his father's nakedness' invokes this same Levitical idiom rather than describing literal eyesight, which would make Ham's offense maternal incest rather than simply seeing. Graded motif rather than allusion because Leviticus is the later text and makes no reference back to Genesis 9; graded plausible rather than strong because whether Genesis 9:22 is actually invoking this idiom, as opposed to using its words in their ordinary literal sense, is itself a live, unresolved scholarly dispute reported without adjudication in this lesson's own Positions section, not a settled lexical fact.",
+  "sourceId": "source-intertextual-bible-gen922-lev187",
+  "viewpointId": null
+}
