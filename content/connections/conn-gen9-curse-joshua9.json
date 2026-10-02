@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen9-curse-joshua9",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.9.25",
+    "end": "1.9.27"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "6.9.23",
+    "end": "6.9.23"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "Joshua 9:23's sentence on the Gibeonites -- 'you are under a curse and will perpetually serve' -- echoes Genesis 9:25's 'a servant of servants shall he be' closely enough in both vocabulary (curse, perpetual service) and situation (a Canaanite people subordinated to Israel) that multiple classic commentators, including Keil and Delitzsch and the Pulpit Commentary, name this episode directly as an instance of the earlier oracle's own fulfillment. Graded allusion rather than explicit reference because Joshua's own text never names Noah, cites Genesis 9, or uses any citation formula; the connection rests on the two texts' shared vocabulary and situation, which a reader can check directly, not on either text's own stated cross-reference. Graded strong rather than plausible because the Gibeonites are explicitly identified elsewhere as Hivites, one of the named Canaanite peoples (Genesis 10:15-17), making the link a specific group's documented subjugation rather than a loose thematic echo.",
+  "sourceId": "source-biblehub-commentary-gen-9-25",
+  "viewpointId": null
+}
