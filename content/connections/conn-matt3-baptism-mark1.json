@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt3-baptism-mark1",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.3.13",
+    "end": "40.3.17"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.1.9",
+    "end": "41.1.11"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Both texts narrate the same baptism, checkable directly by reading the two side by side: the divine voice's Greek wording matches exactly except at one point, checked directly against both texts for this lesson -- Matthew's third-person Houtos estin (\"This is\") against Mark's second-person Sy ei (\"You are\"), with the rest of the clause (ho huios mou ho agapetos, en [-] eudokesa) identical. Matthew's own account of John's objection and Jesus's answer about fulfilling all righteousness (3:14-15) has no counterpart anywhere in Mark's account, which moves directly from Jesus's arrival (1:9) to His baptism (1:9) to the Spirit's descent (1:10) with no recorded exchange between John and Jesus. The label is strong rather than explicit because neither Gospel names or cites the other as its source for this scene.",
+  "sourceId": "source-biblehub-text-mark-1-11-greek",
+  "viewpointId": null
+}

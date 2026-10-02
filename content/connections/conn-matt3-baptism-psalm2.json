@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt3-baptism-psalm2",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.3.17",
+    "end": "40.3.17"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "19.2.7",
+    "end": "19.2.7"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "Checked directly against the Septuagint's Greek text of Psalm 2:7 (huios mou ei sy, \"My Son, You are\"), Matthew's own Greek at 3:17 (ho huios mou, \"My Son\") shares the two core words huios mou exactly. Mark's and Luke's wording of the same scene (Sy ei ho huios mou, \"You are My Son\") shares four of Psalm 2:7's words in reordered sequence, including the second-person verb and pronoun that Matthew's own third-person wording replaces with a demonstrative. The identification of \"Son\" language in this scene with Psalm 2:7 is reported across more than one named commentator consulted for this lesson. The label is strong rather than explicit because Matthew's own text never cites Psalm 2 by name or formula, and Matthew's specific wording matches the Psalm less exactly than Mark's and Luke's wording of the same event does.",
+  "sourceId": "source-blueletterbible-lxx-psalm-2-7",
+  "viewpointId": null
+}

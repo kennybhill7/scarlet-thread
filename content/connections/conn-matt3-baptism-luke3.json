@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt3-baptism-luke3",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.3.13",
+    "end": "40.3.17"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.3.21",
+    "end": "42.3.22"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Both texts narrate the same baptism, checkable directly by reading the two side by side. Luke's wording of the divine voice matches Mark's second-person form exactly (\"You are My beloved Son; in You I am well pleased\", BSB), and so stands in the same relationship to Matthew's own third-person wording (\"This is My beloved Son\") already reported in the connection to Mark 1:9-11. Luke alone adds two details absent from both Matthew and Mark: Jesus \"was praying\" as heaven opened (3:21), and the Spirit descended \"in a bodily form like a dove\" (3:22) -- a specific claim about the form of the sign that neither Matthew's nor Mark's wording states. Matthew's own account of John's objection and Jesus's answer (3:14-15) has no counterpart in Luke's account either. The label is strong rather than explicit because neither Gospel names or cites the other as its source for this scene.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
