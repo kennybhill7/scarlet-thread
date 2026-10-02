@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen11-terah-acts7",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.11.27",
+    "end": "1.11.32"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "44.7.2",
+    "end": "44.7.4"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "Acts 7:2-4 is Stephen's own retelling of exactly the events this genealogy's closing unit narrates: a father's household leaving a named place and settling in Haran. Stephen states Abraham 'left the land of the Chaldeans and settled in Haran' (7:4), echoing but not quoting Genesis 11:28's and 11:31's own 'Ur of the Chaldeans' -- a real, checkable wording difference ('the land of' versus 'Ur of'), not an identical formula, which is why this is graded explicit_reference at strong rather than a quotation. Stephen's own wording, 'After his father died, God brought him out of that place' (7:4), raises a real, checkable chronological question against this genealogy's own numbers: Genesis 11:26 states Terah was 70 when he became the father of Abram, Nahor, and Haran; 11:32 states Terah 'lived 205 years, and he died in Haran'; and Genesis 12:4 states Abram was 75 when he left Haran. Read as a strict sequence, these numbers leave Terah with sixty years still to live when Abram departs, apparently before his father's stated death, not after it as Stephen states. Aggregated classic commentary on both Genesis 11:26 and Acts 7:4 (Matthew Poole, Gill, and the Pulpit Commentary on Genesis 11:26; Barnes, the Cambridge Bible, and the Expositor's Greek Testament on Acts 7:4) resolves the tension by reading 11:26's naming of 'Abram, Nahor, and Haran' as ordered by later prominence rather than birth order, concluding Abram was not Terah's firstborn but was born in Terah's 130th year -- a real, named harmonization this lesson reports as a live question in its own Questions to Carry rather than settling.",
+  "sourceId": "source-biblehub-commentary-acts-7-4",
+  "viewpointId": null
+}
