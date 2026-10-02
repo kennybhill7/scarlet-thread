@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-02T00:17:40.308Z",
+  "updatedAt": "2026-10-02T00:20:58.701Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1018,12 +1018,12 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 6:1-8 -- Wickedness increases, the Nephilim, the LORD grieved."
     },
     "GEN-U08": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/GEN-U08-claude",
+      "commitSha": "62750c8",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-10-01 (62750c8) into design/mountain-journey and master, both pushed. content/curriculum/genesis/08-noah-builds-the-ark.md (Genesis 6:9-7:24, Noah builds the ark and the flood comes), status draft, stage 3. 4 named positions (the 6:19-20/7:2-3 animal-count tension, 3 kinds of answer; the heqim berith covenant dispute; the floods geographic extent, 3 real positions each answering a stated counter-question; Rashis two opposed readings of Noahs blameless-in-his-generation). 4 new connections (Hebrews 11:7 explicit, 2 Peter 3:5-7 explicit, 1 Peter 3:20-21 explicit deliberately scoped to avoid duplicating an existing GEN-U07 connection, Matthew 24:37-39 explicit correctly re-examined after GEN-U07 declined it for different content), 19 new source-registry entries. Independently re-verified: spot-checked all of Genesis 6:9-7:24s key verses plus Genesis 17:1, 1:2, 1:6-7, Hebrews 11:7, 2 Peter 3:5-7, 1 Peter 3:20-21, Matthew 24:37-39 against the real shipped corpus (exact matches), grepped for banned phrases (zero hits), resolved all 20 source refs (zero missing), confirmed zero duplicate ids across the full 255-entry registry, ran content:validate clean (16/16 lessons, 61 connections, 1259 places), ran the full test suite (same pre-existing pattern, unrelated), ran a real adversarial mutation (confirmed genuine validator failure, reverted). Merge conflict in source-registry.json was a real but simple append-only conflict this time (19 new ids, zero overlapping), resolved by JSON-parsing both sides.",
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Genesis 6:9-7:24 -- Noah builds the ark, the flood comes."
     },
     "GEN-U09": {
