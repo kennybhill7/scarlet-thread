@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-02T00:45:46.981Z",
+  "updatedAt": "2026-10-02T00:49:29.455Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1152,12 +1152,12 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 4:1-11 -- The temptation in the wilderness."
     },
     "MATT-U08": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "worktree-agent-a2868c6d63699a4b5",
+      "commitSha": "1c57a55",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-10-01 (1c57a55) into design/mountain-journey and master, both pushed. content/curriculum/matthew/08-ministry-begins-in-galilee.md (Matthew 4:12-25, ministry begins in Galilee), status draft, stage 6. NOTE: the harness auto-created a worktree at .claude/worktrees/agent-a2868c6d63699a4b5 (branch worktree-agent-a2868c6d63699a4b5) instead of using the pre-created agent/MATT-U08-claude branch -- a known Windows path-casing issue. Merged from the actual branch with the real commits. 2 named positions (why the response was so immediate -- prior John 1 meeting vs the force of the call itself; how Luke 5s miraculous catch relates to Matthew/Mark, including Allisons variant-of-John-21 proposal). 3 new connections (Isaiah 9:1-2 explicit, Mark 1:16-20 strong, Luke 5:1-11 correctly downgraded to plausible), 15 new source-registry entries. A genuinely new finding: 4:17s preaching summary is word-for-word identical to John the Baptists 3:2, reported as a textual observation not a forced connection. Independently re-verified: spot-checked all 14 verses of Matthew 4:12-25 plus 3:2, 11:2, Isaiah 9:1-2, Mark 1:16-20, Luke 5:1-11 against the real shipped corpus (exact matches), grepped for banned phrases (zero hits), resolved all 16 source refs (zero missing), confirmed zero duplicate ids across the full 302-entry registry, ran content:validate clean (19/19 lessons, 70 connections, 1259 places), ran the full test suite (same pre-existing pattern, unrelated), ran a real adversarial mutation (confirmed genuine validator failure, reverted). Merge conflict in source-registry.json was real but simple append-only (15 new ids, zero overlapping).",
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 4:12-25 -- Ministry begins in Galilee, the first disciples called."
     },
     "MATT-U09": {
