@@ -1,0 +1,10 @@
+{
+  "id": "conn-gen10-nations-acts17",
+  "fromRange": { "versificationId": "eng-protestant-66-31102-v1", "start": "1.10.5", "end": "1.10.32" },
+  "toRange": { "versificationId": "eng-protestant-66-31102-v1", "start": "44.17.26", "end": "44.17.26" },
+  "type": "parallel",
+  "evidenceLabel": "plausible",
+  "rationale": "Paul's statement that God 'made every nation of men, that they should inhabit the whole earth' and 'determined... the boundaries of their lands' (Acts 17:26, BSB) shares real vocabulary and theme with this chapter's own three-times-repeated formula -- 'their territories, according to their languages, by clans within their nations' (10:5, BSB) and 'according to their clans, languages, lands, and nations' (10:20 and 10:31, BSB) -- and with 10:32's closing report that 'the nations of the earth spread out after the flood.' Checked directly against aggregated commentary on Acts 17:26, however, no commentator consulted for this lesson ties Paul's clause back to Genesis 10 specifically: Meyer's NT Commentary instead cites Genesis 11:8 (the Babel dispersion), and Bengel's Gnomen and the Expositor's Greek Testament both cite Deuteronomy 32:8 (the connection authored above) rather than Genesis 10 itself. This connection is graded plausible rather than strong for that reason: the vocabulary and theme are directly checkable by comparing the two passages, but the link is this lesson's own observation of a shared idea, not a line any source consulted for this lesson draws from Genesis 10 by name.",
+  "sourceId": "source-biblehub-commentary-acts-17-26",
+  "viewpointId": null
+}

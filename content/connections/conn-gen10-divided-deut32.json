@@ -1,0 +1,10 @@
+{
+  "id": "conn-gen10-divided-deut32",
+  "fromRange": { "versificationId": "eng-protestant-66-31102-v1", "start": "1.10.25", "end": "1.10.32" },
+  "toRange": { "versificationId": "eng-protestant-66-31102-v1", "start": "5.32.8", "end": "5.32.8" },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "Genesis 10:25 (BSB) names Eber's son Peleg 'because in his days the earth was divided,' and 10:32 closes the chapter noting 'the nations of the earth spread out after the flood.' Deuteronomy 32:8 (BSB) recalls that 'the Most High gave the nations their inheritance' and 'divided the sons of man,' setting 'the boundaries of the peoples' -- without quoting Genesis 10 verbatim or naming it by any citation formula, which is why this is graded allusion rather than quotation. Named classic commentators on Deuteronomy 32:8 anchor its 'divided' language directly to this specific event: Gill's Exposition ties it explicitly to 'the days of Peleg, who had his name (that is Division) from thence, Genesis 10:25,' and Matthew Poole's Commentary states the allotment of peoples 'was done Ge 10 Ge 11.' Graded strong rather than explicit because Deuteronomy's own wording never names Genesis, Noah, or Peleg -- the link rests on these commentators' own stated reasoning about Deuteronomy's source material, not on a cross-reference either text supplies for itself.",
+  "sourceId": "source-biblehub-commentary-deut-32-8",
+  "viewpointId": null
+}
