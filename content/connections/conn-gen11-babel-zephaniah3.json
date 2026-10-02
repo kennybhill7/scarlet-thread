@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen11-babel-zephaniah3",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.11.1",
+    "end": "1.11.9"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "36.3.9",
+    "end": "36.3.9"
+  },
+  "type": "contrast_reversal",
+  "evidenceLabel": "plausible",
+  "rationale": "Zephaniah 3:9 promises that God will 'restore pure lips to the peoples, that all may call upon the name of the LORD and serve Him shoulder to shoulder' (BSB) -- a unified, purified speech promised to multiple peoples, set against Genesis 11:1's single language that 11:6-9 reports as corrupted by a self-glorifying project and then confused. Barnes' Notes states the link directly: before Babel's dispersion the world was 'of one lip,' but impure, and Zephaniah envisions it 'again of one lip... purified'; the Pulpit Commentary agrees that 'the confusion of Babel shall be done away.' Graded plausible rather than strong because not every classic commentary checked for this lesson makes the Babel link explicit -- Keil and Delitzsch's and Gill's own notes on the verse, also checked, discuss the 'pure lips' image without naming Babel -- and Zephaniah's own wording never names Babel, a tower, or Genesis by any citation formula; the connection rests on two named commentators' reading of a shared image (one/pure lips restored to many peoples), not a shared vocabulary item the two texts both use.",
+  "sourceId": "source-biblehub-commentary-zephaniah-3-9",
+  "viewpointId": null
+}

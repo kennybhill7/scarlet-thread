@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen11-babel-acts2",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.11.1",
+    "end": "1.11.9"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "44.2.1",
+    "end": "44.2.11"
+  },
+  "type": "contrast_reversal",
+  "evidenceLabel": "strong",
+  "rationale": "Genesis 11:1 states 'the whole world had one language,' which 11:7-9 then confuses and scatters the people 'over the face of all the earth'; Acts 2:1-11 narrates Jews 'from every nation under heaven' (2:5) 'all together in one place' (2:1), each hearing the apostles 'speaking his own language' (2:6, echoed at 2:8) instead of failing to understand one another. Neither text cites the other by name or formula, so this is graded a literary contrast_reversal rather than an explicit reference; Soal and Henry's peer-reviewed study (Verbum et Ecclesia, 2018) argues directly for reading Acts 2 this way, and reports the same observation made since the patristic era. Graded strong rather than plausible because the inversion runs through several independently checkable paired details -- gathered from every nation versus scattered over all the earth, one confused tongue versus each hearing in his own tongue -- not a single shared word, though the grade should be read alongside the live scholarly question (named in the lesson's Questions to Carry) of how far a structural inversion like this can be pressed before it overstates what Luke's own text states about its own intent.",
+  "sourceId": "source-soal-henry-reversal-of-babel-2018",
+  "viewpointId": null
+}
