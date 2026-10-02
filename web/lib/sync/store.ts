@@ -844,6 +844,105 @@ export async function mergeRemoteChangesV2(
   });
 }
 
+/** Durable, device-local review data. Kept separately so hydration and the
+ * original outbox remain untouched until the learner explicitly reconciles. */
+export interface StudyConflictV2 {
+  key: string;
+  entity: SyncEntityV2;
+  entityId: string;
+  local: Record<string, unknown>;
+  remote: Record<string, unknown>;
+  opIds: string[];
+}
+const conflictPrefix = "studyConflictV2:";
+
+export async function captureStudyConflictsV2(snapshot: Partial<SyncSnapshotV2>): Promise<void> {
+  await withWriteLock(async () => {
+    const db = await database;
+    const tx = db.transaction([...SYNC_ENTITIES_V2, "syncQueueV2", "meta"], "readwrite");
+    tx.done.catch(() => {});
+    const ops = await tx.objectStore("syncQueueV2").getAll();
+    for (const saved of await tx.objectStore("meta").getAll()) {
+      if (!saved.key.startsWith(conflictPrefix)) continue;
+      const conflict = JSON.parse(saved.value) as StudyConflictV2;
+      if (!ops.some(op => op.entity === conflict.entity && op.entityId === conflict.entityId)) {
+        await tx.objectStore("meta").delete(saved.key);
+      }
+    }
+    for (const entity of SYNC_ENTITIES_V2) {
+      for (const row of snapshot[entity] ?? []) {
+        const remote = row as Record<string, unknown>;
+        const pending = ops.filter(op => op.entity === entity && op.entityId === remote.id);
+        if (!pending.some(op => op.lastError?.startsWith("Revision conflict:"))) continue;
+        const local = await tx.objectStore(entity).get(String(remote.id));
+        if (!local || local.workspaceId !== remote.workspaceId) continue;
+        const key = `${conflictPrefix}${entity}:${remote.id}`;
+        const conflict: StudyConflictV2 = {
+          key, entity, entityId: String(remote.id),
+          local: local as unknown as Record<string, unknown>, remote,
+          opIds: pending.map(op => op.opId),
+        };
+        await tx.objectStore("meta").put({ key, value: JSON.stringify(conflict) });
+      }
+    }
+    await tx.done;
+  });
+}
+
+export async function listStudyConflictsV2(): Promise<StudyConflictV2[]> {
+  const db = await database;
+  return (await db.getAll("meta"))
+    .filter(row => row.key.startsWith(conflictPrefix))
+    .map(row => JSON.parse(row.value) as StudyConflictV2);
+}
+
+/** Atomically archives both reviewed versions, replaces this entity's stale
+ * ops, and queues a NEW idempotency key against the reviewed server revision.
+ * Rejects a stale review if another tab/edit/pull changed either version.
+ * A later server edit still causes ordinary optimistic-concurrency rejection. */
+export async function resolveStudyConflictV2(review: StudyConflictV2, fields: Record<string, unknown>): Promise<void> {
+  const deviceId = await getOrCreateDeviceId();
+  await withWriteLock(async () => {
+    const db = await database;
+    const tx = db.transaction([review.entity, "syncQueueV2", "meta"], "readwrite");
+    tx.done.catch(() => {});
+    try {
+      const saved = await tx.objectStore("meta").get(review.key);
+      const local = await tx.objectStore(review.entity).get(review.entityId);
+      const ops = await tx.objectStore("syncQueueV2").getAll();
+      const pending = ops.filter(op => op.entity === review.entity && op.entityId === review.entityId);
+      if (saved?.value !== JSON.stringify(review) || JSON.stringify(local) !== JSON.stringify(review.local) ||
+          JSON.stringify(pending.map(op => op.opId)) !== JSON.stringify(review.opIds)) {
+        throw new Error("These notes changed while you were reviewing. Reopen the comparison and try again.");
+      }
+      // Don't split a related mutation group or strand dependents. Ordinary
+      // single-entity editor writes have neither; complex groups stay safe.
+      const ids = new Set(review.opIds);
+      if (ops.some(op => !ids.has(op.opId) && (op.dependsOn.some(id => ids.has(id)) ||
+          pending.some(old => old.mutationGroupId === op.mutationGroupId)))) {
+        throw new Error("These notes belong to a related set of changes and cannot be reconciled separately yet.");
+      }
+      const payload = v2PayloadSchemas[review.entity].parse({
+        ...fields, id: review.entityId, workspaceId: review.local.workspaceId,
+        createdAt: review.local.createdAt, revision: Number(review.remote.revision) + 1,
+        updatedAt: new Date().toISOString(),
+      }) as V2SyncableEntity;
+      const op = opForV2(review.entity, payload, deviceId);
+      op.baseRevision = Number(review.remote.revision);
+      await tx.objectStore("meta").put({ key: `studyConflictArchiveV2:${op.opId}`, value: JSON.stringify(review) });
+      await tx.objectStore(review.entity).put(payload as never);
+      for (const id of review.opIds) await tx.objectStore("syncQueueV2").delete(id);
+      await tx.objectStore("syncQueueV2").put(op);
+      await tx.objectStore("meta").delete(review.key);
+      await tx.done;
+    } catch (error) {
+      try { tx.abort(); } catch { /* already aborted */ }
+      throw error;
+    }
+  });
+  notifyLocalV2Write();
+}
+
 export async function getLocalLog(date: string) {
   const db = await database;
   return db.get("logs", date);

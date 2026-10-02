@@ -1,0 +1,13 @@
+# Study edit conflict recovery
+
+The sequential two-device failure demonstrated in 0756cbfaf2bf71f5a900cb4ef89563b5e0ffd346 (merged by 2e45b39070c0c77a6d4a4318d1a0a5571f974fbc) now has an explicit learner recovery path.
+
+After a revision rejection, the normal full pull captures the server copy alongside the current local copy in device-local IndexedDB metadata. Hydration and the original outbox are unchanged. Once captured, this entity's ops (including later edits), related groups, and dependent groups are held out of pushes until review; unrelated work keeps syncing. Already parked revision conflicts are captured on the next successful pull.
+
+The learner compares both versions, edits prose, and chooses between differing non-prose values. Saving first verifies the reviewed local copy, server snapshot, and exact pending op set are still current. One local transaction archives both originals, writes the validated reconciliation, replaces the entity's stale ops with a new operation/idempotency key based on the reviewed server revision, and removes the active comparison. Any failure rolls everything back. This save works offline; the existing write notification wakes normal background sync when online. A subsequent remote revision change causes another conflict, never a client clock winner.
+
+The originals are retained only on this device in `studyConflictArchiveV2:*` metadata, not uploaded to an artifact revision table. Active comparisons use `studyConflictV2:*`. Normal device-data clearing removes both; pending reconciliations remain outbox writes and retain existing clear-device protection. No new database migration, wire field, resource mutation route, or timestamp arbitration is introduced.
+
+Scope limits: recovery requires a server row returned by the existing pull. This does not repair the pre-existing truly simultaneous PostgreSQL check/write race, missing `teachingSection` pull transport, or missing-row conflicts. Related groups/dependents are held safely, but the UI refuses to resolve an entity if doing so would split an outstanding multi-entity group or strand dependencies; it does not discard them.
+
+Validation: real IndexedDB vault + real sync client with the existing optimistic-concurrency fake server covers sequential two-device conflict, parked recovery, offline save/reconnect, a third server edit, later local edits held for review, unrelated sync, stale review rejection, and transaction abort rollback. Server-rendered UI coverage checks both versions, explicit reconciliation, deletion differences and escaping. Existing vault merge, offline hydration and background flush suites remain unchanged and pass.
