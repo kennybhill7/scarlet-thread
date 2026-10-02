@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt7-fruitless-james2",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.7.21",
+    "end": "40.7.23"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "59.2.14",
+    "end": "59.2.26"
+  },
+  "type": "doctrinal_synthesis",
+  "evidenceLabel": "strong",
+  "rationale": "Both passages set a claim of faith against a corresponding action in the same two-part structure, checked directly against this app's own shipped BSB text: Matthew's \"Not everyone who says to Me, 'Lord, Lord,' will enter the kingdom of heaven, but only he who does the will of My Father in heaven\" (7:21, BSB) and James's \"What good is it, my brothers, if someone claims to have faith, but has no deeds? ... faith by itself, if it does not result in action, is dead\" (2:14, 2:17, BSB) both name a verbal or internal claim (saying \"Lord, Lord\"; claiming faith) and test it against an external action (doing the Father's will; producing deeds). Neither text quotes or names the other, and this lesson's own Positions section notes a real, unresolved question across Christian traditions about how much weight each text's \"doing\"/\"deeds\" should carry for a person's standing before God -- this connection states the shared textual structure, not an argument for which tradition reads that weight correctly. Graded doctrinal_synthesis rather than parallel because the connection is between two authors' respective teachings on the relationship between a claim of faith and a corresponding action, not a shared narrative image or scene; strong rather than explicit because the structural parallel (claim versus deed, in the same order) is substantial and checkable even though no citation formula links the two texts.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

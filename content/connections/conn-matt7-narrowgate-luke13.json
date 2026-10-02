@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt7-narrowgate-luke13",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.7.13",
+    "end": "40.7.23"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.13.24",
+    "end": "42.13.27"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Both passages share a narrow-entry image and a rejection scene using close but not identical wording (checked directly against this app's own shipped BSB text). Matthew's image is a \"narrow gate\" (7:13-14, BSB) entered before a journey; Luke's is a \"narrow door\" (13:24, BSB) that a \"master of the house\" later shuts, after which latecomers stand outside knocking -- a staged, household scene Matthew's version does not narrate. The two rejection lines differ in a checkable way beyond surface wording: Matthew's Jesus says \"I never knew you\" (7:23, BSB), naming a relationship that never existed, while Luke's master says twice \"I do not know where you are from\" (13:25, 13:27, BSB), naming an unknown origin rather than an absent relationship. Luke's scene also names Abraham, Isaac, Jacob, and \"all the prophets\" at the kingdom's own table (13:28, BSB) and a reversal of \"last\" and \"first\" (13:30, BSB), neither of which appears in Matthew's unit at all. Graded parallel rather than quotation because no citation formula links the two Gospels' wording, and strong rather than explicit because the shared image and rejection motif are substantial but the two accounts' own details (gate versus door; relational unknowing versus geographic unknowing; the added household and banquet scene) are real, checkable differences, not the same scene repeated twice.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
