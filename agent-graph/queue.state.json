@@ -1206,13 +1206,13 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 6:19-34 -- Treasures in heaven, do not worry."
     },
     "MATT-U14": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
-      "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 7:1-12 -- Judging others, the Golden Rule."
+      "status": "done",
+      "branch": "agent/MATT-U14-claude",
+      "commitSha": "5901428",
+      "attempts": 2,
+      "lastRunId": "a1f54ffd81b985f9d",
+      "lastEvidence": "Merged 7b35fc5 into design/mountain-journey, fast-forwarded to master. Matthew 7:1-12 Judging/Golden Rule lesson + 4 connections + 9 registry entries. First attempt (2026-10-01) stalled on infrastructure watchdog timeout, zero commits; relaunched clean. Full independent verification: BSB quote check (Matt 7:1-20 + 5:17 + Luke 6:37-42 + Luke 11:9-13 + Rom 2:1-3 + James 4:3,11-12 + 1 John 5:14, all exact including every subtle wording distinction the lesson flags), banned-phrase grep clean, 9/9 sources + all 4 connection sourceIds resolved against 401-entry registry (zero dupes), content:validate 27/27 lessons clean post-merge, full test suite baseline-only failures, adversarial mutation (judge-not absolutism) confirmed genuine FAIL then reverted clean.",
+      "notes": "Unit 2 of 5 in final wave. Hillel/Shabbat 31a Golden Rule comparison quoted from primary Sefaria Talmud text, not secondhand. 27 of 30 pilot units merged."
     },
     "MATT-U15": {
       "status": "pending",
