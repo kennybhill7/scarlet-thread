@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen12-seed-galatians3-16",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.12.7",
+    "end": "1.12.7"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "48.3.16",
+    "end": "48.3.16"
+  },
+  "type": "motif",
+  "evidenceLabel": "plausible",
+  "rationale": "Genesis 12:7 (BSB) is the first time the promise to Abram is given in 'offspring' language -- 'I will give this land to your offspring' -- the same word that recurs through the rest of the Abrahamic narrative (13:15, 15:18, 17:8, 22:17-18, 24:60) and that Galatians 3:16 (BSB) builds its own argument on: 'The promises were spoken to Abraham and to his seed. The Scripture does not say, \"and to seeds,\" meaning many, but \"and to your seed,\" meaning One, who is Christ.' C. John Collins's peer-reviewed study of this exact question (Tyndale Bulletin 54.1, 2003, downloaded and read directly in full for this lesson) concludes Paul's own source for 3:16 is most precisely Genesis 22:18, not 12:7 -- Collins's own stated conclusion is that Paul 'was using Genesis 22:18, which speaks of an individual offspring,' building on a grammatical signal T. Desmond Alexander identifies in 22:17's own Hebrew pronoun. This connection is authored from 12:7 as the motif's first instance inside this lesson's own passage, not as a claim that 12:7 itself is the specific verse behind Paul's grammatical argument; that more precise claim belongs to Genesis 22, outside this lesson's own territory. Named commentators also disagree about what kind of argument Galatians 3:16 itself is: Meyer's Greek-text commentary and Barnes' Notes (both fetched directly for this lesson) call the singular/plural distinction 'purely rabbinical' and liken it to 'a trick of argument... more worthy of a trifling Jewish Rabbi,' while N.T. Wright (The Climax of the Covenant, 1992, as quoted directly by Collins) reframes the contrast as one family set against many families rather than one individual set against many individuals -- a real dispute about Galatians's own method, named here so a reader following this connection into Galatians 3 is not surprised by it, not resolved here since it concerns that chapter's own interpretive method more than this lesson's own passage. Graded motif rather than quotation because the connection traced is a recurring word across the narrative rather than a single quoted verse, and plausible rather than strong because the named scholarship locating the argument's most precise textual anchor points to a different Genesis verse than this one.",
+  "sourceId": "source-collins-tyndalebulletin-2003-gal316",
+  "viewpointId": null
+}

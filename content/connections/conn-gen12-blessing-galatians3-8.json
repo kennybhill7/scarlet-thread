@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen12-blessing-galatians3-8",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.12.1",
+    "end": "1.12.3"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "48.3.6",
+    "end": "48.3.9"
+  },
+  "type": "quotation",
+  "evidenceLabel": "strong",
+  "rationale": "Galatians 3:8 (BSB) introduces a direct quotation with its own formula -- 'the Scripture... foretold the gospel to Abraham' -- and gives the quoted words as 'All nations will be blessed through you.' Checked directly against this app's own BSB wording, that quotation is close to, but not verbatim identical with, Genesis 12:3's own closing clause, 'all the families of the earth will be blessed through you.' Named commentators on Galatians 3:8 (Ellicott, Pulpit Commentary, Meyer, Vincent, and the Cambridge Bible, all fetched and checked directly for this lesson) read Paul's wording as a blend of two Genesis texts rather than a single verbatim quotation: Ellicott calls it 'a combination of Genesis 12:3... and Genesis 18:18,' and Pulpit Commentary and Vincent independently reach the same two-text combination, noting the Septuagint's own wording differs between the two Genesis verses ('all the families' at 12:3 against 'all the nations' at 18:18, which Paul's own Greek follows). This connection is authored from 12:3 because that is this lesson's own passage; Genesis 18:18 sits outside it and is not separately claimed here. Graded quotation because Paul's own formula explicitly marks this as direct scriptural speech reported to Abraham, and strong rather than explicit because the precise Genesis wording behind it is itself a named, blended source rather than one verse quoted exactly.",
+  "sourceId": "source-biblehub-commentary-galatians-3-8",
+  "viewpointId": null
+}
