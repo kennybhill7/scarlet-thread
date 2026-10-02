@@ -1215,13 +1215,13 @@
       "notes": "Unit 2 of 5 in final wave. Hillel/Shabbat 31a Golden Rule comparison quoted from primary Sefaria Talmud text, not secondhand. 27 of 30 pilot units merged."
     },
     "MATT-U15": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
-      "lastRunId": null,
-      "lastEvidence": null,
-      "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 7:13-29 -- The narrow gate, wise and foolish builders."
+      "status": "done",
+      "branch": "agent/MATT-U15-claude",
+      "commitSha": "commit-3-of-3",
+      "attempts": 2,
+      "lastRunId": "a22f77b61ea7a39a1",
+      "lastEvidence": "Merged 335cd43 into design/mountain-journey, fast-forwarded to master. Matthew 7:13-29 Narrow Gate/Wise Builder lesson + 4 connections + 15 registry entries. First attempt (2026-10-01) stalled on infrastructure watchdog timeout, zero commits; relaunched clean. Full independent verification: BSB quote check (Matt 5:1-2,7:1,7:13-29 + Luke 13:22-30 + Luke 6:46-49 + Rom 2:13 + 1 Cor 3:10-15 + Eph 2:8-10 + James 2:14-26, all exact including the corrected 7:23 workers-of-lawlessness wording and the em-dash fix at 7:27), banned-phrase grep clean, 15/15 sources + all 4 connection sourceIds resolved against 422-entry registry (zero dupes), content:validate 29/29 lessons clean post-merge, full test suite baseline-only failures, adversarial mutation (Reformed-reading verdict on 7:21-23) confirmed genuine FAIL then reverted clean -- first mutation attempt inside Positions correctly did not fail, confirming lint design.",
+      "notes": "Unit 4 of 5 in final wave, closes all 15 Matthew units. 4-tradition Positions entry on eternal security given MATT-U11-level care, explicitly non-adjudicated. 29 of 30 pilot units merged -- only GEN-U15 remains."
     }
   }
 }
