@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt5-murder-exodus20",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.5.21",
+    "end": "40.5.21"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "2.20.13",
+    "end": "2.20.13"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Matthew 5:21 opens with an explicit citation formula, \"You have heard that it was said to the ancients,\" and the command that follows it, \"Do not murder\" (BSB), states the same prohibition as Exodus 20:13's \"You shall not murder\" (BSB) -- the same command, though not an identical English sentence in this app's own translation, since Matthew's own citation renders it more briefly than the Decalogue text itself. The identical Decalogue wording is also given at Deuteronomy 5:17, which this connection does not separately target, since Exodus and Deuteronomy state the command word for word the same as each other; Exodus is used here as the Decalogue's first giving in canonical order, not because this lesson claims to know which specific verse Matthew himself had in view. Graded explicit because Matthew's own citation formula names a quotation directly, not because the English wording matches character for character.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

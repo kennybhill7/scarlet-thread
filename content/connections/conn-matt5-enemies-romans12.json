@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt5-enemies-romans12",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.5.43",
+    "end": "40.5.48"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "45.12.17",
+    "end": "45.12.21"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Romans 12:17's \"Do not repay anyone evil for evil\" (BSB) and 12:19-21's instruction not to avenge oneself run conceptually parallel to Matthew 5:38-48's non-retaliation and enemy-love teaching, without Paul using a citation formula or naming Jesus's saying as his source. The overlap sharpens at 12:20, where Paul quotes Proverbs 25:21-22 to instruct \"If your enemy is hungry, feed him,\" echoing both the vocabulary (\"enemy\") and the concrete-kindness shape of Matthew 5:44's \"love your enemies and pray for those who persecute you.\" Graded parallel rather than quotation because Paul is composing his own instruction, not quoting Matthew's text as text, and strong rather than explicit because the connection rests on conceptual and partial verbal overlap rather than an attributed citation.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
