@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt4-deut6-test",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.4.7",
+    "end": "40.4.7"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "5.6.16",
+    "end": "5.6.16"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Jesus introduces this quotation with \"It is also written\" (4:7) and quotes Deuteronomy 6:16 directly. Checked against both texts as shipped in this app, Matthew's quotation reproduces the command itself (\"Do not put the Lord your God to the test\" / \"Do not test the LORD your God\") but does not reproduce Deuteronomy's own closing clause naming the precedent for the command, \"as you tested Him at Massah\" -- the specific wilderness incident (Exodus 17:1-7) that gave the command its original occasion. The label stays explicit because the citation formula and the command itself are both unambiguous; the un-quoted clause is a difference in how much of the source verse is reproduced, not a difference in what the reproduced portion says.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

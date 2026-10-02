@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt4-deut8-bread",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.4.4",
+    "end": "40.4.4"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "5.8.3",
+    "end": "5.8.3"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Jesus introduces this quotation with his own citation wording, \"It is written\" (4:4), and quotes Deuteronomy 8:3's own conclusion to the manna narrative. Checked directly against both texts as shipped in this app, the wording differs in two traceable ways: Deuteronomy's own clause sits inside a purpose statement (\"so that you might understand that man does not live on bread alone\"), where Matthew's quotation stands as a freestanding assertion (\"Man shall not live on bread alone\"); and Matthew's Greek text reads \"the mouth of God\" (theou), which matches the Septuagint's own wording for this verse exactly -- the Septuagint itself reads theou here, not the more usual kyrios for the Hebrew divine name -- so the gap from this app's English Deuteronomy rendering (\"the mouth of the LORD\") traces to a Septuagint translation choice already present before Matthew, not a change Matthew introduces. The label stays explicit because the citation formula and the quoted content are both unambiguous, not because every word matches letter for letter.",
+  "sourceId": "source-biblehub-lxx-deuteronomy-8-3",
+  "viewpointId": null
+}

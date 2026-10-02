@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt4-hebrews415-tempted",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.4.1",
+    "end": "40.4.11"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "58.4.15",
+    "end": "58.4.15"
+  },
+  "type": "doctrinal_synthesis",
+  "evidenceLabel": "plausible",
+  "rationale": "Hebrews 4:15 states that the one Christians have as high priest \"was tempted in every way that we are, yet was without sin,\" a general theological claim that rests on a wider tradition of Jesus being tempted without naming Matthew 4:1-11, quoting its wording, or restricting itself to these three specific incidents -- \"every way\" reaches further than three recorded ones, and could draw on other moments the Gospels record, such as Gethsemane. The label is plausible rather than strong because Hebrews draws a doctrinal conclusion from that wider tradition rather than citing or echoing this specific passage's own wording; the range covers the whole unit (4:1-11) rather than one verse because no single verse in Matthew's account is what Hebrews 4:15 is drawing on.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
