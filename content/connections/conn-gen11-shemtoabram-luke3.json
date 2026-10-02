@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen11-shemtoabram-luke3",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.11.10",
+    "end": "1.11.26"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.3.34",
+    "end": "42.3.36"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Eight of this genealogy's nine names -- Shem, Arphaxad, Shelah, Eber, Peleg, Reu, Serug, Nahor, Terah -- reappear by name in Luke's own genealogy at 3:34-36, in reverse order, naming the identical father-son relationships this passage states; directly checkable against the shipped BSB text of both passages. The type is parallel rather than quotation because Luke supplies no citation formula and never names Genesis as his source; it is not an allusion because the correspondence in names and relationships is near-total rather than a matter of shared vocabulary or imagery. One real, checkable difference a reader comparing the two lists directly will find: Luke's own BSB text names an additional figure, 'the son of Cainan' (3:36), between Shelah and Arphaxad -- a name Genesis 11:12-14's own BSB text does not include anywhere between those same two figures. This is a real, live, named dispute (reported in this lesson's Questions to Carry and Sources and Limits) over whether this Cainan belongs in Luke's own original text -- the Septuagint includes a Cainan at the corresponding point in Genesis 10:24 and 11:12, and some ancient manuscripts of Luke include the name -- or is a later copying addition, since other ancient manuscripts of Luke (including Papyrus 75) omit it and no clearly dated Christian writing before Augustine mentions this figure. The label is strong rather than explicit because, although most of the names and relationships match completely, Luke's own text gives no indication that it is drawing specifically on this passage of Genesis as opposed to a shared genealogical tradition more generally, and the one point of divergence is itself unresolved.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
