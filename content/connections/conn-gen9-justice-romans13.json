@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen9-justice-romans13",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.9.5",
+    "end": "1.9.6"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "45.13.1",
+    "end": "45.13.4"
+  },
+  "type": "parallel",
+  "evidenceLabel": "plausible",
+  "rationale": "Genesis 9:6 (BSB) vests the shedding of a murderer's blood in human hands, 'by man his blood will be shed,' and Romans 13:4 (BSB) describes the civil ruler as God's servant who 'does not carry the sword in vain' against wrongdoers -- both texts describe a human authority exercising, on God's own delegation, life-and-death force over a wrongdoer, in comparable terms ('blood'/'shed' in Genesis, 'the sword' in Romans). Graded parallel rather than type_antitype because neither text presents the other as a foreshadowing fulfilled; Paul's letter names no earlier text and does not reuse Genesis 9's own vocabulary. Graded plausible rather than strong because only one source consulted for this connection (a devotional Bible-study article on Genesis 9:6) states the tie explicitly, and no independently-read, named academic commentary on Romans 13 was found on this pass connecting it back to Genesis 9:5-6 specifically rather than to a more general doctrine of government; Acts 25:11, a candidate considered for the same slot, was set aside because it shares no vocabulary with Genesis 9:5-6 at all, only the general theme of a government's authority over life and death that Romans 13 already carries more directly.",
+  "sourceId": "source-uasvbible-gen9-6-justice",
+  "viewpointId": null
+}

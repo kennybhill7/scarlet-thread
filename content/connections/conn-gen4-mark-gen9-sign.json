@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen4-mark-gen9-sign",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.4.15",
+    "end": "1.4.15"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.9.12",
+    "end": "1.9.17"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "The Hebrew word behind 'the LORD placed a mark on Cain' (4:15, BSB) is 'oth (Strong's 226); the word behind 'This is the sign of the covenant' (9:12, 17) and 'it will be a sign of the covenant' (9:13) is the identical word, independently checked here against both passages' own interlinear text rather than assumed from this curriculum's earlier Genesis 4 lesson's own claim. Graded motif rather than allusion because no citation formula connects the two episodes; the recurrence is a traceable word doing comparable communicative work in two otherwise unrelated narratives -- a visible marker meant to be seen and remembered, 4:15's own stated purpose ('so that no one who found him would kill him') and 9:16's parallel ('I will see it and remember'). Graded strong rather than explicit because the word's recurrence is certain but what it is for -- whether the narrator intends one sign to recall the other, or simply reaches for the same ordinary word twice -- is not settled by the recurrence itself, the same caution this curriculum's Genesis 4 lesson's own Question to Carry already raised about this exact pairing.",
+  "sourceId": "source-biblehub-bdb-oth",
+  "viewpointId": null
+}
