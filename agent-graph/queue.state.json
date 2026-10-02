@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-02T00:24:35.544Z",
+  "updatedAt": "2026-10-02T00:45:46.981Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1170,12 +1170,12 @@
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 5:1-12 -- The Beatitudes."
     },
     "MATT-U10": {
-      "status": "pending",
-      "branch": null,
-      "commitSha": null,
-      "attempts": 0,
+      "status": "done",
+      "branch": "agent/MATT-U10-claude",
+      "commitSha": "0255e18",
+      "attempts": 1,
       "lastRunId": null,
-      "lastEvidence": null,
+      "lastEvidence": "Merged 2026-10-01 (0255e18) into design/mountain-journey and master, both pushed. content/curriculum/matthew/10-salt-and-light.md (Matthew 5:13-20, salt and light / Jesus and the Law), status draft, stage 6. 3 named positions, with real theological neutrality achieved on the hardest one: what loses its savor means (3 positions); the until-accomplished clause (Schweizer vs France); and fulfill the Law itself, 4 full Christian traditions (covenant theology, dispensationalism, New Covenant Theology, Catholic teaching) each quoted directly from its own primary document, none favored. 3 new connections (Mark 9:50 strong, Luke 14:34-35 strong carrying a real fertilizer-use dispute, John 8:12 plausible correctly downgraded), 10 new source-registry entries. Romans 10:4 and Galatians 3:24 explicitly declined to avoid smuggling in a Pauline reading. Independently re-verified: spot-checked all 8 verses of Matthew 5:13-20 plus Mark 9:50/13:31, Luke 14:34-35, John 8:12 against the real shipped corpus (exact matches including the I-tell-you-truly/I-tell-you distinction), grepped for banned phrases (zero hits), resolved all 12 source refs (zero missing), confirmed zero duplicate ids across the full 287-entry registry, ran content:validate clean (18/18 lessons, 67 connections, 1259 places), ran the full test suite (same pre-existing pattern, unrelated), ran a real adversarial mutation using a theologically-loaded verdict phrase specifically chosen to test this lessons neutrality risk (confirmed genuine validator failure, reverted). Clean merge, no registry conflict, no filename collision.",
       "notes": "Pilot curriculum per BUILD_PLAN 5.1: Genesis 1-12 (15 units) + Matthew 1-7 (15 units), Genesis-3 depth, Ken approved 2026-10-01 (\"finish the 30-unit pilot first\"). Unit: Matthew 5:13-20 -- Salt and light, Jesus and the Law."
     },
     "MATT-U11": {
