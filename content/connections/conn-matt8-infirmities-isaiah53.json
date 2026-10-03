@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt8-infirmities-isaiah53",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.8.16",
+    "end": "40.8.17"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.53.4",
+    "end": "23.53.4"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Matthew introduces the words with his own fulfillment formula (\"This was to fulfill what was spoken through the prophet Isaiah,\" 8:17, BSB) and quotes the first half of Isaiah 53:4, which is why the type is quotation and the label is explicit. Checked against both texts as shipped in this app, the first clause is identical (\"He took on our infirmities\"), while the second differs: Isaiah 53:4 reads \"carried our sorrows\" and Matthew 8:17 reads \"carried our diseases\"; Matthew also omits Isaiah's opening \"Surely\" and the rest of the verse (\"yet we considered Him stricken by God, struck down and afflicted\"). Checked against the Greek and Hebrew pages registered for this lesson, Matthew's nouns (astheneia, nosos) correspond to the Hebrew's words for sickness and pain, while the Septuagint renders the same clause with its word for sins (hamartias); Barnes, Meyer, Gill, the Pulpit Commentary and the Expositor's Greek Testament all describe Matthew's wording as following the Hebrew. The range starts at 8:16 because the healings of that verse are what Matthew says fulfill the text; whether that fulfillment also implies a present provision of healing in the atonement is a separate, disputed question this lesson reports under Positions rather than in this grade.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

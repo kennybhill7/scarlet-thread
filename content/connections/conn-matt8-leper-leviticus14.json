@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt8-leper-leviticus14",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.8.2",
+    "end": "40.8.4"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "3.14.1",
+    "end": "3.14.32"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Jesus' instruction names the Mosaic provision directly -- \"go, show yourself to the priest and offer the gift prescribed by Moses, as a testimony to them\" (8:4, BSB) -- without quoting its wording, which is why this is explicit_reference rather than quotation. The referent is not in doubt: Leviticus 14 opens \"This is the law for the one afflicted with a skin disease on the day of his cleansing, when he is brought to the priest\" (14:2, BSB) and prescribes the offerings for that day, including a cheaper set for one who \"is poor and cannot afford these offerings\" (14:21, BSB); Ellicott (citing 14:10 and 14:21-22), Barnes (14:2, 14:4) and Jamieson-Fausset-Brown (14:1-57) all identify this chapter as the gift Matthew means. Two wording notes, checked against this app's text: Matthew's BSB wording is \"offer the gift prescribed by Moses,\" while Mark 1:44 and Luke 5:14 read \"present the offering Moses prescribed for your cleansing\"; and the BSB of Leviticus 13-14 says \"skin disease,\" not \"leprosy,\" for the condition the BSB of Matthew 8:2-3 calls leprosy.",
+  "sourceId": "source-biblehub-commentaries-matt-8-4",
+  "viewpointId": null
+}
