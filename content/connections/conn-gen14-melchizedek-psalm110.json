@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen14-melchizedek-psalm110",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.14.18",
+    "end": "1.14.20"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "19.110.4",
+    "end": "19.110.4"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "Psalm 110:4 (BSB) is the only verse outside Genesis 14 in the Old Testament where the name appears: 'You are a priest forever in the order of Melchizedek' (checked by a full scan of this app's BSB text, which finds the name only at Genesis 14:18, 14:20, Psalm 110:4, and eleven verses of Hebrews). Named commentators read the psalm as drawing on Genesis 14: Matthew Poole says the priest-word 'signifies a priest in Genesis 14:18, from whence this expression is borrowed,' and Ellicott says the psalmist had 'to go back to Melchizedek, in whom history recognised this sanctioned and formal union (Genesis 14:18)' of king and priest. Graded strong rather than explicit for two textual reasons: the psalm gives no narrative detail from Genesis 14 (no Abram, no bread and wine, no tithe), and the Hebrew phrase can be read as a title rather than a name -- the Jewish Publication Society's 1985 translation renders the line 'You are a priest forever, a rightful king by My decree,' with the footnote 'Or \"after the manner of Melchizedek.\"' Every commentator consulted for this connection (Poole, Ellicott, the Cambridge Bible, Pulpit, Barnes) reads the name as referring to the figure of Genesis 14, and JPS itself gives that reading as its alternative, which is why the grade is strong and not plausible.",
+  "sourceId": "source-biblehub-commentary-psalm-110-4",
+  "viewpointId": null
+}
