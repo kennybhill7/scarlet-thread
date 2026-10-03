@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt9-mercy-hosea6",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.9.13",
+    "end": "40.9.13"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "28.6.4",
+    "end": "28.6.6"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Jesus sends his questioners to \"go and learn\" a saying and then quotes it: \"I desire mercy, not sacrifice\" (40.9.13, BSB). In this app's BSB those five words are exactly the first clause of Hosea 6:6, \"For I desire mercy, not sacrifice, and the knowledge of God rather than burnt offerings\" (28.6.6, BSB); Matthew drops the opening \"For\" and the whole second clause. The Greek of Matthew in the critical text the BSB follows (Eleos thelo kai ou thysian, per Bible Hub; the Byzantine text reads Eleon) matches the Septuagint wording of Hosea 6:6 printed at ellopos.net word for word in that clause, and both follow the Hebrew's \"and not\" (welo). The range starts at 6:4 because the same Hebrew noun, chesed, sits behind the BSB's \"loyalty\" there (\"your loyalty is like a morning mist\") and its \"mercy\" in 6:6, which an English reader cannot see. Explicit because Matthew's own introduction marks the words as a text to be learned and the wording matches; Matthew quotes the same clause again at 12:7, a recurrence noted here and not authored as its own row.",
+  "sourceId": "source-biblehub-interlinear-hosea-6-6",
+  "viewpointId": null
+}
