@@ -20,7 +20,10 @@
  * plainly for whoever next touches this: after this task's title rewrite,
  * this screen shows the NEW titles immediately, while the Mountain/Mirror
  * (both DB-backed) keep showing the OLD titles until `npm run db:seed` is
- * run again — see this task's own final report.
+ * run again — see this task's own final report. (SYNCSTAGES-001: on a
+ * database that already holds journal data `db:seed` refuses; push stage
+ * edits with `npm run db:sync-stages` instead. This module stays the
+ * read-side shape parser; the write-side gate is `lib/content/stageSeed.ts`.)
  *
  * LOGIC-VS-IO SPLIT (same discipline `scripts/content/lensLint.ts` and
  * `scripts/content/validate.ts` already use): `parseLensStages`/
