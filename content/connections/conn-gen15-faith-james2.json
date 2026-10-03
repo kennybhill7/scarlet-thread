@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen15-faith-james2",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.15.6",
+    "end": "1.15.6"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "59.2.21",
+    "end": "59.2.24"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "James 2:23 introduces the verse with its own formula, 'And the Scripture was fulfilled that says', and quotes it in the same wording Paul uses: 'Abraham believed God, and it was credited to him as righteousness' (BSB). What is distinctive, and checkable, is the setting: James places the quotation inside an argument about Abraham offering Isaac 'on the altar' (2:21), an event Genesis narrates at chapter 22, and Barnes' Notes on James 2:23 states that the offering 'occurred some 20 years afterward' than the declaration of 15:6. Graded quotation at explicit because the formula and wording are unambiguous; how James's use relates to Paul's use of the same verse is a named, unresolved dispute the lesson reports in Positions rather than a question this grade answers.",
+  "sourceId": "source-biblehub-commentary-james-2-23",
+  "viewpointId": null
+}

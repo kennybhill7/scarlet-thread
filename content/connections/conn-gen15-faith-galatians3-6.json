@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen15-faith-galatians3-6",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.15.6",
+    "end": "1.15.6"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "48.3.6",
+    "end": "48.3.7"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Galatians 3:6 reads 'So also, \"Abraham believed God, and it was credited to him as righteousness\"' (BSB), the same sentence Romans 4:3 introduces as 'the Scripture', and 3:7 draws its conclusion from it ('those who have faith are sons of Abraham'). The introduction here is only 'So also' rather than a formal 'it is written', which is the one reason to hesitate; it is outweighed because the full sentence, belief followed by crediting, occurs in the Old Testament only at Genesis 15:6 (Psalm 106:31 shares only the crediting clause, said of Phinehas), and Ellicott's commentary on Galatians 3:6 identifies it as 'Quoted from the LXX. version of Genesis 15:6' and adds that 'The same quotation is made, in the same words and with the same object, in Romans 4:3'. Graded quotation at explicit on the strength of that unique wording; the separate Genesis 12:3 citation two verses later (3:8) is a different, already-authored connection.",
+  "sourceId": "source-biblehub-commentary-galatians-3-6",
+  "viewpointId": null
+}

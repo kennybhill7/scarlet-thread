@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen15-pieces-jeremiah34",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.15.9",
+    "end": "1.15.17"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "24.34.18",
+    "end": "24.34.20"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Jeremiah 34:18-19 describes a covenant ceremony in Jeremiah's own day, the calf 'they cut in two in order to pass between its pieces' (BSB), which shares rare, checkable vocabulary with Genesis 15: the noun bether, a piece or half, occurs in Genesis 15:10 and Jeremiah 34:18-19 and otherwise only once, as a place name in Song of Songs 2:17, and Brown-Driver-Briggs describes the Genesis and Jeremiah uses as 'always of halves of animals cut in two in making covenants'; Jeremiah also uses the verb 'pass' with 'between', as Genesis 15:17 does. Graded parallel rather than allusion because Jeremiah never names Abram or Genesis 15; the two texts describe the same kind of rite, not one text recalling the other. The label is strong because the shared rare word is verifiable, while what the rite signifies is disputed: Keil and Delitzsch hold that there is 'no sure ground in Jeremiah 34:18' for reading Genesis 15 as a self-curse, which is why this connection claims shared practice, not shared meaning.",
+  "sourceId": "source-biblehub-bdb-bether-1335",
+  "viewpointId": null
+}
