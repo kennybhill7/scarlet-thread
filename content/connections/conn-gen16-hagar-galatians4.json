@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen16-hagar-galatians4",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.16.1",
+    "end": "1.16.16"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "48.4.21",
+    "end": "48.4.31"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Galatians 4:22 (BSB) names the household Genesis 16 narrates -- 'Abraham had two sons, one by the slave woman and the other by the free woman' -- and 4:24-25 names Hagar herself twice ('This is Hagar'; 'Hagar stands for Mount Sinai in Arabia'). Galatians 4:23's 'His son by the slave woman was born according to the flesh' refers to the birth Genesis 16:15 records. The one direct quotation in Paul's passage, Galatians 4:30 ('Expel the slave woman and her son'), comes from Genesis 21:10, not chapter 16, and is not claimed by this row. The shipped BSB renders Paul's own word at 4:24 as 'These things serve as illustrations'; commentators on that verse disagree about what kind of reading it is: Meyer's NT Commentary warns against 'confounding the idea of the allegory with that of the type' and names Calvin, Tholuck, and Wieseler as treating the two as the same, while Barnes' Notes holds that Paul does not mean 'that Moses meant this to be an allegory' and that 'No such design is apparent in the narrative of Moses.' Graded explicit_reference at explicit because Paul names Hagar, Abraham, and the two sons outright. The grade measures how certain the reference is. It does not decide whether Paul's figurative use is what Genesis 16 itself means.",
+  "sourceId": "source-biblehub-commentary-galatians-4-24",
+  "viewpointId": null
+}
