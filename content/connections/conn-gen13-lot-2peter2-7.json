@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen13-lot-2peter2-7",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.13.10",
+    "end": "1.13.13"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "61.2.6",
+    "end": "61.2.8"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "2 Peter 2:6-8 (BSB) names Sodom and Gomorrah and Lot outright and describes Lot 'living among them day after day' -- a residence that Genesis first narrates at 13:12 ('Lot settled in the cities of the plain and pitched his tent toward Sodom'), immediately after 13:13's notice that 'the men of Sodom were wicked, sinning greatly against the LORD.' The Pulpit Commentary on 2 Peter 2:8 makes that same link back to this chapter: 'It was through his own choice that he dwelt among the people of Sodom,' citing Genesis 13:11. Peter's own word for Lot -- 'a righteous man' (2:7), 'that righteous man... his righteous soul' (2:8) -- is not a description Genesis 13 itself supplies; the passage records Lot's choice and states no verdict on him, which is why the reading of Lot is reported as a named dispute in this lesson's Positions rather than settled by this connection. Graded explicit_reference because Peter names the person, the cities, and his residence there without a citation formula, and strong rather than explicit because the events Peter actually narrates (the cities' destruction and Lot's rescue) are told in Genesis 19, so the tie to Genesis 13 runs through the settlement that begins here rather than through a scene Peter describes from this chapter.",
+  "sourceId": "source-biblehub-commentary-2-peter-2-8",
+  "viewpointId": null
+}
