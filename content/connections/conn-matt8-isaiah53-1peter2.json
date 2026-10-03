@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt8-isaiah53-1peter2",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.8.16",
+    "end": "40.8.17"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "60.2.24",
+    "end": "60.2.25"
+  },
+  "type": "doctrinal_synthesis",
+  "evidenceLabel": "strong",
+  "rationale": "Matthew 8:17 and 1 Peter 2:24-25 both apply the same Servant passage to Jesus, but different verses of it and in different settings: Matthew quotes Isaiah 53:4 about healings that evening, while Peter writes \"He Himself bore our sins in His body on the tree, so that we might die to sin and live to righteousness\" and then quotes Isaiah 53:5 as \"By His stripes you are healed\" (BSB; Isaiah's own wording is \"by His stripes we are healed\"), followed by Isaiah 53:6's straying sheep at 2:25. The pairing is graded doctrinal_synthesis because neither text cites the other; readers bring them together to ask how healing and Jesus' death relate, and the published answers differ sharply (Assemblies of God, Hagin, Russell, Hill and others, reported in the lesson's Positions). Strong rather than explicit because the shared Isaiah 53 source is verifiable in both texts, but no text states the synthesis itself.",
+  "sourceId": "source-hill-pjbr-2013-atonement-healing",
+  "viewpointId": null
+}

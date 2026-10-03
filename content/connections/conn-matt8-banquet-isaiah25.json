@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt8-banquet-isaiah25",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.8.11",
+    "end": "40.8.12"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.25.6",
+    "end": "23.25.8"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "Matthew 8:11 pictures many who \"share the banquet with Abraham, Isaac, and Jacob in the kingdom of heaven\" (BSB), and Isaiah 25:6 pictures the LORD preparing \"a banquet for all the peoples\" on His mountain (BSB); the Pulpit Commentary states that Matthew's image is \"taken from Isaiah 25:6.\" The grade stays at plausible because Matthew names no prophet and shares no phrase with Isaiah 25 beyond the banquet image itself, which the Wikipedia article on Matthew 8:11 (reporting France) calls a frequent idea in Jewish literature of the period. The verse's \"from the east and the west\" wording points to other texts instead -- Isaiah 43:5 (\"I will bring your offspring from the east and gather you from the west\") and Psalm 107:3 (\"from east and west, from north and south\"), the first addressed to \"Jacob\" and \"Israel\" (Isaiah 43:1) and the second to \"the redeemed of the LORD\" (Psalm 107:2), both about gathering a scattered people rather than about foreigners -- which is part of why Davies and Allison, as Wikipedia reports them, leave open whether Matthew's \"many\" are Gentiles or diaspora Jews.",
+  "sourceId": "source-biblehub-commentaries-matt-8-11",
+  "viewpointId": null
+}

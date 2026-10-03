@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt8-centurion-luke7",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.8.5",
+    "end": "40.8.13"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.7.1",
+    "end": "42.7.10"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Both accounts place a centurion's request for his servant at Capernaum and share the centurion's core speech almost word for word in this app's BSB (\"I am not worthy to have You come under my roof... just say the word, and my servant will be healed. For I myself am a man under authority, with soldiers under me,\" Matthew 8:8-9 and Luke 7:6-8), plus Jesus marveling at the faith he has not found in Israel. The differences are real and checkable: in Matthew \"a centurion came and pleaded with Him\" (8:5), while in Luke he \"sent some Jewish elders\" (7:3) and later \"sent friends with the message\" (7:6); Luke's elders call him \"worthy\" because \"he loves our nation and has built our synagogue\" (7:4-5), a detail Matthew lacks; Matthew's servant is \"paralyzed and in terrible agony\" (8:6), Luke's \"sick and about to die\" (7:2); only Matthew has the east-and-west saying (8:11-12) and Jesus' direct word to the centurion (8:13). Graded parallel at strong rather than explicit because neither Gospel cites the other and the narrative frames differ; how to reconcile the frames is a named harmonization question (Augustine against Chrysostom, Theophylact and Euthymius) reported in the lesson, not settled by this grade.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
