@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen13-land-romans4-13",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.13.14",
+    "end": "1.13.17"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "45.4.13",
+    "end": "45.4.13"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "Romans 4:13 (BSB) speaks of 'the promise to Abraham and his offspring that he would be heir of the world,' and Genesis 13:14-17 is the first place the promise is widened to every direction the eye can reach -- 'all the land that you see, I will give to you and your offspring forever' (13:15). Meyer's NT Commentary lists Genesis 13:14-15 among the land-promise passages (with 12:7, 15:18, 17:8, 22:17) that, on his account, Jewish interpretation read as a promise of world-wide dominion; but Meyer himself argues Paul 'had only these latter passages in view' (15:18 and 17:8), because 13:14 comes before Abram's faith is 'credited to him as righteousness' at 15:6. Barnes' Notes states that 'The precise expression used here, \"heir of the world,\" is not found in the promises made to Abraham,' and Poole and Gill each report readers who take 'the world' as the world of believers and others who take it as Canaan standing for the whole. Graded allusion rather than explicit_reference because Paul names a promise to Abraham but quotes none of this chapter's wording, and plausible because a named commentator who includes 13:14-15 in the background also argues that Paul's argument rests on later passages.",
+  "sourceId": "source-biblehub-commentary-romans-4-13",
+  "viewpointId": null
+}
