@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen15-sojourn-acts7",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.15.13",
+    "end": "1.15.14"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "44.7.6",
+    "end": "44.7.7"
+  },
+  "type": "quotation",
+  "evidenceLabel": "strong",
+  "rationale": "Stephen reports this speech as God's own words to Abraham ('God told him...', 'God said'), and the content tracks Genesis 15:13-14 closely: descendants as foreigners, 'enslaved and mistreated four hundred years', and God's judgment on the enslaving nation (BSB). It is not verbatim: Stephen shifts to the third person, and his closing clause, 'they will come forth and worship Me in this place', is not in Genesis 15:14, which reads 'they will depart with many possessions'. Meyer's commentary on Acts 7:6-7 states that this clause 'is entirely wanting in the LXX. and Hebrew, and is an expansion suggested by Exodus 3:12', so the grade is strong rather than explicit: a marked report of Genesis 15:13-14 with a blended ending.",
+  "sourceId": "source-biblehub-commentary-acts-7-6",
+  "viewpointId": null
+}
