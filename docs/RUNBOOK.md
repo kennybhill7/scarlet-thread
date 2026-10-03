@@ -11,7 +11,7 @@ Written 2026-09-25 (RELEASEOPS-001). Every command is a real script in `web/pack
 |---|---|---|
 | `npm run db:drift-check` | `DATABASE_URL` in the shell only (never reads `.env.local`, by design) | No: one SELECT |
 | `npm run db:release-migrate` | `DATABASE_URL` in the shell (or `--database-url`) | Yes: applies migrations |
-| `npm run db:sync-sources`, `npm run content:build`, `npm run db:seed`, `npm run db:import-graph-edges` | `web/.env.local` (`tsx --env-file=.env.local`; fails with `.env.local: not found` if absent) | Yes |
+| `npm run db:sync-sources`, `npm run db:sync-stages`, `npm run content:build`, `npm run db:seed`, `npm run db:import-graph-edges` | `web/.env.local` (`tsx --env-file=.env.local`; fails with `.env.local: not found` if absent) | Yes |
 | `npm run db:migrate` (`drizzle-kit migrate`) | drizzle config | Yes, **unguarded: not the release path** |
 
 - Never use `npm run db:migrate` against the real database. It has none of the identity check, lock, guard or verification that `db:release-migrate` provides. It is the mechanism of the hook removed in `a1031cc` (gate 0.12).
@@ -57,10 +57,13 @@ Content lives in `content/curriculum/<track>/<nn-slug>.md`. Pipeline and gates a
 1. `npm run content:validate` (read-only). Must pass. It also validates `content/connections/*.json` against the source registry.
 2. Confirm `web/.env.local` exists and its `DATABASE_URL` is the database you mean (it is production; there is no other).
 3. `npm run db:sync-sources`: upserts `content/source-registry.json` into Postgres `sources`. **Must come before the build:** `content:build` refuses if any lesson source id has no `sources` row. Idempotent.
-4. `npm run content:build`: validates, compiles, checksums (SHA-256) and inserts one `catalog_releases` row. Refuses unless every lesson has `status: published`. Prints the checksum and `Wrote catalog_releases row <id>`. Every run inserts a new row, even if nothing changed.
-5. **Connections (CURATEDEDGES-002):** reviewed connection rows live in `content/connections/*.json`. After migration 0013 is applied, run `npm run db:sync-connections` (upserts them into `graph_edges` with review_status=reviewed), **after** `db:sync-sources` (it pre-checks source ids) and **before** `content:build` (which refuses if a lesson's `connectionIds[]` has no reviewed row in the DB).
-6. `npm run db:import-graph-edges` is the one-time bulk OpenBible import, not part of a normal release.
-7. Verify (UNVERIFIED, manual): in `psql`, `select id, released_at, lesson_count, checksum from catalog_releases order by released_at desc limit 3;` The newest row is what the app serves. Then open the affected lesson in the app. Nothing at read time recomputes the checksum.
+4. `npm run db:sync-stages`: upserts the 11 Mountain stages from `content/lens/eleven-stages.json` into Postgres `stages`, keyed on slug (SYNCSTAGES-001). Writes only `stages`; refuses and writes nothing unless the file passes the same checks `db:seed` applies (exactly 11 stages, unique slugs and stage numbers 1-11, valid chapters, reciprocal mirrors). Idempotent; stages removed from the file are not deleted. `stages` has no foreign keys, so it depends on no other sync; run it whenever the stage file changes.
+5. `npm run content:build`: validates, compiles, checksums (SHA-256) and inserts one `catalog_releases` row. Refuses unless every lesson has `status: published`. Prints the checksum and `Wrote catalog_releases row <id>`. Every run inserts a new row, even if nothing changed.
+6. **Connections (CURATEDEDGES-002):** reviewed connection rows live in `content/connections/*.json`. After migration 0013 is applied, run `npm run db:sync-connections` (upserts them into `graph_edges` with review_status=reviewed), **after** `db:sync-sources` (it pre-checks source ids) and **before** `content:build` (which refuses if a lesson's `connectionIds[]` has no reviewed row in the DB).
+7. `npm run db:import-graph-edges` is the one-time bulk OpenBible import, not part of a normal release.
+8. Verify (UNVERIFIED, manual): in `psql`, `select id, released_at, lesson_count, checksum from catalog_releases order by released_at desc limit 3;` The newest row is what the app serves. Then open the affected lesson in the app. Nothing at read time recomputes the checksum.
+
+**`db:seed` is not a content-release step.** It is a ONE-TIME import of the owner's journal (threads, people, entries) that also writes the stages, and it refuses outright ("Seed target already contains journal data") on any account with a single entry, thread or person. Do not use it to push stage title/summary changes; use `npm run db:sync-stages` (step 4).
 
 ## 4. Rotate database credentials
 
@@ -91,7 +94,7 @@ Nothing here has been tried. Fill in after the first drill.
 The reader serves only the newest `catalog_releases` row (`orderBy releasedAt desc limit 1`, `web/lib/content/publishedLessons.ts`). Rows are never updated by code. No revocation record exists. **UNVERIFIED:** neither option below has been run.
 
 - **Preferred: corrective release.** Revert the content change in git, then section 3. This adds a new newest row with the old content. It needs `content:validate` to pass, which today it does not (see section 3, step 1).
-- **Fast: remove the bad row (human decision, manual SQL).** Identify it with the query in section 3, step 7, then in `psql` delete that one row by id. The app then serves the previous newest row. This breaks the "append-only" convention on purpose, so record what was deleted and why (row id, checksum, reason) in `AGENT_STATUS.md`. If it was the only row, learners see the "no curated content yet" state until a new release is built.
+- **Fast: remove the bad row (human decision, manual SQL).** Identify it with the query in section 3, step 8, then in `psql` delete that one row by id. The app then serves the previous newest row. This breaks the "append-only" convention on purpose, so record what was deleted and why (row id, checksum, reason) in `AGENT_STATUS.md`. If it was the only row, learners see the "no curated content yet" state until a new release is built.
 - Does not affect learner data. It does not undo a migration.
 
 ## 7. What agents may and may not do
@@ -101,7 +104,7 @@ Agents may: edit code, tests, `content/` and `docs/` on an `agent/*` branch or w
 Agents may not:
 
 - Edit `.github/` (workflows are drafted under `docs/ci/` and installed by Ken).
-- Run any command that connects to a real database: `db:drift-check`, `db:release-migrate`, `db:migrate`, `db:sync-sources`, `db:seed`, `db:import-graph-edges`, `content:build`, `db:studio`. Do not search for or read `.env*` files or credentials.
+- Run any command that connects to a real database: `db:drift-check`, `db:release-migrate`, `db:migrate`, `db:sync-sources`, `db:sync-stages`, `db:seed`, `db:import-graph-edges`, `content:build`, `db:studio`. Do not search for or read `.env*` files or credentials.
 - Change Vercel, Neon or Google Cloud settings, or rotate any credential.
 - Merge to `master`, push, or deploy.
 - Edit an already-applied migration file. It changes its hash, and drizzle would not notice, only the drift check would (`0006`/`0007` were already edited once, see section 2). Add a new migration instead.

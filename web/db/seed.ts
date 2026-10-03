@@ -12,13 +12,20 @@ import {
   entries,
   entryThreads,
   people,
-  stages,
   threads,
   users,
 } from "@/db/schema";
 import { chapterRefSchema } from "@/lib/api/entries";
+import {
+  collectStageSeedErrors,
+  seedStageSchema,
+  slugPattern,
+  slugSchema,
+  STAGE_SEED_PATH,
+  type SeedStage,
+} from "@/lib/content/stageSeed";
+import { buildStageUpserts } from "@/lib/db/stages";
 
-type SeedStage = typeof stages.$inferInsert;
 type SeedThread = Pick<
   typeof threads.$inferInsert,
   "slug" | "title" | "definition" | "seeing"
@@ -48,7 +55,11 @@ const seedDirectory = path.join(process.cwd(), "data", "seed");
 // content/lens/eleven-stages.json's own data for the moved, re-titled rows
 // and content/lens/why-this-shape.json for this lens's disclosure copy
 // (rendered at app/(app)/mountain-why/page.tsx).
-const stagesSeedPath = path.join(process.cwd(), "..", "content", "lens", "eleven-stages.json");
+// SYNCSTAGES-001: the path, schema, stage preflight rules and upsert columns
+// now live in lib/content/stageSeed.ts + lib/db/stages.ts, shared with
+// scripts/sync-stages.mts (`npm run db:sync-stages`) -- the way to push stage
+// edits to a database that already holds journal data (this script refuses).
+const stagesSeedPath = STAGE_SEED_PATH;
 
 async function readSeed<T>(filePath: string, schema: ZodType<T>) {
   const value: unknown = JSON.parse(await readFile(filePath, "utf8"));
@@ -63,21 +74,6 @@ async function readSeed<T>(filePath: string, schema: ZodType<T>) {
   return parsed.data;
 }
 
-const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const slugSchema = z.string().regex(slugPattern);
-const seedStageSchema = z.array(
-  z
-    .object({
-      slug: slugSchema,
-      title: z.string().trim().min(1),
-      stage: z.number().int(),
-      side: z.enum(["ascent", "peak", "descent"]),
-      mirror: slugSchema.nullable(),
-      chapters: z.array(chapterRefSchema),
-      summary: z.string(),
-    })
-    .strict(),
-);
 const seedThreadSchema = z.array(
   z
     .object({
@@ -131,45 +127,8 @@ function preflight(
   personSeed: SeedPerson[],
   entrySeed: SeedEntry[],
 ) {
-  const errors: string[] = [];
-  const stageSlugs = new Set<string>();
-  const stageNumbers = new Set<number>();
+  const errors: string[] = collectStageSeedErrors(stageSeed);
   const threadSlugs = new Set<string>();
-
-  if (stageSeed.length !== 11) {
-    errors.push(`Expected 11 mountain stages, found ${stageSeed.length}`);
-  }
-  for (const stage of stageSeed) {
-    if (!stage.slug || stageSlugs.has(stage.slug)) {
-      errors.push(`Duplicate or missing stage slug: ${stage.slug || "(empty)"}`);
-    }
-    stageSlugs.add(stage.slug);
-    if (!Number.isInteger(stage.stage) || stageNumbers.has(stage.stage)) {
-      errors.push(`Duplicate or invalid stage number: ${stage.stage}`);
-    }
-    stageNumbers.add(stage.stage);
-    if (stage.stage < 1 || stage.stage > 11) {
-      errors.push(`Stage ${stage.slug} is outside the 1-11 mountain`);
-    }
-    if (!Array.isArray(stage.chapters)) {
-      errors.push(`Stage ${stage.slug} has no chapter list`);
-    }
-    for (const chapter of stage.chapters ?? []) {
-      if (!chapterRefSchema.safeParse(chapter).success) {
-        errors.push(`Stage ${stage.slug} has invalid chapter ${chapter}`);
-      }
-    }
-  }
-  const stagesBySlug = new Map(stageSeed.map((stage) => [stage.slug, stage]));
-  for (const stage of stageSeed) {
-    if (!stage.mirror) continue;
-    const mirror = stagesBySlug.get(stage.mirror);
-    if (!mirror) {
-      errors.push(`Stage ${stage.slug} has unknown mirror ${stage.mirror}`);
-    } else if (mirror.mirror !== stage.slug) {
-      errors.push(`Stage ${stage.slug} mirror is not reciprocal`);
-    }
-  }
 
   for (const thread of threadSeed) {
     if (!slugPattern.test(thread.slug) || threadSlugs.has(thread.slug)) {
@@ -302,28 +261,10 @@ async function main() {
   if (!firstStage) {
     throw new Error("Seed preflight did not provide a first stage");
   }
-  const stageUpsert = (stage: SeedStage) =>
-    db
-      .insert(stages)
-      .values(stage)
-      .onConflictDoUpdate({
-        target: stages.slug,
-        set: {
-          title: stage.title,
-          stage: stage.stage,
-          side: stage.side,
-          mirror: stage.mirror,
-          chapters: stage.chapters,
-          summary: stage.summary,
-        },
-      });
   const operations: [
     BatchItem<"pg">,
     ...BatchItem<"pg">[],
-  ] = [stageUpsert(firstStage)];
-  for (const stage of remainingStages) {
-    operations.push(stageUpsert(stage));
-  }
+  ] = buildStageUpserts(db, [firstStage, ...remainingStages]);
 
   for (const thread of threadSeed) {
     operations.push(
