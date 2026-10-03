@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt9-ruler-mark5",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.9.18",
+    "end": "40.9.26"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.5.21",
+    "end": "41.5.43"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Both texts tell the same two interlocking stories in the same order -- a synagogue leader's daughter, interrupted by a woman bleeding \"for twelve years\" who touches Jesus's clothing -- and share near-identical sayings, checked directly against this app's own shipped BSB text: \"The girl is not dead, but asleep\" (Matthew 9:24) against \"The child is not dead, but asleep\" (Mark 5:39), followed in both by \"they laughed at Him.\" The differences are just as checkable. Matthew never names the father, calling him only \"a synagogue leader\" (9:18), where Mark names him (\"A synagogue leader named Jairus,\" 5:22); Matthew's father says \"My daughter has just died\" (9:18), where Mark's says \"My little daughter is near death\" (5:23) and the death is reported later by messengers (5:35); and Mark carries material Matthew does not have at all -- the physicians (5:26), Jesus asking \"Who touched My garments?\" (5:30), the three disciples (5:37), \"Talitha koum!\" (5:41), and the girl's age (5:42). Graded parallel because no citation links the two accounts, and strong rather than explicit because the shared sequence is substantial while these differences are real; which account depends on which is reported in the lesson, not decided by this connection.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

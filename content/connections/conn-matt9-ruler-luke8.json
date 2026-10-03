@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt9-ruler-luke8",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.9.18",
+    "end": "40.9.26"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.8.40",
+    "end": "42.8.56"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Luke tells the same interlocking pair of stories in the same order, and agrees with Mark rather than Matthew on two checkable points in this app's own shipped BSB text: the father is named (\"a synagogue leader named Jairus,\" 8:41) and the girl is still alive when he arrives (\"his only daughter, who was about twelve, was dying,\" 8:42), against Matthew's unnamed father and \"My daughter has just died\" (9:18). On one detail Luke instead agrees with Matthew against Mark: the woman \"touched the fringe of His cloak\" (Luke 8:44; Matthew 9:20), where Mark 5:27 says only that she \"touched His cloak\" -- and the Greek lexicon used for this lesson lists the word for \"fringe\" at Matthew 9:20 and Luke 8:44 but not in Mark 5. Luke also states outright what Matthew leaves to the reader: the mourners laughed, \"knowing that she was dead\" (8:53), and \"Her spirit returned\" (8:55). Graded parallel because no citation formula links the accounts, and strong rather than explicit because the shared sequence is close while the naming, the dying/dead difference, and Luke's added statements are real, checkable differences.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

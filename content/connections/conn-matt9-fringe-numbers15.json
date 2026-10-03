@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt9-fringe-numbers15",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.9.20",
+    "end": "40.9.21"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "4.15.37",
+    "end": "4.15.41"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "The woman \"touched the fringe of His cloak\" (Matthew 9:20, BSB). The Greek noun behind \"fringe,\" kraspedon, is the word the Septuagint uses at Numbers 15:38 for the \"tassels\" Israel is commanded to make \"for the corners of their garments\" (BSB), and Matthew uses the same noun again for the Pharisees' \"tassels\" (23:5, BSB) -- so inside Matthew's own Gospel the word names the commanded tassel, not just any hem. Thayer's lexicon (via Biblehub) and several public-domain commentaries (Meyer, Vincent, the Pulpit Commentary, via the Biblehub aggregator) make the same identification. The type is motif, not allusion: Matthew does not echo the wording or the stated purpose of Numbers 15 (\"so that you may remember all the commandments of the LORD,\" 15:39), so what is traced is a recurring object. The Septuagint uses the same noun in the parallel command at Deuteronomy 22:12 (\"tassels on the four corners of the cloak,\" BSB), though there it renders \"corners\" rather than \"tassels,\" and Thayer gives the word's classical sense as \"edge, skirt, margin.\" The Greek word alone therefore does not fully separate tassel from edge. The label stays strong because Matthew's own use at 23:5 is plainly the tassel and the identification can be checked; what the tassel signifies in this story is a further question the lesson reports as disputed.",
+  "sourceId": "source-biblehub-strongs-2899-kraspedon",
+  "viewpointId": null
+}

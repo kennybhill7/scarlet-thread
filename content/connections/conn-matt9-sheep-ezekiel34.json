@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt9-sheep-ezekiel34",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.9.35",
+    "end": "40.9.36"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "26.34.2",
+    "end": "26.34.24"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "Matthew's exact phrase, \"like sheep without a shepherd\" (9:36, BSB), matches Numbers 27:17 and 1 Kings 22:17 word for word in this app's own BSB text, not Ezekiel 34, which says \"scattered for lack of a shepherd\" (34:5). The phrase recurs often enough in the Old Testament that its wording alone cannot single out one source. What puts Ezekiel 34 forward is a cluster around the phrase. Ezekiel's failed shepherds have not \"healed the sick\" (34:4), where Matthew 9:35 has Jesus \"healing every disease and sickness.\" God promises \"I will seek the lost\" (34:16), and Matthew's next chapter sends the Twelve \"to the lost sheep of Israel\" (10:6). Ezekiel 34:23 promises \"one shepherd, My servant David,\" in the same unit where Matthew has just had two blind men cry \"Son of David!\" (9:27). Named support exists but was read only at a distance. The Pulpit Commentary cites Ezekiel 34:5 first, and MacLaren speaks of \"language borrowed from the prophecy of Ezekiel\" (both via the Biblehub aggregator). Chae's publisher description says Matthew is conversant with \"particularly Ezekiel 34 and 37\". Heil's 1993 CBQ article treats Matthew 9:36 and 10:6 alongside Ezekiel 34, but only its bibliographic record was checked. Graded plausible, not strong, because there is no citation formula, the verbatim match points elsewhere, and the scholarly arguments were read only through descriptions.",
+  "sourceId": "source-chae-davidic-shepherd-2006",
+  "viewpointId": null
+}

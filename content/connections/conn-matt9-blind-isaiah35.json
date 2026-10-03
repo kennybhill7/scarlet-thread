@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt9-blind-isaiah35",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.9.27",
+    "end": "40.9.33"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.35.5",
+    "end": "23.35.6"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "Matthew 9:27-33 names no prophet and uses no citation formula. What it shares with Isaiah 35:5 is the opened eyes: blind men whose \"eyes were opened\" (9:30, BSB), against \"the eyes of the blind will be opened\" (35:5, BSB). In Greek, Matthew 9:30 uses the same verb and noun as the Septuagint of Isaiah 35:5. The English pairing of Isaiah's \"mute tongue\" (35:6, BSB) with the mute man of 9:32-33 is a coincidence of translation. Matthew's word for that man, kophon, is the word the Septuagint of Isaiah 35:5 uses for the \"deaf,\" while Isaiah 35:6's \"mute tongue\" uses a different word (glossa mogilalon). The tie is made more openly two chapters later, when Jesus answers John's question with \"The blind receive sight\" (11:5, BSB) -- words Meyer (via the Biblehub aggregator) calls \"an echo of Isaiah 35:5 f.\" Novakovic's publisher description says Matthew makes the healing \"Son of David\" intelligible through \"selected biblical passages, especially from the Book of Isaiah,\" but that description does not name Isaiah 35. Graded plausible, not strong, because the clearest pointer is a later verse (11:5), and the only verbal overlap at 9:27-33 is the opened eyes, which is common language, not wording unique to Isaiah 35.",
+  "sourceId": "source-biblehub-commentary-matt-11-5",
+  "viewpointId": null
+}
