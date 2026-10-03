@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt8-demoniacs-mark5",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.8.28",
+    "end": "40.8.34"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.5.1",
+    "end": "41.5.20"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Both accounts come straight after a storm crossing and share their main events: men coming from the tombs, demons who ask what Jesus wants with them and plead about their fate, a herd of pigs that \"rushed down the steep bank into the sea\" (Matthew 8:32; Mark 5:13, BSB), herdsmen who run to the town, and people who beg Jesus \"to leave their region\" (Matthew 8:34; Mark 5:17, BSB). The differences are checkable in the shipped BSB text. Matthew has \"two demon-possessed men\" in \"the region of the Gadarenes\" (8:28), while Mark has \"a man with an unclean spirit\" in \"the region of the Gerasenes\" (5:1-2). Only Matthew has \"before the appointed time\" (8:29). Only Mark has the name \"Legion\" (5:9), the healed man \"clothed and in his right mind\" (5:15), and his commission to go home and tell (5:19-20). Luke 8:26-39 follows Mark on the place-name and on one man. Graded parallel, not quotation, because no citation formula links them. Strong rather than explicit because the event sequence is the same but the number of men and the place-name differ. This lesson reports named harmonizations of those differences (Augustine; Licona via Wikipedia) without choosing between them.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
