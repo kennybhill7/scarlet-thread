@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt9-levi-luke5",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.9.9",
+    "end": "40.9.17"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.5.27",
+    "end": "42.5.39"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "The same three scenes run in the same order in both texts as shipped in this app: a call at \"the tax booth\" with \"Follow Me,\" a meal with tax collectors, and a question about fasting answered with the bridegroom, the patch and the wineskins. Shared wording is close, for example \"It is not the healthy who need a doctor, but the sick\" (Matthew 9:12; Luke 5:31, BSB). Strong rather than explicit because neither Gospel names the other. The differences are checkable: the man is \"Matthew\" in Matthew 9:9 and \"Levi\" in Luke 5:27 (and \"Levi son of Alphaeus\" in Mark 2:14); Luke has no Hosea quotation and adds \"to repentance\" (5:32); Luke's patch is torn \"from a new garment\" (5:36); Matthew alone ends \"both are preserved\" (9:17); and Luke alone adds \"The old is better\" (5:39). The commentaries consulted treat Matthew and Levi as one person (the Cambridge Bible says the identification \"can scarcely be seriously disputed\"); the texts themselves do not state it.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

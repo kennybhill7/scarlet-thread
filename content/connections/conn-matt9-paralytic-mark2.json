@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt9-paralytic-mark2",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.9.1",
+    "end": "40.9.8"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.2.1",
+    "end": "41.2.12"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Checked against both texts as shipped in this app, the core sentence is identical in Matthew 9:6 and Mark 2:10: \"But so that you may know that the Son of Man has authority on earth to forgive sins...\" (BSB). Strong rather than explicit because neither Gospel names the other. The differences are real and checkable: Mark names Capernaum (2:1) where Matthew says \"His own town\" (9:1); Mark has four carriers and the opened roof (2:3-4), Matthew has neither; Jesus says \"Son\" in Mark 2:5 and \"Take courage, son\" in Matthew 9:2; Mark's scribes ask \"Who can forgive sins but God alone?\" (2:7), while Matthew's say only \"This man is blaspheming!\" (9:3); and Mark's crowd says \"We have never seen anything like this!\" (2:12), where Matthew alone says they \"glorified God, who had given such authority to men\" (9:8).",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

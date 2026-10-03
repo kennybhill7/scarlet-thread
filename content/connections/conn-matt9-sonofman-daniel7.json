@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt9-sonofman-daniel7",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.9.6",
+    "end": "40.9.6"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "27.7.13",
+    "end": "27.7.14"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "Matthew 9:6 pairs \"the Son of Man\" with \"authority on earth\" (BSB). Daniel 7:13-14 shows \"One like the Son of Man\" who \"was given dominion, glory, and kingship\" (BSB). The Pulpit Commentary on Matthew 9:6 holds that Jesus \"seems to point them to Daniel 7:13,\" noting that the Greek of Daniel 7:14 uses the same word for authority (exousia) and adding that this authority may be exercised \"not only in the future and in 'the clouds of heaven,' but now\" and \"on earth.\" Matthew names no text here and \"Son of Man\" is Jesus's common self-designation in this Gospel (already at 8:20), so the label is plausible: one named commentary argues the link, in hedged terms (\"seems\"), and the shared vocabulary is two words, not a quotation.",
+  "sourceId": "source-biblehub-commentary-matthew-9-6",
+  "viewpointId": null
+}

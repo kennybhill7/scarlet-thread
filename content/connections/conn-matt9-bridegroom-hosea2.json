@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt9-bridegroom-hosea2",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.9.15",
+    "end": "40.9.15"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "28.2.16",
+    "end": "28.2.20"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "Jesus calls himself, or at least the figure whose presence rules out fasting, \"the bridegroom\" (40.9.15, BSB). In Hosea 2 God speaks as Israel's husband: \"you will call Me 'my Husband,'\" and \"I will betroth you to Me forever\" (28.2.16, 28.2.19, BSB). The Pulpit Commentary reports that a scholar it names only as Nosgen \"sees in this a claim to be the expected Bridegroom of Israel,\" citing Hosea 2:19-20 with Jeremiah 3 and Ezekiel 16. Matthew names no prophet, uses no formula, and Hosea 2 never uses the word \"bridegroom,\" so this is an allusion at most; the label is plausible because one named reader argues it, reported here only secondhand, and the verbal overlap is an image (God as husband) rather than shared words.",
+  "sourceId": "source-biblehub-commentary-matthew-9-15",
+  "viewpointId": null
+}
