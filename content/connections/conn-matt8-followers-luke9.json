@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt8-followers-luke9",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.8.19",
+    "end": "40.8.22"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.9.57",
+    "end": "42.9.62"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Checked against this app's shipped BSB text, Jesus' reply about foxes and birds is word for word the same in both Gospels (Matthew 8:20 and Luke 9:58), and both have \"Lord, first let me go and bury my father\" followed by \"let the dead bury their own dead\" (Matthew 8:21-22; Luke 9:59-60). The differences are real and checkable. In Matthew the first speaker is \"one of the scribes\" and the second is already one of \"His disciples\". In Luke both are unnamed, and Jesus himself says \"Follow Me\" before the burial request. Matthew sets the exchange just before the boat crossing (8:18), while Luke sets it \"along the road\" (9:57). Luke adds an instruction to \"go and proclaim the kingdom of God\" (9:60) and a third would-be follower with the plow saying (9:61-62), neither of which is in Matthew. Graded parallel because no citation formula links the two, and strong rather than explicit because the shared sayings are near-verbatim while the setting and the cast differ.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

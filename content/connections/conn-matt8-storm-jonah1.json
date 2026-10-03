@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt8-storm-jonah1",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.8.23",
+    "end": "40.8.27"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "32.1.3",
+    "end": "32.1.16"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "Both scenes have a boat, a violent storm, and a man asleep while it rages. Jonah \"fell into a deep sleep\" (Jonah 1:5, BSB) and Jesus \"was sleeping\" (Matthew 8:24, BSB). In both the sleeper is woken by people afraid they will die (\"so that we may not perish,\" Jonah 1:6; \"We are perishing!\", Matthew 8:25, BSB), the sea goes calm, and the onlookers react with awe (\"the men feared the LORD greatly,\" Jonah 1:16; \"The men were amazed,\" Matthew 8:27, BSB). The differences are just as checkable. Jonah is running from God and the sea calms only after he is thrown overboard (1:15), while Jesus calms it with a word. Matthew 8 names neither Jonah nor any book. Jerome, as excerpted in the Catena Aurea, calls Jonah \"a type\" of this miracle, and Timothy Keller argues the parallel for Mark's version of the storm, not Matthew's. These patristic and pastoral readings are typological. They support Jonah 1 as possible background, but they are not evidence that Matthew intended an allusion, and a typological reading the New Testament does not state for this passage is graded plausible, not strong. Matthew 12:39-41 does compare Jesus with Jonah explicitly (\"One greater than Jonah is here\"), but that saying is about the sign of Jonah, not about this storm.",
+  "sourceId": "source-catena-aurea-matthew-isidore",
+  "viewpointId": null
+}

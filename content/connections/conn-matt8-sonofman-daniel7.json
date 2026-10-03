@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt8-sonofman-daniel7",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.8.20",
+    "end": "40.8.20"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "27.7.13",
+    "end": "27.7.14"
+  },
+  "type": "motif",
+  "evidenceLabel": "plausible",
+  "rationale": "Matthew 8:20 is the first verse in this app's BSB text of Matthew to use \"the Son of Man\". Daniel 7:13 describes \"One like the Son of Man coming with the clouds of heaven\" (BSB). Later in Matthew, Jesus' own words take up Daniel's cloud imagery directly: \"coming on the clouds of heaven\" (24:30 and 26:64, BSB). At 8:20, though, nothing ties the phrase to Daniel except the phrase itself. There are no clouds, no dominion and no throne, only a man with \"no place to lay His head\". Scholars dispute what the phrase means on Jesus' lips. Craig Blomberg (excerpted by Redemption Seminary) reads a Danielic background behind even this saying, while calling it one of the sayings that \"seem least dependent on a Danielic background.\" Geza Vermes (as reported by Alexander and Goodman) argued that the Aramaic bar nash could stand for \"I\" or for a human being in general, and that the idiomatic sayings have \"a higher chance of being authentic\" than the Danielic ones. That is why the type is motif: a phrase that recurs in Matthew and later takes up Daniel's wording (24:30; 26:64). Whether 8:20 already carries that content is the disputed point, and that is why the label is plausible, not strong: at this verse the link is debated, not stated.",
+  "sourceId": "source-blomberg-jesus-gospels-via-redemption-seminary",
+  "viewpointId": null
+}
