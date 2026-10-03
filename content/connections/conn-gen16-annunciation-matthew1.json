@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen16-annunciation-matthew1",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.16.11",
+    "end": "1.16.11"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.1.20",
+    "end": "40.1.21"
+  },
+  "type": "parallel",
+  "evidenceLabel": "plausible",
+  "rationale": "In Genesis 16:11 (BSB), 'The angel of the LORD proceeded' to tell Hagar, 'you have conceived and will bear a son. And you shall name him Ishmael, for the LORD has heard your cry of affliction.' Matthew 1:20-21 (BSB) has 'an angel of the Lord' tell Joseph, 'She will give birth to a Son, and you are to give Him the name Jesus, because He will save His people from their sins.' The two share four elements: an angelic messenger, a son announced, a name assigned before birth, and a reason for the name given in a 'for/because' clause. The Pulpit Commentary on 16:11 calls Ishmael's naming 'the first instance of the naming of a child before its birth' and lists Matthew 1:21 and Luke 1:13 among the later instances. The differences matter too: Hagar is already pregnant and is addressed herself; Matthew's angel addresses Joseph; Matthew does not cite or name Genesis 16; and Judges 13:3-5 has the same announcement pattern. Graded parallel at plausible because what is shared is a recurring way of announcing a birth, noticed in a commentator's cross-reference. No source read for this lesson argues that Matthew is deliberately echoing Genesis 16 in particular.",
+  "sourceId": "source-biblehub-commentary-gen-16-11",
+  "viewpointId": null
+}
