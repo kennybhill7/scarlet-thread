@@ -16,9 +16,11 @@ import {
 } from "@/lib/api/sync-v2";
 import type { SyncOpV2 } from "@/lib/contracts/sync-v2";
 import {
+  captureStudyConflictsV2,
   getLastPull,
   getPendingOps,
   getPendingV2Ops,
+  listStudyConflictsV2,
   mergeRemoteChanges,
   mergeRemoteChangesV2,
   recordV2Rejections,
@@ -328,7 +330,25 @@ async function readResponseV2(response: Response): Promise<SyncResponseV2> {
  * the PERMANENT wedge, it does not hide a brand-new conflict on first sight.
  */
 async function runSyncV2() {
-  const pending = await getPendingV2Ops();
+  // Once both versions are available, hold EVERY op for that entity. Later
+  // local edits must not accidentally acquire the server revision and bypass
+  // the learner's review. Pending membership still protects hydration.
+  const conflicts = await listStudyConflictsV2();
+  const held = new Set(conflicts.map(conflict => `${conflict.entity}:${conflict.entityId}`));
+  const queued = await getPendingV2Ops();
+  const heldGroups = new Set(queued.filter(op => held.has(`${op.entity}:${op.entityId}`)).map(op => op.mutationGroupId));
+  // Keep related groups/dependents intact while one member awaits review.
+  let changed = true;
+  while (changed) {
+    changed = false;
+    const heldIds = new Set(queued.filter(op => heldGroups.has(op.mutationGroupId)).map(op => op.opId));
+    for (const op of queued) {
+      if (!heldGroups.has(op.mutationGroupId) && op.dependsOn.some(id => heldIds.has(id))) {
+        heldGroups.add(op.mutationGroupId); changed = true;
+      }
+    }
+  }
+  const pending = queued.filter(op => !heldGroups.has(op.mutationGroupId));
   const pushedIds: string[] = [];
   const blockingRejections: SyncResponseV2["rejected"] = [];
 
@@ -360,6 +380,7 @@ async function runSyncV2() {
   }
 
   const pulled = await readResponseV2(await fetch("/api/sync/v2/pull"));
+  await captureStudyConflictsV2(pulled);
   await mergeRemoteChangesV2(pulled);
 
   if (blockingRejections.length > 0) {
