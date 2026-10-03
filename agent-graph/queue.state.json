@@ -1231,6 +1231,78 @@
       "lastRunId": "a7150c2fd1b1c00f9",
       "lastEvidence": "Merged d9f9c7a into design/mountain-journey + master; merged into content/next (5269084). db:sync-stages: stages-only idempotent upsert keyed on slug, one db.batch, shared validator with db:seed (verbatim move). Independently verified: diff review, typecheck clean, stage tests 10/10, full suite with build 2143 pass/0 fail, validate 30/30, own mutation (drop chapters from insert payload) caught. Never run against a DB.",
       "notes": "Fixes: db:seed refuses on any account with journal data, so stage edits could never reach production. RUNBOOK section 3 updated."
+    },
+    "GEN-U16": {
+      "status": "done",
+      "branch": "agent/GEN-U16-claude",
+      "commitSha": "9d12c8f",
+      "attempts": 2,
+      "lastRunId": "a6b10dc3a73b07254",
+      "lastEvidence": "Wave 7 (Gen 13 Abram and Lot). Merged into content/next (NOT master; draft) at edcef72 + fix-forward 6945b8d. Independent read-only adversarial review against source texts; all S1/S2/S3 findings applied by author in commit 9d12c8f and key fixes verified by orchestrator in the file. Orchestrator checks: BSB v2 checker (every Scripture-attributed fragment vs full corpus), banned-phrase grep, source/connection resolution, registry 0 dupes, content:validate, assertion-lint mutation outside Positions -> genuine FAIL then reverted.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U17": {
+      "status": "done",
+      "branch": "agent/GEN-U17-claude",
+      "commitSha": "51f230b",
+      "attempts": 2,
+      "lastRunId": "a1927cc556277f0a8",
+      "lastEvidence": "Wave 7 (Gen 14 Melchizedek). Merged into content/next (NOT master; draft) at 86c321c. Independent read-only adversarial review against source texts; all S1/S2/S3 findings applied by author in commit 51f230b and key fixes verified by orchestrator in the file. Orchestrator checks: BSB v2 checker (every Scripture-attributed fragment vs full corpus), banned-phrase grep, source/connection resolution, registry 0 dupes, content:validate, assertion-lint mutation outside Positions -> genuine FAIL then reverted.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U18": {
+      "status": "done",
+      "branch": "agent/GEN-U18-claude",
+      "commitSha": "9c1f253",
+      "attempts": 2,
+      "lastRunId": "a83ded489e87b0f74",
+      "lastEvidence": "Wave 7 (Gen 15 covenant between the pieces). Merged into content/next (NOT master; draft) at 100b066. Independent read-only adversarial review against source texts; all S1/S2/S3 findings applied by author in commit 9c1f253 and key fixes verified by orchestrator in the file. Orchestrator checks: BSB v2 checker (every Scripture-attributed fragment vs full corpus), banned-phrase grep, source/connection resolution, registry 0 dupes, content:validate, assertion-lint mutation outside Positions -> genuine FAIL then reverted.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U19": {
+      "status": "done",
+      "branch": "agent/GEN-U19-claude",
+      "commitSha": "ead62c8",
+      "attempts": 2,
+      "lastRunId": "a339e3275fc472542",
+      "lastEvidence": "Wave 7 (Gen 16 Hagar and Ishmael). Merged into content/next (NOT master; draft) at 405a9b3. Independent read-only adversarial review against source texts; all S1/S2/S3 findings applied by author in commit ead62c8 and key fixes verified by orchestrator in the file. Orchestrator checks: BSB v2 checker (every Scripture-attributed fragment vs full corpus), banned-phrase grep, source/connection resolution, registry 0 dupes, content:validate, assertion-lint mutation outside Positions -> genuine FAIL then reverted.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U16": {
+      "status": "done",
+      "branch": "agent/MATT-U16-claude",
+      "commitSha": "a9c5425",
+      "attempts": 2,
+      "lastRunId": "a88dc7620fc1ac6cf",
+      "lastEvidence": "Wave 7 (Matt 8:1-17 healings / Isa 53:4). Merged into content/next (NOT master; draft) at 39148a9. Independent read-only adversarial review against source texts; all S1/S2/S3 findings applied by author in commit a9c5425 and key fixes verified by orchestrator in the file. Orchestrator checks: BSB v2 checker (every Scripture-attributed fragment vs full corpus), banned-phrase grep, source/connection resolution, registry 0 dupes, content:validate, assertion-lint mutation outside Positions -> genuine FAIL then reverted.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U17": {
+      "status": "done",
+      "branch": "agent/MATT-U17-claude",
+      "commitSha": "8bf44d6",
+      "attempts": 2,
+      "lastRunId": "a8b7d3a1138bdf580",
+      "lastEvidence": "Wave 7 (Matt 8:18-34 storm, demoniacs). Merged into content/next (NOT master; draft) at 1a721f6. Independent read-only adversarial review against source texts; all S1/S2/S3 findings applied by author in commit 8bf44d6 and key fixes verified by orchestrator in the file. Orchestrator checks: BSB v2 checker (every Scripture-attributed fragment vs full corpus), banned-phrase grep, source/connection resolution, registry 0 dupes, content:validate, assertion-lint mutation outside Positions -> genuine FAIL then reverted.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U18": {
+      "status": "done",
+      "branch": "agent/MATT-U18-claude",
+      "commitSha": "ef42014",
+      "attempts": 2,
+      "lastRunId": "a4e173c1873b7a2d2",
+      "lastEvidence": "Wave 7 (Matt 9:1-17 paralytic / Hos 6:6). Merged into content/next (NOT master; draft) at 45ba327. Independent read-only adversarial review against source texts; all S1/S2/S3 findings applied by author in commit ef42014 and key fixes verified by orchestrator in the file. Orchestrator checks: BSB v2 checker (every Scripture-attributed fragment vs full corpus), banned-phrase grep, source/connection resolution, registry 0 dupes, content:validate, assertion-lint mutation outside Positions -> genuine FAIL then reverted.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U19": {
+      "status": "done",
+      "branch": "agent/MATT-U19-claude",
+      "commitSha": "4d16f6a",
+      "attempts": 2,
+      "lastRunId": "acf24bfc9a681b84e",
+      "lastEvidence": "Wave 7 (Matt 9:18-38 ruler's daughter). Merged into content/next (NOT master; draft) at 647689d. Independent read-only adversarial review against source texts; all S1/S2/S3 findings applied by author in commit 4d16f6a and key fixes verified by orchestrator in the file. Orchestrator checks: BSB v2 checker (every Scripture-attributed fragment vs full corpus), banned-phrase grep, source/connection resolution, registry 0 dupes, content:validate, assertion-lint mutation outside Positions -> genuine FAIL then reverted.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
     }
   }
 }
