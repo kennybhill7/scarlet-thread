@@ -1222,6 +1222,15 @@
       "lastRunId": "a22f77b61ea7a39a1",
       "lastEvidence": "Merged 335cd43 into design/mountain-journey, fast-forwarded to master. Matthew 7:13-29 Narrow Gate/Wise Builder lesson + 4 connections + 15 registry entries. First attempt (2026-10-01) stalled on infrastructure watchdog timeout, zero commits; relaunched clean. Full independent verification: BSB quote check (Matt 5:1-2,7:1,7:13-29 + Luke 13:22-30 + Luke 6:46-49 + Rom 2:13 + 1 Cor 3:10-15 + Eph 2:8-10 + James 2:14-26, all exact including the corrected 7:23 workers-of-lawlessness wording and the em-dash fix at 7:27), banned-phrase grep clean, 15/15 sources + all 4 connection sourceIds resolved against 422-entry registry (zero dupes), content:validate 29/29 lessons clean post-merge, full test suite baseline-only failures, adversarial mutation (Reformed-reading verdict on 7:21-23) confirmed genuine FAIL then reverted clean -- first mutation attempt inside Positions correctly did not fail, confirming lint design.",
       "notes": "Unit 4 of 5 in final wave, closes all 15 Matthew units. 4-tradition Positions entry on eternal security given MATT-U11-level care, explicitly non-adjudicated. 29 of 30 pilot units merged -- only GEN-U15 remains."
+    },
+    "SYNCSTAGES-001": {
+      "status": "done",
+      "branch": "agent/SYNCSTAGES-001-claude",
+      "commitSha": "614b3e7",
+      "attempts": 1,
+      "lastRunId": "a7150c2fd1b1c00f9",
+      "lastEvidence": "Merged d9f9c7a into design/mountain-journey + master; merged into content/next (5269084). db:sync-stages: stages-only idempotent upsert keyed on slug, one db.batch, shared validator with db:seed (verbatim move). Independently verified: diff review, typecheck clean, stage tests 10/10, full suite with build 2143 pass/0 fail, validate 30/30, own mutation (drop chapters from insert payload) caught. Never run against a DB.",
+      "notes": "Fixes: db:seed refuses on any account with journal data, so stage edits could never reach production. RUNBOOK section 3 updated."
     }
   }
 }
