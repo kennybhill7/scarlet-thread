@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen14-melchizedek-hebrews7",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.14.17",
+    "end": "1.14.20"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "58.7.1",
+    "end": "58.7.10"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Hebrews 7:1-2 (BSB) retells this exact scene in order, naming its people and acts: 'This Melchizedek was king of Salem and priest of God Most High. He met Abraham returning from the slaughter of the kings and blessed him, and Abraham apportioned to him a tenth of everything' -- set beside Genesis 14:20's 'Then Abram gave Melchizedek a tenth of everything.' Hebrews 7:4-10 then builds an argument on the tithe ('Even the patriarch Abraham gave him a tenth of the plunder') and on the blessing ('the lesser is blessed by the greater'), and 7:3 builds on what Genesis does not record ('Without father or mother or genealogy'). Ellicott's commentary on Hebrews 7:1 notes that 'Of the facts recorded in Genesis none are passed over, except the gift of bread and wine,' a checkable omission both sides of the bread-and-wine dispute cite. Graded explicit_reference because Hebrews names the person, the place and the events with no citation formula, and explicit because no other passage in Scripture narrates a meeting of Abraham and Melchizedek; the type is kept at reference rather than type_antitype because Hebrews' own word is likeness ('like the Son of God,' 7:3), and how far that likeness reaches is the question the lesson's Positions section reports rather than settles.",
+  "sourceId": "source-biblehub-commentary-hebrews-7-1",
+  "viewpointId": null
+}

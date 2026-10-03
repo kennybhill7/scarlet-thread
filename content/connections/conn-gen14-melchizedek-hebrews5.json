@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen14-melchizedek-hebrews5",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.14.18",
+    "end": "1.14.20"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "58.5.5",
+    "end": "58.5.10"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "Hebrews 5:6 (BSB) introduces Psalm 110:4 with a formula -- 'And in another passage God says: \"You are a priest forever in the order of Melchizedek.\"' -- and 5:10 restates it: 'designated by God as high priest in the order of Melchizedek.' The quotation is of the psalm, not of Genesis; Hebrews does not retell the Genesis 14 scene until 7:1-10 (a separate connection), after a digression in 5:11-6:19 that ends by repeating the same phrase at 6:20 ('a high priest forever in the order of Melchizedek'). The Cambridge Bible's note on Psalm 110:4 names this whole chain of Hebrews citations (5:6, 6:20, 7:17, 7:21). Graded explicit_reference because Hebrews names Melchizedek outright, and strong rather than explicit because in this chapter the link to Genesis 14 runs through Psalm 110 rather than through any detail of the Genesis narrative itself.",
+  "sourceId": "source-biblehub-commentary-psalm-110-4",
+  "viewpointId": null
+}
