@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen23-foreigners-1peter2-11",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.23.4",
+    "end": "1.23.4"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "60.2.11",
+    "end": "60.2.11"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "1 Peter 2:11 (BSB) urges readers 'as foreigners and exiles.' In Greek the pair is παροίκους καὶ παρεπιδήμους in all eight editions Bible Hub shows. That is the Septuagint's pair at Genesis 23:4 (Πάροικος καὶ παρεπίδημος) in another grammatical case. But the same pair also occurs in the Septuagint of Psalm 39:12 ('πάροικος ἐγώ εἰμι ἐν τῇ γῇ καὶ παρεπίδημος'), and several commentators read here point to the Psalm instead. Ellicott calls Psalm 39:12 'the Psalm from which St. Peter draws the phrase.' The Cambridge Bible finds there 'both the words and the thoughts.' Bengel cites Leviticus 25:23 and Psalm 39:12. The Expositor's Greek Testament says the combination 'occurs twice in LXX,' naming the Psalm and 'Genesis 33:4' (evidently 23:4, since 33:4 has no such pair). Peter names no patriarch and no scene. On Genesis 23:4, the Cambridge Bible notes that 'The same phrase is employed by St Peter in 1 Peter 2:11.' So this is graded allusion, not quotation (no formula), and plausible rather than strong: the shared wording is exact, but Genesis 23:4 is one of two Septuagint sources for it, and several sources read here point to the other.",
+  "sourceId": "source-biblehub-commentary-1-peter-2-11",
+  "viewpointId": null
+}

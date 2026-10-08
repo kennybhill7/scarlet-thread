@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen23-machpelah-gen49",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.23.17",
+    "end": "1.23.20"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.49.29",
+    "end": "1.49.32"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "The purchase recurs by name later in Genesis. Dying, Jacob asks to be buried 'in the cave in the field of Ephron the Hittite,' 'the field of Machpelah near Mamre,' which 'Abraham purchased from Ephron the Hittite as a burial site,' and lists who lies there: 'Abraham and his wife Sarah ... Isaac and his wife Rebekah ... and there I buried Leah' (Genesis 49:29-31, BSB). 49:32 repeats that 'The field and the cave that is in it were purchased from the Hittites.' The same identification appears at 25:9-10 (Abraham's burial) and 50:13 (Jacob's). A script scan of this app's BSB finds 'Machpelah' in six verses, all in Genesis (23:9, 23:17, 23:19, 25:9, 49:30, 50:13). The Cambridge Bible lists the same burials on 23:20. Graded explicit_reference at explicit, following conn-gen1-sabbath-exodus20 (a later passage that restates an earlier one in recognizably shared wording), because the later passage names the field, the seller, the buyer and the purpose; it is not graded quotation because Jacob restates rather than quotes. The row tracks a narrative thread, not a claim about what the burials signify, which is a matter for Positions 2.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

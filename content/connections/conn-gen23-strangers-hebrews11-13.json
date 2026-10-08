@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen23-strangers-hebrews11-13",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.23.3",
+    "end": "1.23.4"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "58.11.13",
+    "end": "58.11.13"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "Hebrews 11:13 (BSB) says that Abraham and the other patriarchs 'acknowledged that they were strangers and exiles on the earth.' 'Acknowledged' (Greek ὁμολογήσαντες) points to something they said, and Genesis 23:4 is where Abraham says it of himself: 'I am a foreigner and an outsider among you.' Many commentators on Bible Hub's Hebrews 11:13 page name this verse. The Expositor's Greek Testament writes that the confession 'was made no doubt by their whole conduct, but as the aorist indicates it was made verbally by Abraham on the occasion of Sarah's death (Genesis 23:4),' and adds 'cf. Genesis 47:9, etc.' The Pulpit Commentary writes, 'The reference is to the confession of Abraham to the sons of Heth (Genesis 23:4),' 'together with Jacob's words to Pharaoh (Genesis 47:9).' Meyer, Barnes, Bengel, the Cambridge Bible, Ellicott and MacLaren also cite 23:4, several of them alongside 47:9. The Greek agrees only in part. The Septuagint of Genesis 23:4 has πάροικος καὶ παρεπίδημος; Hebrews has ξένοι καὶ παρεπίδημοι in every edition Bible Hub shows, so only the second noun is shared. This row follows conn-matt5-psalm37-meek: a near match with no citation formula is an allusion. It is graded strong because of the 'acknowledged' marker, the shared παρεπίδημος and the number of commentators who name 23:4. It is not graded explicit because Hebrews names no scene and Jacob's words are a second candidate. The range is limited to 11:13, the verse that carries the confession. The wider passage (11:13-16) is left to the sibling row conn-gen25-died-in-faith-hebrews11, and Hebrews 11:9-10 ('as a stranger in a foreign country') belongs to conn-gen12-call-hebrews11-8; neither is repeated here.",
+  "sourceId": "source-biblehub-commentary-hebrews-11-13",
+  "viewpointId": null
+}
