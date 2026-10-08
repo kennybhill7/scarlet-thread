@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen25-oracle-romans9",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.25.21",
+    "end": "1.25.24"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "45.9.10",
+    "end": "45.9.12"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Romans 9:12 introduces the last line of the oracle with 'she was told' (Greek ἐρρέθη αὐτῇ ὅτι) and quotes it: 'The older will serve the younger.' In this app's BSB the six words are identical in Genesis 25:23 and Romans 9:12, and a script over the whole BSB finds them in these two verses only. In the Greek, Paul's ὁ μείζων δουλεύσει τῷ ἐλάσσονι is word for word the Septuagint of Genesis 25:23 (Swete), and every Greek edition Bible Hub lists for Romans 9:12 has the same five words (the Byzantine and Textus Receptus editions spell the introducing verb ἐρρήθη). Romans 9:10-11 also names the setting the range covers: Rebecca, the twins conceived 'by one man, our father Isaac,' and the word given 'before the twins were born.' Following conn-gen21-isaac-offspring-romans9, a verbatim citation with an introducing marker is graded quotation/explicit. The label measures the certainty of the citation only. What Paul uses the oracle to show, whether the election of individuals to salvation or of a people, is the dispute reported in the lesson's Positions, and the grade does not depend on it.",
+  "sourceId": "source-biblehub-greek-romans-9-12-13",
+  "viewpointId": null
+}
