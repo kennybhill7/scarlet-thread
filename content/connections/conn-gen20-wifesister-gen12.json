@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen20-wifesister-gen12",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.20.1",
+    "end": "1.20.18"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.12.10",
+    "end": "1.12.20"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Genesis 12:10-20 and 20:1-18 share a sequence that can be checked in the BSB: a move into a foreign ruler's land, Pharaoh's report 'She is my sister' (12:19; cf. 12:13) and Abraham's 'She is my sister' (20:2), the woman taken into the ruler's house (12:15; 20:2), divine intervention against the ruler's household 'because of Abram's wife Sarai' (12:17) and 'on account of Abraham's wife Sarah' (20:18), a ruler's question 'What have you done' (12:18; 20:9), and gifts of 'sheep and cattle' and 'menservants and maidservants' (12:16; 20:14). The Cambridge Bible lists the shared features in its introduction to Genesis 20 and assigns the chapters to different sources (J and E); Keil and Delitzsch, on the same chapter, list the 'one point of agreement' and argue that 'all the more minute details are entirely different', and Ramban opens his comment on 20:2 with 'This was not like what happened in Egypt'. Graded parallel at strong, following conn-gen19-gibeah-judges19, because the shared sequence and wording are verifiable whichever account of their origin a reader holds; the type makes no claim about how the two accounts came to be written, which the lesson reports as an open question between named readers. Genesis 12 is taught in its own lesson, which names this pattern without authoring a row for it.",
+  "sourceId": "source-biblehub-cambridge-genesis-20",
+  "viewpointId": null
+}

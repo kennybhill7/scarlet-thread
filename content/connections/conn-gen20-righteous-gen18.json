@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen20-righteous-gen18",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.20.4",
+    "end": "1.20.4"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.18.23",
+    "end": "1.18.25"
+  },
+  "type": "motif",
+  "evidenceLabel": "plausible",
+  "rationale": "Abimelech asks, 'Lord, would You destroy a nation even though it is innocent?' (20:4, BSB), one chapter after Abraham asked, 'Will You really sweep away the righteous with the wicked?' (18:23). The BSB's English differs ('innocent', 'righteous'), but Bible Hub's interlinear shows the same Hebrew adjective, tsaddiq (Strong's 6662), in both verses, each time in a question put to God about killing the innocent. The Cambridge Bible on 20:4 says Abimelech 'appeals to the instinct of justice, that God will not punish the innocent, as if they were guilty. Cf. Genesis 18:23.' Other readers do not take the link: Rashi on 20:4 hears an appeal to the Flood and the Dispersal ('That is what you did to the generation of the Flood and to the generation of the Dispersal'), and Calvin writes that 'The explanation given by some, that Abimelech here compares himself with the men of Sodom, is perhaps too refined.' Graded motif at plausible, following conn-gen13-garden-isaiah51-3, because the recurrence of a word in a matching kind of question is checkable, but whether the narrator means the reader to hear Genesis 18 in it is disputed by named readers.",
+  "sourceId": "source-biblehub-cambridge-genesis-20",
+  "viewpointId": null
+}
