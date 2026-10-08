@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen18-sarah-lord-1peter3",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.18.12",
+    "end": "1.18.12"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "60.3.5",
+    "end": "60.3.6"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "1 Peter 3:6 (BSB) names both people and the word: 'just as Sarah obeyed Abraham and called him lord.' The only place in Genesis where Sarah calls Abraham by that title is her laugh in 18:12, which the BSB renders 'my master is old'; the Septuagint has 'ὁ δὲ κύριός μου πρεσβύτερος' (Brenton: 'and my lord is old'), and 1 Peter's Greek is 'κύριον αὐτὸν καλοῦσα', the same noun. So the English of this app's BSB hides a link the Greek shows plainly. Commentators on both verses connect them: Barnes, Jamieson-Fausset-Brown, Gill, Bengel and the Pulpit Commentary on 1 Peter 3:6 cite Genesis 18:12, and Benson, Gill and the Pulpit Commentary on Genesis 18:12 cite 1 Peter 3:6. The Expositor's Greek Testament calls 18:12 'The only evidence that can be adduced from the O.T. narrative', adds that the context 'excludes any hope in God', and notes that 'The Rabbinic commentaries dwell upon the title accorded to Abraham and draw the same inference as Peter'. The Cambridge Bible on 1 Peter 3:6 says 'the history of Genesis supplies no such instance in act' and so Peter 'saw in her use of \"my lord\"' a 'representative utterance that implied a sense of habitual subordination'. Ellicott argues from the fact that she says it to herself: it shows 'usual habits of mind'. Graded explicit_reference at explicit because 1 Peter names Sarah, Abraham, and the title she used. The grade measures how certain the reference is. It does not decide how 1 Peter 3:1-7 applies to marriage today, which traditions dispute (see the lesson's Positions).",
+  "sourceId": "source-biblehub-commentary-1-peter-3-6",
+  "viewpointId": null
+}

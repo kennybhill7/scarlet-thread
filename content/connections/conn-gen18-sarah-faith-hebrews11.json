@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen18-sarah-faith-hebrews11",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.18.9",
+    "end": "1.18.15"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "58.11.11",
+    "end": "58.11.12"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "Hebrews 11:11 (BSB) reads 'By faith Sarah, even though she was barren and beyond the proper age, was enabled to conceive a child, because she considered Him faithful who had promised.' It names Sarah, her age, and the promise; Genesis 18:11 says she 'had passed the age of childbearing', and 18:10 and 18:14 give the promise of a son 'at this time next year' and 'At the appointed time'. Commentators on Hebrews 11:11 read it against this scene: Barnes, Meyer and Matthew Poole all refer it to Sarah's laughter and denial in 18:12-15 and to her moving from doubt to faith, and Keil on Genesis 18:9-15 cites Hebrews 11:11 for the claim that she 'could only have conceived in faith'. Graded explicit_reference because Hebrews names Sarah and the promise. Graded strong rather than explicit for two reasons. First, Hebrews does not say which Genesis scene it means, and the conception itself is narrated at 21:1-2, so 18:9-15 is the promise scene the verse presupposes rather than the one it narrates. Second, the verse's subject is a real textual question: Nestle 1904 prints a dative ('αὐτῇ Σάρρᾳ'), which some read as making Abraham the subject, with Sarah named alongside him; Meyer reports that Michaelis and Storr read it so, the Cambridge Bible reports that Field thought the words about Sarah 'may be a gloss' and the verse 'refers to Abraham', and the Expositor's Greek Testament notes that the phrase the BSB renders 'conceive' (εἰς καταβολὴν σπέρματος) describes 'the act of the husband not of the wife'. Westcott-Hort, the Byzantine text and the Textus Receptus print the nominative, with Sarah as subject, as the BSB does. A reader should know that the commendation of Sarah's faith in this verse rests partly on that reading.",
+  "sourceId": "source-biblehub-commentary-hebrews-11-11",
+  "viewpointId": null
+}
