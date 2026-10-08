@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt14-walking-john6",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.14.22",
+    "end": "40.14.33"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "43.6.15",
+    "end": "43.6.21"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "John also places the walk on the sea right after the feeding of the five thousand. Jesus withdraws \"to a mountain by Himself\" (6:15), the disciples cross in the dark against \"A strong wind\" (6:18), they see Him \"walking on the sea\" and are \"terrified\" (6:19), and He says, \"It is I; do not be afraid\" (6:20, BSB). The type is parallel and the label strong, not explicit, following conn-matt12-family-mark3: neither Gospel cites the other. The differences can be checked. John gives a reason for the withdrawal that Matthew does not, that the crowd was \"about to come and make Him king by force\" (6:15), and a distance, \"about three or four miles\" (6:19). John's saying has no \"Take courage\" (in the Greek editions read, no tharseite), only egō eimi, mē phobeisthe. John has no Peter episode and no worship or confession in the boat; instead, \"at once the boat reached the shore where they were heading\" (6:21, BSB). Luke has no account of the walk on the sea at all, as Augustine already noted (Harmony of the Gospels II.47).",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
