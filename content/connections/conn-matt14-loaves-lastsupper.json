@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt14-loaves-lastsupper",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.14.19",
+    "end": "40.14.19"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.26.26",
+    "end": "40.26.26"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "The same four acts recur in the same order with the same recipients. Matthew 14:19: \"Taking the five loaves ... He spoke a blessing. Then He broke the loaves and gave them to the disciples\"; Matthew 26:26: \"Jesus took bread, spoke a blessing and broke it, and gave it to the disciples\" (BSB). In the Greek both use lambano, eulogeo, klao and didomi with tois mathetais, in most editions on Bible Hub; the RP Byzantine Majority Text reads eucharistesas (\"gave thanks\") at 26:26 instead of eulogesas. A script search finds \"spoke a blessing\" in Matthew's BSB only at 14:19 and 26:26. Graded strong, following conn-gen3-seed-gen4-25 for a verifiable recurrence and conn-matt12-vipers-matt3 for a link within Matthew, because the recurrence is verifiable and published readers draw on it: the Catechism of the Catholic Church (1335) says the multiplications \"prefigure the superabundance of this unique bread of his Eucharist,\" and Ellicott connects the acts to \"our Lord's subsequent use at the Last Supper of the same words and acts.\" The grade is for the recurrence, not for a meaning: Calvin, Chrysostom, the Pulpit Commentary and Barnes explain 14:19's blessing as table grace without addressing the Supper, though the Pulpit Commentary on 26:26 connects the feeding to the Supper; these readings are reported in the lesson's Positions, unresolved.",
+  "sourceId": "source-ccc-1335",
+  "viewpointId": null
+}

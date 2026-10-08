@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt14-feeding-2kings4",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.14.15",
+    "end": "40.14.21"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "12.4.42",
+    "end": "12.4.44"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "In 2 Kings 4:42-44 a man brings Elisha \"twenty loaves of barley bread\"; Elisha says \"Give it to the people to eat\"; the servant objects, \"How am I to set twenty loaves before a hundred men?\"; and the word of the LORD is kept: \"they ate and had some left over\" (BSB). Matthew 14:15-21 has the same sequence of command, objection about too little food, eating and leftovers. Barnes calls Elisha's meal \"a faint foreshadowing\" of the feeding and lists shared particulars; Keil and Delitzsch call it \"a type of the miraculous feeding of the people by Christ,\" with the distinction that Elisha \"did not produce the miraculous increase of the food, but merely predicted it\" (both via Bible Hub on 2 Kings 4:43). Strauss reads the likeness the other way, as one source from which the story grew. Graded plausible, following conn-matt8-storm-jonah1, because Matthew names neither Elisha nor 2 Kings and the Greek overlap is thin: the Septuagint's Dote and ephagon match Matthew's dote (14:16) and ephagon (14:20), but its word for leftovers (katelipon) differs from Matthew's perisseuon, and its barley loaves (artous krithinous) reappear only in John 6:9 and 6:13, not in Matthew. The BSB's \"left over\" in both texts is an English match.",
+  "sourceId": "source-biblehub-commentary-2-kings-4-43",
+  "viewpointId": null
+}

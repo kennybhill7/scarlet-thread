@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt14-feeding-exodus16",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.14.13",
+    "end": "40.14.21"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "2.16.4",
+    "end": "2.16.18"
+  },
+  "type": "motif",
+  "evidenceLabel": "plausible",
+  "rationale": "Exodus 16 is God giving bread to a large people in the wilderness: \"Behold, I will rain down bread from heaven for you\" (16:4, BSB), each gathering \"as much as he needed to eat\" (16:18). Matthew 14 has a crowd in an eremos place (14:13, 14:15; the BSB renders the one Greek adjective \"solitary\" and \"desolate\"), bread, and \"They all ate and were satisfied.\" The motif is a recurring setting and theme, and the grade stays plausible because Matthew has no manna, no Moses and no quotation; a script search finds \"manna\" nowhere in Matthew's BSB, and the Septuagint's verb for being filled in Exodus 16:12 (plesthesesthe) differs from Matthew's echortasthesan. The explicit link is John's: the crowd there says \"Our fathers ate the manna in the wilderness\" (John 6:31) after John's account of the same miracle. Named readers draw the Matthew link without a textual marker: Chrysostom (Homily 49) cites the wilderness question of Psalm 78:19-20, \"Can He give bread also? Or prepare a table in the wilderness?\", and Strauss sets the feeding beside Exodus 16 and Numbers 11:21-22, finding \"a striking resemblance even in details\" but a \"chasm\" between them \"too great for the latter to have been derived immediately from the former.\"",
+  "sourceId": "source-newadvent-chrysostom-homily-49-matthew",
+  "viewpointId": null
+}
