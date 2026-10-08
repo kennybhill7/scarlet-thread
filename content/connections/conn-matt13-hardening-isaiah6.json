@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt13-hardening-isaiah6",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.13.14",
+    "end": "40.13.15"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.6.9",
+    "end": "23.6.10"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Matthew introduces the words with a fulfillment formula naming the prophet (“In them the prophecy of Isaiah is fulfilled,” 13:14, BSB) and then quotes Isaiah 6:9-10, which is why the type is quotation and the label is explicit, following the precedent of conn-matt8-infirmities-isaiah53. Checked against both texts as shipped in this app, the wording differs in mood: Isaiah 6:9-10 gives commands (“Be ever hearing, but never understanding”; “Make the hearts of this people calloused; deafen their ears and close their eyes”), while Matthew 13:14-15 describes (“You will be ever hearing but never understanding”; “this people’s heart has grown callous; they hardly hear with their ears, and they have closed their eyes”). Isaiah ends “and turn and be healed”; Matthew ends “and turn, and I would heal them.” Checked in the Greek and Hebrew pages registered for this lesson, every one of those differences matches the Septuagint (Swete’s text on Bible Hub) against the Hebrew, whose verbs in 6:9-10 are imperatives; the only differences from Swete’s Greek are the placement of the pronoun “their” (with ears in Swete, with eyes in Matthew) and Matthew’s omission of the opening “Go and tell this people.” Ellicott, Jamieson-Fausset-Brown and the Pulpit Commentary all identify the quotation as Septuagintal. The range covers only 6:9-10; whether 6:11-13 (the felled stump and “the holy seed”) is in view is not something Matthew’s quotation shows.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

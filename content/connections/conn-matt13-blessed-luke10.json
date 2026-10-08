@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt13-blessed-luke10",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.13.16",
+    "end": "40.13.17"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.10.23",
+    "end": "42.10.24"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "The same saying appears in both Gospels in different settings. In this app’s BSB, Matthew has “But blessed are your eyes because they see, and your ears because they hear. For truly I tell you, many prophets and righteous men longed to see what you see but did not see it, and to hear what you hear but did not hear it” (13:16-17); Luke has “Blessed are the eyes that see what you see. For I tell you that many prophets and kings desired to see what you see but did not see it, and to hear what you hear but did not hear it” (10:23-24), spoken “privately” after the seventy-two return. The second half matches closely; the differences are checkable in the Greek pages registered for this lesson: “righteous men” (dikaioi) against “kings” (basileis), and “longed” (epethymesan) against “desired” (ethelesan). Matthew alone blesses the ears. Graded parallel/strong, following conn-matt11-revealed-luke10: no citation links the two, and the overlap is near-verbatim in its second half but placed in a different scene. Calvin’s Harmony notes that Luke “appears” to place the saying at another time, but holds that Luke “throws together a variety of our Lord’s sayings, without attending to the order of dates,” and follows Matthew’s setting.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
