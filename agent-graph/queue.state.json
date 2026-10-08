@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-02T00:56:37.409Z",
+  "updatedAt": "2026-10-08T17:19:08.559Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1303,6 +1303,87 @@
       "lastRunId": "acf24bfc9a681b84e",
       "lastEvidence": "Wave 7 (Matt 9:18-38 ruler's daughter). Merged into content/next (NOT master; draft) at 647689d. Independent read-only adversarial review against source texts; all S1/S2/S3 findings applied by author in commit 4d16f6a and key fixes verified by orchestrator in the file. Orchestrator checks: BSB v2 checker (every Scripture-attributed fragment vs full corpus), banned-phrase grep, source/connection resolution, registry 0 dupes, content:validate, assertion-lint mutation outside Positions -> genuine FAIL then reverted.",
       "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U20": {
+      "status": "done",
+      "branch": "agent/GEN-U20-claude",
+      "commitSha": "e198383",
+      "attempts": 1,
+      "lastRunId": "a647946d602d01716",
+      "lastEvidence": "Wave 8 (Gen 17 covenant of circumcision). Merged into content/next (NOT master; draft) at ca2455b. Independent read-only adversarial review by orchestrator: 1 S1 (anti-Jewish misuse named at 11-noahs-sons standard: Barnabas 9, Justin Dial. 16, Nostra Aetate 4), 4 S2, 10 S3; all applied by author in e198383, key fixes verified by grep in the file. Orchestrator checks: bsbcheck2 (Scripture-attributed fragments vs full corpus), banned-phrase grep, source/connection resolution, registry three-way merge 0 dups, content:validate, assertion-lint mutation in Context -> genuine FAIL then reverted. Post-wave full suite on content/next 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U21": {
+      "status": "done",
+      "branch": "agent/GEN-U21-claude",
+      "commitSha": "e596fad",
+      "attempts": 1,
+      "lastRunId": "a63ed57741d82496c",
+      "lastEvidence": "Wave 8 (Gen 18:1-15 three visitors). Merged into content/next (NOT master; draft) at 2014b3c. Independent read-only adversarial review by orchestrator: 1 S1 (tres vidit et unum adoravit IS Augustine, Contra Maximinum II.26.7), 6 S2, 6 S3; all applied by author in e596fad, key fixes verified by grep in the file. Orchestrator checks: bsbcheck2 (Scripture-attributed fragments vs full corpus), banned-phrase grep, source/connection resolution, registry three-way merge 0 dups, content:validate, assertion-lint mutation in Context -> genuine FAIL then reverted. Post-wave full suite on content/next 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U22": {
+      "status": "done",
+      "branch": "agent/GEN-U22-claude",
+      "commitSha": "2cb32b2",
+      "attempts": 1,
+      "lastRunId": "ad8a1875f9a34327c",
+      "lastEvidence": "Wave 8 (Gen 18:16-33 intercession). Merged into content/next (NOT master; draft) at 6d3f556. Independent read-only adversarial review by orchestrator: 0 S1, 6 S2 (Ezek 22:30 and Ezek 14 regraded plausible; Ramban refiled; CCC 2571, Haydock added), 9 S3; all applied by author in 2cb32b2, key fixes verified by grep in the file. Orchestrator checks: bsbcheck2 (Scripture-attributed fragments vs full corpus), banned-phrase grep, source/connection resolution, registry three-way merge 0 dups, content:validate, assertion-lint mutation in Context -> genuine FAIL then reverted. Post-wave full suite on content/next 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U23": {
+      "status": "done",
+      "branch": "agent/GEN-U23-claude",
+      "commitSha": "1443bdb",
+      "attempts": 1,
+      "lastRunId": "aa79138a4562983e4",
+      "lastEvidence": "Wave 8 (Gen 19:1-29 Sodom). Merged into content/next (NOT master; draft) at 5b3efa9. Independent read-only adversarial review by orchestrator: 0 S1, 6 S2 (affirming reading from Vines own article, parity bullets, Jude-only claim scoped, Jewish sources hold both readings, Ramban), 13 S3; all applied by author in 1443bdb, key fixes verified by grep in the file. Orchestrator checks: bsbcheck2 (Scripture-attributed fragments vs full corpus), banned-phrase grep, source/connection resolution, registry three-way merge 0 dups, content:validate, assertion-lint mutation in Context -> genuine FAIL then reverted. Post-wave full suite on content/next 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U20": {
+      "status": "done",
+      "branch": "agent/MATT-U20-claude",
+      "commitSha": "2816f87",
+      "attempts": 1,
+      "lastRunId": "a9d5b3f9b83936f7d",
+      "lastEvidence": "Wave 8 (Matt 10:1-15 Twelve sent). Merged into content/next (NOT master; draft) at e6600a3. Independent read-only adversarial review by orchestrator: 0 S1, 7 S2 (Romans 2:10 not 1:16; Jerome context; Sim 2008 read; Hare-Harrington named), 11 S3; all applied by author in 2816f87, key fixes verified by grep in the file. Orchestrator checks: bsbcheck2 (Scripture-attributed fragments vs full corpus), banned-phrase grep, source/connection resolution, registry three-way merge 0 dups, content:validate, assertion-lint mutation in Context -> genuine FAIL then reverted. Post-wave full suite on content/next 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U21": {
+      "status": "done",
+      "branch": "agent/MATT-U21-claude",
+      "commitSha": "07dbb63",
+      "attempts": 1,
+      "lastRunId": "a707ce150801fdc06",
+      "lastEvidence": "Wave 8 (Matt 10:16-42 sheep among wolves). Merged into content/next (NOT master; draft) at 6a0df89. Independent read-only adversarial review by orchestrator: 0 S1, 5 S2 (Micah 7:6 quotation -> allusion/strong; Burk + CCC 1034-35 parity; Deut death-penalty cites stated plainly), 13 S3; all applied by author in 07dbb63, key fixes verified by grep in the file. Orchestrator checks: bsbcheck2 (Scripture-attributed fragments vs full corpus), banned-phrase grep, source/connection resolution, registry three-way merge 0 dups, content:validate, assertion-lint mutation in Context -> genuine FAIL then reverted. Post-wave full suite on content/next 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U22": {
+      "status": "done",
+      "branch": "agent/MATT-U22-claude",
+      "commitSha": "d4391d8",
+      "attempts": 1,
+      "lastRunId": "a446e06160d9f6a46",
+      "lastEvidence": "Wave 8 (Matt 11:1-19 John question). Merged into content/next (NOT master; draft) at a18c2ae. Independent read-only adversarial review by orchestrator: 0 S1, 9 S2 (Blomberg qualifications; real-doubt sourcing; Isa 29:18-19; Hagner; 11:12 outsider readings disclosed), 9 S3; all applied by author in d4391d8, key fixes verified by grep in the file. Orchestrator checks: bsbcheck2 (Scripture-attributed fragments vs full corpus), banned-phrase grep, source/connection resolution, registry three-way merge 0 dups, content:validate, assertion-lint mutation in Context -> genuine FAIL then reverted. Post-wave full suite on content/next 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U23": {
+      "status": "done",
+      "branch": "agent/MATT-U23-claude",
+      "commitSha": "3c61783",
+      "attempts": 1,
+      "lastRunId": "a5d3eaa102b428157",
+      "lastEvidence": "Wave 8 (Matt 11:20-30 come to me). Merged into content/next (NOT master; draft) at c6a5cbe. Independent read-only adversarial review by orchestrator: 0 S1, 10 S2 (John 10 cite fixed; Luke 10 parallel explicit -> strong; Isa 14 variant; Mulder framing; CCC 600/1037), 7 S3; all applied by author in 3c61783, key fixes verified by grep in the file. Orchestrator checks: bsbcheck2 (Scripture-attributed fragments vs full corpus), banned-phrase grep, source/connection resolution, registry three-way merge 0 dups, content:validate, assertion-lint mutation in Context -> genuine FAIL then reverted. Post-wave full suite on content/next 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "REGFIX-001": {
+      "status": "done",
+      "branch": "content/next",
+      "commitSha": "9ffd9b5",
+      "attempts": 1,
+      "lastRunId": "orchestrator",
+      "lastEvidence": "Repointed source-biblehub-lxx-{isaiah-35,deuteronomy-22,zechariah-8}-swete from biblehub /sep/ (now Brenton English) to /sepd/ (Swete Greek); cited Greek confirmed on each /sepd/ page by curl. validate 44/44.",
+      "notes": "Found by MATT-U22 author, confirmed by its reviewer."
     }
   }
 }
