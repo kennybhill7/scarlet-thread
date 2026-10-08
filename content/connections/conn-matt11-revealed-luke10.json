@@ -11,8 +11,8 @@
     "end": "42.10.22"
   },
   "type": "parallel",
-  "evidenceLabel": "explicit",
-  "rationale": "The prayer and the claim that follows it run almost word for word in the BSB. Both read \"I praise You, Father, Lord of heaven and earth, because You have hidden these things from the wise and learned, and revealed them to little children\" (Matthew 11:25; Luke 10:21), and both end with \"those to whom the Son chooses to reveal Him\" (Matthew 11:27; Luke 10:22). The type is parallel, the same saying in two Gospels. The label is explicit because the overlap is continuous and verbatim across most of the unit, not a shared phrase or two. The differences are small and checkable: Luke adds that Jesus \"rejoiced in the Holy Spirit\" (10:21) and reads \"No one knows who the Son is\" and \"who the Father is\" (10:22), and Luke sets the prayer after the seventy-two return (10:17). The invitation that follows in Matthew (11:28-30) has no parallel in Luke: in the shipped BSB, \"weary and burdened\" and \"My yoke is easy\" occur only in Matthew 11.",
+  "evidenceLabel": "strong",
+  "rationale": "The prayer and the claim that follows it run almost word for word in the BSB. Both read \"I praise You, Father, Lord of heaven and earth, because You have hidden these things from the wise and learned, and revealed them to little children\" (Matthew 11:25; Luke 10:21), and both end with \"those to whom the Son chooses to reveal Him\" (Matthew 11:27; Luke 10:22). The type is parallel, the same saying in two Gospels. The label is strong rather than explicit because neither Gospel names or cites the other; the overlap is continuous and near-verbatim, but Luke sets it after the seventy-two return (10:17). The differences are small and checkable: Luke adds that Jesus \"rejoiced in the Holy Spirit\" (10:21) and reads \"No one knows who the Son is\" and \"who the Father is\" (10:22). The invitation that follows in Matthew (11:28-30) has no parallel in Luke: in the shipped BSB, \"weary and burdened\" and \"My yoke is easy\" occur only in Matthew 11.",
   "sourceId": "source-bsb-shipped-corpus",
   "viewpointId": null
 }
