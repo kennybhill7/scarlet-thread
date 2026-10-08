@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt10-household-micah7",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.10.35",
+    "end": "40.10.36"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "33.7.6",
+    "end": "33.7.6"
+  },
+  "type": "quotation",
+  "evidenceLabel": "strong",
+  "rationale": "In this app's BSB, three of Micah 7:6's four clauses reappear in Matthew 10:35-36. One is identical (\"a daughter-in-law against her mother-in-law\"), and two match in all their key words (\"a daughter\" ... \"against her mother\"; \"A man’s enemies\" ... \"the members of his own household\"), the only differences being Micah's \"rises\", which Matthew lacks, and Micah's \"are\" where Matthew has \"will be\". The first clause differs: Micah has \"a son dishonors his father\", Matthew \"a man against his father\", and Matthew frames the whole with \"For I have come to turn\". The BSB itself prints 10:35-36 inside quotation marks. That sustained verbal match is why the type is quotation rather than allusion. Matthew gives no citation formula and does not name Micah, and one clause departs, so the label is strong rather than explicit (compare the verbatim, formula-less Ephesians 5:31 row, graded explicit). Commentators read on Biblehub describe the borrowing at different strengths: Barnes, \"taken from Micah 7:6\"; Expositor's Greek Testament, \"reproduces freely\"; Meyer, \"Involuntary recollection\"; and the Pulpit Commentary notes that \"The wording is hardly taken from the LXX\" (in the Greek, Matthew has kata where the Septuagint has epi).",
+  "sourceId": "source-biblehub-commentary-matt-10-35",
+  "viewpointId": null
+}
