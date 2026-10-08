@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen19-drunkenness-gen9",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.19.30",
+    "end": "1.19.38"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.9.20",
+    "end": "1.9.27"
+  },
+  "type": "parallel",
+  "evidenceLabel": "plausible",
+  "rationale": "By a script scan of the BSB, the only verses in Genesis that use 'drunk' or 'drunkenness' are Genesis 9:21 and 9:24 (Noah) and 19:32-35 (Lot). Both scenes follow a world-ending or city-ending judgment, a father drinks wine, his children act toward him while he is drunk ('what his youngest son had done to him,' 9:24), and each closes on the origin of a neighboring people of later Israel (Canaan in 9:25-27; Moab and Ammon in 19:37-38). Two named readers set the scenes side by side, though only in passing: the Pulpit Commentary on 19:35 quotes Marcus Kalisch's remark that 'Lot's excess in the enjoyment of wine is no more blamed than it was in Noah' (and rejects his conclusion from it), and Calvin, on 19:33, refers his readers back to what he wrote on drunkenness 'in the ninth chapter.' Graded parallel because the shared elements are checkable in the two texts and neither text refers to the other; graded plausible, not strong, because the sources read here make the comparison only in passing and the scenes differ in what is done and by whom.",
+  "sourceId": "source-biblehub-commentary-gen-19-35",
+  "viewpointId": null
+}

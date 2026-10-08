@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen19-moab-matthew1",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.19.37",
+    "end": "1.19.37"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.1.5",
+    "end": "40.1.6"
+  },
+  "type": "motif",
+  "evidenceLabel": "plausible",
+  "rationale": "Matthew's genealogy names Ruth: 'Boaz the father of Obed by Ruth, Obed the father of Jesse, and Jesse the father of David the king' (Matthew 1:5-6). Ruth's own book calls her 'Ruth the Moabitess' (Ruth 1:22), and Genesis 19:37 gives Moab's origin. The genealogical fact is checkable, but it runs through a third book: Matthew does not cite Genesis 19, does not quote it, and does not call Ruth a Moabite, and by a script scan of the BSB neither 'Moab' nor 'Ammon' occurs anywhere in the New Testament. Of the sources read for this lesson, John Gill (on Genesis 19:32) is the one Christian commentator who draws the line himself, writing that 'Ruth, the Moabitess, who was of the race of the eldest daughter of Lot, stands in the genealogy of our Lord, Matthew 1:5'; Genesis Rabbah 51:8 reads the daughters' 'offspring' as pointing to the Messiah ('The messianic king,' in the Sefaria translation, whose note explains the link through Moab and Ruth). None of the commentators on Matthew 1:5 read for this lesson mentions Genesis 19. Graded plausible, not strong, because Matthew's text names Ruth but gives no sign of tracking Moab's origin, so any weight placed on Genesis 19 itself is a reader's synthesis; graded motif, not promise_fulfillment, because Genesis 19 makes no promise.",
+  "sourceId": "source-biblehub-commentary-gen-19-32",
+  "viewpointId": null
+}

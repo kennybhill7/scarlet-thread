@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen19-lot-deuteronomy2",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.19.36",
+    "end": "1.19.38"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "5.2.9",
+    "end": "5.2.19"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Deuteronomy 2 names Lot and the two peoples Genesis 19:37-38 traces to him: 'Do not harass the Moabites or provoke them to war, for I will not give you any of their land, because I have given Ar to the descendants of Lot as their possession' (2:9), and of 'the Ammonites', 'I have given it to the descendants of Lot as their possession' (2:19). In the BSB, 'descendants of Lot' occurs only at these two verses, with 'the sons of Lot' at Psalm 83:8 (script count). Graded explicit_reference because Deuteronomy names Lot and both peoples; it does not retell or allude to the cave narrative, and Wil Gafney notes that 'We do not know if the author of Deuteronomy was familiar with the myth in Genesis.' Keil and Delitzsch (on Genesis 19:36-38) and Ellicott (on 19:31) both cite these verses as evidence against reading Genesis 19:30-38 as an expression of hatred toward Moab and Ammon; that use is their argument, reported in the lesson's Positions, and the grade does not depend on it.",
+  "sourceId": "source-biblehub-commentary-gen-19-37",
+  "viewpointId": null
+}
