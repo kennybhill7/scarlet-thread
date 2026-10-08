@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen20-wifesister-gen26",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.20.1",
+    "end": "1.20.18"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.26.6",
+    "end": "1.26.11"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Genesis 26:6-11 tells of Isaac in Gerar with a king named Abimelech, the same city and royal name as Genesis 20 (20:2; 26:1, 26:8). The BSB wording overlaps closely: 'She is my sister' (20:2; 26:7), the patriarch's stated fear that men 'will kill me on account of my wife' (20:11) and 'will kill me on account of Rebekah' (26:7), and the king's protest that the patriarch had brought guilt on his people ('such tremendous guilt upon me and my kingdom', 20:9; 'you would have brought guilt upon us', 26:10). On Bible Hub's interlinear, 20:6 ('I did not let you touch her') and 26:11 (BSB 'Whoever harms this man or his wife') use the same verb, naga. The differences are as checkable: in Genesis 26 no woman is taken, God does not appear to the king, and the truth is discovered when Abimelech sees Isaac 'caressing his wife Rebekah' (26:8). The Cambridge Bible groups the two among its three resembling incidents; Rabbi Dan Judson, following Robert Alter's type-scene method, reads the differences (God's absence in Genesis 26) as the point. Graded parallel at strong for the same reason as conn-gen20-wifesister-gen12: the parallel is in the wording, and the type does not decide whether the accounts are one tradition or two events.",
+  "sourceId": "source-biblehub-cambridge-genesis-20",
+  "viewpointId": null
+}
