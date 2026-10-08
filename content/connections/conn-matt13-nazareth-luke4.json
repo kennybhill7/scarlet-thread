@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt13-nazareth-luke4",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.13.54",
+    "end": "40.13.58"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.4.16",
+    "end": "42.4.30"
+  },
+  "type": "parallel",
+  "evidenceLabel": "plausible",
+  "rationale": "Both accounts have Jesus teach in the synagogue of the town where He grew up (\"His hometown,\" Matthew 13:54; \"Nazareth, where He had been brought up,\" Luke 4:16, BSB), hearers who ask about His family (\"Isn't this the carpenter's son?\" Matthew 13:55; \"Isn't this the son of Joseph?\" Luke 4:22), and a form of the prophet saying (\"no prophet is accepted in his hometown,\" Luke 4:24). The label is plausible rather than strong, following conn-matt4-luke5-catch, because Luke's account differs substantially (the Isaiah reading, the examples of Elijah and Elisha, and the attempt to throw Him from the cliff, none of which Matthew has), Luke places it at the start of the Galilean ministry, and named readers disagree whether it is the same visit. Augustine (Harmony of the Gospels 2.42) treats it as the same incident, which Luke has placed earlier \"by anticipation\"; Calvin calls Luke's narrative \"nearly similar, but is not the same,\" and Wesley also reads Matthew's visit as a return to Nazareth. The type is parallel because both texts narrate a rejection in Jesus' hometown synagogue without either citing the other.",
+  "sourceId": "source-augustine-harmony-gospels-2-42",
+  "viewpointId": null
+}
