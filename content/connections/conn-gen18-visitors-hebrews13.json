@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen18-visitors-hebrews13",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.18.1",
+    "end": "1.18.8"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "58.13.2",
+    "end": "58.13.2"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "Hebrews 13:2 (BSB) reads 'Do not neglect to show hospitality to strangers, for by so doing some people have entertained angels without knowing it.' It names no one. Genesis 18:2-8 narrates Abraham running to meet 'three men', offering water 'that you may wash your feet', and serving them a meal, and the narrator first calls two of the visitors 'the two angels' at 19:1 (a script check of the BSB finds no 'angel' anywhere in Genesis 18). Named commentators on Hebrews 13:2 point to this scene. Meyer writes that 'The author was certainly, in connection with this statement, thinking specially of Abraham and Lot'; Barnes glosses the phrase 'Without knowing that they were angels. As Abraham (Genesis 18:2 ff), and Lot did'; Bengel, Ellicott and the Pulpit Commentary (which calls the allusion 'evidently to Abraham and Lot') make the same link. Augustine, City of God 16.29, cites Hebrews 13:2 as testimony that the visitors at Mamre were angels. Two cautions keep this below explicit. First, Hebrews says 'some people', and the Cambridge Bible lists Manoah (Judges 13) and Gideon (Judges 6) beside Abraham and Lot, so Genesis 18 is one candidate scene, though the one most often named. Second, Hebrews' 'without knowing it' fits only one reading of Genesis 18: the Pulpit Commentary notes that Hebrews 13:2 'inclines to countenance' the view that Abraham first took them for men, while Abraham's address in 18:3 'almost leads to the conclusion that already the patriarch had recognized Jehovah', and Keil holds that Abraham perceived 'at once that one of them was the Lord.' Graded allusion because the later text evokes the scene without naming it, and strong because several named commentators across traditions identify the scene and the shared elements (strangers, hospitality, angels unrecognized) are specific.",
+  "sourceId": "source-biblehub-commentary-hebrews-13-2",
+  "viewpointId": null
+}
