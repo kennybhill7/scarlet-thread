@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt11-messenger-malachi3",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.11.10",
+    "end": "40.11.10"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "39.3.1",
+    "end": "39.3.1"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Jesus introduces the words with a citation formula, \"This is the one about whom it is written\" (11:10, BSB), and the quoted line follows Malachi 3:1: \"Behold, I will send My messenger, who will prepare the way before Me\" (BSB). The formula does not name the prophet; the wording identifies Malachi. Ellicott, Meyer, the Pulpit Commentary and Blomberg name Malachi 3:1, and the Expositor's Greek Testament names \"Malachi 3.\" Two differences are checkable. Malachi's \"before Me\" becomes \"before You,\" and the line adds \"ahead of You\" (Greek pro prosopou sou), so that the messenger goes ahead of someone addressed rather than ahead of the speaker; the Hebrew has lefanai, \"before My face.\" Ellicott and Meyer call the line a free rendering of the Hebrew rather than the Septuagint, whose Malachi 3:1 reads exapostello and epiblepsetai hodon pro prosopou mou. Why the pronoun changed is a named disagreement reported in the lesson's Positions. Graded explicit because the formula marks a citation and the second clause identifies its source: in this app's Old Testament, \"My messenger\" and \"prepare the way before Me\" occur only in Malachi 3:1 (a script check; \"prepare the way\" alone also occurs at Psalm 85:13 and Isaiah 40:3, 57:14 and 62:10). The first clause matches the Septuagint of Exodus 23:20 (see that row). The label does not depend on a verbatim match, which this is not.",
+  "sourceId": "source-blomberg-ctr-1987-elijah-malachi",
+  "viewpointId": null
+}

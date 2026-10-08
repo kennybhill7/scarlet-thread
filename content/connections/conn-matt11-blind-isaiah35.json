@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt11-blind-isaiah35",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.11.5",
+    "end": "40.11.5"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.35.5",
+    "end": "23.35.6"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "Three of the six groups in Jesus's answer (11:5, BSB: \"The blind receive sight, the lame walk ... the deaf hear\") appear together in Isaiah 35:5-6: \"the eyes of the blind will be opened and the ears of the deaf unstopped. Then the lame will leap like a deer\" (BSB). In the Septuagint the nouns match (typhlon, kophon, cholos against Matthew's typhloi, kophoi, choloi), and the deaf clause matches in verb as well (ota kophon akousontai against kophoi akouousin); the verbs for the blind and the lame differ. The Expositor's Greek Testament notes that kophoi means \"deaf\" here though \"in Matthew 9:32-33, it means dumb, showing that the prophecy, Isaiah 35:5, is in the speaker's thoughts,\" and Meyer calls the answer an \"echo of Isaiah 35:5 f.\" Isaiah 35:4 frames the passage as God's own coming (\"your God will come ... He will come to save you,\" BSB), which the Cambridge Bible notes. Isaiah 29:18-19 matches about as closely: its Septuagint has the deaf, the blind and the poor (akousontai ... kophoi, ophthalmoi typhlon opsontai, ptochoi), with kophoi in Matthew's form and the same verb. It is named here rather than authored as a separate row, to avoid splitting one allusion into several. Isaiah 26:19 shares only \"dead ... raised\" (nekroi, egerthesontai). No verse in this app's BSB Isaiah names lepers or leprosy. Graded allusion because there is no formula; strong because three groups and one full verb-noun pairing match. This row starts from 11:5; the separate row from 9:27-33 to the same verses is graded plausible.",
+  "sourceId": "source-biblehub-commentary-matt-11-5",
+  "viewpointId": null
+}
