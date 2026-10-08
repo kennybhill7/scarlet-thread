@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt14-walking-mark6",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.14.22",
+    "end": "40.14.36"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.6.45",
+    "end": "41.6.56"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Both Gospels tell the same sequence right after the feeding of the five thousand: Jesus sends the disciples ahead by boat, prays on the mountain, comes to them \"walking on the sea\" in \"the fourth watch of the night\" while the wind is against them, and they take Him for a ghost. In the BSB His words are identical in both, \"Take courage! It is I. Do not be afraid.\" (Matthew 14:27; Mark 6:50), and in every Greek edition Biblehub lists both read tharseite, egō eimi, mē phobeisthe. Both then land at Gennesaret, where the sick beg \"just to let them touch the fringe of His cloak\" and \"all who touched Him were healed\" (Matthew 14:36; Mark 6:56, BSB). The type is parallel and the label strong, not explicit, following conn-matt12-family-mark3: neither Gospel cites the other. The differences can be checked. Only Mark says \"He intended to pass by them\" (6:48). Only Matthew has Peter's walk and rescue (14:28-31). The endings differ most: in Matthew, those in the boat \"worshiped Him, saying, 'Truly You are the Son of God!'\" (14:33); in Mark, the disciples \"were utterly astounded, for they had not understood about the loaves, but their hearts had been hardened\" (6:51-52, BSB).",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
