@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen22-oath-hebrews6",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.22.16",
+    "end": "1.22.17"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "58.6.13",
+    "end": "58.6.15"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Hebrews 6:13 reports the oath of Genesis 22:16 ('He swore by Himself', BSB; 'By Myself I have sworn' in 22:16, the only verse in this app's BSB Genesis with 'By Myself') and 6:14 introduces the promise with 'saying' (λέγων). The Greek of 6:14, read on Bible Hub, 'εὐλογῶν εὐλογήσω σε καὶ πληθύνων πληθυνῶ σε', matches the Swete Septuagint of 22:17 ('εὐλογῶν εὐλογήσω σε, καὶ πληθύνων πληθυνῶ τὸ σπέρμα σου') except that Hebrews has 'you' where Genesis has 'your seed' (a Greek difference; the BSB of Hebrews 6:14 reads 'multiply your descendants'). The opening particle splits by edition: Swete's Septuagint ('εἰ μήν') and Nestle and Westcott-Hort ('Εἰ μὴν') against the Byzantine text and Textus Receptus ('Ἦ μὴν'). Barnes and the Cambridge Bible refer the passage to Genesis 22:16-17, and Meyer gives the Septuagint wording of 22:16. Graded quotation because an introducing word and near-verbatim wording are both present (the standard the Genesis 15 rows use), and explicit because only one Old Testament scene joins a divine oath by Himself to these words; the one-word change is reported, not hidden.",
+  "sourceId": "source-biblehub-commentary-hebrews-6-13",
+  "viewpointId": null
+}

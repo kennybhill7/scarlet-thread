@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen22-offspring-acts3",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.22.18",
+    "end": "1.22.18"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "44.3.25",
+    "end": "44.3.26"
+  },
+  "type": "quotation",
+  "evidenceLabel": "strong",
+  "rationale": "Peter introduces the words with a formula, 'when He said to Abraham', and quotes 'Through your offspring all the families of the earth will be blessed' (Acts 3:25, BSB). In the Greek read on Bible Hub, 'ἐν τῷ σπέρματί σου' ('in your seed') matches the Septuagint of Genesis 22:18 (the English 'in your seed' renders the Greek), the only one of the promises spoken to Abraham himself that blesses the nations 'in your seed' (26:4 is spoken to Isaac; 28:14, spoken to Jacob, has both πᾶσαι αἱ φυλαί and ἐν τῷ σπέρματί σου and is set aside only because of its addressee). Editions differ: the Textus Receptus (Stephanus and Scrivener, as Bible Hub prints them) lacks ἐν, and Westcott-Hort reads εὐλογηθήσονται for ἐνευλογηθήσονται. 'All the families' (πᾶσαι αἱ πατριαί) is closer to 12:3's 'all the families' (πᾶσαι αἱ φυλαί) than to 22:18's 'all nations' (πάντα τὰ ἔθνη). Gill, Bengel and the Cambridge Bible give Genesis 22:18, Meyer gives 22:18 and calls the quotation 'not exactly according to the LXX', and Ellicott gives 12:3. Following the precedent of conn-gen12-blessing-galatians3-8 for a blended quotation, the type is quotation and the label strong rather than explicit, because the exact Genesis wording behind Peter's line is itself a combination.",
+  "sourceId": "source-biblehub-commentary-acts-3-25",
+  "viewpointId": null
+}

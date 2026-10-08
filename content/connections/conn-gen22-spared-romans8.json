@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen22-spared-romans8",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.22.12",
+    "end": "1.22.16"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "45.8.32",
+    "end": "45.8.32"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "Romans 8:32 reads 'He who did not spare His own Son' (BSB); its Greek, 'τοῦ ἰδίου υἱοῦ οὐκ ἐφείσατο' (identical in the editions Bible Hub lists), shares the negated verb φείδομαι and the genitive 'son' with the Septuagint of Genesis 22:12 and 22:16, 'οὐκ ἐφείσω τοῦ υἱοῦ σου τοῦ ἀγαπητοῦ' (the BSB's 'have not withheld your only son'). There is no citation formula, so the type is allusion, following conn-matt5-psalm37-meek. The label is plausible rather than strong because the shared wording is one common verb: the Expositor's Greek Testament, Bengel, Jamieson-Fausset-Brown, Gill and Vincent point to Genesis 22, and Robert Wilken reports Origen already noting the similarity, but Meyer judges the allusion 'not sufficiently well founded' because the expression is frequent and Paul did not write 'beloved son'.",
+  "sourceId": "source-biblehub-commentary-romans-8-32",
+  "viewpointId": null
+}
