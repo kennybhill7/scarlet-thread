@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen19-lotswife-luke17",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.19.15",
+    "end": "1.19.26"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.17.28",
+    "end": "42.17.32"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Luke 17:28-32 (BSB) names Lot, Sodom, the day Lot left, the 'fire and sulfur' that 'rained down from heaven' (17:29; Genesis 19:24 reads 'sulfur and fire'), and Lot's wife by name: 'Remember Lot's wife!' (17:32). Genesis 19:26 is the only verse in this app's BSB besides Luke 17:32 that contains the phrase 'Lot's wife', a script scan of all 66 books confirms, and 17:31's 'let no one in the field return for anything he has left behind' sits directly before the command, matching the warning 'Do not look back' at Genesis 19:17. Graded explicit_reference because Jesus names the people and the event without a citation formula, and explicit because every element is named in the target text itself. Ellicott notes the reference to Lot 'is peculiar to St. Luke'; what Lot's wife's looking back meant (unbelief, attachment, or delay) is read differently by the commentators on that page, and the connection does not depend on settling it.",
+  "sourceId": "source-biblehub-commentary-luke-17-32",
+  "viewpointId": null
+}

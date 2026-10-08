@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen19-sodom-matthew11",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.19.24",
+    "end": "1.19.25"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.11.23",
+    "end": "40.11.24"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Matthew 11:23-24 (BSB) names Sodom twice and presupposes its destruction: had Capernaum's miracles been done there, 'it would have remained to this day,' and 'it will be more bearable for Sodom on the day of judgment than for you.' Matthew 10:15 makes the same comparison for any town that 'will not welcome you or heed your words' (10:14-15), and Luke 10:12 repeats it; they are noted here rather than authored as separate rows. Graded explicit_reference/explicit because the target text names the city and its fate outright. What Jesus names as the ground of the comparison is the unrepentance of Chorazin, Bethsaida and Capernaum (11:20), not a specific sin of Sodom; Matthew Poole's comment on 11:23-24 reads Sodom as 'long since destroyed by fire and brimstone, Genesis 19:1-38' and the Galilean towns' guilt as greater because they had greater 'means to convince'. The row records the reference to the destruction in 19:24-25, not any claim about what Sodom's sin was.",
+  "sourceId": "source-biblehub-commentary-matthew-11-24",
+  "viewpointId": null
+}
