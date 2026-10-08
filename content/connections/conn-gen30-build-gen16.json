@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen30-build-gen16",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.30.1",
+    "end": "1.30.4"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.16.1",
+    "end": "1.16.3"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "Genesis 30:3 repeats Sarai's words in 16:2. Rachel: 'so that through her I too can build a family' (30:3); Sarai: 'perhaps I can build a family by her' (16:2, BSB). A script scan finds 'build a family' in this app's BSB only in these two verses, and Bible Hub's interlinear shows the same Hebrew form behind both, 'ibbaneh (Strong's 1129, Niphal), 'I shall be built up.' The situation also matches: a childless wife gives her servant to her husband 'as a wife' (30:4; 16:3 'to be his wife'). Commentators draw the line: the Cambridge Bible on 30:3 ('The same figure of a house is used by Sarah, referring to Hagar in Genesis 16:2'), Barnes ('She does what Sarah had done before her'), Gill ('whose example, in all probability, she had before her, and uses her very words'), and the Pulpit Commentary ('the sinful expedient of Sarah'); Genesis Rabbah 71:7 and Rashi have Rachel cite Sarah to Jacob. Graded motif rather than allusion, following conn-gen29-unloved-deut21 and conn-gen24-thigh-gen47, because Genesis 30 does not name Sarai or Hagar and the link is a recurring word and situation within one book. Graded strong because the shared Hebrew is checkable, the phrase is unique to the pair in the BSB, and named readers make the comparison. The commentators' judgments of the arrangement differ and are reported in the lesson's Position 2; this row claims only the repetition.",
+  "sourceId": "source-biblehub-commentary-gen-30-3",
+  "viewpointId": null
+}

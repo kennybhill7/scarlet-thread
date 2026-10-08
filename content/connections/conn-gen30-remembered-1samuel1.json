@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen30-remembered-1samuel1",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.30.1",
+    "end": "1.30.24"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "9.1.1",
+    "end": "9.1.20"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "Rachel's story and Hannah's share a pattern and a key word. In 1 Samuel 1, Elkanah 'had two wives,' one with children and one, Hannah, without (1:2); he loves the childless wife (1:5); 'her rival would provoke her' (1:6); Hannah prays, 'remember me' (1:11); 'the LORD remembered her' (1:19); she bears a son and explains his name (1:20). In Genesis 29-30, Jacob loves Rachel (29:30), her sister has sons (29:32-35), Rachel envies her (30:1), 'God remembered Rachel' (30:22), and she bears a son and explains his name (30:23-24). Bible Hub's interlinear shows the same verb, zakhar (Strong's 2142), at 30:22 and 1 Samuel 1:19. Readers pair the two from both ends: the Cambridge Bible on 1 Samuel 1:19 ('Cp. Genesis 30:22'); Ellicott on 30:22 ('Comp. 1Samuel 1:19') and on 30:1, where he contrasts Rachel's words with 'Hannah's patient suffering'; the Pulpit Commentary on 30:22 (citing Genesis 8:1 and 1 Samuel 1:19); Benson and Jamieson-Fausset-Brown on 30:1; and Genesis Rabbah 73:1, where Rabbi Elazar says 'Sarah, Rachel, and Hannah were remembered on Rosh Hashanah.' Graded motif, not allusion, because 1 Samuel does not name Rachel or quote Genesis 30, and barren wives who conceive also recur with Sarah and Rebekah; the shared feature here is the rival wife and the verb 'remembered.' Graded strong because the verb is checkable in the Hebrew and named Jewish and Christian readers make the comparison. 'God remembered' also describes Noah (8:1); that use, outside the barren-wife pattern, is reported in the lesson's Key Words and not given a row.",
+  "sourceId": "source-biblehub-commentary-1-samuel-1-19",
+  "viewpointId": null
+}

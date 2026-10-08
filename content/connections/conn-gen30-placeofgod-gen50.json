@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen30-placeofgod-gen50",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.30.1",
+    "end": "1.30.2"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.50.19",
+    "end": "1.50.21"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "Jacob's angry answer to Rachel, 'Am I in the place of God, who has withheld children from you?' (30:2), returns in the mouth of the son she bears at the end of this passage: Joseph tells his brothers, 'Do not be afraid. Am I in the place of God?' (50:19, BSB). A script scan finds 'in the place of God' in this app's BSB only in these two verses. Bible Hub's interlinear shows the same Hebrew words, hatachat Elohim, with 'I' as anoki at 30:2 and ani at 50:19. The Cambridge Bible cross-references in both directions: on 30:2, 'See Genesis 50:19'; on 50:19, 'Cf. the occurrence of the same words in Genesis 30:2 and 2 Kings 5:7.' The uses differ: Jacob refuses a demand he cannot meet, and Joseph declines to punish (50:20-21). Graded motif, following conn-gen24-thigh-gen47, because the link is a repeated phrase within Genesis and neither verse points to the other. Graded strong because the Hebrew repetition is exact apart from the pronoun's form and a named commentator links the two; no source read claims that the narrator meant the son to echo the father, and this row does not claim it.",
+  "sourceId": "source-biblehub-commentary-gen-50-19",
+  "viewpointId": null
+}
