@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen22-binding-hebrews11",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.22.1",
+    "end": "1.22.13"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "58.11.17",
+    "end": "58.11.19"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Hebrews 11:17 names the person, the son and the event: 'By faith Abraham, when he was tested, offered up Isaac on the altar' (BSB). Its participle 'tested' (πειραζόμενος, read on Bible Hub's Greek pages) uses the same verb as the Septuagint of Genesis 22:1 (ἐπείραζεν), and 11:19's 'he did receive Isaac back' answers the stopped knife of 22:10-13. The words 11:18 quotes ('Through Isaac your offspring will be reckoned') come from Genesis 21:12, outside this range, and are counted here only as the reason Hebrews gives for the trial's weight. This follows the precedent of conn-gen18-sarah-faith-hebrews11 (explicit_reference), but is graded explicit, not strong, because Hebrews 11:17 names this scene itself; how to take 11:19's ἐν παραβολῇ ('in a sense' in the BSB; 'in a figure' or 'as a type' in older commentators, an act of 'imperilling' in Meyer) is disputed, and that dispute does not touch the reference.",
+  "sourceId": "source-biblehub-commentary-hebrews-11-19",
+  "viewpointId": null
+}

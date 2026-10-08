@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen22-offered-james2",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.22.9",
+    "end": "1.22.12"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "59.2.21",
+    "end": "59.2.22"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "James 2:21 asks, 'Was not our father Abraham justified by what he did when he offered his son Isaac on the altar?' (BSB), naming Abraham, Isaac and the altar of Genesis 22:9. In the Greek read on Bible Hub, James's participle ἀνενέγκας is the verb of the Septuagint's command in 22:2 (ἀνένεγκον), and 'the altar' (τὸ θυσιαστήριον) is the noun of 22:9. The existing row conn-gen15-faith-james2 covers James 2:23's quotation of Genesis 15:6; this row covers the event James joins to it, which that row names but does not trace. Graded explicit because the person, son, act and place are named; what 'justified by what he did' means, and how it relates to Paul, is the dispute reported in the Genesis 15 lesson and is not settled by this grade.",
+  "sourceId": "source-biblehub-commentary-james-2-21",
+  "viewpointId": null
+}
