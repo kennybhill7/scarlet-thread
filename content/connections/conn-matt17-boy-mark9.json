@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt17-boy-mark9",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.17.14",
+    "end": "40.17.21"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.9.14",
+    "end": "41.9.29"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "The same scene in the same order after the descent from the mountain: a father whose son the disciples could not help, Jesus' cry \"How long must I put up with you?\" (Matthew 17:17; Mark 9:19, BSB), the rebuke of the spirit, and the disciples' private question \"Why couldn't we drive it out?\" (Matthew 17:19; Mark 9:28). Parallel/strong rather than explicit, following conn-matt16-sign-mark8, because neither Gospel names the other and the differences are real and checkable in the BSB. Matthew's father says his son \"has seizures\" (17:15), where Mark's speaks of \"a spirit that makes him mute\" (Mark 9:17). Only Mark has the exchange in which the father cries, \"I do believe; help my unbelief!\" (9:24). Matthew alone answers the disciples with \"Because you have so little faith\" and the mustard-seed saying (17:20); Mark's answer is \"This kind cannot come out, except by prayer\" (9:29), where the Byzantine and Textus Receptus editions add \"and fasting.\" Matthew 17:21, which this app's BSB leaves empty, is the verse whose place in Matthew the manuscripts dispute; the lesson reports that question, and this row does not depend on it.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

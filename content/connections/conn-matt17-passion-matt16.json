@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt17-passion-matt16",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.17.22",
+    "end": "40.17.23"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.16.21",
+    "end": "40.16.21"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "Matthew 17:22-23 is the second of three sayings in which Jesus tells the disciples beforehand that he will be killed and raised \"on the third day\": 16:21, 17:23 and 20:19 (BSB). A case-insensitive script over this app's BSB finds \"third day\" in Matthew only in those three verses and at 27:64, where the chief priests and Pharisees ask that the tomb be secured \"until the third day.\" In Greek, all three predictions read te trite hemera in every edition Bible Hub lists; the verb is a form of egeiro in all editions at 16:21 and 17:23, while at 20:19 the Byzantine, Greek Orthodox and Textus Receptus editions read anastesetai. Motif/strong, following conn-matt16-leaven-matt13 (a recurrence within one Gospel): the repetition is close and checkable. The differences are as checkable: 16:21 names Jerusalem, \"the elders, chief priests, and scribes,\" and says \"must\"; 17:22 says only \"delivered into the hands of men\"; 20:18-19 adds condemnation and \"the Gentiles.\" The first ends in Peter's rebuke (16:22), the second in the disciples being \"deeply grieved\" (17:23).",
+  "sourceId": "source-biblehub-texts-greek-matt-17-23",
+  "viewpointId": null
+}

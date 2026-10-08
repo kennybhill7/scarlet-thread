@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt17-didrachma-exodus30",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.17.24",
+    "end": "40.17.27"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "2.30.11",
+    "end": "2.30.16"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "Matthew never names the temple or Moses. The BSB's \"two-drachma tax\" (17:24) renders Greek ta didrachma, as the BSB's own footnote says. The link to Exodus 30, where each man counted \"must pay a half shekel, according to the sanctuary shekel\" (30:13, BSB), comes from named readers: Ellicott, Barnes, Jamieson-Fausset-Brown, Meyer, the Cambridge Bible and the Pulpit Commentary (via Bible Hub), and Calvin, all identify the didrachma as that half-shekel, and Josephus says the shekel \"is equal to four Athenian drachmae\" (Antiquities 3.8.2), so half a shekel was two. The Septuagint (Swete) renders the half-shekel of Exodus 30:13 as to hemisu tou didrachmou, \"the half of the didrachm,\" so the Greek word is shared but names a different amount there. Motif, following conn-matt9-fringe-numbers15 (an institution of the Law traced into a Gospel scene), because Matthew neither quotes nor echoes the wording of Exodus 30. Strong rather than explicit because the identification is the commentators', not Matthew's, and because they differ on how the tax grew from the text: Gill holds that Exodus 30 \"does not appear to have been designed for a perpetual law,\" Nehemiah 10:32 has \"a third of a shekel yearly\" (BSB), and Chrysostom (Homily 58) traces the payment instead to the redemption of the firstborn.",
+  "sourceId": "source-biblehub-commentary-matt-17-24",
+  "viewpointId": null
+}
