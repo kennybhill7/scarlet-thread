@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen18-friend-james2-23",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.18.17",
+    "end": "1.18.19"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "59.2.23",
+    "end": "59.2.23"
+  },
+  "type": "motif",
+  "evidenceLabel": "plausible",
+  "rationale": "James 2:23 ends 'and he was called a friend of God' (BSB). A script scan of this app's BSB for 'friend of God' and 'Abraham My/Your friend' finds the title only at 2 Chronicles 20:7 ('Abraham Your friend'), Isaiah 41:8 ('Abraham My friend') and James 2:23, and neither Old Testament verse cites Genesis 18. The tie to this passage comes from commentators: Matthew Poole, on James 2:23, lists among the reasons for the title God's 'revealing secrets to him, Genesis 18:17,18,' alongside John 15:15; Meyer, on the same verse, reports that at Genesis 18:17 'the LXX. have added to ἀπὸ Ἀβραάμ the words τοῦ παιδός μου, for which Philo puts τοῦ φίλου μου' ('my servant' and 'my friend'); the Pulpit Commentary on James 2 likewise reports that 'Philo actually in one instance' quotes Genesis 18:17 with 'my friend' in place of 'my servant' (the Pulpit Commentary on Genesis 18:17 itself says only that, as Philo observes, 'my friend' 'would have been a more appropriate designation'). Poole, on Genesis 18:17, paraphrases God's question as 'it is against the laws of friendship to conceal my secrets from him.' Neither the Septuagint nor Philo was checked for this lesson. Graded motif at plausible because James neither quotes nor echoes the wording of 18:17-19, so the connection is a recurring theme (God disclosing His plans to a 'friend') that named readers associate with this scene. This row covers the closing clause of James 2:23 only; the quotation of Genesis 15:6 in the same verse is a separate, existing connection (conn-gen15-faith-james2).",
+  "sourceId": "source-biblehub-commentary-james-2-23",
+  "viewpointId": null
+}

@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen18-find-righteous-jeremiah5-1",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.18.23",
+    "end": "1.18.32"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "24.5.1",
+    "end": "24.5.1"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Jeremiah 5:1 (BSB) sets up the same kind of test Abraham proposes in Genesis 18:24-32: 'If you can find a single person, anyone who acts justly, anyone who seeks the truth, then I will forgive the city.' Several commentaries read on the verse tie it to Genesis 18. Keil and Delitzsch: 'The pledge that God would pardon Jerusalem if He found but one righteous man in it, recalls Abraham's dealing with God on behalf of Sodom, Genesis 18:23.' Ellicott: 'we find an echo of Genesis 18:25; but the picture is of a state more utterly hopeless. There were not ten righteous men found in Sodom (Genesis 18:32); in Jerusalem there was not one.' The Cambridge Bible writes 'Cp. Genesis 18:23-33,' and Jamieson-Fausset-Brown write 'compare Ge 18:23.' Benson sets the numbers side by side ('in offering pardon to Sodom and Gomorrah, God came no lower than ten'), as does a note printed on the page without a commentator's heading (citing 'Genesis 18:24'). On the Genesis side, Haydock, on 18:32, writes 'God thus challenges Jerusalem to produce one virtuous man,' citing 'Jeremias v. 1,' and Ramban, commenting on the words he renders 'within the city' in Genesis 18:24 (BSB 'in the city'), reports Ibn Ezra reading them alongside Jeremiah 5:1. Some wording is shared and checkable in Bible Hub's interlinear: 'find' (matsa) occurs in both, and Jeremiah's 'acts justly' is literally 'doing mishpat,' the same verb and noun as 18:25's 'do what is right.' But Jeremiah's 'forgive' (salach, Strong's 5545) is a different verb from Genesis 18's 'spare' (nasa, Strong's 5375). Graded parallel rather than allusion: Ellicott's 'echo' and Keil's 'recalls' name a resemblance a reader hears, but Jeremiah names neither Abraham nor Sodom, and no source read argues that Jeremiah's wording was built from Genesis 18. Graded strong because the shared situation and partial vocabulary can be verified, and many named Jewish, Protestant and Catholic readers draw the comparison.",
+  "sourceId": "source-biblehub-commentary-jeremiah-5-1",
+  "viewpointId": null
+}
