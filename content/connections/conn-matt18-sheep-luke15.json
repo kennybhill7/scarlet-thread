@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt18-sheep-luke15",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.18.12",
+    "end": "40.18.14"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.15.3",
+    "end": "42.15.7"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Both passages tell the same short story in the same order: a man with a hundred sheep loses one, leaves the ninety-nine, goes after the one, finds it, and there is more joy over it than over the ninety-nine; each ends \"In the same way\" (BSB, Matthew 18:14 and Luke 15:7). In this app's BSB, \"hundred sheep\" occurs only at 1 Kings 4:23 (a list of provisions), Matthew 18:12 and Luke 15:4, and \"ninety-nine\" outside these two passages only in Genesis 17:1 and 17:24, of Abraham's age (script searches). That shared narrative sequence is why the type is parallel, following conn-matt11-woes-luke10 and conn-matt5-salt-mark9, where the same saying in two different settings is graded parallel/strong. The differences are large and are reported rather than smoothed. The setting: in Matthew the story is told to disciples about \"these little ones\" (18:14); in Luke to Pharisees and scribes who complained that Jesus \"welcomes sinners\" (15:2), and it ends on \"one sinner who repents\" (15:7). The verbs: Matthew's sheep \"goes astray\" (planethe, planomenon, 18:12-13), Luke's is \"lost\" (apolesas, apololos, 15:4); Matthew uses the \"perish\" root only at the end (apoletai, 18:14). The place: \"on the hills\" in Matthew, \"in the pasture\" (Greek \"in the wilderness\") in Luke. Commentators read on Bible Hub disagree on the history but agree it is the same parable: Meyer, Luke records \"the same beautiful parable, though in a different connection\"; the Pulpit Commentary, it is found in Luke \"with some variations, delivered to a different audience\"; Gill, \"this parable was twice delivered.\" Calvin, on 18:12, says Luke's narrative \"presents to us a somewhat different object.\" The label is strong, not explicit, because the setting and application differ and neither Gospel refers to the other.",
+  "sourceId": "source-biblehub-commentary-matt-18-11",
+  "viewpointId": null
+}

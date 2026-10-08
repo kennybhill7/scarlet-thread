@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt18-handeye-matt5",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.18.8",
+    "end": "40.18.9"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.5.29",
+    "end": "40.5.30"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "Matthew 18:8-9 repeats, with changes, the sayings Matthew already gave at 5:29-30. In this app's BSB, \"gouge it out and throw it away\" occurs only at 5:29 and 18:9, and \"cut it off and throw it away\" only at 5:30 and 18:8 (script searches). In Greek the eye clause is the same in both places, \"ho ophthalmos sou ... skandalizei se, exele auton kai bale apo sou,\" except that 5:29 adds \"the right\" (ho dexios), and both hand sayings use ekkopson and bale apo sou (SBL and Byzantine texts on Bible Hub). The differences are checkable: 18:8 adds the foot, and both 18:8 and 18:9 drop \"right\"; 5:29-30 end in \"hell\" (geenna), 18:8 in \"the eternal fire\" and 18:9 in \"the fire of hell\" (BSB footnote: \"Greek the Gehenna of fire\"); 5:29-30 speak of losing \"one part of your body\" and 18:8-9 of entering \"life\" crippled, lame or with one eye; and the setting moves from lust (5:28) to causing others to stumble (18:6-7). A saying repeated within one Gospel is why the type is motif, following conn-matt16-sign-matt12, and the shared, distinctive wording is why the label is strong. Calvin notes the repetition (\"As those two verses have been already explained ... under Matthew 5:29,30\"), and the Expositor's Greek Testament calls the verses \"one of Mt.'s dualities.\" The row grades the repetition, not what the sayings require; that is reported in the lesson's Positions, and lesson 11 (Matthew 5:21-48) covers the first occurrence.",
+  "sourceId": "source-biblehub-calvin-harmony-matt-18",
+  "viewpointId": null
+}

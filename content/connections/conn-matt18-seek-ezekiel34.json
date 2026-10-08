@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt18-seek-ezekiel34",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.18.12",
+    "end": "40.18.14"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "26.34.11",
+    "end": "26.34.16"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "This row is distinct from conn-matt9-sheep-ezekiel34, which links Matthew 9:35-36 (\"like sheep without a shepherd\") to Ezekiel's indictment of failed shepherds. Here the link is to Ezekiel 34:11-16, where God Himself searches for His flock: \"I Myself will search for My flock and seek them out\" (34:11) and \"I will seek the lost, bring back the strays\" (34:16, BSB). The case rests on Greek vocabulary and setting. Matthew 18:12 has the man \"seek\" (zetei) \"the one that is going astray\" (to planomenon), and 18:14 uses the verb \"perish\" (apoletai); the Septuagint of Ezekiel 34:16 reads \"to apololos zeteso, kai to planomenon epistrepso\" (Swete, on Bible Hub), putting \"seek,\" \"the lost\" and \"the straying\" in one sentence, and 34:4 charges the shepherds with not turning back to planomenon nor seeking to apololos. Matthew's sheep are left \"on the hills\" (epi ta ore); Ezekiel's flock \"went astray on all the mountains\" (34:6, BSB) and is fed \"on the mountains of Israel\" (34:13). In the BSB the overlap is weaker: Matthew 18:12 renders to planomenon as \"the one that is lost,\" so the English blurs the two Greek words. Two public-domain commentaries name the background: the Cambridge Bible, in its note at 18:11 (\"The expression and the imagery of the parable recall Ezekiel 34\") and Gill on 18:12 (\"alluding to the mountains of Israel ... Ezekiel 34:13\"). Graded allusion, following conn-matt9-sheep-ezekiel34 and conn-matt10-lostsheep-jeremiah50, because there is no citation formula and no clause is quoted. Graded plausible, not strong, because seeking a straying sheep is ordinary shepherd vocabulary that could come from any number of texts or from life, Luke 15 tells the same story with the other verb, and both commentaries state the link without arguing it.",
+  "sourceId": "source-biblehub-sepd-ezekiel-34",
+  "viewpointId": null
+}
