@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt10-names-luke6",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.10.2",
+    "end": "40.10.4"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.6.13",
+    "end": "42.6.16"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Both are lists of the twelve \"apostles\" (Matthew 10:2; Luke 6:13), and eleven names match, checked against this app's own BSB text. Both begin with Simon Peter and his brother Andrew and end with Judas Iscariot. Both keep Philip as the fifth name and James son of Alphaeus as the ninth. One name differs. Matthew's tenth apostle is \"Thaddaeus\" (10:3), as in Mark 3:18, while Luke has \"Judas son of James\" (6:16), as does Acts 1:13. Matthew also calls one apostle \"Matthew the tax collector\" (10:3), where Luke has only \"Matthew\" (6:15). Graded parallel because the two lists name the same group without either citing the other. The label is strong rather than explicit because of the one real difference in names. Whether Thaddaeus and Judas son of James are one man is a harmonization reported in the lesson, with its sources; this connection does not decide it.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt10-sodom-genesis19",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.10.15",
+    "end": "40.10.15"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.19.24",
+    "end": "1.19.25"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Jesus names the two cities: \"it will be more bearable for Sodom and Gomorrah on the day of judgment than for that town\" (Matthew 10:15, BSB). Genesis 19:24-25 is where those two cities are destroyed: \"the LORD rained down sulfur and fire on Sodom and Gomorrah\" (BSB). Graded explicit_reference because the saying names the cities and the event without quoting Genesis, and explicit because nothing is inferred to make the link. What the saying compares is narrow. It sets the judgment of a town that will not \"welcome\" the messengers or \"heed\" their words (10:14) against the judgment of those cities. It does not say what Sodom's sin was, a question the Genesis 19 lesson handles. Matthew 11:23-24 repeats the comparison for Capernaum and gives a reason in terms of what each city saw: \"if the miracles that were performed in you had been performed in Sodom, it would have remained to this day\" (BSB).",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
