@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt17-restore-malachi4",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.17.11",
+    "end": "40.17.11"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "39.4.6",
+    "end": "39.4.6"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "Jesus' reply, \"Elijah does indeed come, and he will restore all things\" (17:11, BSB), uses the verb of the Greek Malachi. In this app's BSB, Malachi 4:6 says Elijah \"will turn the hearts of the fathers to their children,\" so the English hides the link. Malachi 4:5-6 in the BSB are 3:23-24 in the Hebrew (Sefaria), and in Swete's Septuagint on Bible Hub the verse reads hos apokatastēsei kardian patros pros huion (numbered 4:5 there, where the reminder about Moses comes after it). Matthew's apokatastēsei panta has the same verb in the same form in all nine editions Bible Hub lists. Meyer calls the phrase \"an expression taken from the rendering of Malachi 4:6 by the LXX\"; Bengel writes, \"The same verb is used by the LXX. in Mal. 3:24\"; Chrysostom (Homily 57 on Matthew) quotes Malachi as promising Elias \"who shall restore the heart of father to son.\" The type is allusion because there is no formula and only the verb is shared: Matthew has \"all things,\" Malachi \"hearts.\" The label is strong because the verb comes in a sentence about Elijah's coming and named readers identify its source. This row is distinct from conn-matt11-elijah-malachi4, which grades Jesus' naming of John as \"the Elijah who was to come\" (11:14) against Malachi 4:5; that row already notes that the identification returns at 17:12-13, which is not authored again here. Whether 17:11 speaks of John or of a future Elijah is a named dispute in the lesson's Positions; it does not change where the verb comes from.",
+  "sourceId": "source-biblehub-commentary-matt-17-11",
+  "viewpointId": null
+}
