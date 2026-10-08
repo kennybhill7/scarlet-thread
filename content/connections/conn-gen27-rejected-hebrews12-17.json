@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen27-rejected-hebrews12-17",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.27.30",
+    "end": "1.27.40"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "58.12.17",
+    "end": "58.12.17"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Hebrews 12:17 continues the sentence about Esau begun in 12:16: 'For you know that afterward, when he wanted to inherit the blessing, he was rejected. He could find no ground for repentance, though he sought the blessing with tears' (BSB). Each element is in Genesis 27:30-40: Esau arrives just after Jacob leaves (27:30), asks to be blessed (27:31, 27:34, 27:36, 27:38), is refused because the blessing already given stands (27:33, 27:37), and 'wept aloud' (27:38). Esau is named in 12:16, not in 12:17 itself; in the New Testament the BSB names Esau in three verses, Romans 9:13, Hebrews 11:20 and Hebrews 12:16 (script count). The sibling row conn-gen25-birthright-hebrews12 ends at 12:16 on purpose and points 12:17 to this chapter; this row is that pointer. There is no citation formula, so the type is explicit_reference, and it is graded explicit, following conn-gen25-birthright-hebrews12 and conn-gen22-binding-hebrews11, because the verse identifies this scene through the named Esau, the blessing and the tears. Keil and Delitzsch cite Hebrews 12:17 at Isaac's 'he will be blessed' (27:33), and Ellicott ties 12:17 to Genesis 27:33 and 27:38. Whose 'repentance' is meant (Esau's, or a change of Isaac's mind) is disputed by named commentators (Calvin, Barnes, Meyer, the Cambridge Bible, Ellicott), and the BSB's 'the blessing' in the last clause renders a Greek pronoun, αὐτήν, that some readers refer to 'repentance' instead. Those disputes concern what the verse says about the scene, not which scene it names; the lesson reports them without deciding.",
+  "sourceId": "source-biblehub-commentary-hebrews-12-17",
+  "viewpointId": null
+}
