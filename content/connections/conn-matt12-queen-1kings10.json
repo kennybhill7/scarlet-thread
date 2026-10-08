@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt12-queen-1kings10",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.12.42",
+    "end": "40.12.42"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "11.10.1",
+    "end": "11.10.13"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Jesus names Solomon and describes a royal visitor: \"The Queen of the South will rise at the judgment with this generation and condemn it; for she came from the ends of the earth to hear the wisdom of Solomon\" (12:42, BSB). 1 Kings 10:1-13 narrates that visit: \"when the queen of Sheba heard about the fame of Solomon... she came to test him with difficult questions,\" and \"saw all the wisdom of Solomon\" (10:1, 10:4, BSB). A script over the shipped BSB finds \"queen of Sheba\" only in 1 Kings 10 and its parallel, 2 Chronicles 9:1-12, and \"Queen of the South\" only in Matthew 12:42 and Luke 11:31. Matthew Henry and MacLaren (via Biblehub) both name her the queen of Sheba. The title is the one real difference: the Greek has basilissa notou, \"queen of the south,\" where the Septuagint has basilissa Saba, and \"from the ends of the earth\" is Matthew's phrase, not 1 Kings'. Graded explicit_reference at explicit, like conn-matt12-nineveh-jonah3, because Solomon is named and only one such visit is narrated in the Old Testament; 2 Chronicles 9 is not authored as a separate row.",
+  "sourceId": "source-biblehub-sepd-1kings-10",
+  "viewpointId": null
+}
