@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt18-forgive-luke17",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.18.15",
+    "end": "40.18.22"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.17.3",
+    "end": "42.17.4"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Luke 17:3-4 sets side by side two sayings that Matthew 18 separates by five verses: \"If your brother sins, rebuke him; and if he repents, forgive him\" and \"Even if he sins against you seven times in a day, and seven times returns to say, 'I repent,' you must forgive him\" (BSB). Matthew has \"If your brother sins against you, go and confront him privately\" (18:15) and Peter's \"Up to seven times?\" answered with \"seventy-seven times\" (18:21-22). The NABRE notes say that \"Mt 18:21–22 correspond to Lk 17:4.\" The wording differs: Luke's verb for rebuking is ἐπιτίμησον where Matthew has ἔλεγξον, Luke has no witnesses and no church, Luke's seven is \"in a day,\" and Luke names repentance as the condition. The editions split on \"against you\" in both Gospels. In Luke 17:3 the Byzantine, Greek Orthodox and both Textus Receptus texts read εἰς σὲ and the SBL, Nestle, Westcott-Hort and Tischendorf texts do not; at Matthew 18:15 the split is the same except that the SBL text includes the words. A synoptic parallel of sayings is parallel/strong under this curriculum's rule (conn-matt16-sign-mark8), not explicit. Poole judged that Luke's saying \"seemeth to have been spoken at another time, and upon some other occasion\"; the row grades the shared sayings, not whether they were spoken once.",
+  "sourceId": "source-usccb-nabre-notes-matthew-18",
+  "viewpointId": null
+}
