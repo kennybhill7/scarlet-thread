@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt10-sword-luke12",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.10.34",
+    "end": "40.10.36"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.12.51",
+    "end": "42.12.53"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Both Gospels give the same saying in the same order: a denial that Jesus came \"to bring peace to the earth\" (that phrase is identical in the BSB of Matthew 10:34 and Luke 12:51), followed by a list of family members set against each other. Where Matthew has \"but a sword\", Luke has \"but division\", and Luke's family list is longer and symmetrical (\"five in one household will be divided, three against two\"). The shared wording and order are why the type is parallel and the label strong. David Sim (HTS Teologiese Studies 56.1, 2000) reports that \"The most popular explanation\" takes Matthew's \"sword\" as the wording of the source the two Gospels share and Luke's \"division\" as Luke's change, and he argues the reverse, \"Contrary to the views of most scholars\". That dispute concerns which wording is earlier, not whether the two passages are the same saying.",
+  "sourceId": "source-sim-hts-2000-sword-motif",
+  "viewpointId": null
+}

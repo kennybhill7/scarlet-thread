@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt10-fear-luke12",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.10.26",
+    "end": "40.10.33"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.12.2",
+    "end": "42.12.9"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Luke 12:2-9 runs through the same sequence as Matthew 10:26-33: nothing concealed that will not be disclosed (the BSB wording of that sentence is identical in Matthew 10:26 and Luke 12:2), do not fear those who kill the body, fear the One with power over hell, the sparrows, \"even the very hairs of your head are all numbered\" (identical in both), \"you are worth more than many sparrows\" (identical), and confessing or denying Jesus \"before men\". The long run of shared and identical wording in the same order is why the type is parallel and the label strong. The differences are checkable in the BSB and bear on the lesson's questions: two sparrows \"for a penny\" in Matthew against five \"for two pennies\" in Luke; Matthew's \"destroy both soul and body in hell\" against Luke's \"has authority to throw you into hell\"; and confession before \"My Father in heaven\" in Matthew against \"the angels of God\" in Luke.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

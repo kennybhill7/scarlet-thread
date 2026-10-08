@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt10-worthy-luke14",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.10.37",
+    "end": "40.10.38"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.14.26",
+    "end": "42.14.27"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Both passages pair a saying about father and mother with a saying about the cross, in the same order, and both end each saying with a condition of belonging to Jesus. The wording differs at the points that matter most: Matthew has \"loves his father or mother more than Me\" and \"is not worthy of Me\", where Luke has \"does not hate his father and mother\" and \"cannot be My disciple\"; Matthew has \"take up his cross and follow Me\", Luke \"carry his cross and follow Me\" (all BSB). The same two-part structure with the same subjects is why the type is parallel and the label strong. How Luke's \"hate\" relates to Matthew's \"more than Me\" is a named dispute reported in the lesson; Ellicott (on Biblehub) reads Matthew 10:37 as \"explaining the stronger phrase of Luke 14:26-27\", and the Cambridge Bible on Luke 14:26 says a reference to Matthew 10:37 \"will shew that 'hate' means hate by comparison\" while adding a stronger reading of its own.",
+  "sourceId": "source-biblehub-commentary-luke-14-26",
+  "viewpointId": null
+}
