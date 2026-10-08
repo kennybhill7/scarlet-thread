@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen23-tomb-acts7-16",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.23.16",
+    "end": "1.23.20"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "44.7.15",
+    "end": "44.7.16"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "In his speech Stephen says the fathers' bones were 'placed in the tomb that Abraham had bought from the sons of Hamor at Shechem for a price he paid in silver' (Acts 7:16, BSB). He names Abraham, a tomb, a purchase and a silver price, all features of Genesis 23:16-20. But Genesis 23 places Abraham's purchase at Machpelah near Hebron, from Ephron the Hittite. The purchase from 'the sons of Hamor' at Shechem is Jacob's (Genesis 33:19), and Joseph's bones were buried there (Joshua 24:32). Every Greek edition on Bible Hub reads Ἀβραάμ, so no manuscript evidence removes the name. Commentators explain the difficulty in four ways (see Positions 3 in the lesson): a slip in Stephen's speech (Meyer), an error introduced into the report or by a copyist (the Cambridge Bible, Barnes, the Pulpit Commentary), a deliberate compression of two purchases (Bengel, following Flacius; Gill), or an unrecorded purchase by Abraham at Shechem (Ellicott). This row follows conn-gen17-covenant-acts7-8 in grading Stephen's naming of Abraham as explicit_reference. It is strong rather than explicit because the place and sellers Stephen gives belong to Genesis 33:19, so which purchase he refers to is itself disputed. The row records the reference and does not choose among the explanations.",
+  "sourceId": "source-biblehub-commentary-acts-7-16",
+  "viewpointId": null
+}
