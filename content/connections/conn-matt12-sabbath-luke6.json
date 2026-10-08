@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt12-sabbath-luke6",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.12.1",
+    "end": "40.12.14"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.6.1",
+    "end": "42.6.11"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Luke tells the same two Sabbath scenes in the same order: the grainfields, David and the consecrated bread, \"The Son of Man is Lord of the Sabbath\" (Luke 6:5, identical in the BSB to Matthew 12:8), then the man with the withered hand and \"Stretch out your hand\" (6:10). Parallel/strong rather than explicit, following conn-matt11-woes-luke10, because neither Gospel names the other and the differences can be checked in the BSB. Luke alone says the disciples \"rub them in their hands\" (6:1), that the healing was \"On another Sabbath\" (6:6), and that it was the man's \"right hand\" (6:6). Like Mark, Luke has no priests in the temple, no \"something greater than the temple,\" no Hosea 6:6 and no sheep in the pit; a sheep-like argument appears elsewhere in Luke (\"Which of you whose son or ox falls into a pit on the Sabbath day,\" 14:5). The ending differs most: Matthew 12:14 says the Pharisees \"plotted how they might kill Jesus,\" while Luke 6:11 says \"the scribes and Pharisees were filled with rage and began to discuss with one another what they might do to Jesus.\"",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

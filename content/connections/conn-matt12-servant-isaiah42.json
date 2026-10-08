@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt12-servant-isaiah42",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.12.17",
+    "end": "40.12.21"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.42.1",
+    "end": "23.42.4"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Matthew introduces the words with his own fulfillment formula (\"This was to fulfill what was spoken through the prophet Isaiah,\" 12:17, BSB) and quotes Isaiah 42:1-4, which is why the type is quotation and the label is explicit; the grade follows conn-matt8-infirmities-isaiah53, the other Isaiah text Matthew introduces with the same formula. The wording is a free rendering that matches neither the Hebrew nor the Greek Septuagint throughout. Checked against this app's BSB, several lines agree closely (\"Here is My Servant,\" \"in whom My soul delights,\" \"I will put My Spirit on Him,\" \"A bruised reed He will not break\"), while others differ: Isaiah's \"whom I uphold, My Chosen One\" is Matthew's \"whom I have chosen, My beloved\"; \"bring justice\" is \"proclaim justice\"; Matthew omits the first half of 42:4 and ends 12:20 with \"till He leads justice to victory\" where Isaiah 42:3 has \"He will faithfully bring forth justice.\" Checked against the Greek (Swete's Septuagint and the Nestle 1904 text of Matthew, via Bible Hub), Matthew shares the Septuagint's word for \"servant\" (ho pais mou) but not its opening, which names the servant \"Jacob\" and the chosen one \"Israel\"; Matthew's ho agapetos (\"beloved\") stands where the Septuagint has ho eklektos and the Hebrew \"My Chosen One,\" and his eudokesen (\"delights\") differs from the Septuagint's prosedexato (\"accepted,\" in Brenton's English) while keeping the Hebrew's sense. The last line is the clearest point of contact with the Septuagint: Matthew's \"In His name the nations will put their hope\" (12:21) shares the words to onomati autou ethne elpiousin with the Septuagint of 42:4 (which adds the preposition epi), against the Hebrew, which Bible Hub's interlinear glosses \"for His law\" and \"islands\" (BSB: \"In His law the islands will put their hope\"). Ellicott, Meyer and the Pulpit Commentary note that 12:21 agrees with the Septuagint here (the Cambridge Bible, Barnes and Bengel note only the Hebrew's \"law\"); Meyer and the Pulpit Commentary offer different explanations for why. Matthew's link between this servant and the voice at the baptism (3:17) is graded separately in conn-matt3-baptism-isaiah42 and is not duplicated here.",
+  "sourceId": "source-biblehub-lxx-isaiah-42-swete",
+  "viewpointId": null
+}

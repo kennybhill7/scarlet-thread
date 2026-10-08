@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt12-priests-numbers28",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.12.5",
+    "end": "40.12.5"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "4.28.9",
+    "end": "4.28.10"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "Jesus points to the Law without quoting it: \"haven't you read in the Law that on the Sabbath the priests in the temple break the Sabbath and yet are innocent?\" (12:5, BSB). No verse of the Law says the priests break the Sabbath; what the Law does is require Sabbath work of them, and the commentators on Bible Hub's Matthew 12:5 page identify the provision as Numbers 28:9-10, the extra Sabbath burnt offering of \"two unblemished year-old male lambs\" (28:9, BSB): Ellicott, Barnes, Gill, Meyer and the Expositor's Greek Testament all name it. Leviticus 24:8 (the bread set out \"Every Sabbath day\") is a second Sabbath duty of the priests that Ellicott connects to the bread of 12:4. The type is explicit_reference, as with conn-matt8-leper-leviticus14, because Jesus names a Mosaic provision without quoting it. The label is strong rather than explicit because, unlike that row (where \"the gift prescribed by Moses\" has one clear referent), \"in the Law\" here does not name a passage, and the identification with Numbers 28 is the commentators', not the text's. Only Matthew has this argument; Mark 2:23-28 and Luke 6:1-5 do not.",
+  "sourceId": "source-biblehub-commentary-matt-12-5",
+  "viewpointId": null
+}
