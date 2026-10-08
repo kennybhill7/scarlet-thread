@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen21-isaac-offspring-hebrews11",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.21.12",
+    "end": "1.21.12"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "58.11.17",
+    "end": "58.11.19"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Hebrews 11:18 introduces the words as God's own speech, 'even though God had said to him,' and quotes 'Through Isaac your offspring will be reckoned,' which in this app's BSB is word for word Genesis 21:12; in the Greek editions on Bible Hub the quoted clause is identical to Romans 9:7's, after a recitative 'that' (hoti). The introducing clause is a marker of quotation, which is why the type is quotation rather than allusion. Hebrews sets the quoted promise inside Abraham's later test, when he 'offered up Isaac on the altar' (11:17), an event Genesis narrates in chapter 22; this row covers only the quoted words of 21:12, and how Hebrews reads the test (11:19, 'Abraham reasoned that God could raise the dead') belongs to the Genesis 22 unit. Graded explicit for the marker and the verbatim wording, not for any reading of the test.",
+  "sourceId": "source-biblehub-greek-texts-gen21-nt-quotations",
+  "viewpointId": null
+}

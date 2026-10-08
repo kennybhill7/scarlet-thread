@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen21-beersheba-gen26",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.21.22",
+    "end": "1.21.34"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.26.23",
+    "end": "1.26.33"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Genesis 26:23-33 repeats, with Isaac, the elements of 21:22-34, and every shared element is checkable in this app's BSB: Abimelech comes with 'Phicol the commander of his army' (21:22; 26:26; Phicol is named in only three BSB verses, 21:22, 21:32 and 26:26), the visitors observe that God is with the patriarch ('God is with you in all that you do,' 21:22; 'the LORD has been with you,' 26:28), an oath and covenant follow (21:31-32; 26:28-31), a well figures in both (21:25, 21:30; 26:32), the patriarch calls on the name of the LORD there (21:33, 'called upon'; 26:25, 'called on'), and the place is named for the oath: 'So that place was called Beersheba' (21:31) and 'to this day the name of the city is Beersheba' (26:33). Keil on 21:31 points the reader to Genesis 26:33, and Matthew Poole to 26:23. Graded parallel at strong because the correspondence rests on repeated names, actions and a place-name explanation that can be counted; how the two accounts relate (one place named twice, a renewal, or two tellings) is not claimed here, and no source read for this lesson argues a position on it.",
+  "sourceId": "source-biblehub-commentary-gen-21-31",
+  "viewpointId": null
+}
