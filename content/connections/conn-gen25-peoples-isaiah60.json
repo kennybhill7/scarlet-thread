@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen25-peoples-isaiah60",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.25.2",
+    "end": "1.25.13"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.60.6",
+    "end": "23.60.7"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "Four names from this chapter's genealogies come back together in Isaiah 60:6-7 (BSB): 'young camels of Midian and Ephah' (Midian is a son of Keturah at 25:2, and Ephah a son of Midian at 25:4), 'All the flocks of Kedar' and 'the rams of Nebaioth' (Ishmael's first two sons at 25:13). The range runs from 25:2 to 25:13 because those are the verses that hold the four names. Isaiah 60:6 also names Sheba, which appears at 25:3 among Keturah's grandsons; it is left out of this row because Genesis 10:7 has a second Sheba and the Cambridge Bible on Isaiah 60:6 refers the name to Genesis 10:7. Named commentators link the verses directly: Ellicott on Isaiah 60:6 ('Ephah appears in Genesis 25:4 among the sons of Midian') and 60:7 (Nebaioth, 'mentioned with Kedar, in Genesis 25:13, among the descendants of Ishmael'), the Cambridge Bible on 60:6-7 ('a Midianite tribe (Genesis 25:4)'; 'Cf. Genesis 25:13'), and Croteau and Yates, who say Isaiah 60:6-8 'specifically mentions the inclusion and participation of Ishmael's descendants (Midian, Kedar, Nebaioth; compare Gen 25:13...)' (they group Midian with Ishmael, though Genesis 25:2 makes Midian a son of Keturah). Graded motif, following conn-gen19-moab-ruth1, because what is tracked is peoples named at their origin in Genesis and named again in Isaiah, and Isaiah never names Abraham, Keturah or Ishmael. Graded strong because the four names recur together and named commentators make the link. Whether the Nebaioth of Genesis are the later Nabataeans is disputed (the Cambridge Bible on Genesis 25:13 calls that identification 'now generally abandoned'; Keil on Isaiah 60 defends it) and does not affect this row. Isaiah 60:6 is linked onward to Matthew 2:11 in conn-matt2-isaiah60-gifts; this row does not extend that link back to Genesis 25, and it applies these ancient names to no later or living people.",
+  "sourceId": "source-biblehub-commentary-isaiah-60-7",
+  "viewpointId": null
+}

@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen25-ripe-old-age-gen15",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.25.7",
+    "end": "1.25.10"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.15.15",
+    "end": "1.15.15"
+  },
+  "type": "promise_fulfillment",
+  "evidenceLabel": "strong",
+  "rationale": "At Genesis 15:15 God tells Abraham, 'You, however, will go to your fathers in peace and be buried at a ripe old age' (BSB). At 25:8 Abraham dies 'at a ripe old age', and at 25:9-10 his sons bury him. In this app's BSB, 'ripe old age' occurs in four verses (15:15, 25:8, Judges 8:32, 1 Chronicles 29:28, by a script count), and the Hebrew phrase behind it, be-seivah tovah, is the same in 15:15 and 25:8 (checked against the Hebrew text on Sefaria). Three named commentators read 25:8 as the outcome of 15:15: the Cambridge Bible ('This was part of the promised blessing: cf. Genesis 15:15'), Calvin ('Moses expressly shows that the Lord had fulfilled his promise, Thou shalt die in a good old age'), and Jamieson-Fausset-Brown ('even in his death, the promises were fulfilled (compare Ge 15:15)'). Graded promise_fulfillment because the earlier verse is a promise God speaks to Abraham about his own death and the later verse narrates that death in the same Hebrew words; nothing about a later people or doctrine is involved. Graded strong rather than explicit for two reasons. First, 25:8 carries no fulfilment formula of the kind Genesis uses at 21:1 ('the LORD did for Sarah what He had promised'). Second, the other half of 15:15, 'go to your fathers', is matched at 25:8 by a different phrase, 'gathered to his people'; Keil and the Cambridge Bible both treat it as synonymous with 'go to your fathers'; whether either phrase says more than burial is reported in Positions.",
+  "sourceId": "source-biblehub-commentary-gen-25-8",
+  "viewpointId": null
+}
