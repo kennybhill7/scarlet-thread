@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen24-well-john4",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.24.11",
+    "end": "1.24.27"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "43.4.5",
+    "end": "43.4.30"
+  },
+  "type": "motif",
+  "evidenceLabel": "plausible",
+  "rationale": "Abraham's servant meets Rebekah at a spring outside a town 'at the time when the women went out to draw water' (24:11), asks her for a drink (24:17), and the meeting leads to a marriage. In John 4, Jesus sits by 'Jacob's well' (4:6), and when 'a Samaritan woman came to draw water,' says, 'Give Me a drink' (4:7). Two New Testament scholars writing for Working Preacher read John 4 against the Old Testament well-meeting scenes. Jennifer Garcia Bashaw names Genesis 29 and Genesis 24 and reports that Robert Alter calls the meeting-at-a-well trope 'a betrothal type-scene'. Jaime Clark-Soles writes that 'wells are sites of betrothal in the Old Testament', naming Jacob and Rachel 'and Isaac and Rebekah's stories'. John never names Genesis 24; the patriarch John names is Jacob (4:5-6, 4:12), whose own well-meeting is Genesis 29. The close English of 'Please give me a drink' (24:45) and 'Give Me a drink' (John 4:7) is a BSB observation only; the Hebrew and Greek were not compared for this row. Graded motif at plausible, following conn-gen20-righteous-gen18, because the shared scene pattern is checkable and named scholars read John 4 this way, but the link runs through a literary convention shared by several Genesis and Exodus scenes, not through any word or reference that singles out Genesis 24.",
+  "sourceId": "source-workingpreacher-bashaw-2023-john-4",
+  "viewpointId": null
+}

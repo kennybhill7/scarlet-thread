@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen24-thigh-gen47",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.24.2",
+    "end": "1.24.9"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.47.29",
+    "end": "1.47.29"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "Abraham tells his servant, 'Place your hand under my thigh' (24:2), and the servant does so and swears (24:9). The same request recurs once more in Scripture, when Jacob, near death, tells Joseph, 'put your hand under my thigh and promise to show me kindness and faithfulness' (47:29, BSB). A script scan of this app's BSB finds 'thigh' in Genesis only at 24:2, 24:9 and 47:29. Bible Hub's interlinear shows the same Hebrew words for 'put', 'hand', 'under' and 'my thigh' (yarekh, Strong's 3409) in 24:2 and 47:29, and 47:29 also pairs chesed and emet ('kindness and faithfulness'), the pair the servant uses at 24:27 and 24:49. Keil and Delitzsch say the custom is 'only mentioned here and in Genesis 47:29'; the Cambridge Bible compares Jacob's request 'in the expectation of death'; Radak cites 47:29 as the same 'symbolic gesture'. Readers differ on what the gesture meant (see the lesson's Positions 1), and the row does not decide that. Graded motif at strong, following conn-gen16-ishmael-gen25, because the recurrence of a rare gesture in matching Hebrew wording, each time binding someone to the wish of a patriarch who speaks as one expecting death (Cambridge: 'Presumably Abraham is expecting his death'), is checkable and named commentators link the two verses.",
+  "sourceId": "source-biblehub-kad-genesis-24",
+  "viewpointId": null
+}
