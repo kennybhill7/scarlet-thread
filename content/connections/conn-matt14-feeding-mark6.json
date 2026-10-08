@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt14-feeding-mark6",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.14.13",
+    "end": "40.14.21"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.6.30",
+    "end": "41.6.44"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "The same scene in the same order: a withdrawal by boat to a solitary place, crowds following on foot, the disciples saying \"This is a desolate place, and the hour is already late\" (Matthew 14:15; Mark 6:35, BSB), the reply \"You give them something to eat\" (Matthew 14:16; Mark 6:37), five loaves and two fish, Jesus \"looking up to heaven\" before He blessed and broke, \"They all ate and were satisfied\" (Matthew 14:20; Mark 6:42), and twelve basketfuls; the Greek basket word is kophinos in both. Parallel/strong rather than explicit, following conn-matt12-sabbath-mark2, because neither Gospel names the other and the differences are real and checkable in the BSB. In Mark the occasion is the apostles' return (6:30-31); in Matthew it is the news about John (14:12-13). Only Mark has \"like sheep without a shepherd\" and \"He began to teach them many things\" (6:34), \"two hundred denarii\" (6:37), \"groups of hundreds and fifties\" on \"the green grass\" (6:39-40), and the divided fish (6:41). Where Mark has teaching, Matthew has \"healed their sick\" (14:14), and only Matthew adds \"in addition to women and children\" (14:21).",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

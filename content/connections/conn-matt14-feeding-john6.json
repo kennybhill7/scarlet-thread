@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt14-feeding-john6",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.14.13",
+    "end": "40.14.21"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "43.6.1",
+    "end": "43.6.15"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "The same miracle told independently: five loaves and two fish, grass, about five thousand men, a blessing or thanksgiving, everyone satisfied, and twelve baskets of pieces left over (John 6:9-13, BSB). The Greek basket word, kophinos, is the same in John 6:13 as in Matthew 14:20, Mark 6:43 and Luke 9:17 (Bible Hub parallel texts; the Cambridge Bible notes the same). The differences are real: in John, Jesus raises the question of bread first, with Philip (6:5-7); Andrew points to \"a boy with five barley loaves\" (6:9); the Passover is near (6:4); Jesus \"gave thanks\" and distributes (6:11) rather than giving through the disciples; He orders the pieces gathered \"so that nothing will be wasted\" (6:12); and the crowd wants to \"make Him king by force\" (6:15). Graded parallel/strong, following conn-matt8-centurion-luke7, because the core event and its numbers match while the frames differ. Ellicott and the Cambridge Bible (via Bible Hub) call it the only miracle recorded by all four Evangelists; Wikipedia, a tertiary source, adds \"aside from the resurrection.\"",
+  "sourceId": "source-biblehub-commentary-matt-14-13",
+  "viewpointId": null
+}
