@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen30-27-blessed-gen39-5",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.30.27",
+    "end": "1.30.30"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.39.5",
+    "end": "1.39.5"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "Twice in Genesis a master's household is said to be blessed by the LORD because of a descendant of Abraham who works in it: Jacob in his uncle Laban's household, and Joseph in the Egyptian Potiphar's. Laban says, 'I have learned by divination that the LORD has blessed me because of you' (30:27, BSB), and Jacob answers, 'The LORD has blessed you wherever I set foot' (30:30). Of Joseph in Potiphar's house the narrator says, 'the LORD blessed the Egyptian's household on account of him' (39:5). The BSB's English differs ('because of you', 'on account of him'), but Bible Hub's interlinear shows the same Hebrew word, biglal (Strong's 1558), in both 30:27 and 39:5. Bible Hub's concordance lists ten occurrences of that word, three of them in Genesis (12:13, 30:27, 39:5); the other is Abram's 'on account of you my life will be spared' (12:13), which is not about blessing. Jacob's own phrase in 30:30 uses a different word, leragli, literally 'at my foot'. A named reader joins the two scenes: Genesis Rabbah 73:8, on 30:30, says 'everywhere the righteous go, blessing is sent', and lists Isaac in Gerar (26:12), Jacob with Laban (30:30) and 'Joseph descended to Potiphar, blessing came on his account' (39:5). Graded motif at strong, following conn-gen24-gates-gen22, because the recurring Hebrew word in a matching situation is checkable in the same book and a named reader links the verses. It is not graded type_antitype or promise_fulfillment: neither verse cites the promise to Abram that 'all the families of the earth will be blessed through you' (12:3), and no source read for this lesson connects 30:27 to that promise. The speaker in 30:27 is Laban, who says he learned it 'by divination'; the narrator of 39:5 states it in his own voice. That difference is part of what a reader weighs, and the row does not decide it.",
+  "sourceId": "source-sefaria-genesis-rabbah-73",
+  "viewpointId": null
+}
