@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-08T19:34:49.122Z",
+  "updatedAt": "2026-10-08T20:12:01.160Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1599,6 +1599,78 @@
       "attempts": 1,
       "lastRunId": "a7f90d3e8eb3fde11",
       "lastEvidence": "Wave 11 (Matt 16:13-28 on this rock; Catholic/Orthodox/Protestant parity). Merged into content/next (NOT master; draft) at 3047723. Independent read-only adversarial review; all findings applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge with kept-head URL/title audit (REGFIX ec054dd, 11d093d, 8ec6657, bb79a3b), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave content/next @ bb79a3b: 70/70 lessons, 283 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U36": {
+      "status": "done",
+      "branch": "agent/GEN-U36-claude",
+      "commitSha": "c069508",
+      "attempts": 1,
+      "lastRunId": "a983592fd038601c7",
+      "lastEvidence": "Wave 12 (Gen 30:1-24 Rachel's sons). Merged into content/next (NOT master; draft) at 1cd8103. Independent read-only adversarial review: 1 S1 (six sons, not seven), 8 S2, 13 S3; all applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge (sibling-safe ids; post-wave URL audit 0 diffs), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave content/next @ d4990e4: 78/78 lessons, 312 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U37": {
+      "status": "done",
+      "branch": "agent/GEN-U37-claude",
+      "commitSha": "1bfc546",
+      "attempts": 1,
+      "lastRunId": "a278c1b637fab10b0",
+      "lastEvidence": "Wave 12 (Gen 30:25-43 Jacob's flocks). Merged into content/next (NOT master; draft) at 32a55ab. Independent read-only adversarial review: 0 S1, 10 S2, 11 S3; all applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge (sibling-safe ids; post-wave URL audit 0 diffs), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave content/next @ d4990e4: 78/78 lessons, 312 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U38": {
+      "status": "done",
+      "branch": "agent/GEN-U38-claude",
+      "commitSha": "e10ac5c",
+      "attempts": 1,
+      "lastRunId": "a39389ded04c93f8e",
+      "lastEvidence": "Wave 12 (Gen 31 flight from Laban). Merged into content/next (NOT master; draft) at 425dcf9. Independent read-only adversarial review: 0 S1, 8 S2, 9 S3; all applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge (sibling-safe ids; post-wave URL audit 0 diffs), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave content/next @ d4990e4: 78/78 lessons, 312 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U39": {
+      "status": "done",
+      "branch": "agent/GEN-U39-claude",
+      "commitSha": "c4ec16b",
+      "attempts": 1,
+      "lastRunId": "a8479da8b00ca4061",
+      "lastEvidence": "Wave 12 (Gen 32 Peniel). Merged into content/next (NOT master; draft) at db107c3. Independent read-only adversarial review: 1 S1 (Ephesians 6:12 KJV -> Colossians 4:12), 6 S2, 10 S3; all applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge (sibling-safe ids; post-wave URL audit 0 diffs), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave content/next @ d4990e4: 78/78 lessons, 312 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U36": {
+      "status": "done",
+      "branch": "agent/MATT-U36-claude",
+      "commitSha": "c1ff3b5",
+      "attempts": 1,
+      "lastRunId": "aee14ab6fe925067c",
+      "lastEvidence": "Wave 12 (Matt 17:1-13 Transfiguration). Merged into content/next (NOT master; draft) at d4990e4. Independent read-only adversarial review: 0 S1, 9 S2, 14 S3; all applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge (sibling-safe ids; post-wave URL audit 0 diffs), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave content/next @ d4990e4: 78/78 lessons, 312 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U37": {
+      "status": "done",
+      "branch": "agent/MATT-U37-claude",
+      "commitSha": "307d32c",
+      "attempts": 1,
+      "lastRunId": "a6d5cbb1b91ff3a0a",
+      "lastEvidence": "Wave 12 (Matt 17:14-27 boy / temple tax). Merged into content/next (NOT master; draft) at 26778dd. Independent read-only adversarial review: 1 S1 (epilepsy safety note misstated Origen/Chrysostom), 10 S2, 9 S3; all applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge (sibling-safe ids; post-wave URL audit 0 diffs), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave content/next @ d4990e4: 78/78 lessons, 312 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U38": {
+      "status": "done",
+      "branch": "agent/MATT-U38-claude",
+      "commitSha": "ae4fc51",
+      "attempts": 1,
+      "lastRunId": "a71b5e31b07cd66f9",
+      "lastEvidence": "Wave 12 (Matt 18:1-14 little ones). Merged into content/next (NOT master; draft) at 858ecb9. Independent read-only adversarial review: 0 S1, 5 S2, 9 S3; all applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge (sibling-safe ids; post-wave URL audit 0 diffs), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave content/next @ d4990e4: 78/78 lessons, 312 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U39": {
+      "status": "done",
+      "branch": "agent/MATT-U39-claude",
+      "commitSha": "35b8d43",
+      "attempts": 1,
+      "lastRunId": "a1aa7614424715de6",
+      "lastEvidence": "Wave 12 (Matt 18:15-35 forgiveness). Merged into content/next (NOT master; draft) at 77d6d64. Independent read-only adversarial review: 0 S1, 10 S2, 10 S3; all applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge (sibling-safe ids; post-wave URL audit 0 diffs), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave content/next @ d4990e4: 78/78 lessons, 312 connections, full suite 2143 pass / 0 fail.",
       "notes": "Status draft. Lives on content/next until Ken approves publishing."
     }
   }
