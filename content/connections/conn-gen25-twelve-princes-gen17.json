@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen25-twelve-princes-gen17",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.25.12",
+    "end": "1.25.16"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.17.20",
+    "end": "1.17.20"
+  },
+  "type": "promise_fulfillment",
+  "evidenceLabel": "strong",
+  "rationale": "At Genesis 17:20 God says of Ishmael, 'He will become the father of twelve rulers, and I will make him into a great nation' (BSB). Genesis 25:13-16 then lists twelve sons of Ishmael and closes, 'twelve princes of their tribes' (25:16). The BSB uses two English words, 'rulers' and 'princes', but the Hebrew phrase is the same in both verses, shneim-asar nesi'im, 'twelve princes' (checked against the Hebrew text on Sefaria), and these are the only two BSB verses with either English phrase (script count). Named commentators draw the line themselves: the Cambridge Bible on 25:16 ('The fulfilment of Genesis 17:20'), Gill ('see Genesis 17:20; where is the prophecy, and here an accomplishment of it'), Keil on 25:12-18 ('To show that the promises of God, which had been made to Ishmael (Genesis 16:10. and Genesis 17:20), were fulfilled') and Calvin ('the promise of God, given in the seventeenth chapter ... was confirmed by its manifest accomplishment'). Graded promise_fulfillment because God's promise names a number and a title and the genealogy reports the same number and title in the same Hebrew. Graded strong rather than explicit because 25:16 has no fulfilment formula, and because the Pulpit Commentary reports De Wette finding the twelve, matching Israel's twelve tribes, 'a very suspicious circumstance', with Havernick's reply that the twelve 'became phylarchs'; this row tracks what the text says and takes no side on how the list came to be. The existing row conn-gen16-ishmael-gen25 tracks 16:10-12 to 25:12-18 and mentions 17:20 only in passing; this row is the 17:20 pair itself.",
+  "sourceId": "source-biblehub-commentary-gen-25-16",
+  "viewpointId": null
+}
