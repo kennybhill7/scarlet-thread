@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt16-sign-matt12",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.16.4",
+    "end": "40.16.4"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.12.39",
+    "end": "40.12.39"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "Jesus' answer to the second request for a sign repeats His answer to the first. In this app's BSB, 16:4 matches 12:39 from \"A wicked and adulterous generation demands a sign\" to \"except the sign of\"; 12:39 then ends \"the prophet Jonah,\" 16:4 \"Jonah.\" A script over the BSB finds \"wicked and adulterous\" only in these two verses. In Greek, the sixteen words of 16:4 from genea to Iona are the same sixteen words, in order, as in 12:39, in all nine editions Bible Hub lists (a script comparison; the Greek Orthodox text writes ei me as one word at 12:39). The SBL, Nestle 1904, Westcott-Hort and Tischendorf texts end the clause at Iona in 16:4, while the Byzantine, Greek Orthodox and both Textus Receptus texts add tou prophetou there too, matching 12:39 exactly. A saying repeated within one Gospel is why the type is motif, following conn-matt12-vipers-matt3 and conn-matt13-net-weeds, and the verbatim repetition is why the label is strong. What differs is the setting: at 12:38 the askers are \"some of the scribes and Pharisees\" and Jesus explains the sign (12:40-42); at 16:1 they are \"the Pharisees and Sadducees,\" the request is for \"a sign from heaven,\" and the Pulpit Commentary notes that here Jesus \"does not here explain them.\" Whether 16:1-4 records a second request or a doubled report of one is a named dispute in the lesson's Positions; the grade is for the repeated wording, which both sides accept. The Jonah background itself is graded in lesson 26 (conn-matt12-sign-jonah1) and is not repeated here.",
+  "sourceId": "source-biblehub-texts-greek-matt-16-1-12",
+  "viewpointId": null
+}

@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt16-sign-mark8",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.16.1",
+    "end": "40.16.12"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.8.11",
+    "end": "41.8.21"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "The same two scenes in the same order: a request for \"a sign from heaven\" (Matthew 16:1; Mark 8:11, BSB), a refusal, a crossing by boat, the disciples without bread, a warning against leaven, and two questions about the basketfuls left from the five loaves and the seven loaves. In Greek both Gospels use kophinos for the first feeding's baskets and spyris for the second's (Matthew 16:9-10; Mark 8:19-20, in all nine editions Bible Hub lists, with the spelling sphyris in Westcott-Hort). Parallel/strong rather than explicit, following conn-matt14-feeding-mark6, because neither Gospel names the other and the differences are real and checkable in the BSB. In Mark only \"the Pharisees\" ask (8:11), Jesus \"sighed deeply in His spirit,\" and the answer is \"no sign will be given to this generation\" (8:12), with no weather saying and no Jonah. Mark alone has \"one loaf they had with them in the boat\" (8:14), warns against \"the leaven of the Pharisees and of Herod\" (8:15), asks \"Do you have such hard hearts?\" (8:17), and has the disciples answer \"Twelve\" and \"Seven\" (8:19-20). Mark ends on a question, \"Do you still not understand?\" (8:21); only Matthew adds that \"they understood\" that the leaven was \"the teaching of the Pharisees and Sadducees\" (16:12). Ellicott judges Mark's \"Herod\" the likelier original wording; that is a reading, reported in the lesson, not a fact this row depends on.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
