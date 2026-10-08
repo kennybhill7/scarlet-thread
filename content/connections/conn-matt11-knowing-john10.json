@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt11-knowing-john10",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.11.27",
+    "end": "40.11.27"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "43.10.14",
+    "end": "43.10.15"
+  },
+  "type": "doctrinal_synthesis",
+  "evidenceLabel": "strong",
+  "rationale": "Matthew 11:27 states a two-way knowledge between Father and Son: \"No one knows the Son except the Father, and no one knows the Father except the Son\" (BSB). John 10:15 states the same pairing in a different setting and different words: \"just as the Father knows Me and I know the Father.\" Neither text quotes the other, and they belong to different scenes (a prayer after the woes, a shepherd discourse). That is why the type is doctrinal synthesis, two independent statements converging on one claim, and not parallel or quotation. Barnes and Jamieson-Fausset-Brown, commenting on John 10:15 ('As the Father knoweth me'), each refer the reader back to Matthew 11:27 (Bible Hub commentary page on John 10:15). The label is strong because the reciprocal wording can be checked in both texts and named commentators connect them. It is not explicit, because neither Gospel refers to the other.",
+  "sourceId": "source-biblehub-commentary-john-10-15",
+  "viewpointId": null
+}

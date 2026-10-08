@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt11-capernaum-isaiah14",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.11.23",
+    "end": "40.11.23"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.14.13",
+    "end": "23.14.15"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "Isaiah 14 is the \"song of contempt against the king of Babylon\" (14:4, BSB), whose boast \"I will ascend to the heavens\" (14:13) is answered by \"But you will be brought down to Sheol\" (14:15). Matthew 11:23 has the same rise-and-fall shape: \"will you be lifted up to heaven? No, you will be brought down to Hades!\" In Nestle 1904 and Westcott-Hort, Matthew's \"heos hadou katabese\" shares the noun and the verb form with the Septuagint's \"eis hadou katabese\" at Isaiah 14:15 (the Blue Letter Bible Septuagint text; the eBible edition reads \"eis haden\"); the two differ in the preposition. Tischendorf and the Byzantine text read a different verb, katabibasthese (\"you will be brought down\"), so the verb match depends on the reading; the noun Hades is shared in every reading. Two public-domain commentaries read via Bible Hub name the source: the Cambridge Bible (\"The expressions recall Isaiah 14:13-15\") and the Pulpit Commentary (\"an adaptation of Isaiah's address to the King of Babylon\"). The type is allusion because Matthew uses no citation formula and does not name Isaiah. The label is strong because the shared structure and the noun can be checked, and two named commentaries make the identification. It is not explicit, because the text itself does not point to Isaiah. Some later witnesses (the Byzantine text, followed by the KJV) read a statement (\"which art exalted\") instead of a question, with a different verb; the shared Hades phrase stands in both readings.",
+  "sourceId": "source-biblehub-commentary-matt-11-23",
+  "viewpointId": null
+}
