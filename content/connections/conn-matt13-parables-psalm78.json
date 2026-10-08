@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt13-parables-psalm78",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.13.35",
+    "end": "40.13.35"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "19.78.2",
+    "end": "19.78.2"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Matthew introduces the words with a fulfillment formula (“So was fulfilled what was spoken through the prophet,” 13:35, BSB) and then quotes Psalm 78:2, which is why the type is quotation and the label is explicit, following the precedent of conn-matt13-hardening-isaiah6. The formula names no prophet; the psalm’s heading is “A Maskil of Asaph” (78:1), and the BSB calls Asaph “the seer” at 2 Chronicles 29:30, where the Greek text Bible Hub serves as Swete’s reads “Asaph the prophet” (tou prophetou), as Meyer notes. Checked in this app’s BSB, the first line is the same in both texts (“I will open my mouth in parables”), and the second line agrees only in its opening words: the psalm has “I will utter things hidden from the beginning,” Matthew “I will utter things hidden since the foundation of the world.” In the Greek, Matthew’s first line matches the Septuagint word for word (anoixo en parabolais to stoma mou), while his second line (ereuxomai kekrymmena apo kataboles) shares no word with the Septuagint’s (phthenxomai problemata ap’ arches). The Pulpit Commentary and Meyer describe the first clause as following the Septuagint and the second as a fresh rendering of the Hebrew; the Hebrew has the singular “in a parable” (bemashal). Ellicott and Poole hold that the psalm itself is not predictive; that bears on what “fulfilled” means here, not on whether Matthew is quoting.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

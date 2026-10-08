@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt13-mustard-ezekiel17",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.13.31",
+    "end": "40.13.32"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "26.17.22",
+    "end": "26.17.24"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "In Ezekiel 17:22-24 the Lord plants “a tender sprig” that becomes “a majestic cedar,” and “Birds of every kind will nest under it, taking shelter in the shade of its branches” (17:23, BSB); the passage ends, “I bring the tall tree down and make the low tree tall” (17:24). Matthew 13:31-32 shares the planting, the small beginning, the growth into a tree and birds nesting in its branches. Bengel’s note on 13:32 points to Ezekiel 17:23, and the Pulpit Commentary pairs it with Daniel 4 as a comparison “for both thought and language” (both via Bible Hub). The verbal overlap is looser than with Daniel 4: Ezekiel’s birds nest “under it,” and in the Greek text Bible Hub serves as Swete’s the birds “rest” (anapausetai) under the cedar’s shade, sharing neither Matthew’s verb nor his phrase “the birds of the air.” Graded plausible for the same reasons as conn-matt13-mustard-daniel4: no formula, and an image shared by three Old Testament trees. This row is authored separately because Ezekiel 17 is the one of the three in which God Himself plants the tree.",
+  "sourceId": "source-biblehub-commentary-matt-13-32",
+  "viewpointId": null
+}

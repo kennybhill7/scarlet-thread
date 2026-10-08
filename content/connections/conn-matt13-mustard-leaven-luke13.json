@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt13-mustard-leaven-luke13",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.13.31",
+    "end": "40.13.33"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.13.18",
+    "end": "42.13.21"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Luke has the same two parables, the mustard seed and the leaven, side by side. In this app’s BSB the leaven parable is the same from “like leaven” to the end (“leaven that a woman took and mixed into three measures of flour, until all of it was leavened,” Matthew 13:33; Luke 13:21). The mustard parables differ in checkable ways: Luke’s man “tossed” the seed “into his garden,” and Luke has no “smallest of all seeds” and no “largest of garden plants,” though both end with the birds of the air nesting in the tree’s branches (Luke 13:19). The setting differs too: Luke places the pair after a Sabbath healing “in one of the synagogues” (13:10), not in a series of parables by the sea. Mark 4:30-32 has the mustard seed without the leaven. Graded parallel/strong on the precedent of conn-matt13-sower-luke8: the same sayings in another Gospel, not a citation of one text by another.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
