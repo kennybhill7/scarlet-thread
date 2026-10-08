@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen26-charge-deut11",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.26.5",
+    "end": "1.26.5"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "5.11.1",
+    "end": "5.11.1"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "Genesis 26:5 says Abraham 'kept My charge, My commandments, My statutes, and My laws' (BSB). Deuteronomy 11:1 says Israel should 'always keep His charge, His statutes, His ordinances, and His commandments' (BSB). On Bible Hub's interlinear the two verses share the verb shamar ('keep') and three nouns: mishmeret ('charge', Strong's 4931), chuqqah ('statutes', 2708) and mitsvah ('commandments', 4687). Each verse also has one noun the other lacks: torot ('laws', 8451) in Genesis and mishpatim ('ordinances', 4941) in Deuteronomy. In this app's BSB, 'statutes' and 'commandments' both occur first at Genesis 26:5 (script scan), and Bible Hub's Englishman's Concordance lists Genesis 26:5 first among the occurrences of torah, chuqqah and mitsvah. The Cambridge Bible on 26:5 calls the list 'A strange redundancy of expression, reminding us of the style of Deut.' and cites Deuteronomy 11:1. Keil and Delitzsch say the words 'frequently recur among the legal expressions of a later date'. Graded motif at strong, following conn-gen24-gates-gen22: a recurring formula whose shared vocabulary can be counted in the Hebrew, cross-referenced by a named commentator. The row records that the formula recurs. It does not decide what the recurrence means. Readers explain it in opposite ways: as the later legal vocabulary of the writer (the Cambridge Bible: 'strictly speaking, an anachronism'), as Abraham's observance of the Torah before Sinai (Yoma 28b; Rashi), or as a description of his obedience in the language of the law (Calvin). The lesson reports these as positions.",
+  "sourceId": "source-biblehub-cambridge-genesis-26",
+  "viewpointId": null
+}
