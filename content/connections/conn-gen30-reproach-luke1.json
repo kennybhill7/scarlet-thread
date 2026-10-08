@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen30-reproach-luke1",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.30.22",
+    "end": "1.30.24"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.1.24",
+    "end": "42.1.25"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "When Rachel bears Joseph she says, 'God has taken away my shame' (30:23, BSB). When Elizabeth, long barren, conceives, she says the Lord has 'taken away my disgrace among the people' (Luke 1:25, BSB). In English the BSB uses different nouns. In Greek the wording is close: the Septuagint of Genesis 30:23 on Bible Hub reads 'Ἀφεῖλεν ὁ θεός μου τὸ ὄνειδος,' and Luke 1:25 reads 'ἀφελεῖν ὄνειδός μου' in the SBL, Nestle 1904 and Westcott-Hort texts (the Byzantine, Greek Orthodox Church 1904 and Textus Receptus texts add the article, 'τὸ ὄνειδός'); both use the verb ἀφαιρέω and the noun ὄνειδος. Named commentators on Luke draw the line: the Cambridge Bible ('So Rachel, when she bare a son, said, \"God hath taken away my reproach,\" Genesis 30:23'), Gill ('see Genesis 30:23'), and Ellicott, who cites Rachel's 'Give me children, or else I die' (30:1) and Hannah. Graded allusion, not quotation, because Luke has no formula and does not name Rachel. Graded plausible rather than strong, unlike conn-gen18-too-difficult-luke1, because the phrase is a recurring idiom for a barren woman's shame: the Cambridge Bible on both verses also cites Isaiah 4:1 ('Take away our disgrace!'), whose Septuagint uses the same verb with a related noun (ἄφελε τὸν ὀνειδισμὸν ἡμῶν), and the setting of a barren wife given a son is shared with Sarah, Rebekah and Hannah. Luke's wording matches Genesis 30:23 most closely of the texts checked, but the evidence does not show that Luke had Rachel in view.",
+  "sourceId": "source-biblehub-commentary-luke-1-25",
+  "viewpointId": null
+}
