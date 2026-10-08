@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen18-intercession-ezekiel22-30",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.18.22",
+    "end": "1.18.32"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "26.22.30",
+    "end": "26.22.30"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "Ezekiel 22:30 (BSB) reads: 'I searched for a man among them to repair the wall and stand in the gap before Me on behalf of the land, so that I should not destroy it. But I found no one.' Keil and Delitzsch, on that verse, report Hitzig's observation and accept it: 'the intercession of Abraham for Sodom' was 'floating before the mind of Ezekiel, since the concluding words of the verse contain an obvious allusion to Genesis 18:28' (their printed reference for the intercession itself reads 'Genesis 18:13.', which looks like a misprint). The shared wording can be checked in Bible Hub's interlinear: Ezekiel's 'destroy' (shachat, Strong's 7843) is the verb of Genesis 18:28 ('Will You destroy the whole city'), 'find' (matsa, Strong's 4672) runs through both passages, and Ezekiel's 'stand ... before Me' uses the same verb and preposition (ʿamad lifne) as 18:22, 'Abraham remained standing before the LORD.' Graded allusion because Ezekiel names neither Abraham nor Sodom, and strong rather than explicit because the tie rests on shared vocabulary and two named scholars' reading, not on a citation in Ezekiel's own words.",
+  "sourceId": "source-biblehub-commentary-ezekiel-22-30",
+  "viewpointId": null
+}

@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen18-righteous-few-ezekiel14",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.18.23",
+    "end": "1.18.32"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "26.14.12",
+    "end": "26.14.20"
+  },
+  "type": "contrast_reversal",
+  "evidenceLabel": "strong",
+  "rationale": "In Genesis 18:26-32 the LORD agrees that a number of righteous people would spare a whole city ('On account of the ten, I will not destroy it,' 18:32, BSB). Ezekiel 14:12-20 states, for a land that 'sins against Me by acting unfaithfully,' the reverse outcome four times: 'even if these three men—Noah, Daniel, and Job—were in it, their righteousness could deliver only themselves' (14:14). Keil and Delitzsch, on Ezekiel 14:14, read the passage as answering a hope drawn from Genesis 18: the earlier threat 'left the possibility still open, that He would avert the destruction of Judah and Jerusalem for the sake of the righteous therein, as He had promised the patriarch Abraham that He would do in the case of Sodom and Gomorrah (Genesis 18:23.). This hope ... is now to be taken from the people.' Graded contrast_reversal because Ezekiel states the opposite result for a named kind of case (the righteous delivering only themselves rather than sparing the place), and strong rather than explicit because Ezekiel does not name Abraham or Sodom; the link is drawn by a named commentary. Whether the two passages conflict or describe different situations is left open in the lesson.",
+  "sourceId": "source-biblehub-commentary-ezekiel-14-14",
+  "viewpointId": null
+}

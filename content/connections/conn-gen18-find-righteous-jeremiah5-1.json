@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen18-find-righteous-jeremiah5-1",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.18.23",
+    "end": "1.18.32"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "24.5.1",
+    "end": "24.5.1"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Jeremiah 5:1 (BSB) sets up the same kind of test Abraham proposes in Genesis 18:24-32: 'If you can find a single person, anyone who acts justly, anyone who seeks the truth, then I will forgive the city.' Keil and Delitzsch, on Jeremiah 5:1, write that 'The pledge that God would pardon Jerusalem if He found but one righteous man in it, recalls Abraham's dealing with God on behalf of Sodom, Genesis 18:23'; Benson, on the same verse, sets the two numbers side by side ('in offering pardon to Sodom and Gomorrah, God came no lower than ten'); and Ramban, commenting on the words he renders 'within the city' in Genesis 18:24 (BSB 'in the city'), reports Ibn Ezra reading them alongside Jeremiah 5:1. Some wording is shared and checkable in Bible Hub's interlinear: 'find' (matsa) in both, and Jeremiah's 'acts justly' is literally 'doing mishpat', the same verb and noun as 18:25's 'do what is right'; but Jeremiah's 'forgive' (salach, Strong's 5545) is a different verb from Genesis 18's 'spare' (nasa, Strong's 5375). Graded parallel because the two passages share a situation without Jeremiah naming Abraham or Sodom, and none of the sources read claims Jeremiah is deliberately recalling Genesis 18; strong because the shared situation and partial vocabulary are verifiable and are drawn by named Jewish and Christian readers.",
+  "sourceId": "source-biblehub-commentary-jeremiah-5-1",
+  "viewpointId": null
+}
