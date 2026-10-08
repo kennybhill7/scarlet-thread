@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen17-patriarchs-john7-22",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.17.9",
+    "end": "1.17.14"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "43.7.22",
+    "end": "43.7.23"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "In John 7:22 Jesus says, 'because Moses gave you circumcision, you circumcise a boy on the Sabbath (not that it is from Moses, but from the patriarchs.)' (BSB), placing the rite's origin before Moses. In this app's BSB the first verse anywhere containing 'circumcis-' is Genesis 17:10, and Genesis 17 is the only chapter of Genesis that gives the command (21:4 narrates it being kept 'as God had commanded him'). The argument of 7:22-23, that circumcision on the eighth day goes ahead even on a Sabbath, matches a principle the Mishnah also records (Nedarim 3:11, Rabbi Yosei: circumcision 'overrides the strict halakhot of Shabbat'). Graded strong rather than explicit because the verse names 'the patriarchs' as a group, not Abraham or this chapter, so the tie to Genesis 17 runs through the fact that this is where Genesis gives the command.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen17-sign-romans4-11",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.17.9",
+    "end": "1.17.14"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "45.4.9",
+    "end": "45.4.12"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Romans 4:9-12 names Abraham and his circumcision outright: 'he received the sign of circumcision as a seal of the righteousness that he had by faith while he was still uncircumcised' (4:11, BSB), taking up Genesis 17:11's 'this will be a sign of the covenant between Me and you.' Paul's argument rests on narrative order he can point to: 'Was it after his circumcision, or before? It was not after, but before' (4:10), and in Genesis the crediting of 15:6 is narrated before chapter 16, while Abraham is eighty-six at Ishmael's birth (16:16) and ninety-nine at his circumcision (17:24). The word 'seal' is Paul's, not Genesis's (a scan of this app's BSB finds 'seal' in Genesis only at 38:18 and 38:25); Ellicott reads it to mean circumcision 'ratified a state of things already existing when it was instituted.' Graded explicit_reference rather than quotation because Paul names the event but does not quote the chapter's wording with a formula; how far his reading of the sign extends to later practice is a separate, named dispute reported in the lesson's Positions.",
+  "sourceId": "source-biblehub-commentary-romans-4-11",
+  "viewpointId": null
+}

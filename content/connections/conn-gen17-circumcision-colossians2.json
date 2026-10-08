@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen17-circumcision-colossians2",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.17.10",
+    "end": "1.17.14"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "51.2.11",
+    "end": "51.2.13"
+  },
+  "type": "doctrinal_synthesis",
+  "evidenceLabel": "plausible",
+  "rationale": "Colossians 2:11 speaks of a circumcision 'performed by Christ and not by human hands' (BSB), set against the physical rite whose institution Genesis 17:10-14 narrates, and 2:13 speaks of 'the uncircumcision of your sinful nature'; but the passage never names Abraham, Genesis, or the covenant of 17:7, and Meyer's commentary points for its idea of an inner circumcision to Deuteronomy 10:16 and 30:6, not to Genesis 17. The link to this chapter is therefore one readers build: the Westminster Confession (28.4) lists Genesis 17:7-8 beside Colossians 2:11-12 among its proof texts for baptizing infants, while the 1689 Baptist Confession (29.1) cites Colossians 2:12 for what baptism signifies and lists neither text among its proof texts for who should be baptized. Graded doctrinal_synthesis at plausible because the shared subject is real but the specific tie to Genesis 17 is a step taken by later theology, and whether baptism corresponds to circumcision is the disputed question reported in the lesson's Positions, which this grade does not settle.",
+  "sourceId": "source-biblehub-commentary-colossians-2-11",
+  "viewpointId": null
+}

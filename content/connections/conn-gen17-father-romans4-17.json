@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen17-father-romans4-17",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.17.4",
+    "end": "1.17.5"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "45.4.16",
+    "end": "45.4.19"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Romans 4:17 opens with its own citation formula, 'As it is written,' and quotes 'I have made you a father of many nations' (BSB), which is word for word the reason clause God gives for the new name in Genesis 17:5 ('for I have made you a father of many nations'); 4:18 repeats 'became the father of many nations,' and 4:19 recalls the ages of Genesis 17:17 ('about a hundred years old' and 'the lifelessness of Sarah's womb'). Graded quotation at explicit because Paul names the text as written Scripture and the wording matches in this app's BSB. Paul applies 'many nations' to all who believe ('He is the father of us all,' 4:16); that application is his reading, and other named readers frame the phrase differently (Barnes first counts it as true 'in a literal sense' of the tribes descended from Abraham, including Ishmael's twelve princes, Keturah's descendants and Edom, then adds that it is 'more magnificently realized in a spiritual sense'; Rashi reads the new name as making him 'father of the entire world'), so the label measures the certainty of the citation, not which reading of 'many nations' is right.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
