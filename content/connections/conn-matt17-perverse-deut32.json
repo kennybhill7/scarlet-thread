@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt17-perverse-deut32",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.17.17",
+    "end": "40.17.17"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "5.32.5",
+    "end": "5.32.20"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "Jesus' \"O unbelieving and perverse generation!\" (Matthew 17:17, BSB) shares wording with the Song of Moses, which calls Israel \"a perverse and crooked generation\" (Deuteronomy 32:5, BSB) and \"a perverse generation— children of unfaithfulness\" (32:20). In Greek, the Septuagint Bible Hub serves as Swete's has genea skolia kai diestrammene at 32:5, sharing Matthew's genea and diestrammene, and at 32:20 a generation of sons with no pistis (faith) in them, where Matthew's adjective is apistos. Meyer and the Pulpit Commentary cite Deuteronomy 32:5 at this verse, and Gill says the words \"seem to be taken\" from it (all via Bible Hub). Graded allusion/plausible on the precedent of conn-matt13-mustard-daniel4: there is no citation formula, the overlap is two words in one verse and a related idea in another, and Meyer also compares Philippians 2:15 (\"a crooked and perverse generation,\" BSB), so the phrase was in wider use. The row grades the shared wording, not the question of whom Jesus was addressing, which the lesson reports as disputed among the same commentators.",
+  "sourceId": "source-biblehub-commentary-matt-17-17",
+  "viewpointId": null
+}

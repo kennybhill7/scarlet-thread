@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt17-mustard-matt13",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.17.20",
+    "end": "40.17.20"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.13.31",
+    "end": "40.13.32"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "A case-insensitive script over this app's BSB finds \"mustard seed\" in Matthew only at 13:31 and 17:20 (and in the other Gospels at Mark 4:31, Luke 13:19 and Luke 17:6); the Greek is kokkos sinapeos in both Matthew verses in all nine editions Bible Hub lists. At 13:31-32 the seed is \"the smallest of all seeds\" that \"grows into the largest of garden plants\"; at 17:20 it is the measure of a faith that could say \"to this mountain, 'Move from here to there.'\" Motif/strong on the precedent of conn-matt16-leaven-matt13: a rare image recurring within one Gospel, in the same words. The row grades the recurrence, not a meaning. Readers differ on what the seed stands for at 17:20: Ellicott calls it \"the proverbial type of the infinitely little\" and the Expositor's Greek Testament \"a minimum of faith,\" while Barnes reports a reading that stresses \"increasing, expanding, enlarged faith\" and calls it \"probably the true meaning\" (all via Bible Hub). Origen joins the two passages, saying such faith \"becomes a great tree\" (Commentary on Matthew XIII).",
+  "sourceId": "source-biblehub-commentary-matt-17-20",
+  "viewpointId": null
+}
