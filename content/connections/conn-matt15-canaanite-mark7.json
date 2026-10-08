@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt15-canaanite-mark7",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.15.21",
+    "end": "40.15.28"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.7.24",
+    "end": "41.7.30"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "The same scene in the same order: Jesus goes to the region of Tyre, a woman of that region asks Him to free her daughter from a demon, He answers \"it is not right to take the children's bread and toss it to the dogs\" (Matthew 15:26; Mark 7:27, BSB), she replies \"Yes, Lord\" and speaks of the dogs eating crumbs, and the daughter is freed. In Greek the saying uses the same words in both Gospels, including the diminutive kynariois; the SBL and Nestle editions of Mark put tois kynariois before the verb, and the Byzantine text of Mark has Matthew's order. Parallel/strong rather than explicit, following conn-matt14-feeding-mark6, because neither Gospel names the other and the differences are checkable in the BSB. Only Mark has the house and the wish to stay unnoticed (7:24), \"a Greek woman of Syrophoenician origin\" (7:26), \"First let the children have their fill\" (7:27) and the child found \"lying on the bed\" (7:30). Only Matthew has \"Canaanite\", \"Son of David\" (15:22), the silence and the disciples' \"Send her away\" (15:23), \"I was sent only to the lost sheep of the house of Israel\" (15:24) and \"your faith is great\" (15:28); a script search finds no \"faith\" in Mark 7. Augustine (Harmony of the Gospels 2.49) treats the two as one event and harmonizes the house with Matthew's walking scene.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
