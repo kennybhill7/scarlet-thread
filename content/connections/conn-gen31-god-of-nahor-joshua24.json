@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen31-god-of-nahor-joshua24",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.31.53",
+    "end": "1.31.53"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "6.24.2",
+    "end": "6.24.15"
+  },
+  "type": "motif",
+  "evidenceLabel": "plausible",
+  "rationale": "Laban swears by 'the God of Abraham and the God of Nahor, the God of their father', while 'Jacob swore by the Fear of his father Isaac' (31:53, BSB). Joshua 24:2 says that 'Terah the father of Abraham and Nahor, lived beyond the Euphrates and worshiped other gods', and 24:14-15 calls Israel to 'cast aside the gods your fathers served beyond the Euphrates' and to choose 'whom you will serve'. By a script count over this app's BSB, Nahor is named in 19 verses; 31:53 and Joshua 24:2 are the only two that set his name beside gods or worship. Ibn Ezra on 31:53 reads 'the god of Nahor' as an idol, 'as is attested by Joshua'; Sforno on 31:53 reads Laban's choice of Nahor as pointing to 'the god of Terach'; Keil and Delitzsch on 31:53 say Laban, 'according to his polytheistic views, placed the God of Abraham upon the same level with the God of Nahor and Terah.' On Joshua 24:2, Barnes suggests the 'other gods' were 'Possibly the \"images,\" or teraphim, which we find their ancestor Laban calling \"his gods\"', and Jamieson-Fausset-Brown speaks of the fathers 'conjoining, like Laban, the traditional knowledge of the true God with the domestic use of material images (Ge 31:19, 34)'; those two readings reach back to 31:19-35, which this row does not range over. Readers do not agree that 31:53 names two gods: Rashi and Radak on 31:53 read 'God of Abraham' as holy and 'god of Nahor' as profane, but Benson, in a note on 31:47-53, reads the titles as intimating 'that they worshipped one and the same God'. Graded motif at plausible, following conn-gen20-righteous-gen18, because the shared terms (Nahor, the fathers' gods, the oath or choice of whom to serve) are checkable, but Joshua 24 does not refer to Laban or to this oath, and the link is drawn by readers.",
+  "sourceId": "source-sefaria-ibn-ezra-gen-31",
+  "viewpointId": null
+}

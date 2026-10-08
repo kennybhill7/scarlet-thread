@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen31-household-gods-gen35",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.31.19",
+    "end": "1.31.35"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.35.2",
+    "end": "1.35.4"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "In 31:19 'Rachel stole her father's household idols', which Laban calls 'my gods' (31:30); she hides them in 'the saddlebag of her camel' and they leave Haran with the household (31:34-35). In 35:2 Jacob tells 'his household and all who were with him', 'Get rid of the foreign gods that are among you', and in 35:4 'Jacob buried them under the oak near Shechem' (BSB). Genesis 35 names neither Rachel nor the teraphim, so the recurrence is of an element (gods carried in the household, then put away), not of a name. Named readers make the link: Josephus (Antiquities 1.21.2, Whiston) says that while purifying his followers Jacob 'lighted upon the gods of Laban'; on 35:2 the Cambridge Bible cross-refers 31:19, 31:30 and 31:32-35, Barnes writes that the foreign gods 'include the teraphim, which Rachel had secreted', the Pulpit Commentary says 'including most likely the teraphim of Laban, which Rachel still retained', and Ellicott writes 'Besides Rachel's teraphim'; Moshe Greenberg (JBL 1962) reads 35:2 as showing that 'Rachel was but one among several persons in Jacob's household who carried along their gods from the old country.' Other readers decline the link: Rashi on 35:2 takes the foreign gods as those 'from the spoil of Shechem', and Gill writes that they are 'not the teraphim or images of Laban's'. Graded motif at strong, following conn-gen3-seed-gen4-25 (a recurring element that published readers trace), because the recurrence inside one household's story is checkable in the text and the reading is published by several named readers; it is not explicit_reference, because 35:2-4 does not name the teraphim, and the dissent of Rashi and Gill keeps it below explicit.",
+  "sourceId": "source-biblehub-commentary-gen-35-2",
+  "viewpointId": null
+}
