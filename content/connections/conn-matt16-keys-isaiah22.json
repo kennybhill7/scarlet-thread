@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt16-keys-isaiah22",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.16.19",
+    "end": "40.16.19"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.22.20",
+    "end": "23.22.22"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "In Isaiah 22 the LORD removes Shebna, \"the steward in charge of the palace\" (22:15), and gives his office to Eliakim: \"I will place on his shoulder the key to the house of David. What he opens no one can shut, and what he shuts no one can open\" (22:22, BSB). In Matthew 16:19 Jesus says, \"I will give you the keys of the kingdom of heaven\" (BSB). The shared evidence is the noun (Greek kleis, in the Septuagint editions that carry the clause) and the picture of a king handing the key of his house to a chosen official, with authority stated as a pair of opposite actions. Commentators across traditions name the source: the Catholic NABRE notes say the image \"is probably drawn from Is 22:15–25,\" Ellicott ties 16:19 to \"Eliakim, the son of Hilkiah (Isaiah 22:22),\" and the Pulpit Commentary quotes Isaiah 22:22 \"where the figure is similar.\" That cross-tradition naming, with a shared noun and image, is why the label is strong, following conn-matt11-capernaum-isaiah14. The type is allusion because Matthew has no citation formula, the paired verbs differ (bind and loose, not open and shut), and \"keys\" is plural. The Septuagint editions also differ: eBible's Greek has the key clause, while Swete's Septuagint, as shown on Bible Hub, lacks it (it reads only kai arxei, kai ouk estai ho antilegon, kai kleisei). Revelation 3:7 applies the same Isaiah words to Christ, \"who holds the key of David,\" and its last clause matches Isaiah 22:22 in the BSB word for word apart from the capitalized pronouns. The grade covers only the link. What the link implies (an office passed to successors, or Christ as the true holder of the key) is disputed in this lesson's Positions.",
+  "sourceId": "source-usccb-nabre-notes-matthew-16",
+  "viewpointId": null
+}

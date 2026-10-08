@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt16-confession-luke9",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.16.13",
+    "end": "40.16.28"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.9.18",
+    "end": "42.9.27"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Luke has the same question (\"But what about you? ... Who do you say I am?\" is identical in Matthew 16:15 and Luke 9:20 in the BSB), the same confession by Peter, the command to silence, the first prediction of the passion, the cross saying and the closing promise about some \"standing here\" who \"will not taste death\" (Matthew 16:28; Luke 9:27). The type is parallel and the label strong, not explicit, because neither Gospel cites the other (as with conn-matt14-walking-mark6). The differences are larger than Mark's. Luke sets the question while Jesus is \"praying in private\" (9:18) and names no place. Peter's confession is \"The Christ of God\" (9:20). Luke has no blessing, rock, church or keys, and no rebuke of Peter: the prediction (9:22) runs straight into the cross saying, which in Luke adds \"daily\" (\"take up his cross daily,\" 9:23). Luke's closing saying ends \"before they see the kingdom of God\" (9:27), with no \"coming.\"",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
