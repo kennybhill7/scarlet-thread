@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt12-strongman-isaiah49",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.12.29",
+    "end": "40.12.29"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.49.24",
+    "end": "23.49.25"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "Isaiah 49:24 asks, \"Can the plunder be snatched from the mighty, or the captives of a tyrant be delivered?\" and 49:25 answers, \"Even the captives of the mighty will be taken away, and the plunder of the tyrant will be retrieved\" (BSB). Matthew 12:29 pictures someone who \"ties up the strong man\" and then can \"plunder his house\" (BSB). The shared picture is taking plunder away from a strong captor. Four commentators read on Biblehub make the link, at different strengths: the Expositor's Greek Testament, \"The parable seems based on Isaiah 49:24-25\"; the Pulpit Commentary, \"there is probably a tacit reference to Isaiah 49:25\"; Meyer, \"The figurative language may have been suggested by a recollection of Isaiah 49:24 f.\"; and Gill, who glosses the strong man as the devil with \"see Isaiah 49:24\". The wording is not shared closely. In the Septuagint (Blue Letter Bible) the captor is a gigas (\"giant\") and the spoils are skula, with ischyontos (\"one who is strong\") in 49:25; Matthew has ischyros (\"strong man\"), skeue (\"goods\") and the verbs harpazo and diarpazo. Only the root ischy- is common to both, and Luke 11:22, not Matthew, has skula. There is no citation formula, so the type is allusion, as with conn-matt9-blind-isaiah35. The label is plausible, not strong, because the overlap is one image and one word-root, and the commentators themselves hedge (\"seems\", \"probably\", \"may have been\").",
+  "sourceId": "source-biblehub-commentaries-matt-12-29",
+  "viewpointId": null
+}

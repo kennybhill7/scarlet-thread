@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt12-vipers-matt3",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.12.34",
+    "end": "40.12.34"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.3.7",
+    "end": "40.3.7"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "\"You brood of vipers\" appears word for word in the BSB at Matthew 3:7 (John the Baptist to \"many of the Pharisees and Sadducees\") and 12:34 (Jesus, to the Pharisees of 12:24), and again in 23:33 (\"You snakes! You brood of vipers!\"). A script over this app's BSB finds the word \"vipers\" in Matthew only in these three verses. The Greek phrase is the same in all three, gennemata echidnon, in the Nestle 1904, Westcott and Hort, Byzantine and Stephanus texts shown on Biblehub. A recurring phrase tracked through one Gospel is why the type is motif, as with conn-matt10-cross-matt16, and the verbatim recurrence in both English and Greek is why the label is strong. In each place it is addressed to particular opponents in the story, not to a people; in 3:7-10 and 12:33-35 it comes with the same tree-and-fruit image. Lesson 5 in this curriculum named this recurrence as a candidate and did not author it.",
+  "sourceId": "source-biblehub-text-greek-matt-12-34",
+  "viewpointId": null
+}

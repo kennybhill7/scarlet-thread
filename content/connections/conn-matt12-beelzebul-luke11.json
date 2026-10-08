@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt12-beelzebul-luke11",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.12.22",
+    "end": "40.12.30"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.11.14",
+    "end": "42.11.23"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Luke 11:14-23 tells the same scene: a mute man healed, the Beelzebul charge, the divided kingdom, \"your sons\", the strong man, and the closing saying. Long stretches are identical in the BSB: \"Knowing their thoughts, Jesus said to them, 'Every kingdom divided against itself will be laid waste\" (Matthew 12:25; Luke 11:17); all of Matthew 12:27 and Luke 11:19; and all of Matthew 12:30 and Luke 11:23. The shared saying in the same order is why the type is parallel and the label strong (a synoptic parallel is parallel/strong, not explicit, as with conn-matt10-sword-luke12). Three differences matter for the lesson. Matthew 12:28 has \"by the Spirit of God\" where Luke 11:20 has \"by the finger of God\"; the Greek differs in the same way (en pneumati Theou against en daktylo Theou in the Nestle 1904 text on Biblehub), and the rest of the two verses match. Luke's strong man is \"fully armed\" and is overpowered by \"someone stronger\" who \"divides up his plunder\" (11:21-22), where Matthew has the binding of the strong man. And in Luke the accusers are \"some of them\" from the crowd (11:15), not the Pharisees. Luke places the saying about blasphemy against the Holy Spirit elsewhere, at 12:10.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
