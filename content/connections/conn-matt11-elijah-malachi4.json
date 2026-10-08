@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt11-elijah-malachi4",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.11.14",
+    "end": "40.11.14"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "39.4.5",
+    "end": "39.4.6"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Jesus names the figure: \"he is the Elijah who was to come\" (11:14, BSB). Malachi 4:5 promises that figure: \"Behold, I will send you Elijah the prophet before the coming of the great and awesome Day of the LORD\" (BSB); a script search of this app's Malachi finds Elijah's name only in that verse. Ellicott, Barnes, Poole and Gill on 11:14 all name Malachi 4:5. The type is explicit_reference, not quotation, because Jesus names Elijah and the expectation without quoting Malachi's words or using \"it is written.\" The connection recurs inside Matthew at 17:10-13, where the disciples \"understood that He was speaking to them about John the Baptist\" (17:13, BSB). Graded explicit because the text names the figure Malachi promises. How this squares with John's own \"I am not\" (John 1:21, BSB) is a named disagreement reported in the lesson's Positions; it bears on the identification's sense, not on whether Matthew 11:14 points to Malachi.",
+  "sourceId": "source-biblehub-commentary-matt-11-14",
+  "viewpointId": null
+}

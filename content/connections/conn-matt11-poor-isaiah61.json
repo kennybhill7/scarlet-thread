@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt11-poor-isaiah61",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.11.5",
+    "end": "40.11.5"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.61.1",
+    "end": "23.61.1"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "Jesus's answer ends \"the good news is preached to the poor\" (11:5, BSB); Isaiah 61:1 has \"the LORD has anointed Me to preach good news to the poor\" (BSB). In Greek the match is a shared verb root and noun: Matthew's ptochoi euangelizontai against the Septuagint's euangelisasthai ptochois. The Septuagint of 61:1 also has typhlois anablepsin, \"recovery of sight to the blind,\" which the Hebrew-based BSB of Isaiah 61:1 lacks (\"freedom to the prisoners\"), and Matthew's first clause uses the same root (typhloi anablepousin). The Pulpit Commentary observes that \"the words are taken from the LXX.\" Luke 4:17-21 shows the same verse quoted with a formula (\"He found the place where it was written,\" 4:17; \"Today this Scripture is fulfilled in your hearing,\" 4:21, BSB), and Luke 4:18 carries the Septuagint's \"recovery of sight to the blind.\" Graded allusion because Matthew 11:5 has no formula and does not quote a full clause; strong because the wording matches the Septuagint at two points and Meyer, Barnes, Bengel and the Cambridge Bible all name Isaiah 61:1.",
+  "sourceId": "source-biblehub-commentary-matt-11-5",
+  "viewpointId": null
+}

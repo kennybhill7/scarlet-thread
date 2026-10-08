@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt11-messenger-exodus23",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.11.10",
+    "end": "40.11.10"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "2.23.20",
+    "end": "2.23.20"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "The evidence is in the Greek wording, not the English. The first clause of Matthew 11:10, Idou ego apostello ton angelon mou pro prosopou sou, is word for word the Septuagint of Exodus 23:20 after its opening kai; a word-by-word comparison of the two texts as fetched finds nine identical consecutive words. The Septuagint of Malachi 3:1 differs at that point (exapostello, and pro prosopou mou, \"before My face\"). Blomberg (Criswell Theological Review, 1987) writes that the first clause \"parallels the LXX of Exod 23:20 exactly, but the second finds no equivalent there,\" and that Exodus and the Synoptics \"both contain the same shift in pronoun from the text of Malachi.\" In this app's English, Exodus 23:20 reads \"I am sending an angel before you\" (BSB), so the overlap is hidden by translation (angelos as \"angel\" there, \"messenger\" here). Graded allusion, not quotation, because the formula in 11:10 points to the Malachi line and Exodus is not named. Graded strong, not explicit, because the verbal match is exact but its significance is disputed: Blomberg says interpreters \"should therefore not read too much into this reminiscence of Exodus,\" and reports Archer and Chirichigno treating it as a \"purely verbal resemblance,\" a view he rejects.",
+  "sourceId": "source-blomberg-ctr-1987-elijah-malachi",
+  "viewpointId": null
+}
