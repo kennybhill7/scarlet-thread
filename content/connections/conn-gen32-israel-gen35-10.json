@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen32-israel-gen35-10",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.32.27",
+    "end": "1.32.28"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.35.10",
+    "end": "1.35.10"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Genesis gives Jacob the name Israel twice. At the Jabbok: 'Your name will no longer be Jacob, but Israel' (32:28, BSB). At Bethel: 'Though your name is Jacob, you will no longer be called Jacob. Instead, your name will be Israel' (35:10). Bible Hub's interlinear shows the same words for 'no longer' (lo ... od, Strong's 3808 and 5750) and 'but' (ki im, 3588 and 518) in both, though the verb differs: in 32:28 the name will not be 'said' (559), in 35:10 not be 'called' (7121). Neither verse refers to the other, so the type is parallel, following conn-gen1-blessing-gen9-renewed (repeated wording checkable in both texts, no formula). It is graded strong rather than explicit because readers differ on how the two relate. Genesis Rabbah 78:3 and Rashi (on 32:28) read 35:10 as God confirming what the angel said; Keil says God 'confirmed to him the name of Israel, which He had already given him'; the Cambridge Bible reads the two as different sources ('This change of name has been mentioned by J in Genesis 32:28'). The row does not settle that question. It is distinct from conn-gen28-bethel-gen35, which links Genesis 28 to the Bethel scene of 35:1-15.",
+  "sourceId": "source-biblehub-commentary-gen-35-10",
+  "viewpointId": null
+}

@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen32-face-gen33-10",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.32.30",
+    "end": "1.32.30"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.33.10",
+    "end": "1.33.10"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "Jacob names Peniel because 'I have seen God face to face' (32:30, BSB), and the next day tells Esau, 'I have seen your face, and it is like seeing the face of God' (33:10). Bible Hub's interlinear shows the same Hebrew words in both, panim (Strong's 6440, 'face') and elohim (Strong's 430, 'God'), and the same verb for seeing (Strong's 7200). In the chapter between, panim recurs in Jacob's plan for the gift (four times in 32:20). The type is motif, following conn-gen24-thigh-gen47, because what is traced is a recurring phrase within the same story, not a quotation or a naming of the earlier event. It is graded strong, not plausible, because the recurrence is verifiable and named readers read the two verses together: the Cambridge Bible on 33:10 says 'We can hardly doubt that this turn of compliment contains a side allusion to the name of the locality, Peniel'; Skinner (ICC, 1910) notes the resemblance and quotes Dillmann's view that 'at Peniel the unfriendly God is found to be friendly'; and Genesis Rabbah 77:3 uses 33:10 as its proof that the wrestler was Esau's guardian angel. Whether 33:10 is courtesy, gratitude or identification is left to the reader; Keil, for one, reads it as 'divine (heavenly) friendliness' seen in Esau's welcome.",
+  "sourceId": "source-biblehub-commentary-gen-33-10",
+  "viewpointId": null
+}
