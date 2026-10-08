@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen17-covenant-acts7-8",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.17.9",
+    "end": "1.17.14"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "44.7.8",
+    "end": "44.7.8"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "In his speech Stephen summarizes the scene by name: 'Then God gave Abraham the covenant of circumcision, and Abraham became the father of Isaac and circumcised him on the eighth day' (Acts 7:8, BSB). The phrase pairs the two words Genesis 17 joins (God's 'covenant' and the command that 'Every male among you must be circumcised,' 17:10), and the eighth day matches 17:12 ('when he is eight days old') and its narrated keeping at 21:4. Graded explicit_reference at explicit because Abraham, the covenant and the rite are all named; it is not graded quotation because Stephen summarizes rather than quoting the chapter's wording with a citation formula.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
