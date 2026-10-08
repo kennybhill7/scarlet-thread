@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen29-judah-matt1",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.29.35",
+    "end": "1.29.35"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.1.2",
+    "end": "40.1.3"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "Genesis 29:35 records Judah's birth and naming. Leah says, 'This time I will praise the LORD,' and the verse goes on, 'So she named him Judah' (BSB). Matthew's genealogy names him as Jacob's son: 'Jacob the father of Judah and his brothers' (Matthew 1:2), and continues, 'Judah was the father of Perez and Zerah by Tamar' (1:3), the line that runs through David to Jesus. Luke's genealogy also has 'the son of Judah' (Luke 3:33), and Hebrews 7:14 says 'our Lord descended from Judah.' Graded explicit_reference because Matthew names the person whose birth this verse records. Graded strong, not explicit, following conn-matt1-genealogy-ruth4 and conn-gen25-twins-malachi1: Matthew names Judah but does not quote or refer to the naming, the praise, or Leah, who is not named anywhere in the New Testament (script scan). Christian commentators read the verse forward along this line: Matthew Henry writes of Judah, 'This was he, of whom, as concerning the flesh, Christ came,' and Barnes calls Judah 'the ancestor of the promised seed.' A Jewish reading draws the royal line from the same verse without the Christian conclusion: Targum Pseudo-Jonathan has Leah say, 'from this my son kings shall come forth, and from him shall spring David the king.' Those readings are reported in the lesson; the grade rests only on Matthew's naming of Judah as Jacob's son.",
+  "sourceId": "source-biblehub-commentary-gen-29-35",
+  "viewpointId": null
+}

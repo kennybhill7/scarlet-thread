@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen29-rachel-leah-ruth4",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.29.31",
+    "end": "1.29.35"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "8.4.11",
+    "end": "8.4.11"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "At Boaz's marriage the elders and people say, 'May the LORD make the woman entering your home like Rachel and Leah, who together built up the house of Israel' (Ruth 4:11, BSB). Ruth names both sisters and sums up what they did: bearing the sons of Israel. That bearing begins in this passage, 'When the LORD saw that Leah was unloved, He opened her womb' (29:31), and runs on into Genesis 30 and 35:16-18; the Cambridge Bible on Ruth 4:11 gives the range as 'Genesis 29:31 to Genesis 30:24'. Genesis Rabbah 71:2, on 29:31, cites Ruth 4:11. A script scan of the BSB finds 'Leah' in 35 verses, all in Genesis except Ruth 4:11, so this is the only later verse in the BSB that names her. Ellicott notes that Rachel, the younger, is named first. Graded explicit_reference because Ruth names the persons. Graded strong, not explicit, following conn-gen25-twins-malachi1: Ruth names them and summarizes their childbearing as a whole but does not quote or retell any scene of this chapter. The next verse carries the line forward to 'the house of Perez, whom Tamar bore to Judah' (Ruth 4:12), and the book ends with the genealogy from Perez to David (4:18-22); that link is carried by conn-matt1-genealogy-ruth4 and is not repeated here.",
+  "sourceId": "source-biblehub-commentary-ruth-4-11",
+  "viewpointId": null
+}
