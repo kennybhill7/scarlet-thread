@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt13-mustard-daniel4",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.13.31",
+    "end": "40.13.32"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "27.4.10",
+    "end": "27.4.22"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "Matthew’s mustard plant “becomes a tree, so that the birds of the air come and nest in its branches” (13:32, BSB); Nebuchadnezzar’s dream-tree has branches where “the birds of the air nested” (Daniel 4:12, repeated in Daniel’s interpretation at 4:21, BSB). In Greek, the text Bible Hub serves as Swete’s shares Matthew’s “the birds of the air” (ta peteina tou ouranou) but uses a different verb (enosseuon), while the Greek Daniel served by Blue Letter Bible has “in its branches” and Matthew’s verb (kateskenoun) at 4:21 but a different word for birds (ornea). The Pulpit Commentary says to compare Daniel 4:12 and 21 “for both thought and language,” Scofield’s notes say the figure “is drawn from Dan 4:20-22,” and Ellicott compares “the imagery of Ezekiel 31:3; Daniel 4:10” (all via Bible Hub). Graded plausible, not strong, on the precedent of conn-matt9-sheep-ezekiel34: there is no citation formula, and the same image of birds nesting in a great tree’s branches also stands at Ezekiel 17:23 and 31:6, so the wording cannot single out Daniel. The commentators also differ over what the echo would imply, since Daniel’s tree is a king’s empire that is cut down; that dispute is reported in the lesson and not settled by this row.",
+  "sourceId": "source-biblehub-commentary-matt-13-32",
+  "viewpointId": null
+}
