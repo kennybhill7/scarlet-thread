@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen29-wife-hosea12",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.29.15",
+    "end": "1.29.30"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "28.12.12",
+    "end": "28.12.12"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Hosea 12:12 names the person and the event: 'Jacob fled to the land of Aram and Israel worked for a wife— for a wife he tended sheep' (BSB). The flight is Genesis 27:43 and 28:5, outside this passage; the service for a wife is 29:15-30, where Jacob says, 'I will serve you seven years for your younger daughter Rachel' (29:18) and, after the substitution, 'worked for Laban another seven years' (29:30). The Cambridge Bible on Hosea 12:12 compares 'Genesis 29:18-20; Genesis 30:31; Genesis 31:38-41.' Gill notes that the doubled 'for a wife' can be read of Rachel alone or of the two wives in turn. Genesis Rabbah 70:20, on 29:30, cites the same verse of Hosea (12:13 in the Hebrew numbering). There is no citation formula and no quotation of Genesis, so this is not a quotation. Following conn-gen25-birthright-hebrews12, a later verse that names the person and the event itself is graded explicit_reference/explicit. The surrounding verses use Jacob's story to address the prophet's own audience (Hosea 12:3-4 recalls the womb and the wrestling); how Hosea means the comparison is a reader's question and does not change the grade.",
+  "sourceId": "source-biblehub-commentary-hosea-12-12",
+  "viewpointId": null
+}
