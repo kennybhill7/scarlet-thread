@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen26-sojourn-hebrews11-9",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.26.3",
+    "end": "1.26.4"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "58.11.9",
+    "end": "58.11.9"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "Genesis 26:3-4 is where God first speaks the promise of land and offspring to Isaac himself, with the instruction 'Stay in this land as a foreigner' (BSB). Hebrews 11:9 says that Abraham 'dwelt in the promised land as a stranger in a foreign country. He lived in tents, as did Isaac and Jacob, who were heirs with him of the same promise' (BSB). The Greek verb is shared. The Septuagint of 26:3 (Swete, read on Bible Hub) has παροίκει, and Hebrews 11:9 has παρῴκησεν in every edition Bible Hub shows. The Cambridge Bible on Genesis 26:3 explains 'sojourn' through the Septuagint's παροίκει and adds 'cf. Hebrews 11:9'. Meyer, on Hebrews 11:9, lists Genesis 26:3 among the Genesis verses that describe the patriarchs' sojourning with this verb, and cites 26:25 (Isaac 'pitched his tent there', outside this row's range) for the tents. Graded allusion because Hebrews names Isaac and 'the same promise' but quotes no Genesis wording and uses no formula, following conn-gen23-strangers-hebrews11-13. Graded plausible rather than strong for three reasons. Meyer lists 26:3 as one of at least eight Genesis verses with the verb (17:8, 20:1, 21:23, 21:34, 23:4, 24:37, 26:3, 28:4), so the verb does not single out this chapter. Hebrews 11:9's subject is Abraham. And Hebrews 11:8-10 is already connected to Genesis 12:1-4 (conn-gen12-call-hebrews11-8). This row adds only the Isaac strand that the earlier row does not trace.",
+  "sourceId": "source-biblehub-cambridge-genesis-26",
+  "viewpointId": null
+}

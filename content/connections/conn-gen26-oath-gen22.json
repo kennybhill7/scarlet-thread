@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen26-oath-gen22",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.26.3",
+    "end": "1.26.5"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.22.16",
+    "end": "1.22.18"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "Genesis 26:3 points back by name: 'I will confirm the oath that I swore to your father Abraham' (BSB). By a script scan of this app's BSB, 22:16 is the only earlier verse where God Himself says 'I have sworn' ('By Myself I have sworn, declares the LORD'); at 24:7 Abraham also calls the land promise an oath ('promised me on oath'). The wording of 26:4-5 also follows 22:17-18 closely. Both promise descendants 'as numerous as the stars in the sky' (26:4) or 'like the stars in the sky' (22:17). Both have 'through your offspring all nations of the earth will be blessed', word for word in the BSB (22:18; 26:4). Both give a reason, 'because you have obeyed My voice' (22:18) and 'because Abraham listened to My voice' (26:5). On Bible Hub's interlinear the Hebrew of the reason clause is the same in both: 'eqev ('because'), the verb shama' and beqoli ('My voice'). The blessing verb in both is the reflexive-form hitbarakhu, where 12:3, 18:18 and 28:14 have the passive-form nivrekhu. Keil and Delitzsch say God assured Isaac of the promises 'with express reference to His oath (Genesis 22:16)'. Calvin on 26:5 refers the reader to Genesis 22:18, 'where we have a similar expression', and Ramban on 26:3 quotes the blessing of the nations as God's words to Abraham (Chavel's note identifies the verse as 22:18). Graded explicit_reference because 26:3 names the oath and the person it was sworn to. It is strong rather than explicit, following conn-gen19-lot-deuteronomy2, because the verse names the oath but not the occasion; identifying it with 22:16 rests on the script scan and the commentators, and 24:7 shows Abraham also speaking of the land promise as an oath. What 26:5's 'because' implies about merit is disputed (see the lesson's Positions) and is not settled by this row.",
+  "sourceId": "source-biblehub-kad-genesis-26",
+  "viewpointId": null
+}
