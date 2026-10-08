@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen27-blessing-hebrews11-20",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.27.27",
+    "end": "1.27.40"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "58.11.20",
+    "end": "58.11.20"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Hebrews 11:20 names the person, both sons and the act: 'By faith Isaac blessed Jacob and Esau concerning the future' (BSB). Genesis narrates Isaac blessing both sons only in 27:27-40, Jacob in 27:27-29 and Esau in 27:39-40; Ellicott on Hebrews 11:20 cites exactly those verses, and Keil and Delitzsch on Genesis 27 quote Hebrews 11:20 of Isaac's words. There is no citation formula and no quoted wording, so this is not a quotation. Following conn-gen22-binding-hebrews11, a New Testament verse that names the scene itself is graded explicit_reference/explicit. The Greek editions Bible Hub prints in full divide on one word (its Tischendorf line is lemmatized and is not counted): Nestle 1904, Westcott-Hort and the Greek Orthodox text read Πίστει καὶ περὶ μελλόντων ('even concerning things to come'), the Byzantine and both Textus Receptus editions Πίστει περὶ μελλόντων; Ellicott calls the 'even' 'probable, though not certain'. The variant does not touch the reference. The range stops at 27:40 because only there does Isaac bless both sons; Isaac's second blessing of Jacob (28:1-4) is not claimed here, though the Treasury of Scripture Knowledge printed on Bible Hub's Hebrews 11:20 page also lists Genesis 28:2-3. 'By faith' is Hebrews' own verdict; how named readers weigh it against the deception is reported in the lesson, and the grade measures the reference, not that verdict.",
+  "sourceId": "source-biblehub-commentary-hebrews-11-20",
+  "viewpointId": null
+}

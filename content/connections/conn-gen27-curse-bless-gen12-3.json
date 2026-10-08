@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen27-curse-bless-gen12-3",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.27.29",
+    "end": "1.27.29"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.12.3",
+    "end": "1.12.3"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "Isaac's blessing closes, 'May those who curse you be cursed, and those who bless you be blessed' (Genesis 27:29, BSB), and God's promise to Abram reads, 'I will bless those who bless you and curse those who curse you' (12:3, BSB). In the BSB 'those who curse you' occurs in four verses, Genesis 12:3, 27:29, Numbers 24:9 and Luke 6:28 (script count). The Hebrew shares the root for blessing (brk) in both verses, but not every word: 12:3 uses two different verbs for cursing (meqallelkha for 'those who curse you', a'or for 'I will curse'), while 27:29 uses one root for both (orerekha arur), checked against the Hebrew on Sefaria. Keil and Delitzsch say the clause is 'moulded according to Genesis 12:3' and note that 27:29 leaves out 12:3's last line, that 'all the families of the earth will be blessed through you.' Graded allusion because 27:29 neither names Abraham nor cites the promise; strong because a named commentator draws the link and the shared wording is checkable; not explicit because the exact Hebrew of 27:29 is closer to Numbers 24:9 (Balaam's 'Blessed are those who bless you and cursed are those who curse you'), whose order Rashi compares with Isaac's. The row tracks the echo of Abram's promise; it does not claim Isaac's words fulfil 12:3's line about the nations, which 27:29 does not contain.",
+  "sourceId": "source-biblehub-kad-genesis-27",
+  "viewpointId": null
+}

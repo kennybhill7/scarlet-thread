@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen28-blessing-of-abraham-gen17",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.28.3",
+    "end": "1.28.4"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.17.1",
+    "end": "1.17.8"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "Isaac's parting words name Abraham twice: 'may He give the blessing of Abraham to you and your descendants, so that you may possess the land where you dwell as a foreigner, the land God gave to Abraham' (Genesis 28:4, BSB). In the BSB 'the blessing of Abraham' occurs in this verse only (script count). The wording points to Genesis 17: 'God Almighty' (El Shaddai), which the BSB uses in Genesis at 17:1, 28:3, 35:11, 43:14 and 48:3 (script count); fruitfulness and multiplying (17:2, 17:6); and the Hebrew phrase erets megurekha, 'the land of your sojournings', in both 17:8 and 28:4 (Sefaria), which the BSB renders differently ('where you are residing' at 17:8, 'where you dwell as a foreigner' at 28:4), so the match holds in the Hebrew, not the English. Named commentators differ on which promise text is meant: the Cambridge Bible says 'Probably a reference to Genesis 17:8'; Barnes cites 17:1 for 'God Almighty'; Keil and Delitzsch say the blessing is 'more especially recorded in Genesis 17:2., and Genesis 22:16-18'; the Pulpit Commentary points to 12:2 and 22:17-18 and to 17:8 for the land. Graded explicit_reference because Isaac names Abraham's blessing, following conn-gen25-died-in-faith-hebrews11 (a named person without a quoted scene); strong rather than explicit because 28:4 quotes no single promise and the commentators divide on which one it recalls. The Cambridge Bible and David Frankel (TheTorah.com) assign 27:46-28:9 to a separate Priestly strand; this row tracks the wording as it stands and takes no side on how the text was composed.",
+  "sourceId": "source-biblehub-commentary-gen-28-4",
+  "viewpointId": null
+}
