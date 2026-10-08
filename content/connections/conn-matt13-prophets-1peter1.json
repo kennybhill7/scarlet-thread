@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt13-prophets-1peter1",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.13.17",
+    "end": "40.13.17"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "60.1.10",
+    "end": "60.1.12"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "Both texts say that prophets of the past wanted what the present hearers now have: “many prophets and righteous men longed to see what you see but did not see it” (Matthew 13:17, BSB) and “the prophets who foretold the grace to come to you searched and investigated carefully” and “were not serving themselves, but you” (1 Peter 1:10, 12, BSB). The Expositor’s Greek Testament, on 1 Peter 1:10-12, holds that “St. Peter has utilised a saying of Jesus,” and Ellicott writes that “Precisely the same argument is used for precisely the same purpose by our Lord in Matthew 13:16-17”; that published reading is the evidence for typing it as an allusion rather than only a shared theme. The label is plausible, not strong, because the wording barely overlaps: Peter’s prophets “searched and investigated,” and the one shared verb (Greek epithymeo, BSB “longed” / “long”) is used in 1 Peter of angels (“Even angels long to look into these things,” 1:12), not of prophets. The Expositor’s Greek Testament’s own account of how “righteous” could have become “angels” is a conjecture this lesson does not test.",
+  "sourceId": "source-biblehub-commentary-1peter-1-10",
+  "viewpointId": null
+}
