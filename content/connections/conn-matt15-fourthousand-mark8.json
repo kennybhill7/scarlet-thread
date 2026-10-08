@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt15-fourthousand-mark8",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.15.32",
+    "end": "40.15.39"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.8.1",
+    "end": "41.8.10"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "The same feeding told in the same order and much of the same wording in the BSB: \"I have compassion for this crowd, because they have already been with Me three days and have nothing to eat\" (Matthew 15:32; Mark 8:2), \"Where in this desolate place\" (15:33; 8:4), \"How many loaves do you have?\" and \"Seven\" (15:34; 8:5), the crowd told \"to sit down on the ground\" (15:35; 8:6), \"seven basketfuls of broken pieces that were left over\" (15:37; 8:8), and a boat trip afterward. The basket word is spyris in both, as against kophinos at the five thousand; lesson 30 already notes that difference. Parallel/strong rather than explicit, following conn-matt14-feeding-mark6. The differences are real: Matthew has \"a few small fish\" in the disciples' answer and one thanksgiving over loaves and fish together (15:34, 15:36), where Mark has the fish appear later with their own blessing (8:7); only Matthew adds \"in addition to women and children\" (15:38); Mark says \"some of them have come a great distance\" (8:3); and the landing place is \"Magadan\" in Matthew and \"Dalmanutha\" in Mark, which Augustine (Harmony 2.51) and Calvin take as one district under two names. Whether this feeding is a second event or a second telling of the first is reported in the lesson's Positions, not decided by this row.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
