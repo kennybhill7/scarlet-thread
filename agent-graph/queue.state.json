@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-08T17:19:08.559Z",
+  "updatedAt": "2026-10-08T18:08:11.577Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1384,6 +1384,78 @@
       "lastRunId": "orchestrator",
       "lastEvidence": "Repointed source-biblehub-lxx-{isaiah-35,deuteronomy-22,zechariah-8}-swete from biblehub /sep/ (now Brenton English) to /sepd/ (Swete Greek); cited Greek confirmed on each /sepd/ page by curl. validate 44/44.",
       "notes": "Found by MATT-U22 author, confirmed by its reviewer."
+    },
+    "GEN-U24": {
+      "status": "done",
+      "branch": "agent/GEN-U24-claude",
+      "commitSha": "6b5d971",
+      "attempts": 1,
+      "lastRunId": "a2a5807b018494a90",
+      "lastEvidence": "Wave 9 (Gen 19:30-38 Lot daughters). Merged into content/next (NOT master; draft) at 4833e67. Independent read-only adversarial review by orchestrator: 1 S1 (Practice Bridge recreated an abuse-risk household; rebuilt on adult Lot leaving Zoar), 5 S2, 12 S3; all applied, key fixes verified by grep in the file (safety/pastoral sections read in full where S1 touched them). Orchestrator checks: bsbcheck2, banned-phrase grep, id resolution, registry three-way merge 0 dups, content:validate, assertion-lint mutation in Context -> genuine FAIL then reverted. Post-wave full suite on content/next 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U25": {
+      "status": "done",
+      "branch": "agent/GEN-U25-claude",
+      "commitSha": "1022015",
+      "attempts": 1,
+      "lastRunId": "a26d5eb2a77ac5697",
+      "lastEvidence": "Wave 9 (Gen 20 Abimelech). Merged into content/next (NOT master; draft) at c587eaa. Independent read-only adversarial review by orchestrator: 0 S1, 11 S2 (Uzukwu in full; three answers on repetition; CCC 956/2635 on intercession), 11 S3; all applied, key fixes verified by grep in the file (safety/pastoral sections read in full where S1 touched them). Orchestrator checks: bsbcheck2, banned-phrase grep, id resolution, registry three-way merge 0 dups, content:validate, assertion-lint mutation in Context -> genuine FAIL then reverted. Post-wave full suite on content/next 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U26": {
+      "status": "done",
+      "branch": "agent/GEN-U26-claude",
+      "commitSha": "af66e0b",
+      "attempts": 1,
+      "lastRunId": "a0fb22032d98b1843",
+      "lastEvidence": "Wave 9 (Gen 21 Isaac/Hagar, Gal 4). Merged into content/next (NOT master; draft) at 9526ac2. Independent read-only adversarial review by orchestrator: 1 S1 (unverified text-211 removed), 10 S2 (holding Gal 4 reading 1 separated from its documented misuse; parity), 12 S3; all applied, key fixes verified by grep in the file (safety/pastoral sections read in full where S1 touched them). Orchestrator checks: bsbcheck2, banned-phrase grep, id resolution, registry three-way merge 0 dups, content:validate, assertion-lint mutation in Context -> genuine FAIL then reverted. Post-wave full suite on content/next 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U27": {
+      "status": "done",
+      "branch": "agent/GEN-U27-claude",
+      "commitSha": "f3bbf55",
+      "attempts": 1,
+      "lastRunId": "abe67a16db11397be",
+      "lastEvidence": "Wave 9 (Gen 22 Akedah). Merged into content/next (NOT master; draft) at 410276c. Independent read-only adversarial review by orchestrator: 2 S1 (Kierkegaard out of safety Position; Abraham not Isaac tears), 10 S2 (referral in lead; voice-certainty line; Melito polemic named), 15 S3; all applied, key fixes verified by grep in the file (safety/pastoral sections read in full where S1 touched them). Orchestrator checks: bsbcheck2, banned-phrase grep, id resolution, registry three-way merge 0 dups, content:validate, assertion-lint mutation in Context -> genuine FAIL then reverted. Post-wave full suite on content/next 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U24": {
+      "status": "done",
+      "branch": "agent/MATT-U24-claude",
+      "commitSha": "5159be2",
+      "attempts": 1,
+      "lastRunId": "a6552d75fe35cd9ff",
+      "lastEvidence": "Wave 9 (Matt 12:1-21 Sabbath, Isa 42). Merged into content/next (NOT master; draft) at 994b71e. Independent read-only adversarial review by orchestrator: 2 S1 (12:6 TR split; 12:20 shared sbesei), 6 S2 (Calvin 12:8 read; CD rescue crux, Vermes unconfirmed), 6 S3; all applied, key fixes verified by grep in the file (safety/pastoral sections read in full where S1 touched them). Orchestrator checks: bsbcheck2, banned-phrase grep, id resolution, registry three-way merge 0 dups, content:validate, assertion-lint mutation in Context -> genuine FAIL then reverted. Post-wave full suite on content/next 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U25": {
+      "status": "done",
+      "branch": "agent/MATT-U25-claude",
+      "commitSha": "dcf839a",
+      "attempts": 1,
+      "lastRunId": "aede8469b4e320d01",
+      "lastEvidence": "Wave 9 (Matt 12:22-37 unforgivable sin). Merged into content/next (NOT master; draft) at 154fba4. Independent read-only adversarial review by orchestrator: 2 S1 (Sproul answer restored; Poole definition in full), 5 S2 (reassurance list -> named positions per IOCDF), 10 S3; all applied, key fixes verified by grep in the file (safety/pastoral sections read in full where S1 touched them). Orchestrator checks: bsbcheck2, banned-phrase grep, id resolution, registry three-way merge 0 dups, content:validate, assertion-lint mutation in Context -> genuine FAIL then reverted. Post-wave full suite on content/next 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U26": {
+      "status": "done",
+      "branch": "agent/MATT-U26-claude",
+      "commitSha": "bee4da3",
+      "attempts": 1,
+      "lastRunId": "aa43f4c7017fe18c7",
+      "lastEvidence": "Wave 9 (Matt 12:38-50 sign of Jonah). Merged into content/next (NOT master; draft) at 69553f2. Independent read-only adversarial review by orchestrator: 1 S1 (third-day count 3 not 4), 9 S2, 9 S3; registry id clash with MATT-U27 resolved by hand; all applied, key fixes verified by grep in the file (safety/pastoral sections read in full where S1 touched them). Orchestrator checks: bsbcheck2, banned-phrase grep, id resolution, registry three-way merge 0 dups, content:validate, assertion-lint mutation in Context -> genuine FAIL then reverted. Post-wave full suite on content/next 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U27": {
+      "status": "done",
+      "branch": "agent/MATT-U27-claude",
+      "commitSha": "bcaed67",
+      "attempts": 1,
+      "lastRunId": "ad768122534ad43d2",
+      "lastEvidence": "Wave 9 (Matt 13:1-23 sower, Isa 6). Merged into content/next (NOT master; draft) at e7a4d1f. Independent read-only adversarial review by orchestrator: 0 S1, 5 S2 (misuse examples re-sourced; self-examination readers reported), 13 S3; all applied, key fixes verified by grep in the file (safety/pastoral sections read in full where S1 touched them). Orchestrator checks: bsbcheck2, banned-phrase grep, id resolution, registry three-way merge 0 dups, content:validate, assertion-lint mutation in Context -> genuine FAIL then reverted. Post-wave full suite on content/next 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
     }
   }
 }
