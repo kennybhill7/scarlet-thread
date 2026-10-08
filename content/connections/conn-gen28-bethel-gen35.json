@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen28-bethel-gen35",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.28.16",
+    "end": "1.28.22"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.35.1",
+    "end": "1.35.15"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Genesis 35 returns to this place and this event by name. God tells Jacob, 'Arise, go up to Bethel ... Build an altar there to the God who appeared to you when you fled from your brother Esau' (35:1, BSB); Jacob speaks of 'God, who answered me in my day of distress. He has been with me wherever I have gone' (35:3), which echoes 'I am with you' of 28:15; the narrator gives both names again, 'Luz (that is, Bethel)' (35:6; compare 28:19); and Jacob again 'set up a pillar ... and anointed it with oil' and 'called the place ... Bethel' (35:14-15; compare 28:18-19). By a script count over this app's BSB, 'oil' occurs in Genesis only at 28:18 and 35:14. Rashi on 28:22 reads 35:14 as Jacob's fulfilment of his promise about the stone; the Pulpit Commentary on 28:22 likewise points to 35:1, 15. Graded explicit_reference at explicit, following conn-gen23-machpelah-gen49, because 35:1 names the earlier appearance and its occasion. Keil (on 28:18-19) reads 35:15 as Jacob renewing the name. Whether 35:9-15 is a second appearance or a second telling of one naming is a question for source-critical readers that this row does not settle; the Cambridge Bible on Hosea 12:4 says the two accounts 'proceed from different documents.'",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

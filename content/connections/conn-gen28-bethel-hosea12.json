@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen28-bethel-hosea12",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.28.10",
+    "end": "1.28.22"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "28.12.3",
+    "end": "28.12.5"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "Hosea 12 names Jacob and Bethel: 'In the womb he grasped his brother’s heel, and in his vigor he wrestled with God ... he found Him at Bethel and spoke with Him there' (12:3-4, BSB). The prophet names the patriarch and the place, so the type is explicit_reference. It is graded strong, not explicit, following conn-gen25-twins-malachi1 and conn-gen19-lot-deuteronomy2 (a later text that names the persons but leaves which earlier scene is meant to the reader), because Genesis records two encounters at Bethel and readers differ on which Hosea means. Keil, the Pulpit Commentary and Benson on Hosea 12:4 point to 35:9 (Keil and Pulpit: not 28:11); Jamieson-Fausset-Brown cites both 28:11-19 and 35:1; Barnes' Notes says 'Both revelations ... are probably included'; Poole names 28:12, 20 and then 35:1 'more directly'; Gill says the angel found Jacob at Bethel 'more than once' and cites 28:12; the Geneva note cites 28:12; and the Cambridge Bible says either 'may have been current in the circle to which Hosea belonged; the latter is of course pure conjecture.' The Pulpit Commentary gives Hosea's order as its reason: the Bethel vision meant 'comes after that at Penuel', the wrestling of Genesis 32. The grade stays strong rather than plausible because six of the nine readers read here include chapter 28 in what Hosea means, and both encounters are at the place this passage names; it stays below explicit because three point to chapter 35. The row's toRange covers 12:3-5 because 12:3 supplies the name Jacob that 12:4 continues.",
+  "sourceId": "source-biblehub-commentary-hosea-12-4",
+  "viewpointId": null
+}

@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen28-bethel-gen31-13",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.28.18",
+    "end": "1.28.22"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.31.13",
+    "end": "1.31.13"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "In Genesis 31:13 the angel of God, speaking in Jacob's dream, names this scene: 'I am the God of Bethel, where you anointed the pillar and made a solemn vow to Me' (BSB). The verse names the place (28:19), the pillar and its anointing (28:18) and the vow (28:20-22). By a script count over this app's BSB, 'vow' occurs in Genesis only at 28:20 and 31:13, and Bible Hub's concordance for the Hebrew noun neder (Strong's 5088) lists the same two Genesis verses. The Cambridge Bible on 28:20 cross-refers 'See Genesis 31:13.' Graded explicit_reference at explicit, following conn-gen23-machpelah-gen49 (a later Genesis passage that restates an earlier one by name), because the later verse names the place, the act and the vow; it is not graded quotation because it restates rather than quotes. Whether Jacob ever paid the tithe he vowed is not settled by this verse, and the lesson reports named readers who differ on it.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
