@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen24-gates-gen22",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.24.60",
+    "end": "1.24.60"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.22.17",
+    "end": "1.22.17"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "Rebekah's family blesses her, 'May your offspring possess the gates of their enemies' (24:60, BSB), a chapter and a half after the LORD's oath to Abraham, 'Your descendants will possess the gates of their enemies' (22:17). A script scan of this app's BSB finds 'possess the gates of their enemies' in only these two verses. Bible Hub's interlinear shows that most of the Hebrew is shared (the verb yarash, 'possess', Strong's 3423; zera, 'seed', 2233; sha'ar, 'gate', 8179), but the last word differs: 22:17 has 'his enemies' (oyev, 341) and 24:60 has 'those who hate him' (sone, 8130). The BSB renders both as 'enemies', so the English match is closer than the Hebrew one. The Cambridge Bible on 24:60 cross-references the earlier verse ('Cf. Genesis 22:17'). Calvin reads the family's words as more than they knew: 'The Lord, however, directed their tongues to utter a prophecy of which they themselves were ignorant.' Graded motif at strong, following conn-gen16-ishmael-gen25, because a near-identical phrase recurs in the same book and a named commentator links the two verses. It is not graded promise_fulfillment, because 24:60 is a family's blessing, not a report that the promise came true, and the narrative gives no sign that Rebekah's family had heard the oath of 22:17.",
+  "sourceId": "source-biblehub-cambridge-genesis-24",
+  "viewpointId": null
+}
