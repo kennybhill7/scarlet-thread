@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt16-confession-mark8",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.16.13",
+    "end": "40.16.28"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.8.27",
+    "end": "41.9.1"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Mark tells the same sequence in the same order, also near Caesarea Philippi: Jesus asks who people say He is, the disciples list John the Baptist, Elijah and the prophets, Peter confesses, Jesus forbids them to tell anyone, predicts His suffering, death and rising, Peter rebukes Him, and Jesus answers with words identical in the BSB, \"Get behind Me, Satan!\" (Matthew 16:23; Mark 8:33). The cross saying follows in both: \"If anyone wants to come after Me, he must deny himself and take up his cross and follow Me\" (Matthew 16:24; Mark 8:34, identical in the BSB). The type is parallel and the label strong, not explicit, following conn-matt14-walking-mark6: neither Gospel cites the other. The differences can be checked in the BSB. Peter's confession in Mark is \"You are the Christ\" (8:29); Matthew adds \"the Son of the living God\" (16:16). Mark has nothing matching Matthew 16:17-19 (the blessing, the rock, the church, the keys) and no \"You are a stumbling block to Me.\" Mark's closing saying reads \"before they see the kingdom of God arrive with power\" (9:1), where Matthew has \"before they see the Son of Man coming in His kingdom\" (16:28). The Catholic NABRE notes call Matthew's reply to Peter \"drawn principally from material peculiar to Matthew.\"",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

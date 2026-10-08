@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt16-bind-matt18",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.16.19",
+    "end": "40.16.19"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.18.17",
+    "end": "40.18.18"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "\"Whatever you bind on earth will be bound in heaven, and whatever you loose on earth will be loosed in heaven\" occurs word for word in the BSB at Matthew 16:19 and 18:18, and a script over this app's BSB finds \"bound in heaven\" and \"loosed in heaven\" in these two verses only. The same two passages hold every use of \"church\" in the BSB Gospels (16:18; 18:17, twice). The Greek agrees in vocabulary but not in form: in the Nestle 1904 text 16:19 is addressed to one person (ho ean deses, singular) and 18:18 to a group (hosa ean desete, plural), and 16:19 has en tois ouranois where 18:18 has en ourano. A recurring saying tracked within one Gospel is why the type is motif, as with conn-matt10-cross-matt16; the verbatim English recurrence and the shared Greek verbs are why the label is strong. What the shift from one hearer to many signifies is disputed. Meyer, quoted by Vincent, calls the power \"of a collegiate nature\"; the Catholic NABRE notes say \"the promise of the keys is given to Peter alone\" and that 18:18 concerns \"the power of excommunication alone\"; Ellicott says the power was \"conferred afterward (Matthew 18:18) on the whole company of the Apostles, or, more probably, on the whole body of the disciples in their collective unity.\"",
+  "sourceId": "source-biblehub-text-greek-matt-16-18-19-23",
+  "viewpointId": null
+}
