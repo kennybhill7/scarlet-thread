@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen19-smoke-revelation14",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.19.24",
+    "end": "1.19.28"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "66.14.10",
+    "end": "66.14.11"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "Genesis 19:24 has the LORD rain down 'sulfur and fire' and 19:28 has Abraham see 'the smoke rising from the land like smoke from a furnace'; Revelation 14:10-11 (BSB) has the worshiper of the beast 'tormented in fire and sulfur' and 'the smoke of their torment rises forever and ever.' Revelation 14 does not name Sodom, so this is not an explicit reference; the pairing of fire, sulfur and rising smoke is what is traced, which is why the type is motif. It is graded strong because two named commentators on Revelation 14:11 make the link themselves: Ellicott ('The imagery of the smoke going up reminds us of the overthrow of Sodom and Gomorrah,' citing Genesis 19:28 and Isaiah 34:10) and Barnes ('This language is probably derived from the account of the destruction of Sodom and Gomorrah'). The strong grade rests on Ellicott and Barnes; the nearer verbal parallel is Isaiah's oracle against Edom, which Ellicott cites -- 'her soil to sulfur' (Isaiah 34:9) and 'Its smoke will ascend forever' (34:10) -- and that intermediate text is one reason the label is strong rather than explicit; the phrase 'fire and sulfur' recurs at Revelation 20:10 and 21:8 (19:20 has 'burning sulfur') without the smoke; Deuteronomy 29:23, which does name Sodom with 'sulfur and salt,' is an explicit reference noted in the lesson, not this row.",
+  "sourceId": "source-biblehub-commentary-revelation-14-11",
+  "viewpointId": null
+}

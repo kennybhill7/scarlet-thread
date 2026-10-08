@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen19-sodom-jude7",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.19.4",
+    "end": "1.19.25"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "65.1.7",
+    "end": "65.1.7"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Jude 1:7 (BSB) names 'Sodom and Gomorrah and the cities around them' and says they 'indulged in sexual immorality and pursued strange flesh' and 'are on display as an example of those who sustain the punishment of eternal fire' -- the cities, the cities' conduct as Jude characterizes it, and the fire of 19:24-25 are all in view. Graded explicit_reference/explicit because Jude names the cities and their judgment without a citation formula. What 'strange flesh' denotes is a live dispute this row does not settle: Matthew Poole reads it as 'male flesh'; Barnes as 'the unusual sin which, from the name Sodom, has been called \"sodomy\"'; the Expositor's Greek Testament as 'departure from the natural use'; Melvin Otey (Themelios 49.1), citing Jeremy Hultin, as the Sodomites seeking 'to have sexual relations with the angels,' parallel to the angels of Jude 1:6; Barnes reviews whether 'in like manner' points to the angels and judges it does not. The existing row from Genesis 6 already connects Jude 1:6-7 to the Watchers; this row connects verse 7 to Genesis 19, which that row does not.",
+  "sourceId": "source-biblehub-commentary-jude-1-7",
+  "viewpointId": null
+}

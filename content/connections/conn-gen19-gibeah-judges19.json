@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen19-gibeah-judges19",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.19.1",
+    "end": "1.19.11"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "7.19.15",
+    "end": "7.19.25"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Judges 19 retells the shape of Genesis 19:1-11 in Israel's own territory: a traveler in the city square at evening, a resident who takes him in and says 'do not spend the night in the square' (Judges 19:20; compare Genesis 19:2), men of the city who surround the house demanding the guest 'so we can have relations with him' (19:22; Genesis 19:5 reads 'so we can have relations with them'), a host who answers 'my brothers' and calls it a 'wicked thing' (19:23; Genesis 19:7), and an offer of a virgin daughter (19:24; Genesis 19:8). The Cambridge Bible states that 'beset the house ... know him' are 'The same words in Genesis 19:4-5' and that 'It looks as if the present narrative had been deliberately conformed here and there to the description of the immorality of the Sodomites,' adding that in Judges 19:24 'the phrases are identical with those in Genesis 19:8' (it also reports that 'Some scholars think that the present verse originally read Bring forth the woman ... that we may know her'); Keil and Delitzsch call the demand 'the very same demand that the Sodomites had made of Lot.' Graded parallel, not explicit_reference, because Judges never names Sodom; graded strong because the shared sequence and wording are checkable and named commentators draw the link. Unlike Genesis 19, where the angels intervene, Judges 19:25 narrates the rape and abuse of the Levite's concubine.",
+  "sourceId": "source-biblehub-commentary-judges-19-22",
+  "viewpointId": null
+}
