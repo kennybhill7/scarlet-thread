@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt13-nazareth-mark6",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.13.53",
+    "end": "40.13.58"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.6.1",
+    "end": "41.6.6"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Both Gospels tell the same visit in the same order, checked in this app's BSB: Jesus comes to \"His hometown\" (Matthew 13:54; Mark 6:1), teaches in the synagogue, the hearers are astonished and ask where He got such wisdom, they name His mother and four brothers and His sisters, \"they took offense at Him\" (identical in Matthew 13:57 and Mark 6:3), He answers with the saying about a prophet without honor, and few miracles follow. Graded parallel/strong, following conn-matt12-family-mark3 and conn-matt13-sower-mark4: no citation links the two accounts, and the overlap is close while the differences are real. The differences are checkable. Matthew has \"the carpenter's son\" (13:55) where Mark has \"the carpenter, the son of Mary\" (6:3); Matthew lists the brothers \"James, Joseph, Simon, and Judas,\" Mark \"James, Joses, Judas, and Simon\"; Matthew's saying lacks Mark's \"among his relatives\" (6:4); Matthew says \"He did not do many miracles there\" (13:58) where Mark says \"He could not perform any miracles there, except to lay His hands on a few of the sick and heal them\" (6:5); and only Mark adds that \"He was amazed at their unbelief\" (6:6). How readers explain the carpenter and the \"could not\" differences is reported in the lesson, not decided by this connection.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

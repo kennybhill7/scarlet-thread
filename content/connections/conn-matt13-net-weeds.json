@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt13-net-weeds",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.13.49",
+    "end": "40.13.50"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.13.40",
+    "end": "40.13.42"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "The explanation of the net repeats the explanation of the weeds nearly word for word. In this app's BSB, both begin \"so will it be at the end of the age\" (13:40, 13:49), both have angels removing the wicked (13:41, 13:49), and both end \"throw them into the fiery furnace, where there will be weeping and gnashing of teeth\" (13:42, 13:50). In Greek, 13:42 and 13:50 are identical in all eight editions Biblehub lists, and 13:49 opens with the same clause that closes 13:40 in five of them (the Byzantine and Textus Receptus texts add \"this\" to \"age\" at 13:40). A repeated phrase tracked within one Gospel is why the type is motif, as with conn-matt12-vipers-matt3, and the verbatim repetition is why the label is strong. In the BSB, \"fiery furnace\" occurs in the New Testament only at 13:42 and 13:50. Calvin notes that in the net \"No new instruction is here given by Christ\"; Chrysostom distinguishes the two, reading the weeds as about \"wicked doctrines\" and the net as about \"wickedness of life.\"",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
