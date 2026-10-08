@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt12-family-mark3",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.12.46",
+    "end": "40.12.50"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.3.31",
+    "end": "41.3.35"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Both Gospels tell the same scene in the same order: Jesus' mother and brothers stand outside, He is told they are there, He asks who His mother and brothers are, He says \"Here are My mother and My brothers,\" and He names whoever does God's will as \"My brother and sister and mother\" (Matthew 12:46-50; Mark 3:31-35, BSB). In both Gospels the scene comes after the Beelzebul dispute; in Matthew the request for a sign (12:38-45) comes between them. The type is parallel and the label strong, following conn-matt11-woes-luke10. The differences can be checked. Matthew has \"the will of My Father in heaven\" where Mark has \"the will of God\"; Matthew has Jesus \"Pointing to His disciples\" where Mark has Him \"Looking at those seated in a circle around Him.\" Mark alone frames the visit with 3:21, where \"His family\" went \"to take custody of Him, saying, 'He is out of His mind.'\" Luke 8:19-21 has a shorter form in a different setting, ending \"those who hear the word of God and carry it out.\" Who the \"brothers\" are is a named dispute in the lesson's Positions and does not bear on the parallel.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

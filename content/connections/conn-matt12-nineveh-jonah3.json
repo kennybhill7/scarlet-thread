@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt12-nineveh-jonah3",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.12.41",
+    "end": "40.12.41"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "32.3.4",
+    "end": "32.3.10"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Jesus names the people and the event: \"The men of Nineveh will stand at the judgment with this generation and condemn it; for they repented at the preaching of Jonah\" (12:41, BSB). Jonah 3:4-10 is that event: Jonah proclaims, \"the Ninevites believed God,\" and God sees \"that they had turned from their evil ways\" (3:5, 3:10, BSB). The type is explicit_reference, not quotation, because nothing from Jonah 3 is quoted and no formula is used; this follows conn-matt11-elijah-malachi4, where Jesus names a figure without quoting. The Greek shows one shared word and one difference. Matthew's noun for \"preaching,\" kerygma, is the Septuagint's word in Jonah 3:2 (BSB \"message\"). But Matthew's verb \"repented\" (metenoesan) is not the Septuagint's verb for the Ninevites: Swete's text says they \"believed\" (enepisteusan) and \"turned\" (apestrepsan), and uses metanoeo only of God (3:9, 3:10). Luke 11:32 has the same saying. Graded explicit because the text names Nineveh, Jonah and his preaching.",
+  "sourceId": "source-biblehub-sepd-jonah-3",
+  "viewpointId": null
+}

@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt12-sign-luke11",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.12.38",
+    "end": "40.12.42"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.11.29",
+    "end": "42.11.32"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "The same saying appears in both Gospels. In the BSB both say \"none will be given it except the sign of\" Jonah (Matthew 12:39 has \"the prophet Jonah\"; Luke 11:29 has \"Jonah\"), and the two judgment sayings match nearly word for word, ending \"now One greater than Jonah is here\" and \"now One greater than Solomon is here\" (Matthew 12:41-42; Luke 11:31-32). The type is parallel. The label is strong, not explicit, following conn-matt11-woes-luke10, where a near-verbatim synoptic parallel is graded the same way: neither Gospel cites the other. The differences can be checked. Where Matthew explains the sign by Jonah's \"three days and three nights in the belly of the great fish\" (12:40), Luke has \"as Jonah was a sign to the Ninevites, so the Son of Man will be a sign to this generation\" (11:30). Luke puts the Queen of the South before the men of Nineveh, and places the saying about the unclean spirit earlier (11:24-26), where Matthew has it after (12:43-45). Matthew also repeats the core saying at 16:4.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
