@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt15-honor-exodus20",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.15.4",
+    "end": "40.15.6"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "2.20.12",
+    "end": "2.20.12"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Matthew 15:4 opens with a citation formula, \"For God said,\" and quotes \"Honor your father and mother\" (BSB), the first clause of Exodus 20:12, \"Honor your father and mother, so that your days may be long in the land that the LORD your God is giving you\" (BSB). Graded quotation and explicit because of the formula, following conn-matt5-murder-exodus20. Matthew quotes the command without its promise. The same command stands at Deuteronomy 5:16 (\"Honor your father and your mother,\" BSB), which this row does not separately target; Exodus is used as the Decalogue's first giving in canonical order, not as a claim about which verse Jesus had in view. The range runs to 15:6 because the argument needs it: the gift formula means a man \"need not honor his father or mother with it\" (15:6), so the command quoted in 15:4 is the one said to be nullified. The Greek editions on Bible Hub split on the formula: the SBL, Nestle 1904 and Westcott-Hort texts read ho theos eipen (\"God said\"), while the Byzantine, Greek Orthodox, Tischendorf and both Textus Receptus texts read ho theos eneteilato legōn (\"God commanded, saying,\" the KJV's wording). Mark 7:10 has \"For Moses said.\" Matthew quotes the command again at 19:19.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
