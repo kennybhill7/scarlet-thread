@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen25-birthright-hebrews12",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.25.29",
+    "end": "1.25.34"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "58.12.16",
+    "end": "58.12.16"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Hebrews 12:16 names the person and the event: 'Esau, who for a single meal sold his birthright' (BSB). Its Greek shares the Septuagint's words for the scene: τὰ πρωτοτόκια, 'the birthright' (Swete's Septuagint spells it πρωτοτοκεῖα at 25:31-34), and the verb 'sold' (ἀπέδοτο in Genesis 25:33 and in the Byzantine and Textus Receptus texts of Hebrews; Nestle 1904 and Westcott-Hort print the form ἀπέδετο). There is no citation formula, so this is not a quotation. Following conn-gen22-binding-hebrews11, a New Testament verse that names the scene itself is graded explicit_reference/explicit. The range ends at 12:16 on purpose: 12:17 ('when he wanted to inherit the blessing, he was rejected... though he sought the blessing with tears') points to Genesis 27:30-38, outside this passage. Hebrews' description of Esau as 'godless' is its own verdict on the scene, matching the narrator's 'Esau despised his birthright' (25:34); the reference does not depend on how readers take the words 'sexually immoral' in the same verse, which the lesson reports separately.",
+  "sourceId": "source-biblehub-greek-hebrews-12-16",
+  "viewpointId": null
+}

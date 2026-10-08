@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen25-twins-malachi1",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.25.23",
+    "end": "1.25.26"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "39.1.2",
+    "end": "39.1.4"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "Malachi 1:2 names the twins of Genesis 25:24-26 and their relation: 'Was not Esau Jacob's brother?' (BSB). It then speaks of them as peoples, as the oracle of 25:23 does: Esau's 'mountains' and 'inheritance' (1:3) and 'Edom' (1:4), the name Genesis gives Esau at 25:30. Graded explicit_reference because Malachi names both brothers. Graded strong, not explicit, following conn-gen19-lot-deuteronomy2: Malachi names the persons and their descendants but does not quote or retell the oracle or the birth, so the tie to 25:23 in particular is a reader's step. Readers who take that step include Paul, who sets Malachi 1:2-3 directly after the oracle (Romans 9:12-13), and Bengel, who says Malachi's word 'agrees with that spoken in Genesis.' Whether Malachi's 'Jacob' and 'Esau' are the two men, the two nations, or both is disputed (Meyer reads the persons; the Pulpit Commentary, citing Jerome, reads the peoples). That dispute is reported in the lesson and does not change the grade.",
+  "sourceId": "source-biblehub-commentary-romans-9-13",
+  "viewpointId": null
+}

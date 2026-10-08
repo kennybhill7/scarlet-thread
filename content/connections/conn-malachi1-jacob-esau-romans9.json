@@ -1,0 +1,18 @@
+{
+  "id": "conn-malachi1-jacob-esau-romans9",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "39.1.2",
+    "end": "39.1.3"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "45.9.13",
+    "end": "45.9.13"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Romans 9:13 opens with a citation formula, 'So it is written' (καθάπερ γέγραπται in Nestle 1904 and Westcott-Hort; καθὼς γέγραπται in the Byzantine, Tischendorf and Textus Receptus editions Bible Hub lists), and quotes Malachi 1:2-3. In the Greek the second clause, τὸν δὲ Ἠσαῦ ἐμίσησα ('but Esau I hated'), is the Septuagint's exactly. The first clause has the same three words in a different order: the Septuagint reads καὶ ἠγάπησα τὸν Ἰακώβ, Paul τὸν Ἰακὼβ ἠγάπησα, putting Jacob first. The Cambridge Bible calls the quotation 'Nearly verbatim from LXX.' In the BSB the English differs more than the Greek does ('Jacob I have loved' in Malachi, 'Jacob I loved' in Romans), though Bible Hub shows the same aorist ἠγάπησα in both. The formula and the near-verbatim wording make this quotation/explicit. This row's source text lies outside the Genesis 25 lesson it is attached to; it is authored there because Paul sets it directly after his quotation of Genesis 25:23 (conn-gen25-oracle-romans9), and the two quotations are read together. The label measures the citation, not the meaning of 'hated,' which the lesson reports as disputed.",
+  "sourceId": "source-biblehub-greek-romans-9-12-13",
+  "viewpointId": null
+}
