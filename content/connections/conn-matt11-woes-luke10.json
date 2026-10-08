@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt11-woes-luke10",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.11.20",
+    "end": "40.11.24"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.10.12",
+    "end": "42.10.15"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "The two woes are close to word for word in the BSB: both read \"Woe to you, Chorazin! Woe to you, Bethsaida! For if the miracles that were performed in you had been performed in Tyre and Sidon, they would have repented long ago\" (Matthew 11:21; Luke 10:13), and both ask \"will you be lifted up to heaven? No, you will be brought down to Hades!\" (Matthew 11:23; Luke 10:15). In the shipped BSB, Chorazin is named only in these two verses. The type is parallel, the same saying in two Gospels. The label is strong rather than explicit because the setting and arrangement differ in ways a reader can check. Luke places the woes in the sending of the seventy-two (Luke 10:1), while Matthew places them after John the Baptist's question (11:2-19). Luke's Sodom comparison is attached to the town that rejects the messengers (10:12), where Matthew attaches it to Capernaum (11:23-24). Luke's \"sitting in sackcloth and ashes\" and \"at the judgment\" also differ slightly from Matthew's wording.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

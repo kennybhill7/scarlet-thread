@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt11-rest-jeremiah6",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.11.29",
+    "end": "40.11.29"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "24.6.16",
+    "end": "24.6.16"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "The BSB's \"you will find rest for your souls\" is identical in Matthew 11:29 and Jeremiah 6:16, and a search of the shipped BSB finds that clause in those two verses only. Several public-domain commentaries read via Bible Hub identify the source: Ellicott calls it \"a direct quotation from Jeremiah,\" Meyer and Gill cite Jeremiah 6:16, and the Pulpit Commentary says the words \"are taken from Jeremiah 6:16 (not the LXX.; cf. also Ecclus. 6:28).\" That last point checks out. The Septuagint of Jeremiah 6:16 has hagnismon, purification (Greek text via eBible; Brenton's English: \"ye shall find purification for your souls\"), while Matthew has anapausin, \"rest,\" which matches the sense of the Hebrew margoa (BDB: \"rest\"). So Matthew's wording follows the Hebrew, not the Greek translation. The type is allusion rather than quotation because Matthew uses no citation formula and does not name Jeremiah. The label is strong because the clause is verbatim in English and nearly verbatim in Greek. In Jeremiah the offer is followed by refusal (\"But they said, 'We will not walk in it!'\"), which a reader may weigh alongside the refusal of the cities in Matthew 11:20-24. That is an observation about the two contexts, not a claim the text makes.",
+  "sourceId": "source-biblehub-commentary-matt-11-29",
+  "viewpointId": null
+}
