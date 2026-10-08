@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt10-lostsheep-jeremiah50",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.10.6",
+    "end": "40.10.6"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "24.50.6",
+    "end": "24.50.6"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "Matthew 10:6 sends the Twelve to \"the lost sheep of Israel\" (BSB), and Jeremiah 50:6 opens \"My people are lost sheep\" (BSB). In Greek the match is closer than a common English phrase. Matthew's ta probata ta apololota (Nestle 1904, via Biblehub) uses the same noun and participle as the Septuagint's probata apololota egenethe ho laos mou (LXX Jeremiah 27:6, via Blue Letter Bible). In both, the lost sheep are the whole people, not one stray. A script over this app's BSB finds \"lost sheep\" in only five verses: Psalm 119:176 (one person, \"I have strayed like a lost sheep\"), Jeremiah 50:6, Matthew 10:6 and 15:24, and Luke 15:6. Two public-domain commentaries name Jeremiah 50:6 here: the Pulpit Commentary (\"The words recall Jeremiah 50:6 (27:6, LXX.)\") and the Expositor's Greek Testament (\"an expression consecrated by prophetic use\"). Graded plausible, not strong. Matthew uses no citation formula. The shared wording is two words. Ezekiel 34 (\"I will seek the lost,\" 34:16) offers a competing background, and the earlier Matthew 9:36 lesson already authored it. And both commentaries state the link without arguing for it.",
+  "sourceId": "source-biblehub-commentaries-matt-10-6",
+  "viewpointId": null
+}

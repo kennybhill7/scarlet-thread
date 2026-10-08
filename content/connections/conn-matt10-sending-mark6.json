@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt10-sending-mark6",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.10.1",
+    "end": "40.10.15"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.6.7",
+    "end": "41.6.13"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Both texts tell the same sending of the Twelve in the same shape, checked against this app's own BSB text: authority \"over unclean spirits\" (Matthew 10:1; Mark 6:7), instructions about what not to take, staying in one house, and the same gesture on leaving a place that will not receive them, \"shake the dust off your feet\" (Matthew 10:14; Mark 6:11). The differences are just as checkable, and the best known is the equipment. Matthew has \"Take no bag for the road, or second tunic, or sandals, or staff\" (10:10). Mark has \"take nothing but a staff for the journey\" and \"to wear sandals, but not a second tunic\" (6:8-9). Matthew alone has the ban on \"the road of the Gentiles\" and \"any town of the Samaritans\" (10:5), the saying \"Freely you have received; freely give\" (10:8), and the comparison with \"Sodom and Gomorrah\" (10:15); Mark alone has \"two by two\" (6:7) and anointing \"with oil\" (6:13). Graded parallel because no citation links the two accounts, and strong rather than explicit because the shared sequence is substantial while the differences are real. How readers have handled the staff-and-sandals difference is reported in the lesson's Positions, not decided here.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
