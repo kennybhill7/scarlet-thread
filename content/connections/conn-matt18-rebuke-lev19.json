@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt18-rebuke-lev19",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.18.15",
+    "end": "40.18.15"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "3.19.17",
+    "end": "3.19.17"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "Leviticus 19:17 says \"Directly rebuke your neighbor\" (BSB), and Matthew 18:15 says \"go and confront him privately\" (BSB). The English verbs differ, but in Greek the Septuagint of Leviticus 19:17 (Swete) reads ἐλεγμῷ ἐλέγξεις τὸν πλησίον σου, after οὐ μισήσεις τὸν ἀδελφόν σου (not hating \"your brother,\" as the BSB renders it) in 19:17a, and Matthew 18:15 reads ἔλεγξον αὐτὸν in every edition Bible Hub lists: the same verb. Three commentators on Matthew 18:15 draw the line back to Leviticus. The Cambridge Bible notes that \"the same Greek word is translated rebuke\" there; Ellicott writes that \"the substance of the precept is taken from the passage in Leviticus (Leviticus 19:17-18)\"; Barnes writes, \"This was required under the law, Leviticus 19:17.\" What the two texts share is one verb and one situation, a brother or neighbor who has done wrong; Matthew names no source. So the type is allusion and the label plausible, as with conn-matt16-leaven-exodus12, where commentators trace a background that Matthew does not cite.",
+  "sourceId": "source-biblehub-commentary-matt-18-15",
+  "viewpointId": null
+}

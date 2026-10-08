@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt18-forgive-matt6",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.18.35",
+    "end": "40.18.35"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.6.14",
+    "end": "40.6.15"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "Matthew 18:35 ends the parable, \"That is how My heavenly Father will treat each of you unless you forgive your brother from your heart\" (BSB); 6:14-15 reads, \"if you forgive men their trespasses, your heavenly Father will also forgive you\" and \"if you do not forgive men their trespasses, neither will your Father forgive yours\" (BSB). \"Heavenly Father\" occurs in six verses of Matthew's BSB (5:48; 6:14, 26, 32; 15:13; 18:35), and 6:14 and 18:35 are the two of them that speak of forgiving (script search). In Greek, 6:15 and 18:35 share the condition μὴ ἀφῆτε (\"if you do not forgive\") in every edition Bible Hub lists. Later reception points the same way: the Byzantine, Greek Orthodox and Textus Receptus texts end 18:35 with τὰ παραπτώματα αὐτῶν, \"their trespasses,\" the phrase of 6:14, which Ellicott thinks copyists added (\"have probably been added to make the verse correspond with Matthew 6:14-15\"). This curriculum's lesson on Matthew 6:1-18 left the link as a no_warrant_yet candidate, as a shared theme without a verbal echo; the shared Greek condition is the verbal evidence that lesson did not check, and that lesson's text now notes the change. A recurrence within one Gospel is motif (conn-matt16-leaven-matt13), and the shared wording is why the label is strong; the later scribal reading is supporting reception, not the basis of the grade. The row does not decide what the warning means; that question is reported in this lesson's Positions.",
+  "sourceId": "source-biblehub-commentary-matt-18-35",
+  "viewpointId": null
+}
