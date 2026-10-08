@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-08T18:48:52.285Z",
+  "updatedAt": "2026-10-08T19:34:49.122Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1527,6 +1527,78 @@
       "attempts": 1,
       "lastRunId": "a7f90bdad952fef2f",
       "lastEvidence": "Wave 10 (Matt 14:22-36 walking on water). Merged into content/next (NOT master; draft) at 94af827. Independent read-only adversarial review by orchestrator: 1 S1 (do not be afraid = 8, case-insensitive), 6 S2 (Hays scope; parity), 12 S3; all applied, key fixes verified by grep in the file. Orchestrator checks: bsbcheck2, banned-phrase grep, id resolution, registry three-way merge (sibling duplicate ids kept-head), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U32": {
+      "status": "done",
+      "branch": "agent/GEN-U32-claude",
+      "commitSha": "d09c6f3",
+      "attempts": 1,
+      "lastRunId": "a02d348eccf2428f3",
+      "lastEvidence": "Wave 11 (Gen 26 wells). Merged into content/next (NOT master; draft) at ab2be1d. Independent read-only adversarial review; all findings applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge with kept-head URL/title audit (REGFIX ec054dd, 11d093d, 8ec6657, bb79a3b), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave content/next @ bb79a3b: 70/70 lessons, 283 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U33": {
+      "status": "done",
+      "branch": "agent/GEN-U33-claude",
+      "commitSha": "3e2bfe5",
+      "attempts": 1,
+      "lastRunId": "a65a56137831182d8",
+      "lastEvidence": "Wave 11 (Gen 27:1-28:9 stolen blessing). Merged into content/next (NOT master; draft) at 608bfc3. Independent read-only adversarial review; all findings applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge with kept-head URL/title audit (REGFIX ec054dd, 11d093d, 8ec6657, bb79a3b), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave content/next @ bb79a3b: 70/70 lessons, 283 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U34": {
+      "status": "done",
+      "branch": "agent/GEN-U34-claude",
+      "commitSha": "76ec9c4",
+      "attempts": 1,
+      "lastRunId": "a4e73308f783d84e8",
+      "lastEvidence": "Wave 11 (Gen 28:10-22 Bethel). Merged into content/next (NOT master; draft) at 2bb9137. Independent read-only adversarial review; all findings applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge with kept-head URL/title audit (REGFIX ec054dd, 11d093d, 8ec6657, bb79a3b), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave content/next @ bb79a3b: 70/70 lessons, 283 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U35": {
+      "status": "done",
+      "branch": "agent/GEN-U35-claude",
+      "commitSha": "a1f5dd1",
+      "attempts": 1,
+      "lastRunId": "aeb14870587d558e9",
+      "lastEvidence": "Wave 11 (Gen 29 Rachel and Leah). Merged into content/next (NOT master; draft) at 497c531. Independent read-only adversarial review; all findings applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge with kept-head URL/title audit (REGFIX ec054dd, 11d093d, 8ec6657, bb79a3b), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave content/next @ bb79a3b: 70/70 lessons, 283 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U32": {
+      "status": "done",
+      "branch": "agent/MATT-U32-claude",
+      "commitSha": "3ae7c89",
+      "attempts": 1,
+      "lastRunId": "a26f8377761d00f03",
+      "lastEvidence": "Wave 11 (Matt 15:1-20 what defiles). Merged into content/next (NOT master; draft) at deaf5b7. Independent read-only adversarial review; all findings applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge with kept-head URL/title audit (REGFIX ec054dd, 11d093d, 8ec6657, bb79a3b), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave content/next @ bb79a3b: 70/70 lessons, 283 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U33": {
+      "status": "done",
+      "branch": "agent/MATT-U33-claude",
+      "commitSha": "5cc3cd1",
+      "attempts": 1,
+      "lastRunId": "a47824cfd5dea430e",
+      "lastEvidence": "Wave 11 (Matt 15:21-39 Canaanite woman). Merged into content/next (NOT master; draft) at 8d3a17b. Independent read-only adversarial review; all findings applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge with kept-head URL/title audit (REGFIX ec054dd, 11d093d, 8ec6657, bb79a3b), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave content/next @ bb79a3b: 70/70 lessons, 283 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U34": {
+      "status": "done",
+      "branch": "agent/MATT-U34-claude",
+      "commitSha": "2f3b0de",
+      "attempts": 1,
+      "lastRunId": "aeca5eb74be789f36",
+      "lastEvidence": "Wave 11 (Matt 16:1-12 leaven; 16:2b-3 textual note). Merged into content/next (NOT master; draft) at e0874bb. Independent read-only adversarial review; all findings applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge with kept-head URL/title audit (REGFIX ec054dd, 11d093d, 8ec6657, bb79a3b), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave content/next @ bb79a3b: 70/70 lessons, 283 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U35": {
+      "status": "done",
+      "branch": "agent/MATT-U35-claude",
+      "commitSha": "9bf2c6f",
+      "attempts": 1,
+      "lastRunId": "a7f90d3e8eb3fde11",
+      "lastEvidence": "Wave 11 (Matt 16:13-28 on this rock; Catholic/Orthodox/Protestant parity). Merged into content/next (NOT master; draft) at 3047723. Independent read-only adversarial review; all findings applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge with kept-head URL/title audit (REGFIX ec054dd, 11d093d, 8ec6657, bb79a3b), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave content/next @ bb79a3b: 70/70 lessons, 283 connections, full suite 2143 pass / 0 fail.",
       "notes": "Status draft. Lives on content/next until Ken approves publishing."
     }
   }
