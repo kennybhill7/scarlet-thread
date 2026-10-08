@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt12-david-1samuel21",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.12.3",
+    "end": "40.12.4"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "9.21.1",
+    "end": "9.21.6"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Jesus names the person and the event: \"Have you not read what David did when he and his companions were hungry? He entered the house of God, and he and his companions ate the consecrated bread\" (12:3-4, BSB). 1 Samuel 21:1-6 is where that happens: \"the priest gave him the consecrated bread, since there was no bread there but the Bread of the Presence\" (21:6, BSB); in the BSB, \"consecrated bread\" occurs only in these two chapters, the Synoptic parallels and Hebrews 9:2. Graded explicit_reference rather than quotation because Jesus retells the episode without quoting its wording, and explicit because nothing is inferred to make the link, following conn-matt10-sodom-genesis19. Two checkable differences in the retelling: 1 Samuel 21 places the scene at Nob with \"Ahimelech the priest\" (21:1) and says the priest gave the bread to David, without narrating the companions eating; Matthew names no priest, while Mark 2:26 says \"During the high priesthood of Abiathar,\" a difference from 1 Samuel 21 that commentators have explained in several ways. The rule that the bread belonged to the priests (\"It belongs to Aaron and his sons,\" Leviticus 24:9, BSB) is what Matthew's \"only for the priests\" assumes; it is noted here, not authored as a separate row.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

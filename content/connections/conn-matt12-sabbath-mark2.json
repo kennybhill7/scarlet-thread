@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt12-sabbath-mark2",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.12.1",
+    "end": "40.12.14"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.2.23",
+    "end": "41.3.6"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "The same two Sabbath scenes, in the same order, with the same question, \"Have you not read\" / \"Have you never read what David did when he and his companions were hungry\" (Matthew 12:3; Mark 2:25, BSB), the same ruling (\"the Son of Man is Lord of the Sabbath\" / \"Lord even of the Sabbath,\" Matthew 12:8; Mark 2:28), and the same command, \"Stretch out your hand\" (Matthew 12:13; Mark 3:5). Parallel/strong rather than explicit, following conn-matt9-paralytic-mark2, because neither Gospel names the other and the differences are real and checkable in the BSB. Only Mark names \"Abiathar\" (2:26) and has \"The Sabbath was made for man, not man for the Sabbath\" (2:27). Only Matthew has the priests in the temple, \"something greater than the temple,\" and the second quotation of Hosea 6:6 (12:5-7), and only Matthew has the sheep in the pit (12:11-12). In Mark, Jesus asks the question, \"Which is lawful on the Sabbath: to do good or to do evil, to save life or to destroy it?\" (3:4); in Matthew the opponents ask \"Is it lawful to heal on the Sabbath?\" (12:10). Mark alone notes Jesus' \"anger and sorrow at their hardness of heart\" (3:5) and adds that the Pharisees plotted \"with the Herodians\" (3:6).",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
