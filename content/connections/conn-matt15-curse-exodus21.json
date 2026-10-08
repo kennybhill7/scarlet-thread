@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt15-curse-exodus21",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.15.4",
+    "end": "40.15.4"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "2.21.17",
+    "end": "2.21.17"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Under the same formula as the honor command (\"For God said,\" 15:4), Matthew quotes \"Anyone who curses his father or mother must be put to death\" (BSB). Exodus 21:17 reads \"Anyone who curses his father or mother must surely be put to death\" (BSB); the only difference in this app's English is \"surely.\" Graded quotation and explicit because of the formula, following conn-matt5-retaliation-exodus21. Leviticus 20:9 states the same law in other words (\"If anyone curses his father or mother, he must be put to death,\" BSB) and is not separately targeted. This is a capital law of ancient Israel's legal code. In 15:4 it is quoted beside the honor command to show how seriously the Law treats duty to parents; Calvin (via Bible Hub) reads the clause as \"intended to inform us, that it is no light or unimportant precept to honor parents, since the violation of it is so severely punished.\" Neither Matthew nor any source read for this lesson uses the verse to authorize punishment today.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

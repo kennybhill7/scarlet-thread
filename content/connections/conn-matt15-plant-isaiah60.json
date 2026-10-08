@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt15-plant-isaiah60",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.15.13",
+    "end": "40.15.13"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.60.21",
+    "end": "23.60.21"
+  },
+  "type": "motif",
+  "evidenceLabel": "plausible",
+  "rationale": "Matthew 15:13 speaks of \"Every plant that My heavenly Father has not planted\" (BSB). In Isaiah the people God restores are His planting: \"they are the branch of My planting, the work of My hands\" (60:21, BSB), and they \"will be called oaks of righteousness, the planting of the LORD\" (61:3, BSB). Calvin (via Bible Hub) draws the link on 15:13, saying that Isaiah, \"when speaking of the Church renewed by the grace of God, calls it a branch planted by the Lord\" (citing 60:21), and he reads the saying as about persons rather than teachings. Other readers point elsewhere: the Pulpit Commentary cites Psalm 1, Isaiah 5:7 and Jeremiah 2:21 for the comparison of men to plants, and Barnes reads the plant as \"Religious doctrine.\" The wording does not match closely. Matthew's noun is phyteia, which the Cambridge Bible says occurs only here in the New Testament, while the Septuagint on Bible Hub has phyteuma at Isaiah 60:21 and 61:3; they share only the root. The image of God's planting recurs, but Matthew's line is the negative case (what the Father has not planted) and cites no prophet, so the type is motif, not allusion, as with conn-matt14-path-psalm77. The label is plausible because one named reader proposes this background. In context the saying answers the disciples' report about \"the Pharisees\" who took offense (15:12); it is not a statement about Israel, whom Isaiah 60-61 calls God's planting.",
+  "sourceId": "source-biblehub-calvin-harmony-matt-15",
+  "viewpointId": null
+}

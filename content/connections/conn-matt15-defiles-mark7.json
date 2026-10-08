@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt15-defiles-mark7",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.15.1",
+    "end": "40.15.20"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.7.1",
+    "end": "41.7.23"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Both Gospels tell the same dispute right after the landing at Gennesaret: Pharisees and scribes \"from Jerusalem\" ask why the disciples eat without washing their hands; Jesus answers with Isaiah 29:13 and with the honor command and the gift devoted to God; He calls the crowd and says that what comes out of a man defiles him; and in private He explains the saying, naming the heart as the source of a list of sins. In the BSB the Isaiah quotation is word for word the same in both (\"They worship Me in vain; they teach as doctrine the precepts of men,\" Matthew 15:9; Mark 7:7). The type is parallel and the label strong, not explicit, following conn-matt14-walking-mark6: neither Gospel cites the other. The differences can be checked. Only Mark explains the custom, saying that \"the Pharisees and all the Jews do not eat until they wash their hands ceremonially\" (7:3). Mark puts Isaiah before the gift, Matthew after it. Mark has \"For Moses said\" (7:10) and the word \"Corban\" (7:11); Matthew has \"For God said\" (15:4) and \"a gift devoted to God\" (15:5). Only Matthew has the disciples' report that the Pharisees were offended, the plant, and the blind guides (15:12-14), and names Peter as the one who asks (15:15). Mark's list of what comes from the heart has thirteen items and Matthew's seven. Mark alone has \"(Thus all foods are clean.)\" (7:19, BSB); Matthew ends instead with \"but eating with unwashed hands does not defile him\" (15:20).",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
