@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen21-expel-galatians4-30",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.21.8",
+    "end": "1.21.12"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "48.4.28",
+    "end": "48.4.31"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Galatians 4:30 opens with its own citation formula, 'But what does the Scripture say?', and quotes Sarah's demand from Genesis 21:10. In this app's BSB the first part is identical ('Expel the slave woman and her son, for the slave woman's son will never share in the inheritance with'), and the ending differs: Genesis has 'my son Isaac!', Galatians has 'the free woman's son.' The Greek editions on Bible Hub all read 'the son of the free woman' at Galatians 4:30, while the Septuagint of Genesis 21:10 reads 'my son Isaac' and also has 'this' before 'slave woman'; Meyer calls Paul's wording 'almost exactly following the LXX' and the change of ending 'not accidentally' made. Galatians 4:29's 'the son born by the flesh persecuted the son born by the Spirit' points back to Genesis 21:9, which Barnes identifies as Paul's 'particular reference'; the BSB of 21:9 says 'mocking,' so 'persecuted' is Paul's reading of that verse, not Genesis's word. The companion row conn-gen16-hagar-galatians4 covers Paul's naming of Hagar and expressly leaves this quotation to chapter 21. Graded quotation at explicit because of the formula and the wording; the grade measures how certain the citation is, not which of the named readings of Paul's application (Positions 3) is right.",
+  "sourceId": "source-biblehub-commentary-galatians-4-29",
+  "viewpointId": null
+}

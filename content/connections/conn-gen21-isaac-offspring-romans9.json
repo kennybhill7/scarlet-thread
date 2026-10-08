@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen21-isaac-offspring-romans9",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.21.12",
+    "end": "1.21.12"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "45.9.6",
+    "end": "45.9.9"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Romans 9:7 ends with God's words to Abraham from Genesis 21:12, and in this app's BSB the two are word for word the same: 'Through Isaac your offspring will be reckoned.' Paul gives no 'it is written' here; the Cambridge Bible on Romans 9:7 notes that the quotation 'is introduced without \"It is written,\"' and calls it 'verbatim from LXX., Genesis 21:12.' Following the precedent of conn-gen2-marriage-eph5, where a formula-less verbatim reproduction is graded quotation, the verbatim match is the evidence here. Paul uses the line for his point that 'not all who are descended from Israel are Israel' (9:6) and quotes the promise of Isaac's birth at 9:9. That application is his; Jewish readers of Genesis 21:12 draw a different distinction from the same words (in Genesis Rabbah 53:12 Rabbi Yudan observes that the text says not 'Isaac' but 'through Isaac,' which the Sefaria edition's note explains as 'Part, but not all, of Isaac, as Esau is not included'), so the label measures the certainty of the citation, not which reading of 'through Isaac' is right.",
+  "sourceId": "source-biblehub-commentary-romans-9-7",
+  "viewpointId": null
+}
