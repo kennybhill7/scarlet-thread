@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt17-voice-matt3",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.17.5",
+    "end": "40.17.5"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.3.17",
+    "end": "40.3.17"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "The voice from the cloud repeats the voice at the Jordan. \"This is My beloved Son, in whom I am well pleased\" stands word for word in this app's BSB at 3:17 and 17:5; 3:17 ends there, and 17:5 goes on, \"Listen to Him!\" In Greek the clause Houtos estin ho huios mou ho agapētos, en hō eudokēsa is the same in both verses in all nine editions Bible Hub lists (a script comparison). A case-insensitive script finds \"beloved Son\" in Matthew only at 3:17 and 17:5. A saying repeated within one Gospel is why the type is motif, following conn-matt16-sign-matt12 and conn-matt12-vipers-matt3, and the verbatim repetition is why the label is strong. Two differences are checkable: where the voice comes from (\"from heaven,\" 3:17; \"from the cloud,\" 17:5), and the added command, graded separately in conn-matt17-listen-deut18. The Catholic NABRE notes say the voice \"repeats the baptismal proclamation about Jesus, with the addition of the command listen to him.\" The Old Testament background of the words is graded once, at the baptism (conn-matt3-baptism-psalm2 and conn-matt3-baptism-isaiah42), and is not authored again here.",
+  "sourceId": "source-biblehub-texts-greek-matt-17-5",
+  "viewpointId": null
+}

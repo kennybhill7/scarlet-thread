@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt17-transfiguration-2peter1",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.17.1",
+    "end": "40.17.5"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "61.1.16",
+    "end": "61.1.18"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "2 Peter recounts the scene in the first person: \"we were eyewitnesses of His majesty. For He received honor and glory from God the Father when the voice came to Him from the Majestic Glory, saying, 'This is My beloved Son, in whom I am well pleased.' And we ourselves heard this voice from heaven when we were with Him on the holy mountain\" (1:16-18, BSB). It names neither Matthew nor the word \"transfigured,\" but it quotes the voice and places it on a mountain with the writer present. In Matthew the only voice from heaven heard on a mountain is at 17:5 (the voice at 3:17 is at the Jordan), and Mark 9 and Luke 9 tell the same scene. That is why the type is explicit_reference and the label explicit, as with conn-matt16-baskets-matt14, where a later passage points to an earlier event by its content. The Catechism (§554, note 292) cites \"Cf. Mt 17:1-8 and parallels; 2 Pt 1:16-18\" together, and the NABRE notes list 2 Pt 1:17 beside 17:5. In this app's BSB the quoted words match Matthew 17:5 through \"well pleased\"; 2 Peter has no \"Listen to Him.\" The Greek differs by edition. The SBL, Nestle 1904 and Westcott-Hort texts read Ho huios mou ho agapētos mou houtos estin, eis hon egō eudokēsa, with a different order and a different preposition from Matthew's en hō; the Byzantine, Greek Orthodox, Scrivener and Stephanus texts begin with houtos estin, as Matthew does, and also read eis hon (Tischendorf's line on that page is printed in lemma forms). Who wrote 2 Peter is disputed. The Pulpit Commentary on Matthew 17:5, paraphrasing Edersheim, says that \"even if this Epistle is not St. Peter's, it still would represent the most ancient tradition.\" The grade rests on what the text refers to, not on who wrote it.",
+  "sourceId": "source-biblehub-texts-greek-2-peter-1-17",
+  "viewpointId": null
+}

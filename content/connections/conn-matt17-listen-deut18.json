@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt17-listen-deut18",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.17.5",
+    "end": "40.17.5"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "5.18.15",
+    "end": "5.18.15"
+  },
+  "type": "allusion",
+  "evidenceLabel": "strong",
+  "rationale": "\"Listen to Him!\" (17:5, BSB) matches the last words of Deuteronomy 18:15: \"The LORD your God will raise up for you a prophet like me from among your brothers. You must listen to him\" (BSB). Matthew gives no formula and does not say Moses spoke these words, so the type is allusion, as with conn-matt5-psalm37-meek. The phrase alone is common. A case-insensitive script finds \"listen to Him\" in twelve BSB verses, among them Exodus 6:9 and John 10:20, which have nothing to do with a prophet. Three things lift the label to strong. Moses himself stands on the mountain (17:3), and after he and Elijah appear the voice singles out one figure to be heard. Acts 3:22 quotes Deuteronomy 18:15 as words of Moses (\"For Moses said ... You must listen to Him in everything He tells you,\" BSB), so a reading of that verse as pointing to Jesus is on record in the New Testament, though not in Matthew. And readers of several traditions name the link: the Catholic NABRE notes call the command \"a reference to Dt 18:15\"; Meyer calls it \"the divine ratification of the words of Moses in Deuteronomy 18:15\"; Benson says it \"plainly alluded to Deuteronomy 18:15\"; the Pulpit Commentary says it \"recalls the saying of Moses.\" The Greek is close but not the same. Matthew has a present imperative, akouete; the Septuagint of Deuteronomy 18:15 (Swete's text on Bible Hub) has a future, autou akousesthe, which Acts 3:22 keeps. The word order splits by edition: the SBL, Nestle 1904, Westcott-Hort and Tischendorf texts read akouete autou, while the Byzantine, Greek Orthodox and both Textus Receptus texts read autou akouete, the Septuagint's order. The label is strong, not explicit, because the shared words are two common ones and no formula marks them.",
+  "sourceId": "source-usccb-nabre-notes-matthew-17",
+  "viewpointId": null
+}
