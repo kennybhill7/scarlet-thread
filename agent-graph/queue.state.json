@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-08T18:08:11.577Z",
+  "updatedAt": "2026-10-08T18:48:52.285Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1455,6 +1455,78 @@
       "attempts": 1,
       "lastRunId": "ad768122534ad43d2",
       "lastEvidence": "Wave 9 (Matt 13:1-23 sower, Isa 6). Merged into content/next (NOT master; draft) at e7a4d1f. Independent read-only adversarial review by orchestrator: 0 S1, 5 S2 (misuse examples re-sourced; self-examination readers reported), 13 S3; all applied, key fixes verified by grep in the file (safety/pastoral sections read in full where S1 touched them). Orchestrator checks: bsbcheck2, banned-phrase grep, id resolution, registry three-way merge 0 dups, content:validate, assertion-lint mutation in Context -> genuine FAIL then reverted. Post-wave full suite on content/next 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U28": {
+      "status": "done",
+      "branch": "agent/GEN-U28-claude",
+      "commitSha": "7c7788c",
+      "attempts": 1,
+      "lastRunId": "a5c0edcd54f06d948",
+      "lastEvidence": "Wave 10 (Gen 22:20-23:20 Machpelah). Merged into content/next (NOT master; draft) at d258dab. Independent read-only adversarial review by orchestrator: 0 S1, 10 S2 (grief note vs Calvin/Ambrose; natan; misuse paragraph rebuilt), 12 S3; all applied, key fixes verified by grep in the file. Orchestrator checks: bsbcheck2, banned-phrase grep, id resolution, registry three-way merge (sibling duplicate ids kept-head), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U29": {
+      "status": "done",
+      "branch": "agent/GEN-U29-claude",
+      "commitSha": "c5de955",
+      "attempts": 1,
+      "lastRunId": "a43fd61ef3894dbfb",
+      "lastEvidence": "Wave 10 (Gen 24 wife for Isaac). Merged into content/next (NOT master; draft) at e70135a. Independent read-only adversarial review by orchestrator: 0 S1, 5 S2 (Ramban/Haydock; consent quotes; CCC 1628), 13 S3; all applied, key fixes verified by grep in the file. Orchestrator checks: bsbcheck2, banned-phrase grep, id resolution, registry three-way merge (sibling duplicate ids kept-head), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U30": {
+      "status": "done",
+      "branch": "agent/GEN-U30-claude",
+      "commitSha": "9a0e74d",
+      "attempts": 1,
+      "lastRunId": "a8bacbdd8429bd880",
+      "lastEvidence": "Wave 10 (Gen 25:1-18 Abraham death). Merged into content/next (NOT master; draft) at ae0d0d3. Independent read-only adversarial review by orchestrator: 0 S1, 11 S2 (counts; Keil/MacLaren; Croteau-Yates scope), 10 S3; all applied, key fixes verified by grep in the file. Orchestrator checks: bsbcheck2, banned-phrase grep, id resolution, registry three-way merge (sibling duplicate ids kept-head), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U31": {
+      "status": "done",
+      "branch": "agent/GEN-U31-claude",
+      "commitSha": "a559808",
+      "attempts": 1,
+      "lastRunId": "a46227a85848ded44",
+      "lastEvidence": "Wave 10 (Gen 25:19-34 Jacob and Esau). Merged into content/next (NOT master; draft) at ebed1de. Independent read-only adversarial review by orchestrator: 0 S1, 7 S2 (election objections retargeted; reassurance pointer removed; Edom=Rome figural), 7 S3; all applied, key fixes verified by grep in the file. Orchestrator checks: bsbcheck2, banned-phrase grep, id resolution, registry three-way merge (sibling duplicate ids kept-head), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U28": {
+      "status": "done",
+      "branch": "agent/MATT-U28-claude",
+      "commitSha": "b2f0da0",
+      "attempts": 1,
+      "lastRunId": "a88b394e04be5b9a6",
+      "lastEvidence": "Wave 10 (Matt 13:24-43 wheat and weeds). Merged into content/next (NOT master; draft) at c180230. Independent read-only adversarial review by orchestrator: 3 S1 (Ps 78 agreement reversed; apo shared; dating), 6 S2 (Practice Bridge; persecution history balance), 9 S3; all applied, key fixes verified by grep in the file. Orchestrator checks: bsbcheck2, banned-phrase grep, id resolution, registry three-way merge (sibling duplicate ids kept-head), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U29": {
+      "status": "done",
+      "branch": "agent/MATT-U29-claude",
+      "commitSha": "95c466b",
+      "attempts": 1,
+      "lastRunId": "ac8d49b4e086e750e",
+      "lastEvidence": "Wave 10 (Matt 13:44-58 treasure, Nazareth). Merged into content/next (NOT master; draft) at 0e84f7a. Independent read-only adversarial review by orchestrator: 1 S1 (Gibbs replacement claim named and handled), 8 S2, 6 S3; all applied, key fixes verified by grep in the file. Orchestrator checks: bsbcheck2, banned-phrase grep, id resolution, registry three-way merge (sibling duplicate ids kept-head), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U30": {
+      "status": "done",
+      "branch": "agent/MATT-U30-claude",
+      "commitSha": "0df706f",
+      "attempts": 1,
+      "lastRunId": "a86736b472930f8c9",
+      "lastEvidence": "Wave 10 (Matt 14:1-21 five thousand fed). Merged into content/next (NOT master; draft) at 52f7e4c. Independent read-only adversarial review by orchestrator: 1 S1 (two hundred denarii also John 6:7), 5 S2 (Eucharist framing; Paulus/Strauss), 8 S3; all applied, key fixes verified by grep in the file. Orchestrator checks: bsbcheck2, banned-phrase grep, id resolution, registry three-way merge (sibling duplicate ids kept-head), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U31": {
+      "status": "done",
+      "branch": "agent/MATT-U31-claude",
+      "commitSha": "d77dd18",
+      "attempts": 1,
+      "lastRunId": "a7f90bdad952fef2f",
+      "lastEvidence": "Wave 10 (Matt 14:22-36 walking on water). Merged into content/next (NOT master; draft) at 94af827. Independent read-only adversarial review by orchestrator: 1 S1 (do not be afraid = 8, case-insensitive), 6 S2 (Hays scope; parity), 12 S3; all applied, key fixes verified by grep in the file. Orchestrator checks: bsbcheck2, banned-phrase grep, id resolution, registry three-way merge (sibling duplicate ids kept-head), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave full suite 2143 pass / 0 fail.",
       "notes": "Status draft. Lives on content/next until Ken approves publishing."
     }
   }
