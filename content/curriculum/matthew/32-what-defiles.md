@@ -17,7 +17,7 @@ sources:
   - source-biblehub-sepd-isaiah-29
   - source-biblehub-brenton-isaiah-29
   - source-biblehub-interlinear-isaiah-29-13
-  - source-biblehub-texts-greek-matt-15
+  - source-biblehub-texts-greek-matt-15-8
   - source-biblehub-commentary-matt-15-1-20
   - source-biblehub-commentary-mark-7-19
   - source-biblehub-commentary-isaiah-29-13
