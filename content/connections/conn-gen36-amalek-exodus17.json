@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen36-amalek-exodus17",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.36.12",
+    "end": "1.36.16"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "2.17.8",
+    "end": "2.17.16"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "Genesis 36:12 names Amalek, son of Eliphaz by his concubine Timna, and 36:16 lists him among 'the chiefs of Eliphaz in the land of Edom.' Exodus 17:8-16 is the first narrative in which 'the Amalekites came and attacked the Israelites' (17:8), and it ends with the LORD's word, 'I will utterly blot out the memory of Amalek from under heaven' (17:14), and Moses' 'The LORD will war against Amalek from generation to generation' (17:16). Graded motif, following conn-gen19-moab-ruth1, because what is tracked is a people named at its origin in Genesis and named again in Exodus, and Exodus never names Esau, Eliphaz or Timna. The link is weaker than the Moab row in one way: Genesis gives Amalek no line like 'the father of the Moabites' (19:37), and Genesis 14:7 already speaks of 'the whole territory of the Amalekites' in Abraham's day. Ellicott, citing 14:7 and Numbers 24:20, doubts that the whole people could have 'sprung from a concubine of Eliphaz'; Keil answers that 14:7 'does not imply that the tribe was in existence in Abraham's time.' Graded strong because the name recurs in both texts and named readers draw the line from 36:12 to the Amalekites of Exodus and Deuteronomy: Keil, the Cambridge Bible, Maimonides (Guide 3.50) and Ramban on 36:12, and the Talmud (Sanhedrin 99b), which tells of Timna's rejected wish to convert and says that Amalek, born of her, 'afflicted the Jewish people' (Koren translation). The later commands concerning Amalek (Deuteronomy 25:17-19; 1 Samuel 15) are reported in the lesson; this row grades only the recurrence of the name.",
+  "sourceId": "source-biblehub-commentary-gen-36-12",
+  "viewpointId": null
+}

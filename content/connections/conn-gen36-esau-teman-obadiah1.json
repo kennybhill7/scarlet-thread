@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen36-esau-teman-obadiah1",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.36.8",
+    "end": "1.36.11"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "31.1.6",
+    "end": "31.1.10"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "Obadiah's oracle 'about Edom' (1:1) names Esau and the people Genesis 36 traces to him: 'how Esau will be pillaged' (1:6), 'the wise men of Edom' and 'the mountains of Esau' (1:8), 'your mighty men, O Teman' (1:9), and the charge, 'Because of the violence against your brother Jacob' (1:10). Teman is the first-named son of Eliphaz at Genesis 36:11 and a chief at 36:15. Genesis 36:8 gives the identification Obadiah assumes, 'Esau (that is, Edom)'. Ramban, on Genesis 36:31, quotes Obadiah 1:9 to show that 'the land of the Temanites' belonged to Edom. Graded explicit_reference because Obadiah names Esau, Edom, Teman and the brother relation. Graded strong, not explicit, following conn-gen25-twins-malachi1: Obadiah names the persons and the people but does not quote or retell Genesis 36. Whether Teman in Obadiah means the clan, a district or a town is not settled by either text, and the row does not depend on it.",
+  "sourceId": "source-sefaria-ramban-gen-36",
+  "viewpointId": null
+}

@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen36-esau-seir-deuteronomy2",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.36.6",
+    "end": "1.36.9"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "5.2.4",
+    "end": "5.2.8"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "Genesis 36:8 says 'Esau (that is, Edom) settled in the area of Mount Seir,' and 36:9 calls him 'the father of the Edomites, in the area of Mount Seir.' Deuteronomy 2 names the same settlement and its people: 'the descendants of Esau, who live in Seir' (2:4, again at 2:8), with the reason 'I have given Mount Seir to Esau as his possession' (2:5). Deuteronomy 2:12 and 2:22 add that the descendants of Esau drove out 'the Horites,' the people whose clans Genesis 36:20-30 lists. Ibn Ezra, on Genesis 36:20, explains the Seirite list by the same law: Scripture lists them 'to inform us that they were of a different lineage from the children of Esau,' because 'Israel was prohibited from contending with the children of Esau.' Ramban, on 36:12, likewise recalls that Israel was commanded not to abhor Esau's descendants 'or take their land.' Graded explicit_reference because Deuteronomy names Esau, Seir and the Horites. Graded strong, not explicit, following conn-gen19-lot-deuteronomy2: Deuteronomy names the person and the people but does not quote or retell Genesis 36. Deuteronomy 2:4 calls the descendants of Esau 'your brothers,' as Deuteronomy 23:7 later says of 'an Edomite'; that verse is reported in the lesson and is not a separate row.",
+  "sourceId": "source-sefaria-ibn-ezra-gen-36",
+  "viewpointId": null
+}
