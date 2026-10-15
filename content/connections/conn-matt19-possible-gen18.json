@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt19-possible-gen18",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.19.26",
+    "end": "40.19.26"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.18.14",
+    "end": "1.18.14"
+  },
+  "type": "motif",
+  "evidenceLabel": "plausible",
+  "rationale": "Matthew 19:26 says \"With man this is impossible, but with God all things are possible\" (BSB). Genesis 18:14 asks \"Is anything too difficult for the LORD?\" (BSB). In English the two look unlike. In Greek, Matthew has para anthrōpois touto adunaton estin, para de theō panta dunata, and the Septuagint of Genesis 18:14 (Blue Letter Bible text) has mē adunatei para tō theō rhēma: the same root (adunat-, \"impossible\") and the same phrase \"with God\" (para with the dative). The NABRE cross-references on 19:26 list Genesis 18:14, Job 42:2 and Luke 1:37. Job 42:2 in the Septuagint (Swete) reads \"I know that You can do all things\" with panta dunasai and adunatei. The theme also appears at Jeremiah 32:17 and 32:27 and, with the same Greek verb, at Zechariah 8:6 in the Septuagint. So the type is motif, a recurring theme of what only God can do, not allusion: Matthew names no source, the settings differ (a promised son for an aged couple in Genesis; salvation in Matthew), and none of the commentators read for this lesson on Matthew 19:26 draws a line to Genesis 18:14. The Cambridge Bible on Genesis 18:14 hears an echo of that verse in Luke 1:37, not here (see conn-gen18-too-difficult-luke1, graded strong because of shared wording and setting). The label is plausible: the shared Greek root and phrase are real, and a named source (the NABRE cross-references) lists the passage, but no source read here argues that Matthew points to Genesis.",
+  "sourceId": "source-usccb-nabre-notes-matthew-19",
+  "viewpointId": null
+}

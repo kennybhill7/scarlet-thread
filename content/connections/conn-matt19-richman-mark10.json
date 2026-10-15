@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt19-richman-mark10",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.19.16",
+    "end": "40.19.30"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.10.17",
+    "end": "41.10.31"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Mark tells the same scene in the same order: a man asks about eternal life, Jesus lists commandments, tells him to sell and give to the poor, \"and you will have treasure in heaven. Then come, follow Me\" (Matthew 19:21; Mark 10:21, BSB, the same words), and the man goes away \"in sorrow, because he had great wealth\" (Matthew 19:22; Mark 10:22). The camel saying, the question \"Who then can be saved?\" (Matthew 19:25; Mark 10:26), Peter's \"we have left everything,\" the promise of \"a hundredfold\" and the closing \"many who are first will be last, and the last will be first\" (Matthew 19:30; Mark 10:31) all follow. In the New Testament of this app's BSB, \"great wealth\" occurs only in these two verses. The type is parallel and the label strong, not explicit, following conn-matt17-boy-mark9: neither Gospel cites the other. The differences can be checked in the BSB. Mark's man says \"Good Teacher\" and hears \"Why do you call Me good? ... No one is good except God alone\" (10:17-18); Matthew's BSB has \"Teacher\" and \"Why do you ask Me about what is good?\" ... \"There is only One who is good\" (19:16-17), though the Byzantine and Textus Receptus Greek of Matthew read as Mark does (see the lesson's Positions). Mark's list has \"do not cheat others\" and no \"love your neighbor as yourself\"; Matthew's has the reverse. Only Mark says \"Jesus looked at him, loved him\" (10:21). Mark and Luke have \"from my youth\" (Mark 10:20; Luke 18:21), which the critical Greek text of Matthew 19:20 lacks and the Byzantine text has. Only Matthew calls him \"the young man\" (19:20, 19:22) and has \"If you want to be perfect\" (19:21). Mark has the hundredfold \"in the present age ... along with persecutions\" (10:30); Matthew names no time and no persecutions. Only Matthew has the twelve thrones (19:28).",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
