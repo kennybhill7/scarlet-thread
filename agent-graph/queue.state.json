@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-08T20:12:01.160Z",
+  "updatedAt": "2026-10-15T15:44:52.282Z",
   "seededBy": "interactive-claude-session 2026-08-13",
   "lease": {
     "taskId": null,
@@ -1671,6 +1671,78 @@
       "attempts": 1,
       "lastRunId": "a1aa7614424715de6",
       "lastEvidence": "Wave 12 (Matt 18:15-35 forgiveness). Merged into content/next (NOT master; draft) at 77d6d64. Independent read-only adversarial review: 0 S1, 10 S2, 10 S3; all applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge (sibling-safe ids; post-wave URL audit 0 diffs), content:validate, assertion-lint mutation -> genuine FAIL then reverted. Post-wave content/next @ d4990e4: 78/78 lessons, 312 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U40": {
+      "status": "done",
+      "branch": "agent/GEN-U40-claude",
+      "commitSha": "7312a17",
+      "attempts": 1,
+      "lastRunId": "ae1a4d7f6f471a465",
+      "lastEvidence": "Wave 13 (Gen 33 Jacob meets Esau). Merged into content/next (NOT master; draft) at 8f713e5. Independent read-only adversarial review: 0 S1, 6 S2, 12 S3; all applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge (post-wave URL audit 0 diffs), content:validate, assertion-lint mutation -> genuine FAIL then reverted. No browser tools used (rule in force). Post-wave content/next @ 397768f: 86/86 lessons, 346 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U41": {
+      "status": "done",
+      "branch": "agent/GEN-U41-claude",
+      "commitSha": "a1c79af",
+      "attempts": 1,
+      "lastRunId": "a3395407d731a9433",
+      "lastEvidence": "Wave 13 (Gen 34 Dinah (most sensitive lesson; survivor-read review)). Merged into content/next (NOT master; draft) at dc12c32. Independent read-only adversarial review: 1 S1 (Acts 7:16 names Hamor), 5 S2, 14 S3; no victim-blaming found; orchestrator follow-up 397768f; all applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge (post-wave URL audit 0 diffs), content:validate, assertion-lint mutation -> genuine FAIL then reverted. No browser tools used (rule in force). Post-wave content/next @ 397768f: 86/86 lessons, 346 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U42": {
+      "status": "done",
+      "branch": "agent/GEN-U42-claude",
+      "commitSha": "8ab54b9",
+      "attempts": 1,
+      "lastRunId": "a40212e5682a2f2d6",
+      "lastEvidence": "Wave 13 (Gen 35 Bethel, Rachel's death). Merged into content/next (NOT master; draft) at 8ed1ec8. Independent read-only adversarial review: 1 S1 (Bilhah blamed by two verbatim quotes), 4 S2, 7 S3; all applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge (post-wave URL audit 0 diffs), content:validate, assertion-lint mutation -> genuine FAIL then reverted. No browser tools used (rule in force). Post-wave content/next @ 397768f: 86/86 lessons, 346 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "GEN-U43": {
+      "status": "done",
+      "branch": "agent/GEN-U43-claude",
+      "commitSha": "43a45bf",
+      "attempts": 1,
+      "lastRunId": "a8ed34c4ccab2e1aa",
+      "lastEvidence": "Wave 13 (Gen 36 Esau's line / Edom). Merged into content/next (NOT master; draft) at e386635. Independent read-only adversarial review: 0 S1, 8 S2, 10 S3; all applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge (post-wave URL audit 0 diffs), content:validate, assertion-lint mutation -> genuine FAIL then reverted. No browser tools used (rule in force). Post-wave content/next @ 397768f: 86/86 lessons, 346 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U40": {
+      "status": "done",
+      "branch": "agent/MATT-U40-claude",
+      "commitSha": "b509eca",
+      "attempts": 1,
+      "lastRunId": "a6cedcfd82112d0bb",
+      "lastEvidence": "Wave 13 (Matt 19:1-15 divorce / children). Merged into content/next (NOT master; draft) at 3b3656f. Independent read-only adversarial review: 0 S1, 7 S2, 10 S3; all applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge (post-wave URL audit 0 diffs), content:validate, assertion-lint mutation -> genuine FAIL then reverted. No browser tools used (rule in force). Post-wave content/next @ 397768f: 86/86 lessons, 346 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U41": {
+      "status": "done",
+      "branch": "agent/MATT-U41-claude",
+      "commitSha": "27b0746",
+      "attempts": 1,
+      "lastRunId": "a19dc71e3dd265765",
+      "lastEvidence": "Wave 13 (Matt 19:16-30 rich young man). Merged into content/next (NOT master; draft) at 63f5d9b. Independent read-only adversarial review: 0 S1, 9 S2, 13 S3; all applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge (post-wave URL audit 0 diffs), content:validate, assertion-lint mutation -> genuine FAIL then reverted. No browser tools used (rule in force). Post-wave content/next @ 397768f: 86/86 lessons, 346 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U42": {
+      "status": "done",
+      "branch": "agent/MATT-U42-claude",
+      "commitSha": "f1c7328",
+      "attempts": 1,
+      "lastRunId": "a28dd987122c08d24",
+      "lastEvidence": "Wave 13 (Matt 20:1-16 vineyard workers). Merged into content/next (NOT master; draft) at b559c01. Independent read-only adversarial review: 0 S1, 9 S2, 10 S3; all applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge (post-wave URL audit 0 diffs), content:validate, assertion-lint mutation -> genuine FAIL then reverted. No browser tools used (rule in force). Post-wave content/next @ 397768f: 86/86 lessons, 346 connections, full suite 2143 pass / 0 fail.",
+      "notes": "Status draft. Lives on content/next until Ken approves publishing."
+    },
+    "MATT-U43": {
+      "status": "done",
+      "branch": "agent/MATT-U43-claude",
+      "commitSha": "c812a45",
+      "attempts": 1,
+      "lastRunId": "a19a57280fc9d21af",
+      "lastEvidence": "Wave 13 (Matt 20:17-34 ransom / blind men). Merged into content/next (NOT master; draft) at ac12722. Independent read-only adversarial review: 1 S1 (invented first name for H. H. Wendt), 8 S2, 12 S3; all applied in the author 4/4 commit and key fixes verified by grep. Orchestrator checks: bsbcheck2 (all flags confirmed non-BSB), banned-phrase grep, id resolution, registry three-way merge (post-wave URL audit 0 diffs), content:validate, assertion-lint mutation -> genuine FAIL then reverted. No browser tools used (rule in force). Post-wave content/next @ 397768f: 86/86 lessons, 346 connections, full suite 2143 pass / 0 fail.",
       "notes": "Status draft. Lives on content/next until Ken approves publishing."
     }
   }

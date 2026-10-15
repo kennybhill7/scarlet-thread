@@ -1,1 +1,0 @@
-ALTER TABLE "sync_receipts" DROP COLUMN "payload";
