@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt20-cup-matt26",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.20.22",
+    "end": "40.20.23"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.26.39",
+    "end": "40.26.42"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "In 20:22 Jesus asks, \"Can you drink the cup I am going to drink?\" and in 20:23 calls it \"My cup\" (BSB). The next time Matthew has Jesus speak of a cup as His own is in Gethsemane: \"My Father, if it is possible, let this cup pass from Me\" (26:39) and \"if this cup cannot pass unless I drink it\" (26:42). A word-boundary script finds \"cup\" in BSB Matthew in eight verses: 10:42, 20:22, 20:23, 23:25, 23:26, 26:27, 26:39 and 26:42. Only 20:22-23 and 26:39-42 speak of a cup Jesus Himself must drink; 26:27 is the cup He gives the disciples at the Supper. In Greek, 20:22 and 26:39 both read to poterion in every edition Bible Hub lists. At 26:42 the Nestle 1904, Westcott-Hort, SBL and Tischendorf editions lack the noun (literally, if this cannot pass unless I drink it), while the Byzantine, Greek Orthodox and Textus Receptus editions have it; the verb \"drink\" stands in all of them. Motif/strong, following conn-matt17-passion-matt16: a checkable recurrence within one Gospel. Older commentators set 20:22 beside Old Testament cup imagery (Psalm 75:8, Isaiah 51:17, Jeremiah 25:15 and others, in Barnes, Poole, Ellicott and the Pulpit Commentary), but they list many such texts, so this lesson does not author a row to any one of them.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
