@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen33-embrace-luke15-20",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.33.4",
+    "end": "1.33.4"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.15.20",
+    "end": "42.15.20"
+  },
+  "type": "motif",
+  "evidenceLabel": "plausible",
+  "rationale": "Esau \"ran to him and embraced him, threw his arms around his neck, and kissed him\" (Genesis 33:4, BSB); the father in the parable \"ran to his son, embraced him, and kissed him\" (Luke 15:20, BSB). Two named readers link the verses: Gill on Genesis 33:4 says Esau made haste to meet Jacob \"as did the father of the prodigal, Luke 15:20,\" and the Cambridge Bible on Luke 15:20 glosses \"kissed him\" as \"Literally, ‘kissed him warmly or closely,’ Genesis 33:4.\" The Greek shows a shared pattern of verbs but not shared wording. The Septuagint of 33:4 (Swete) has prosedramen (ran up), perilabon auton ephilesen (embracing him, kissed) and prosepesen epi ton trachelon autou (fell on his neck); Luke has dramon epepesen epi ton trachelon autou kai katephilesen auton, the same in every edition Bible Hub lists. The BSB’s \"embraced him\" in Luke renders \"fell on his neck.\" Luke’s exact phrase epepesen epi ton trachelon autou matches the Septuagint of Genesis 46:29 (Joseph meeting his father), not 33:4; Laban’s welcome of Jacob (29:13) has edramen and perilabon auton ephilesen; and Acts 20:37 uses the same neck-and-kiss idiom of Paul’s farewell. Graded motif, following conn-gen24-well-john4, because what is shared is a scene pattern (a running welcome, an embrace on the neck, a kiss) checkable in the Greek and named by two commentators. Graded plausible, following conn-gen30-reproach-luke1, because the language is a recurring idiom of reunion, and the evidence does not show that Luke had Esau in view. Neither commentator argues that he did.",
+  "sourceId": "source-biblehub-commentary-gen-33-4",
+  "viewpointId": null
+}
