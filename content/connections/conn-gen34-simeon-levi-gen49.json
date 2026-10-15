@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen34-simeon-levi-gen49",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.34.25",
+    "end": "1.34.30"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.49.5",
+    "end": "1.49.7"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "Jacob's last words name the same two sons and their violence. At Shechem, 'two of Jacob's sons (Dinah's brothers Simeon and Levi) took their swords, went into the unsuspecting city, and slaughtered every male' (34:25, BSB), and Jacob rebukes 'Simeon and Levi' (34:30). On his deathbed: 'Simeon and Levi are brothers; their swords are weapons of violence ... For they kill men in their anger ... Cursed be their anger, for it is strong, and their wrath, for it is cruel! I will disperse them in Jacob and scatter them in Israel' (49:5-7). A script scan of this app's BSB finds 'Simeon and Levi' in exactly three verses (34:25, 34:30, 49:5) and 'their swords' in Genesis only at 34:25, 34:26 and 49:5. Named readers make the link: Rashi on 49:6 says 'in their wrath they slew a man' 'refers to Hamor and the people of Shechem'; Ramban on 34:13 reads 49:5-7 as Jacob cursing 'the wrath of Simeon and Levi' for the killing; Keil and Delitzsch on 34:30 call 'his last words concerning Simeon and Levi (Genesis 49:5-7)' a 'sufficient proof' that Jacob abhorred the deed. Graded explicit_reference because 49:5-7 names the two men and their killing. It is strong rather than explicit, following conn-gen26-hittite-wives-gen27, because 49:5-7 names neither Shechem nor Dinah, the Cambridge Bible on 49:5 says only that reference to the massacre is 'possibly here made', and 49:6 adds that they 'hamstring oxen on a whim', which has no counterpart in Genesis 34 (where 34:28 has the herds taken). The row records that Jacob later judges the act; how readers weigh that judgment against 34:31 is the lesson's Position 3, not settled here.",
+  "sourceId": "source-biblehub-commentary-gen-49-5",
+  "viewpointId": null
+}

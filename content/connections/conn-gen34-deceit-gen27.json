@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen34-deceit-gen27",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.34.13",
+    "end": "1.34.13"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.27.35",
+    "end": "1.27.35"
+  },
+  "type": "motif",
+  "evidenceLabel": "plausible",
+  "rationale": "Jacob's sons 'answered him and his father Hamor deceitfully' (34:13, BSB), as Isaac had said of Jacob, 'Your brother came deceitfully and took your blessing' (27:35). In this app's BSB, 'deceitfully' occurs in Genesis only in these two verses (script scan, case-insensitive, word boundaries). Bible Hub's interlinear shows the same Hebrew phrase in both, bemirmah ('with deceit', Strong's 4820), and Bible Hub's concordance for 4820 lists no other occurrence in Genesis. Two readers connect the sons' craft with their father's without citing 27:35: Keil and Delitzsch on 34:31 write that 'The crafty character of Jacob degenerated into malicious cunning in Simeon and Levi', and the Pulpit Commentary on 34:30 reports Kalisch and Wordsworth as explaining Jacob's mild rebuke by 'a remembrance of his own deceitfulness'. Graded motif at plausible, following conn-gen31-search-gen44 (motif/plausible, a recurring element within Genesis that its readers note only in part): the shared Hebrew phrase is checkable, but no source read for this lesson cites 27:35 at 34:13, and Rashi on 34:13 renders the word 'cleverly' and Gill reports Onkelos and Jonathan as 'with wisdom', which weakens the echo; Gill himself answers that 'the word is never used in a good sense'. The row records a repeated word, not a claim that Genesis presents the sons' deceit as Jacob's repayment.",
+  "sourceId": "source-biblehub-strongs-4820-mirmah",
+  "viewpointId": null
+}
