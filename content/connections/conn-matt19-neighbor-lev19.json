@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt19-neighbor-lev19",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.19.19",
+    "end": "40.19.19"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "3.19.18",
+    "end": "3.19.18"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "After five commands from the Decalogue, Matthew's list ends \"and love your neighbor as yourself\" (19:19, BSB). Leviticus 19:18 reads \"Do not seek revenge or bear a grudge against any of your people, but love your neighbor as yourself. I am the LORD\" (BSB): the BSB has the same five words. The Greek matches the Septuagint too: Matthew 19:19 reads agapēseis ton plēsion sou hōs seauton in every edition on Bible Hub, and Swete's Septuagint of Leviticus 19:18 has the same words. The command is not one of the Ten, but Jesus gives it as one of \"the commandments\" in answer to \"Which ones?\" (19:17-18), so the type is quotation and the label explicit, the same introducing marker as the Decalogue row (conn-matt19-commandments-exodus20). Matthew alone adds it: Mark 10:19 and Luke 18:20 do not have it. The NABRE note on 19:18-19 says Matthew \"adds Lv 19:18\" and that the combination is \"partially the same as Paul's enumeration\" in Romans 13:9. Calvin reads the added line as \"general explanation\" of the others. The verse is quoted again at Matthew 22:39 and at Matthew 5:43 in a shorter form (\"Love your neighbor\"); those verses are left to their own lessons.",
+  "sourceId": "source-biblehub-texts-greek-matt-19-19",
+  "viewpointId": null
+}

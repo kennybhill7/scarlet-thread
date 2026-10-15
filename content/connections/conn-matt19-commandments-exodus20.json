@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt19-commandments-exodus20",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.19.17",
+    "end": "40.19.19"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "2.20.12",
+    "end": "2.20.16"
+  },
+  "type": "quotation",
+  "evidenceLabel": "explicit",
+  "rationale": "Jesus says \"keep the commandments\" (19:17); the man asks \"Which ones?\"; and Jesus answers with five of the Ten: \"Do not murder, do not commit adultery, do not steal, do not bear false witness, honor your father and mother\" (19:18-19, BSB). Exodus 20:12-16 gives the same five: \"Honor your father and mother,\" \"You shall not murder,\" \"You shall not commit adultery,\" \"You shall not steal,\" \"You shall not bear false witness against your neighbor\" (BSB). The introducing words (\"the commandments\" ... \"Which ones?\") name the source, and in Greek every edition on Bible Hub introduces the list with the article To and uses the Septuagint's own future forms (Ou phoneuseis, Ou moicheuseis, Ou klepseis, Ou pseudomarturēseis), so the type is quotation and the label explicit, following conn-matt5-murder-exodus20 and conn-matt15-honor-exodus20. The wording is shortened: no \"against your neighbor,\" and the honor command without its promise. Murder, adultery and theft come in the order of the BSB's Exodus 20 and Deuteronomy 5, and honoring parents comes last; Swete's Septuagint has adultery, theft, murder at Exodus 20:13-15 and adultery, murder, theft at Deuteronomy 5:17-19. Calvin says that placing the honor command last \"is of no consequence\" and that Jesus names \"the second table only\" because \"from the duties of charity the disposition of every man is better ascertained.\" The same commands stand at Deuteronomy 5:16-20, which this row does not separately target; Exodus is used as the first giving in canonical order, not as a claim about which text Jesus had in view. The NABRE note on 19:18-19 gives both. Matthew 15:4 quoted the honor command earlier (conn-matt15-honor-exodus20).",
+  "sourceId": "source-biblehub-texts-greek-matt-19-18",
+  "viewpointId": null
+}

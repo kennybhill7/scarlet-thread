@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt19-richman-luke18",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.19.16",
+    "end": "40.19.30"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.18.18",
+    "end": "42.18.30"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Luke has the same exchange in the same order: the question about eternal life, the commandments, \"Sell everything you own and give to the poor, and you will have treasure in heaven. Then come, follow Me\" (Luke 18:22, BSB), the man's sadness \"because he was extremely wealthy\" (18:23), the camel and \"the eye of a needle\" (18:25), \"Who then can be saved?\" (18:26), and Peter's \"we have left all we had to follow You\" (18:28). In this app's BSB the phrase \"eye of a needle\" occurs only in Matthew 19:24, Mark 10:25 and Luke 18:25. The type is parallel and the label strong, not explicit, following conn-matt16-confession-luke9: neither Gospel cites the other. Luke's differences can be checked. Only Luke calls the man \"a certain ruler\" (18:18); only Matthew calls him \"the young man\" (Matthew 19:20, 19:22); so the familiar title \"rich young ruler\" combines two Gospels. Luke's man says \"Good Teacher\" and hears \"Why do you call Me good?\" (18:18-19), as in Mark. Luke's list puts adultery before murder (18:20), the order of Swete's Septuagint at Deuteronomy 5:17-18; Matthew keeps murder first. Luke has no \"love your neighbor as yourself\" and no \"If you want to be perfect.\" Luke's promise is \"many times more in this age\" (18:30), with no \"hundredfold\" and no twelve thrones; Luke has a saying about the Twelve on thrones at another point, at the Last Supper (22:28-30). Luke has no \"first will be last\" here (he has it at 13:30).",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
