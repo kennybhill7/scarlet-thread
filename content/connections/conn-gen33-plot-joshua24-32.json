@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen33-plot-joshua24-32",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.33.18",
+    "end": "1.33.19"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "6.24.32",
+    "end": "6.24.32"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Joshua 24:32 names the purchase of Genesis 33:19 and repeats its terms: Joseph’s bones \"were buried at Shechem in the plot of land that Jacob had purchased from the sons of Hamor, Shechem’s father, for a hundred pieces of silver\" (BSB). Genesis 33:19 has \"he purchased from the sons of Hamor, Shechem’s father, for a hundred pieces of silver.\" In the BSB \"hundred pieces of silver\" occurs only in these two verses (script count). The Hebrew on Sefaria shares the buyer’s verb (qanah), \"the plot of the field\" (chelqat ha-sadeh), and the five-word run bene Chamor avi Shekhem be-me’ah qesitah; Poole and the Cambridge Bible on Genesis 33:19 note that the coin word qesitah (Strong’s 7192) occurs only there, here and in Job 42:11. The Cambridge Bible on Joshua 24:32 cites Genesis 33:19 for the plot, and Keil and Delitzsch there say it was chosen for Joseph’s burial \"not only because Jacob had purchased it, but in all probability chiefly because Jacob had sanctified it for his descendants by building an altar there (Genesis 33:20).\" Graded explicit_reference at explicit, following conn-gen23-machpelah-gen49, because the later passage names the buyer, the sellers, the place and the price; it is not quotation because Joshua restates rather than quotes. Joshua’s last clause, \"So it became an inheritance for Joseph’s descendants,\" goes beyond Genesis 33 and is read by commentators together with Genesis 48:22. Acts 7:16 names the same sellers at Shechem under Abraham’s name; that difficulty is handled in conn-gen23-tomb-acts7-16.",
+  "sourceId": "source-biblehub-commentary-joshua-24-32",
+  "viewpointId": null
+}

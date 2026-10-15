@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen27-bow-gen33-3",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.27.29",
+    "end": "1.27.29"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.33.3",
+    "end": "1.33.7"
+  },
+  "type": "contrast_reversal",
+  "evidenceLabel": "plausible",
+  "rationale": "Isaac’s blessing on Jacob says, \"may the sons of your mother bow down to you\" (27:29, BSB). Twenty years later Jacob \"bowed to the ground seven times as he approached his brother\" (33:3), and his household \"bowed down\" (33:6-7). The English link is loose (\"bow down\" against \"bowed\"), but the Hebrew on Sefaria has the same verb (hishtachavah, Strong’s 7812 in Bible Hub’s interlinear for 27:29 and 33:3) twice in 27:29 and four times in Genesis 33: at 33:3, 33:6 and twice in 33:7 (script count). The blessing’s \"master of your brothers\" (gevir, Strong’s 1376) is a different word from the \"my lord\" (adoni) Jacob uses to Esau. A named reader draws the contrast: Calvin, on 27:40, says Jacob \"was so far from having obtained dominion over his brother, that on his return from Padan-aram, he suppliantly tendered him his obedience,\" and on 33:3 he states the objection that Jacob thereby \"depreciated his right of primogeniture\" and answers it (see the lesson’s Positions 3). Graded contrast_reversal, following conn-gen18-righteous-few-ezekiel14, because the later scene inverts the earlier wording with the same verb. Graded plausible, not strong, because Genesis 33 does not refer back to the blessing, the verb is a common one for bowing (Abraham to the Hittites, 23:7; Joseph’s brothers, 42:6), and readers differ on whether the bowing undoes, defers or has nothing to do with the blessing. The row records the inversion and does not decide that question.",
+  "sourceId": "source-calvin-commentary-genesis-33-biblehub",
+  "viewpointId": null
+}

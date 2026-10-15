@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen33-plot-john4-5",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.33.18",
+    "end": "1.33.19"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "43.4.5",
+    "end": "43.4.6"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "John places Jesus at \"a town of Samaria called Sychar, near the plot of ground that Jacob had given to his son Joseph,\" where \"Jacob’s well was\" (John 4:5-6, BSB). The narrator names Jacob, Joseph and a plot of land near Shechem’s region, which in the Old Testament can only be the field Jacob bought there (Genesis 33:18-19). In the BSB \"plot of ground\" is shared by Genesis 33:19 and John 4:5; the Greek is not shared, since John has chorion and the Septuagint of 33:19 has ten merida tou agrou (Swete, on Bible Hub). John’s clause is the same in every Greek edition Bible Hub lists, apart from an article before Joseph’s name in the SBL and Westcott-Hort texts. Commentators on John 4:5 tie the verse to Genesis: the Cambridge Bible cites \"Genesis 33:19; Genesis 48:22; Joshua 24:32\" (though its note says \"Abraham bought the ground,\" where Genesis 33:19 names Jacob); Barnes, Poole and Gill cite 33:19; Ellicott says \"The reference is to the blessing of Joseph in Genesis 48:22\" and recalls the altar of 33:18-20. Graded explicit_reference because John names Jacob and the plot. Graded strong rather than explicit, following conn-gen23-tomb-acts7-16 and conn-gen17-patriarchs-john7-22, because what John names is a gift to Joseph: Genesis records the purchase (33:19) and a separate gift of a \"ridge of land\" (Hebrew shekhem, rendered Sikima in the Septuagint) to Joseph (48:22), and Joshua 24:32 is the text that joins plot and inheritance. Genesis never mentions a well at Shechem (no \"well\" in Genesis 33 by script count); \"Jacob’s well\" is John’s, and its link to this purchase rests on location and later tradition: Keil on Genesis 33:19 says the well \"is still pointed out\" in that plain, and the Pulpit Commentary says Jacob \"afterwards sank a well\" in the field.",
+  "sourceId": "source-biblehub-commentary-john-4-5",
+  "viewpointId": null
+}
