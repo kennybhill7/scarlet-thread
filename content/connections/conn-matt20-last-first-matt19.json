@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt20-last-first-matt19",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.20.16",
+    "end": "40.20.16"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.19.30",
+    "end": "40.19.30"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "Matthew 19:30 reads, \"But many who are first will be last, and the last will be first\" (BSB), and the parable that follows ends, \"So the last will be first, and the first will be last\" (20:16, BSB): the same saying with its two halves in reverse order. In Greek the four words are the same in every edition Bible Hub lists (πρῶτοι ἔσχατοι καὶ ἔσχατοι πρῶτοι at 19:30; οἱ ἔσχατοι πρῶτοι καὶ οἱ πρῶτοι ἔσχατοι at 20:16). A case-insensitive, word-boundary script over this app's BSB finds \"first will be last\" in four verses only (Matthew 19:30 and 20:16, Mark 10:31, Luke 13:30), so within Matthew the saying occurs only at these two places, around one parable. Matthew joins them himself: 20:1 opens with \"For\" (γάρ), and Meyer reads that word as \"explaining and confirming what has been said in Matthew 19:30,\" Haydock notes that \"The participle for, is found in the Greek, and connects the present parable with the last verse of the preceding chapter,\" and the Pulpit Commentary calls it a frame, ending \"with the saying with which it began.\" A recurrence within one Gospel is motif (conn-matt16-leaven-matt13, conn-matt18-forgive-matt6), and the verbatim Greek plus Matthew's own connective is why the label is strong. The row does not decide what the saying means or whom it describes; that is reported in the lesson's Positions, and Chrysostom notes that the parable shows the first and last made equal rather than reversed. The synoptic parallels (Mark 10:31 for 19:30, Luke 13:30) are left to the lesson on Matthew 19.",
+  "sourceId": "source-biblehub-commentary-matt-20-1",
+  "viewpointId": null
+}
