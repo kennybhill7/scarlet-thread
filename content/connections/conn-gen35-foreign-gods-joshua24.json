@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen35-foreign-gods-joshua24",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.35.2",
+    "end": "1.35.4"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "6.24.23",
+    "end": "6.24.26"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "Jacob tells his household, 'Get rid of the foreign gods that are among you' (Genesis 35:2, BSB), and buries what they hand over 'under the oak near Shechem' (35:4). At Shechem Joshua tells Israel, 'get rid of the foreign gods among you and incline your hearts to the LORD, the God of Israel' (Joshua 24:23), and sets up a stone 'there under the oak that was near the sanctuary of the LORD' (24:26; 'there at Shechem', 24:25). By a script count over this app's BSB, 'foreign gods' occurs in 13 verses, and the full phrase 'get rid of the foreign gods' only in Genesis 35:2 and Joshua 24:23. Bible Hub's interlinear shows the same Hebrew command and object in both, hasiru et elohei hanekhar (glossed word by word as remove, gods, the foreign), with different words for 'among you' (betokhekhem in Genesis, beqirbekhem in Joshua), and two pointings of the word for the tree (ha'elah, Strong's 424, in Genesis 35:4; ha'allah, 427, in Joshua 24:26). Named readers draw the line: the Cambridge Bible on 35:2 cites Joshua 24:23, 'words which were also spoken at Shechem', and on 35:4 says 'It is noteworthy that Joshua, under the same \"oak\" of Shechem (Joshua 24:26), testified against the primitive worship of strange gods'; Keil and Delitzsch on 35:4 call the tree 'probably the very tree under which Abraham once pitched his tent (Genesis 12:6), and which was regarded as a sacred place in Joshua's time (vid., Joshua 24:26, though the pointing is אלּה there).' Gill on 35:4 notes that 'Some take this oak to be the same with that mentioned in Joshua 24:26; but of that there can be no certainty.' Graded motif rather than allusion or explicit_reference, following conn-gen31-household-gods-gen35 (a recurring element that published readers trace), because Joshua 24 does not name Jacob or refer to his burial of the gods. Graded strong rather than plausible because the shared command, place and tree can be checked in both texts and two named commentators make the comparison; whether the tree is the same tree is left open, as Gill leaves it. Distinct from conn-gen31-god-of-nahor-joshua24, which links Genesis 31:53 to Joshua 24:2-15.",
+  "sourceId": "source-biblehub-commentary-gen-35-4",
+  "viewpointId": null
+}

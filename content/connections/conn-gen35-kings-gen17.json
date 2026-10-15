@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen35-kings-gen17",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.35.11",
+    "end": "1.35.11"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.17.6",
+    "end": "1.17.6"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "At Bethel God tells Jacob, 'I am God Almighty. Be fruitful and multiply. A nation—even a company of nations—shall come from you, and kings shall descend from you' (Genesis 35:11, BSB). To Abraham He had said, 'I will make you exceedingly fruitful; I will make nations of you, and kings will descend from you' (17:6), after naming Himself 'God Almighty' (17:1). By a script count over this app's BSB, 'kings will descend' (17:6) and 'kings shall descend' (35:11) occur in these two verses only, and 'kings' occurs in Genesis only at 14:5, 14:9, 14:10, 14:11 and 14:17 (the war of the kings), 17:6, 17:16, 35:11 and 36:31. The match is closer in English than in Hebrew: Bible Hub's interlinear glosses 17:6 as kings, from you (mimmekha), shall come out, but 35:11 as kings, from your loins (mechalatsekha), will come out. 'Be fruitful and multiply' is a commoner formula (11 verses in the BSB, from Genesis 1:22 and 1:28 on), so it is not the evidence for this row. The Pulpit Commentary on 35:11 cross-refers 'kings shall come out of thy loins (cf. Genesis 17:6, 16)', and Ellicott on 35:11 notes that El Shaddai is 'the name by which God had entered into the covenant with Abraham (Genesis 17:1).' Graded motif, following conn-gen31-household-gods-gen35 (a recurring element traced by named readers), because 35:11 does not cite Abraham's promise; the next verse names Abraham only for the land. Graded strong because the shared title, promise and rare phrase are checkable. Distinct from conn-gen28-blessing-of-abraham-gen17, which links Isaac's blessing in 28:3-4 to Genesis 17. Readers differ on which kings are meant: Genesis Rabbah 82:4 records 'Yerovam and Yehu' and 'Saul and Ish Boshet'; Rashi follows the second; Targum Pseudo-Jonathan has 'two kings'. The row makes no claim about any later king.",
+  "sourceId": "source-biblehub-commentary-gen-35-11",
+  "viewpointId": null
+}

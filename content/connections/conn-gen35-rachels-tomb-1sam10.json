@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen35-rachels-tomb-1sam10",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.35.19",
+    "end": "1.35.20"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "9.10.2",
+    "end": "9.10.2"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "Genesis 35:20 says Jacob's pillar 'marks Rachel’s tomb to this day' (BSB), and Samuel tells Saul, 'you will find two men at Rachel’s tomb in Zelzah on the border of Benjamin' (1 Samuel 10:2). By a script count over this app's BSB, 'Rachel's tomb' occurs in these two verses only. Rashbam on 35:20 identifies the pillar as 'the one Samuel referred to' in 1 Samuel 10:2; Ellicott on 35:20 writes that 'Its site was known in the days of Samuel (1Samuel 10:2)'; Benson and the Pulpit Commentary on 35:20 make the same link. Graded explicit_reference at explicit, following conn-gen23-machpelah-gen49 (a later passage that names a burial place Genesis establishes), because 1 Samuel names the grave by Rachel's name. The row does not settle where the grave was. Readers disagree whether 'on the border of Benjamin' fits a grave on 'the way to Ephrath (that is, Bethlehem)' (35:19): Genesis Rabbah 82:9 records a heretic pressing exactly this objection and Rabbi Yonatan's answer; Poole on 1 Samuel 10:2 says the grave 'might be either in Judah or in Benjamin; for the possessions of those two tribes were bordering upon one another'; the Cambridge Bible on 1 Samuel 10:2 says the traditional site 'is at least 4 miles S. of the southern border of Benjamin' and reports Thenius's view that 'that is, Bethlehem' is 'a mistaken gloss.' The lesson reports these readings in Positions; this row claims only that both texts name the same grave.",
+  "sourceId": "source-biblehub-commentary-1-samuel-10-2",
+  "viewpointId": null
+}

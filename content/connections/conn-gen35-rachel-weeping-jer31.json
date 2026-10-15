@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen35-rachel-weeping-jer31",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.35.16",
+    "end": "1.35.20"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "24.31.15",
+    "end": "24.31.17"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "Jeremiah names Rachel as a mother weeping for her children: 'A voice is heard in Ramah, mourning and great weeping, Rachel weeping for her children, and refusing to be comforted, because they are no more' (Jeremiah 31:15, BSB), and the next two verses promise that 'your children will return' (31:16-17). Genesis tells Rachel's death in childbirth and burial: 'with her last breath ... she named him Ben-oni' (35:18), 'So Rachel died and was buried on the way to Ephrath' (35:19), and Jacob's pillar 'marks Rachel’s tomb to this day' (35:20). By a script count over this app's BSB, Rachel is named in 47 verses; outside Genesis only at Ruth 4:11, 1 Samuel 10:2, Jeremiah 31:15 and Matthew 2:18. Named readers join the two passages. Genesis Rabbah 82:10 says Jacob buried her on the way to Ephrath because 'the exiles were destined to pass there,' 'so she would ask for mercy upon them,' and quotes Jeremiah 31:15. Jamieson-Fausset-Brown on Jeremiah 31:15 writes of Rachel, 'who died with \"sorrow\" in giving birth to Benjamin (Ge 35:18, 19 ...)', and Tikva Frymer-Kensky (Jewish Women's Archive, 'Rachel: Bible') writes that after the northern exile 'Rachel was remembered as the classic mother who mourns and intercedes for her children.' Graded explicit_reference, following conn-gen28-bethel-hosea12 (a later prophet who names the patriarch but leaves which earlier scene is meant to the reader), because Jeremiah names Rachel. Graded strong rather than explicit for two reasons: Jeremiah names neither her death, her son nor her grave, and the place he names, Ramah, is not the place Genesis 35:19 names, a disagreement the lesson reports as a crux (Ramban reads 'in Ramah' as a figure for a voice heard from a height; the Cambridge Bible on Jeremiah 31:15 treats 'the same is Bethlehem' in Genesis 35:19 as probably a gloss). This row is distinct from conn-matt2-jeremiah-rachel, which links Matthew 2:17-18 to the same Jeremiah verses; this row links the Genesis death and burial to Jeremiah and claims nothing about Matthew's use of the verse.",
+  "sourceId": "source-sefaria-genesis-rabbah-82",
+  "viewpointId": null
+}
