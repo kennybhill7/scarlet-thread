@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt19-divorce-mark10",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.19.1",
+    "end": "40.19.15"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.10.1",
+    "end": "41.10.16"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Mark tells the same two scenes in the same order and setting. Jesus goes into \"the region of Judea\" beyond the Jordan (Mark 10:1; Matthew 19:1), Pharisees come to test Him about divorce, He quotes \"male and female\" and \"the two will become one flesh,\" and He ends with \"what God has joined together, let man not separate\" (identical in the BSB at Matthew 19:6 and Mark 10:9). Then the little children are brought for Him to place His hands on them, the disciples rebuke those who brought them, and Jesus says, \"Let the little children come to Me, and do not hinder them!\" (identical in the BSB at Matthew 19:14 and Mark 10:14). The type is parallel and the label strong, not explicit, following conn-matt16-confession-mark8: neither Gospel cites the other. The differences can be checked in the BSB. Mark's saying has no exception: \"Whoever divorces his wife and marries another woman commits adultery against her\" (10:11). Mark adds the case of a woman who \"divorces her husband\" (10:12) and sets the saying \"inside the house\" (10:10). In Mark, Jesus asks, \"What did Moses command you?\" and the Pharisees answer \"Moses permitted\" (10:3-4); in Matthew the Pharisees say Moses did \"order\" and Jesus answers \"Moses permitted\" (19:7-8). Mark has nothing matching Matthew 19:10-12, which the Catholic NABRE notes call \"peculiar to Matthew.\" Only Mark says Jesus \"was indignant\" and \"took the children in His arms\" (10:14, 10:16), and adds the saying about receiving the kingdom \"like a little child\" (10:15).",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}

@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt19-exception-matt5",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.19.9",
+    "end": "40.19.9"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.5.31",
+    "end": "40.5.32"
+  },
+  "type": "motif",
+  "evidenceLabel": "strong",
+  "rationale": "Matthew gives Jesus' divorce saying twice, and both times with an exception. In this app's BSB, \"except for sexual immorality\" occurs only at Matthew 5:32 and 19:9 (script search), and neither Mark 10:11 nor Luke 16:18 has it. The Greek is not the same: at 5:32 all nine editions Bible Hub lists read parektos logou porneias; at 19:9 seven read me epi porneia and the two Textus Receptus editions read ei me epi porneia. The Catholic NABRE notes say the clause \"occurs also in Mt 19:9, where the Greek is slightly different.\" The sayings also end differently: at 5:32 the man who divorces \"brings adultery upon her\"; at 19:9 the man who divorces \"and marries another woman, commits adultery\" (BSB). The type is motif and the label strong, following conn-matt18-handeye-matt5 (Matthew repeating his own saying, with changes): the shared clause is on the page, but Matthew does not say he is repeating himself. What the exception permits is the dispute reported in this lesson and in lesson 11, not part of this grade.",
+  "sourceId": "source-biblehub-texts-greek-matt-19-9",
+  "viewpointId": null
+}

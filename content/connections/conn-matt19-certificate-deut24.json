@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt19-certificate-deut24",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.19.7",
+    "end": "40.19.8"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "5.24.1",
+    "end": "5.24.1"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "explicit",
+  "rationale": "The Pharisees name Moses and his provision: \"Why then did Moses order a man to give his wife a certificate of divorce and send her away?\" (19:7, BSB), and Jesus answers, \"Moses permitted you to divorce your wives\" (19:8). Deuteronomy 24:1 is the law they mean: a man \"may write her a certificate of divorce, hand it to her, and send her away from his house\" (BSB). In this app's BSB, \"certificate of divorce\" occurs only at Deuteronomy 24:1 and 24:3, Isaiah 50:1, Jeremiah 3:8, Matthew 5:31, Matthew 19:7 and Mark 10:4 (script search). In Greek, every edition Bible Hub lists for 19:7 has biblion apostasiou, the phrase Swete's Septuagint uses at Deuteronomy 24:1. The verse is summarized, not quoted, and has no citation formula, so the type is explicit_reference rather than quotation, following conn-matt8-leper-leviticus14 (Jesus names a Mosaic provision without quoting it). The label is explicit because the speakers name Moses and the shared phrase leaves no doubt which law is meant. Lesson 11 reports the same law behind Matthew 5:31 without authoring a row.",
+  "sourceId": "source-biblehub-sepd-deuteronomy-24",
+  "viewpointId": null
+}
