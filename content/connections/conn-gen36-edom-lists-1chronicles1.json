@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen36-edom-lists-1chronicles1",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.36.10",
+    "end": "1.36.43"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "13.1.35",
+    "end": "13.1.54"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "1 Chronicles 1:35-54 repeats Genesis 36:10-43 in the same order: the sons and grandsons of Esau, the sons of Seir, the eight kings, and the eleven chiefs. By a script comparison of the BSB, every personal and place name in Genesis 36:10-43 recurs in 1 Chronicles 1:35-54 except the wives Adah and Basemath, whom Chronicles does not name, and Hemam, which Chronicles spells Homam (1:39). The heading of the king list is the same sentence in both books in the BSB, 'These are the kings who reigned in the land of Edom before any king reigned over the Israelites' (Genesis 36:31; 1 Chronicles 1:43), and on Sefaria the Hebrew of the heading has the same consonants and vowels in both (only the cantillation marks differ). Keil calls 1:43-50 'a verbally exact repetition of Genesis 36:31-39' apart from small changes he lists, and Barnes says the Chronicler 'has here, as elsewhere, abridged from Genesis.' The Chronicler adds one clause that Genesis lacks, 'Then Hadad died' (1:51), which Keil and Ellicott use in dating the Genesis list (the lesson reports this). Graded parallel at strong, following conn-gen11-shemtoabram-luke3: the names and order correspond almost completely, but Chronicles gives no citation formula and does not name Genesis as its source. The Genesis 10 lesson declined a row for 1 Chronicles 1:1-23 on the ground that a repeated list is not by itself worth one; this row is authored because the one added clause bears on a question the lesson reports, not because the list repeats.",
+  "sourceId": "source-biblehub-commentary-1-chronicles-1-43",
+  "viewpointId": null
+}
