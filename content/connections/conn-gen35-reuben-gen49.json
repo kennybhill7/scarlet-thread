@@ -1,0 +1,18 @@
+{
+  "id": "conn-gen35-reuben-gen49",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.35.22",
+    "end": "1.35.22"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "1.49.3",
+    "end": "1.49.4"
+  },
+  "type": "explicit_reference",
+  "evidenceLabel": "strong",
+  "rationale": "Genesis 35:22 reports that 'Reuben went in and slept with his father’s concubine Bilhah, and Israel heard about it' (BSB). On his deathbed Jacob addresses Reuben as 'my firstborn' and tells him, 'you will no longer excel, because you went up to your father’s bed, onto my couch, and defiled it' (49:3-4). 1 Chronicles 5:1 gives the same reason for the loss of the birthright: 'because Reuben defiled his father’s bed.' By a script count over this app's BSB, 'father's bed' occurs only in Genesis 49:4 and 1 Chronicles 5:1. Readers on every side of the dispute over what Reuben did read 49:4 as referring to 35:22: Rashbam on 35:22 says the matter 'has been reported only so that we can understand' 49:4; Keil and Delitzsch on 49:4 write, 'His crime was, lying with Bilhah, his father's concubine (Genesis 35:22)'; the Pulpit Commentary on 35:22 cites 49:4 and 1 Chronicles 5:1; and Shabbat 55b, which holds that Reuben only rearranged the bed, expounds 49:4 in support of that reading. Graded explicit_reference, following conn-gen25-died-in-faith-hebrews11 (a later text that names the person and refers to the event without quoting it), because Jacob names Reuben and the act. Graded strong rather than explicit because neither 49:4 nor 1 Chronicles 5:1 uses 35:22's wording or names Bilhah. The row tracks the reference; what Reuben did, and how Bilhah is to be understood, are reported in the lesson's Positions, and the row takes no side.",
+  "sourceId": "source-sefaria-rashbam-gen-35",
+  "viewpointId": null
+}
