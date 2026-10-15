@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt20-jericho-luke18",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.20.17",
+    "end": "40.20.34"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "42.18.31",
+    "end": "42.18.43"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Luke 18:31-43 has two of Matthew's three scenes in the same order: the third Passion prediction to the Twelve, then a blind man by the road near Jericho who cries out to the \"Son of David\" and receives his sight. The prediction opens with the same words in the BSB, \"Look, we are going up to Jerusalem\" (Matthew 20:18; Luke 18:31), and both name the Gentiles, mocking, flogging and the third day. The blind man's exchange with Jesus is close too: \"What do you want Me to do for you?\" (Luke 18:41; Matthew 20:32). The type is parallel and the label strong, following conn-matt16-confession-luke9: neither Gospel cites the other, and the order and wording match. The range on the Matthew side includes 20:20-28, which Luke does not have at this point. Augustine (Harmony of the Gospels 2.64) notes that Luke \"leaves unnoticed\" the request and gives \"something of the same tenor\" on service elsewhere (Luke 22:24-27, where \"lord it over them\" recurs in the BSB). Luke's differences are checkable: he adds that \"everything the prophets have written about the Son of Man will be fulfilled\" and that the disciples \"did not understand any of these things\" (18:31, 34). His healing happens \"As Jesus drew near to Jericho\" (18:35), with one man, where Matthew has two men \"As they were leaving Jericho\" (20:29-30). Augustine reads Luke's account as a separate, similar miracle; other readers do not. The lesson's Positions reports them.",
+  "sourceId": "source-augustine-harmony-gospels-2-64",
+  "viewpointId": null
+}

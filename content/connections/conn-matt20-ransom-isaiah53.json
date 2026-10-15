@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt20-ransom-isaiah53",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.20.28",
+    "end": "40.20.28"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "23.53.10",
+    "end": "23.53.12"
+  },
+  "type": "allusion",
+  "evidenceLabel": "plausible",
+  "rationale": "Matthew 20:28 has no citation formula and names no prophet. The proposed link rests on shared words and ideas. In the BSB, the Servant's soul \"is made a guilt offering\" (Isaiah 53:10), he \"will justify many\" (53:11), \"poured out His life unto death\" and \"bore the sin of many\" (53:12); Jesus says He came \"to give His life as a ransom for many.\" In Swete's Septuagint, Isaiah 53:11-12 uses the same Greek word for \"many\" (pollois, pollon) that Matthew uses (anti pollon). But the most distinctive word, lytron (\"ransom\"), does not occur in Isaiah 53. R. T. France (Tyndale Bulletin 19, 1968), writing on the parallel in Mark 10:45, reports that the Hebrew word for the guilt offering of 53:10 is never translated lytron in the Septuagint. He argues all the same that \"The cumulative effect of these parallels in word and thought between Mark 10:45 and Isaiah 53 is sufficient to demand a deliberate allusion.\" He also reports that Morna Hooker (Jesus and the Servant, 1959) takes lytron as an allusion to the idea of redemption in the second half of Isaiah in general, not to the Servant. Hooker's book was not read; her view is given through France. The Catholic Catechism (601) and the Orthodox Church in America's Orthodox Faith both set Jesus' death beside Isaiah 53. Graded allusion, following conn-matt16-keys-isaiah22 (a formula-less link with shared vocabulary). The label is plausible, not strong as in that row, because the key noun is not shared and a named scholar disputes the link on the evidence. The grade does not settle what \"ransom\" means; that question is in the lesson's Positions.",
+  "sourceId": "source-france-tynbul-1968-servant",
+  "viewpointId": null
+}

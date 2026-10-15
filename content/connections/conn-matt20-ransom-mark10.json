@@ -1,0 +1,18 @@
+{
+  "id": "conn-matt20-ransom-mark10",
+  "fromRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "40.20.17",
+    "end": "40.20.34"
+  },
+  "toRange": {
+    "versificationId": "eng-protestant-66-31102-v1",
+    "start": "41.10.32",
+    "end": "41.10.52"
+  },
+  "type": "parallel",
+  "evidenceLabel": "strong",
+  "rationale": "Mark 10:32-52 tells the same three scenes in the same order on the road to Jerusalem: the third prediction of the Passion, the request for the seats at Jesus' right and left followed by the saying on service and ransom, and a healing of blindness as they leave Jericho. Much of the wording is identical in the BSB: \"Look, we are going up to Jerusalem, and the Son of Man will be delivered over to the chief priests and scribes\" (Matthew 20:18; Mark 10:33); \"You do not know what you are asking\" (Matthew 20:22; Mark 10:38); and \"did not come to be served, but to serve, and to give His life as a ransom for many\" (Matthew 20:28; Mark 10:45). In Greek the ransom clause is the same in every edition Bible Hub lists for both verses; only the opening differs (hosper in Matthew, kai gar in Mark). The type is parallel and the label strong, not explicit, following conn-matt16-confession-mark8: neither Gospel cites the other. The differences are checkable in the BSB. In Mark, James and John make the request themselves (10:35); in Matthew \"the mother of Zebedee's sons\" makes it (20:20). Mark adds \"spit on Him\" and \"after three days\" (10:34), where Matthew has \"crucified\" and \"on the third day\" (20:19). Mark has the cup and the baptism (10:38-39); Matthew has only the cup in the Greek editions the BSB follows. Mark names one blind man, \"Bartimaeus, the son of Timaeus\" (10:46); Matthew has \"two blind men\" (20:30). How readers explain these differences is reported in the lesson's Positions.",
+  "sourceId": "source-bsb-shipped-corpus",
+  "viewpointId": null
+}
